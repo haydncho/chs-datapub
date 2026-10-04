@@ -51,7 +51,7 @@ async function exportOnce(p, content) {
 // ================================================================ C1 县区（钱丽 · 甲县医保局）
 const q = await session('qianli')
 assert.match(q.url(), /\/c1$/)
-assert.deepEqual(await navKeys(q), ['C1'])
+assert.deepEqual(await navKeys(q), ['C1', 'E1'])
 assert.equal(await q.$('[data-testid=zone-tag]'), null)
 await q.waitForSelector('[data-testid=c1-institutions] tbody tr')
 const INST = '[data-testid=c1-institutions]'
@@ -97,7 +97,7 @@ step('C1 身份调用 /api/v1/province/** → 403;前端不渲染无权页面')
 // ================================================================ C2 省级（王磊 · 省医保局）
 const w = await session('wanglei')
 assert.match(w.url(), /\/c2$/)
-assert.deepEqual(await navKeys(w), ['C2'])
+assert.deepEqual(await navKeys(w), ['C2', 'E1'])
 await w.waitForSelector('[data-testid=c2-regions] tbody tr')
 const kpis = await w.textContent('[data-testid=c2-kpis]')
 for (const t of ['7', '/ 8 个统筹区', '统筹区06 逾期 12 天', '92.8%', '较上期 +1.6 pt', '71.0%', '低于 60% 的统筹区 2 个', '3.5%', '1 个统筹区当期赤字']) {

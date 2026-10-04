@@ -59,6 +59,7 @@ export const PAGES: PageDef[] = [
   // ---- 其他角色视图：分组名即角色，一页一组
   { key: 'C1', label: '县区医保视图', group: '县区医保', icon: 'inst', summary: '本县区机构具名数据，其他县区只看汇总与排名', exportable: true },
   { key: 'C2', label: '省级汇总', group: '省级汇总', icon: 'rpt', summary: '各统筹区发布情况与监测汇总，不含机构级字段', exportable: true },
+  { key: 'E1', label: '我的导出', group: '导出', icon: 'rpt', summary: '导出申请的审批进度、有效期与带实名水印的下载；每次下载均留痕' },
   { key: 'C3', label: '外部监督席位', group: '外部监督', icon: 'shield', summary: '有效期内只读查阅发布会材料，不提供下载、打印、导出' },
 ]
 

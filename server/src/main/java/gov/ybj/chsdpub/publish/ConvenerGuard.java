@@ -38,6 +38,11 @@ public class ConvenerGuard {
         return u.name() + " · " + role;
     }
 
+    /** 四眼原则:申请人不能批准自己提交的申请。 */
+    public void requireNotApplicant(AuthUser u, long applicantId, String what) {
+        if (u.userId() == applicantId) throw ApiException.forbidden("申请人不能审批自己提交的" + what + ",请由其他召集人或在其他身份下审批");
+    }
+
     public void record(AuthUser u, String object, String result) {
         audit.record(u, AUDIT_APPROVAL, object, result);
     }

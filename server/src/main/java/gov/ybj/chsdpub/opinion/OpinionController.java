@@ -37,7 +37,7 @@ public class OpinionController {
         LocalDate today = LocalDate.now(zone);
         return jdbc.query("""
                 select no, org, ref, category, owner, due_date, status, content, reply, rating, typical
-                from opinion_ticket order by created_at desc, no desc""", (rs, i) -> {
+                from opinion_ticket order by (status = 'DONE'), due_date nulls last, created_at desc, no desc""", (rs, i) -> {
             String st = rs.getString(7);
             LocalDate due = rs.getObject(6, LocalDate.class);
             String label = "—", tone = "muted";

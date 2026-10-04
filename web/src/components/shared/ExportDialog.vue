@@ -68,7 +68,7 @@ async function submit() {
           <div class="flex gap-1.5"><Chip v-for="p in opts.times" :key="p" :on="p === times" @click="times = p">{{ p }}</Chip></div>
         </div>
         <div class="mx-5 rounded-lg border border-warning-line bg-warning-soft px-3 py-2.5 text-[12px] text-warning-ink">
-          导出文件嵌入实名水印与编号,审批通过后在“我的导出”下载。仅提供专网内下载。
+          导出文件嵌入实名水印与编号;审批通过后在「我的导出」页下载,仅限专网内,下载次数与有效期以审批为准。
         </div>
         <div class="flex justify-end gap-2 px-5 py-4">
           <Button variant="outline" size="sm" @click="open = false">取消</Button>
@@ -80,7 +80,7 @@ async function submit() {
           <div class="text-[15px] font-semibold text-success">✓ 已提交导出审批</div>
           <div class="mt-1.5 text-[12px] text-ink-muted">水印编号 <span class="font-mono text-ink" data-testid="export-wm">{{ wm }}</span> · 审计日志已记录</div>
         </div>
-        <div class="flex justify-end px-5 pb-4"><Button variant="outline" size="sm" @click="open = false">关闭</Button></div>
+        <div class="flex justify-end gap-2 px-5 pb-4"><Button variant="outline" size="sm" @click="open = false">关闭</Button><Button size="sm" as-child><RouterLink to="/e1" @click="open = false">查看我的导出</RouterLink></Button></div>
       </template>
       <div v-else class="px-5 py-10 text-center text-[12px] text-ink-faint">加载中…</div>
     </DialogContent>

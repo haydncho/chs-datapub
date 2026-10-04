@@ -78,7 +78,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/display-policy/**", "/api/v1/benchmark-tiers/**").hasAnyRole(Roles.of("A13"))
                         .requestMatchers("/api/v1/audit/**").hasAnyRole(Roles.of("A14"))
                         // 导出：受控环境与审计员各自导出本页结果，服务端按内容范围再校验
-                        .requestMatchers("/api/v1/exports/**").hasAnyRole(CONVENER, ADMIN_GROUP, ANALYST, AUDITOR, INSTITUTION, COUNTY, PROVINCE)
+                        .requestMatchers("/api/v1/exports/**").hasAnyRole(Roles.of("E1"))
                         .anyRequest().denyAll())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) ->

@@ -30,6 +30,7 @@ const views: Record<string, () => Promise<unknown>> = {
   A12: () => import('@/views/A12PermissionsView.vue'),
   A13: () => import('@/views/A13PolicyView.vue'),
   A14: () => import('@/views/A14AuditView.vue'),
+  E1: () => import('@/views/ExportsView.vue'),
 }
 
 const router = createRouter({

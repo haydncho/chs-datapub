@@ -312,3 +312,23 @@ export interface AuditTrace {
   object: string
   ip?: string
 }
+
+// ---------------------------------------------------------------- 导出记录
+export interface ExportItem {
+  id: number
+  watermarkNo: string
+  content: string
+  purpose: string
+  validity: string
+  times: string
+  /** 待审批 / 已批准 / 已驳回 / 已失效 / 已用尽 */
+  status: string
+  createdAt: string
+  decidedBy?: string
+  opinion?: string
+  expiresAt?: string
+  remaining: number
+  applicant: string
+  org: string
+  downloadable: boolean
+}

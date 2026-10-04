@@ -66,6 +66,7 @@ public class TierApprovalService {
     public Map<String, Object> approve(long id, PublishService.DecisionReq req) {
         AuthUser u = guard.require("发布工作流 · 批准对标档位切换 #" + id);
         TierRequest t = pending(id);
+        guard.requireNotApplicant(u, jdbc.queryForObject("select requested_by from tier_change_request where id = ?", Long.class, id), "档位切换申请");
         String opinion = req == null || Texts.blank(req.opinion()) ? null : Texts.truncate(req.opinion().trim(), 256);
         jdbc.update("update benchmark_tier set tier = ? where indicator = ?", t.toTier(), t.indicator());
         jdbc.update("update tier_change_request set status = 'APPROVED' where id = ?", id);

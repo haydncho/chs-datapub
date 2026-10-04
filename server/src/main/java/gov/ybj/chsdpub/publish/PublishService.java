@@ -337,8 +337,13 @@ public class PublishService {
         FlowRow f = flow(id, true);
         List<Node> ns = nodes(f.templateId());
         if (f.step() > gateIdx(ns)) throw ApiException.conflict("已批准发布,定向范围不可修改;如需调整请发起更正");
+        if (f.step() == gateIdx(ns) && !Roles.CONVENER.equals(CurrentUser.get().role()))
+            throw ApiException.conflict("已提交召集人审批,定向范围已锁定;如需调整请联系召集人");
         Scope s = validScope(req);
         jdbc.update("update pub_flow set scope = ?::jsonb where id = ?", json(s), id);
+        AuthUser su = CurrentUser.get();
+        log(id, ConvenerGuard.who(su), "调整定向范围");
+        audit.record(su, AuditService.CONFIG, "发布工作流 · 调整「" + f.name() + "」定向范围", "已保存");
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("scope", s);
         r.put("coverage", coverage(s));
@@ -448,6 +453,7 @@ public class PublishService {
         moveTo(id, ns, next.idx());
         String what = next.gate() ? "完成「" + cur.name() + "」,提交召集人审批" : "完成「" + cur.name() + "」,提交「" + next.name() + "」";
         log(id, ConvenerGuard.who(u), what);
+        audit.record(u, AuditService.APPROVAL, "发布工作流 · 「" + f.name() + "」" + what, "已提交");
         if (next.gate()) log(id, "系统", "进入第 " + next.idx() + " 步:" + next.name());
         return Map.of("message", next.gate() ? "已提交召集人审批" : "已提交至第 " + next.idx() + " 步「" + next.name() + "」");
     }

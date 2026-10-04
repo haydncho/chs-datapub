@@ -1,5 +1,6 @@
 import { http } from './http'
 import type * as T from './types'
+import type { ExportItem } from './types'
 
 export const authApi = {
   config: () => http.get<T.AuthConfig>('/auth/config'),
@@ -85,4 +86,8 @@ export const exportApi = {
     http.get<{ content: string; purposes: string[]; validity: string[]; times: string[] }>('/exports/options', { scope }),
   request: (body: { scope: string; purpose: string; validity: string; times: string }) =>
     http.post<{ watermarkNo: string; content: string }>('/exports', body),
+  mine: () => http.get<ExportItem[]>('/exports/mine'),
+  pending: () => http.get<ExportItem[]>('/exports/pending'),
+  approve: (id: number, opinion: string) => http.post<ExportItem>(`/exports/${id}/approve`, { opinion }),
+  reject: (id: number, opinion: string) => http.post<ExportItem>(`/exports/${id}/reject`, { opinion }),
 }

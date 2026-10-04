@@ -96,6 +96,7 @@ public class IndicatorApprovalService {
     public Map<String, Object> approve(long draftId, PublishService.DecisionReq req) {
         AuthUser u = guard.require("发布工作流 · 批准指标上线 #" + draftId);
         Row r = pending(draftId);
+        guard.requireNotApplicant(u, jdbc.queryForObject("select created_by from ind_draft where id = ?", Long.class, draftId), "指标上线申请");
         IndicatorRequest q = get(draftId);
         String opinion = req == null || Texts.blank(req.opinion()) ? null : Texts.truncate(req.opinion().trim(), 256);
         jdbc.update("update ind_indicator set status = '已上线', version = 'v1.0', tier = ? where id = ?", q.tier(), r.indicatorId());

@@ -47,6 +47,7 @@ public final class Roles {
         m.put("C1", Set.of(COUNTY));
         m.put("C2", Set.of(PROVINCE));
         m.put("C3", Set.of(SUPERVISOR));
+        m.put("E1", Set.of(CONVENER, ADMIN_GROUP, ANALYST, AUDITOR, INSTITUTION, COUNTY, PROVINCE));
         PAGES = Map.copyOf(m);
     }
 

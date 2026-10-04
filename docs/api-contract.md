@@ -46,6 +46,10 @@
 | | GET | `/audit/trace?wm=` | 未找到 404 |
 | 导出 | GET | `/exports/options?scope=A7\|A14` | 导出内容（只读）与可选项 |
 | | POST | `/exports` | `{scope, purpose, validity, times}` → `{watermarkNo}`；审计「导出」 |
+| | GET | `/exports/mine` | 我的导出申请（状态：待审批 / 已批准 / 已驳回 / 已失效 / 已用尽；有效期、剩余次数） |
+| | GET | `/exports/pending` | 待我审批：召集人审批他人的申请，行政管理组审批召集人的申请 |
+| | POST | `/exports/{id}/approve` · `/reject` | `{opinion}`；驳回意见必填；申请人不能审批自己的申请；审计「审批」 |
+| | GET | `/exports/{id}/download` | 仅申请人、已批准、未过期且有剩余次数；带实名水印的 CSV，每次扣减次数并审计「导出」 |
 
 ## 分析引擎（Python，内网 `/v1`）
 

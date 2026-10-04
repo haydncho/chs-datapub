@@ -119,14 +119,25 @@ function beep() {
     })
   } catch { /* audio unavailable */ }
 }
-function testAlarm() {
+/* 告警由真实的高等级预警触发:当前身份的提醒里有预警/提醒函,且本次会话未确认过 */
+const ACK_KEY = 'yb-alarm-ack'
+function ackedKeys(): string[] {
+  try { return JSON.parse(sessionStorage.getItem(ACK_KEY) ?? '[]') as string[] } catch { return [] }
+}
+const alarmKey = () => `${I.value.id}|${alarm.value.t}`
+function checkAlarm() {
+  if (!alarm.value.t || ackedKeys().includes(alarmKey())) return
+  if (s.alOn) return
   s.alOn = true
   if (s.snd) beep()
 }
 function ackAlarm() {
   s.alOn = false
+  try { sessionStorage.setItem(ACK_KEY, JSON.stringify([...ackedKeys(), alarmKey()])) } catch { /* 无存储时仅本次有效 */ }
   sendAction('cockpit', 'ackAlarm', { identity: I.value.id, type: alarm.value.ty, text: alarm.value.t })
 }
+// 切换身份或收到新的预警内容时重新检查
+watch(() => alarmKey(), () => { s.alOn = false; checkAlarm() })
 
 /* ---------- subscription */
 function saveSub() {
@@ -148,6 +159,7 @@ let ro: ResizeObserver | null = null
 onMounted(() => {
   syncFromQuery()
   replay()
+  checkAlarm()
   iv = setInterval(() => {
     if (s.rot) {
       const n = s.rotT + 1
@@ -205,11 +217,6 @@ const tbOn = 'border-[#3AA0FF] bg-[rgba(58,160,255,.16)] text-[#CFE6FF]'
         {{ s.rot ? `轮播中 · ${rotN - s.rotT}s` : '自动轮播' }}
       </Button>
       <Button variant="dark" :class="tb" @click="s.subOn = true">订阅推送</Button>
-      <Button
-        variant="dark"
-        :class="cn(tb, s.alOn && 'border-[#FF5A4E] bg-[rgba(255,59,48,.18)] text-[#FFB2AA]')"
-        @click="testAlarm"
-      >{{ s.alOn ? '告警中' : '模拟告警' }}</Button>
       <Button variant="dark" :class="cn(tb, !s.snd && 'text-[#6F84A6]')" @click="s.snd = !s.snd">{{ s.snd ? '声音 开' : '声音 关' }}</Button>
       <Button variant="dark" :class="cn(tb, s.dual && tbOn)" @click="toggleDual">{{ s.dual ? '双屏 3840 · 开' : '双屏拼接' }}</Button>
       <Button class="h-8 px-3.5 text-xs" @click="goCast">▶ 投屏模式</Button>

@@ -384,5 +384,5 @@ export const COCKPIT_SEED: CockpitData = {
  * saveSubscription({ identity: IdentityId, frequency: string, contents: string[], channel: string, recipients: string[] })
  *   — 订阅推送 modal「保存订阅」: schedule snapshot/summary pushes for the current identity;
  * ackAlarm({ identity: IdentityId, type: string, text: string })
- *   — alarm banner「确认处置」: acknowledge the (simulated) high-level alert.
+ *   — alarm banner「确认处置」: acknowledge the high-level alert (auto-raised from the identity's live 预警/提醒函 on load, once per session).
  */

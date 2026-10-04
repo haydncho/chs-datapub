@@ -57,7 +57,7 @@ async function trace() {
   }
 }
 
-const typeTone = (t: string): Tone => (t === '越权尝试' ? 'danger' : t === '导出' || t === '打印' ? 'warning' : t === '授权' ? 'ai' : 'muted')
+const typeTone = (t: string): Tone => (t === '越权尝试' ? 'danger' : t === '导出' || t === '打印' ? 'warning' : t === '授权' ? 'ai' : t === '审批' ? 'primary' : 'muted')
 const blocked = (r: string) => r === '已拦截' || r === '已锁定'
 </script>
 

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class ConvenerGuard {
 
     /** 审计日志类型「审批」（A14 的类型芯片目前只有六类，按「全部」可见）。 */
-    public static final String AUDIT_APPROVAL = "审批";
+    public static final String AUDIT_APPROVAL = gov.ybj.chsdpub.audit.AuditService.APPROVAL;
 
     private final AuditService audit;
 

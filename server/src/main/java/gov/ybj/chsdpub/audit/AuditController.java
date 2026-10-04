@@ -19,7 +19,7 @@ import java.util.Map;
 public class AuditController {
 
     public static final List<String> TYPES = List.of("全部", AuditService.LOGIN, AuditService.VIEW, AuditService.EXPORT,
-            AuditService.PRINT, AuditService.GRANT, AuditService.OVERREACH);
+            AuditService.PRINT, AuditService.GRANT, AuditService.APPROVAL, AuditService.OVERREACH);
     private static final DateTimeFormatter MDHM = DateTimeFormatter.ofPattern("MM-dd HH:mm");
     private static final DateTimeFormatter FULL = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 

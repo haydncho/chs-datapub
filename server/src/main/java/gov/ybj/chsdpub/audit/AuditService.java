@@ -28,6 +28,7 @@ public class AuditService {
     public static final String PRINT = "打印";
     public static final String GRANT = "授权";
     public static final String OVERREACH = "越权尝试";
+    public static final String APPROVAL = "审批";
 
     private static final DateTimeFormatter YMD = DateTimeFormatter.BASIC_ISO_DATE;
 

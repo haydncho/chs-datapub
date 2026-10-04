@@ -147,7 +147,7 @@ await h.waitForSelector('[data-testid=bubble-chart] [data-code=BR25]')
 assert.equal(await text(h, '[data-testid=org-name]'), '示例市第一人民医院')
 assert.equal(await h.locator('[data-testid=bubble-chart] [data-code]').count(), 19) // 18 个本院病组 + “其他”
 assert.equal(await h.locator('[data-code=AH29]').count(), 0)
-assert.match(await text(h, '[data-testid=sel-strip]'), /BR25.*本院 394 例.*\+2,147 元.*全市同组 \+1,860 元/)
+assert.match(await text(h, '[data-testid=sel-strip]'), /BR25.*本院 253 例.*\+2,219 元.*全市同组 \+1,860 元/)
 await shot(h, 'B1')
 step('B1 limin 账号 + 短信 → 本院全息图;18 个本院病组 + 同级灰色背景')
 

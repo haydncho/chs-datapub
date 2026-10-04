@@ -367,7 +367,7 @@ insert into holo_peer_drg (tier, code, avg_cases, avg_diff) values
  ('市三级', 'AH29', 9.9, -2600);
 
 insert into holo_org_drg (org_code, code, cases, avg_diff) values
- ('H0001', 'BR25', 394, 2147),
+ ('H0001', 'BR25', 253, 2219),
  ('H0001', 'ES35', 383, 245),
  ('H0001', 'RE19', 250, -713),
  ('H0001', 'EX25', 218, -176),

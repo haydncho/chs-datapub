@@ -39,11 +39,12 @@ const step = (name) => console.log('✓', name)
 
 // ---------------------------------------------------------------- 召集人（UKey）
 const c = await session('ca', 'CONVENER')
-assert.match(c.url(), /\/a3$/)
-assert.deepEqual(await navKeys(c), ['A3', 'A5', 'A7', 'A9', 'A10', 'A11', 'A13'])
+assert.match(c.url(), /\/a2$/)
+assert.deepEqual(await navKeys(c), ['A2', 'A4', 'A6', 'A3', 'A5', 'A7', 'A8', 'A9', 'A10', 'A11', 'A13'])
+await c.goto(BASE + '/a3')
 assert.match(await c.getAttribute('[data-testid=page-watermark]', 'data-text'), /^陈志远 示例市医疗保障局 \d{4}-\d{2}-\d{2} \d{2}:\d{2}$/)
 assert.equal(await c.textContent('[data-testid=zone-tag]'), '分析监测区')
-step('A1 UKey 登录 → 选择召集人身份 → 首页 A3,菜单按身份裁剪,实名水印')
+step('A1 UKey 登录 → 选择召集人身份 → 首页 A2,菜单按身份裁剪,实名水印')
 
 // 流程 1：A3 数据到达 → 质量校验 → A5 生成报告
 assert.equal(await c.textContent('[data-testid=timeliness]').then((s) => s.trim()), '90%')
@@ -119,7 +120,7 @@ step('A13 档位切换提交召集人审批,原档位保持')
 const status = await c.evaluate(async () => (await fetch('/api/v1/audit/logs', { headers: { Authorization: `Bearer ${localStorage.getItem('dpub.token')}` } })).status)
 assert.equal(status, 403)
 await c.goto(BASE + '/a14')
-await c.waitForURL(/\/a3$/)
+await c.waitForURL(/\/a2$/)
 step('越权:前端不渲染无权页面,接口 403')
 
 // ---------------------------------------------------------------- 专家组列席（同一账号的第二个身份）

@@ -102,6 +102,8 @@ public class PortalReportService {
         int n = jdbc.update("update pr_report set status = 'SIGNED', signed_at = now(), signed_by = ? where id = ? and org = ? and status = 'SIGN'",
                 u.name(), id, u.org());
         if (n == 0) throw ApiException.conflict("该报告已签收");
+        // 定向发布生成的报告:签收数回写发布版本(A8「签收查阅」与更正与撤回页读取)
+        jdbc.update("update pub_release set signed = signed + 1 where id = (select release_id from pr_report where id = ?)", id);
         String wm = jdbc.queryForObject("select wm_no from pr_report where id = ?", String.class, id);
         audit.record(u.name(), u.org(), AuditService.VIEW, "签收报告《" + r.title() + "》", "已签收", wm, AuditService.currentIp());
         return one(u.org(), id);

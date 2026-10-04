@@ -2,6 +2,7 @@ package gov.ybj.chsdpub.publish;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.ybj.chsdpub.audit.AuditService;
 import gov.ybj.chsdpub.auth.AuthUser;
 import gov.ybj.chsdpub.auth.CurrentUser;
 import gov.ybj.chsdpub.common.ApiException;
@@ -41,8 +42,13 @@ public class PublishService {
     private final ConvenerGuard guard;
     private final ObjectMapper om;
     private final ZoneId zone;
+    private final IndicatorApprovalService indicatorApprovals;
+    private final AuditService audit;
 
-    public PublishService(JdbcTemplate jdbc, EngineClient engine, ConvenerGuard guard, ObjectMapper om, AppProperties props) {
+    public PublishService(JdbcTemplate jdbc, EngineClient engine, ConvenerGuard guard, ObjectMapper om, AppProperties props,
+                          IndicatorApprovalService indicatorApprovals, AuditService audit) {
+        this.indicatorApprovals = indicatorApprovals;
+        this.audit = audit;
         this.jdbc = jdbc;
         this.engine = engine;
         this.guard = guard;
@@ -79,9 +85,13 @@ public class PublishService {
 
     public record Corrections(String subject, List<Release> releases, String action, String explanation, boolean canInitiate) {}
 
+    /** 批准发布后第 6 步起的推进:定向发布 → 签收查阅 → 意见申诉 → 答复整改 → 归档。 */
+    public record Advance(int toStep, String toName, String label, String hint, boolean allowed, String blocked, Integer signed,
+                          Integer total, int opinions, int openOpinions) {}
+
     public record FlowDetail(FlowInfo flow, List<Node> steps, Package pkg, Scope scope, Map<String, List<Option>> options,
                              Map<String, Object> coverage, List<Log> logs, Corrections corrections, int openCheckOpinions,
-                             boolean canApprove) {}
+                             boolean canApprove, Advance advance) {}
 
     public record AudienceLine(String label, String value, String tone) {}
 
@@ -192,6 +202,7 @@ public class PublishService {
                         TierApprovalService.tierName(rs.getInt(3)) + " → " + TierApprovalService.tierName(rs.getInt(4)), "warning",
                         rs.getString(5) + " 申请", "muted", "A13"));
         out.add(new TodoGroup(TierApprovalService.GROUP, tiers));
+        out.add(new TodoGroup(IndicatorApprovalService.GROUP, indicatorApprovals.todos()));
         return out;
     }
 
@@ -362,7 +373,7 @@ public class PublishService {
         Integer open = jdbc.queryForObject("select count(*) from opinion_ticket where category = '核对期异议' and status <> 'DONE'", Integer.class);
         boolean convener = Roles.CONVENER.equals(CurrentUser.get().role());
         return new FlowDetail(info, ns, new Package(items, excluded), f.scope(), options(), cov, logs(id), corrections(f, ns),
-                open == null ? 0 : open, convener);
+                open == null ? 0 : open, convener, advance(f, ns, cov));
     }
 
     private List<Log> logs(long flowId) {
@@ -529,5 +540,152 @@ public class PublishService {
         log(nid, ConvenerGuard.who(u), "发起" + req.action() + ":" + reason);
         log(nid, "系统", "原版 v" + cur + " 保留只读;进入第 " + start + " 步「" + node(ns, start).map(Node::name).orElse("分析成稿") + "」");
         return Map.of("id", nid, "message", "已发起" + req.action() + "流程,将重新经过专家组审核与召集人审批");
+    }
+
+    // ================================================================ 批准后的推进(第 6 步起)
+
+    /** 该流程最近一次生成的发布版本(撤回流程没有新版本)。 */
+    private Optional<Map<String, Object>> releaseOf(long flowId) {
+        return jdbc.queryForList("select id, published_on, total, signed from pub_release where flow_id = ? order by version desc limit 1", flowId)
+                .stream().findFirst();
+    }
+
+    /** 已签收 / 已生成报告数:报告已生成则取 B4 实时数据,否则取发布版本登记值。 */
+    private int[] signStats(Map<String, Object> rel) {
+        long rid = ((Number) rel.get("id")).longValue();
+        Map<String, Object> c = jdbc.queryForMap("select count(*) as n, count(*) filter (where status = 'SIGNED') as s from pr_report where release_id = ?", rid);
+        int n = ((Number) c.get("n")).intValue();
+        int total = ((Number) rel.get("total")).intValue();
+        return n == 0 ? new int[]{((Number) rel.get("signed")).intValue(), total, 0} : new int[]{((Number) c.get("s")).intValue(), total, n};
+    }
+
+    /** 发布后收到的意见(A10 工单,B5 提交)及其中未答复数。 */
+    private int[] opinionStats(Map<String, Object> rel) {
+        LocalDate since = (LocalDate) (rel.get("published_on") instanceof java.sql.Date d ? d.toLocalDate() : rel.get("published_on"));
+        Map<String, Object> c = jdbc.queryForMap("select count(*) as n, count(*) filter (where status <> 'DONE') as o from opinion_ticket where created_at >= ?", since);
+        return new int[]{((Number) c.get("n")).intValue(), ((Number) c.get("o")).intValue()};
+    }
+
+    private Advance advance(FlowRow f, List<Node> ns, Map<String, Object> cov) {
+        int gate = gateIdx(ns);
+        if (f.step() <= gate || f.step() >= lastIdx(ns)) return null;
+        Node cur = node(ns, f.step()).orElseThrow();
+        Node next = ns.stream().filter(n -> n.idx() > f.step()).findFirst().orElseThrow();
+        Optional<Map<String, Object>> rel = releaseOf(f.id());
+        Integer signed = null, total = null;
+        int ops = 0, open = 0;
+        if (rel.isPresent()) {
+            int[] st = signStats(rel.get());
+            signed = st[0];
+            total = st[1];
+            int[] o = opinionStats(rel.get());
+            ops = o[0];
+            open = o[1];
+        }
+        boolean withdraw = "撤回".equals(f.action());
+        boolean allowed = true;
+        String blocked = null, label, hint;
+        switch (cur.name()) {
+            case "定向发布" -> {
+                int n = cov == null ? (total == null ? 0 : total) : count(cov);
+                label = withdraw ? "送达撤回通知" : "执行定向发布";
+                hint = withdraw ? "向 " + n + " 家机构送达撤回通知,原版本已标记撤回、保留只读。"
+                        : "按定向范围向 " + n + " 家机构生成发布报告(嵌入各机构实名水印编号),机构在 B4 报告中心 / 移动端签收。";
+            }
+            case "签收查阅" -> {
+                label = "结束签收期,进入「" + next.name() + "」";
+                hint = "已签收 " + (signed == null ? "—" : signed) + "/" + (total == null ? "—" : total) + " 家"
+                        + (signed != null && total != null && signed < total ? ",未签收 " + (total - signed) + " 家(逾期由行政管理组催办)。" : "。");
+            }
+            case "意见申诉" -> {
+                label = "结束意见申诉期,进入「" + next.name() + "」";
+                hint = "发布后共收到意见 " + ops + " 条,其中待答复 " + open + " 条(A10 意见与申诉管理)。";
+            }
+            case "答复整改" -> {
+                label = "完成答复整改,归档复盘";
+                hint = "发布后收到的意见须全部答复后方可归档;当前待答复 " + open + " 条。";
+                if (open > 0) {
+                    allowed = false;
+                    blocked = "还有 " + open + " 条意见未答复,请在 A10 答复后再归档";
+                }
+            }
+            default -> {
+                label = "完成「" + cur.name() + "」,进入「" + next.name() + "」";
+                hint = "";
+            }
+        }
+        return new Advance(next.idx(), next.name(), label, hint, allowed, blocked, signed, total, ops, open);
+    }
+
+    private static String kindOfSubject(String subject, String flowKind) {
+        if (subject.contains("专题") || "病种与机构专题".equals(flowKind)) return "专题报告";
+        return subject.contains("体检") ? "体检报告" : "月度报告";
+    }
+
+    /** 执行定向发布:按定向范围为每家机构生成待签收报告(B4 / D1 可见);更正使原版本只读保留。返回留痕文字。 */
+    private String dispatch(FlowRow f, Optional<Map<String, Object>> rel, List<PackageItem> items) {
+        boolean withdraw = "撤回".equals(f.action());
+        // 更正 / 撤回:原发布版本下尚未归档的机构报告改为只读保留
+        jdbc.update("""
+                update pr_report set status = 'OLD' where status in ('SIGN', 'CHECK', 'SIGNED') and release_id in
+                (select id from pub_release where subject = ? and status in ('SUPERSEDED', 'WITHDRAWN'))""", f.subject());
+        Map<String, Object> cov = coverage(f.scope());
+        @SuppressWarnings("unchecked")
+        List<String> names = (List<String>) cov.get("names");
+        if (withdraw) return "撤回通知已送达 " + names.size() + " 家机构,原版本保留只读";
+        if (rel.isEmpty()) throw ApiException.conflict("缺少发布版本,无法定向发布");
+        long rid = ((Number) rel.get().get("id")).longValue();
+        int ver = jdbc.queryForObject("select version from pub_release where id = ?", Integer.class, rid);
+        LocalDate today = LocalDate.now(zone);
+        String kind = kindOfSubject(f.subject(), f.kind());
+        String title = Texts.truncate(f.subject() + ("更正".equals(f.action()) ? "(更正版 v" + ver + ")" : ""), 64);
+        String contents = items.stream().map(PackageItem::name).collect(java.util.stream.Collectors.joining("、"));
+        for (String org : names) {
+            String wm = audit.nextWatermark();
+            String body = json(List.of(
+                    Map.of("h", "一、发布说明", "p", f.subject() + " 经召集人审批后定向发布至 " + org + ";本报告仅限本院查阅,页面嵌入实名水印与编号 " + wm + "。"),
+                    Map.of("h", "二、发布包内容", "p", "本期发布包含:" + contents + "。仅内部指标与病例级、个人级数据已自动排除。")));
+            jdbc.update("""
+                    insert into pr_report (org, title, kind, published_on, pages, status, wm_no, body, sort, release_id)
+                    values (?, ?, ?, ?, 12, 'SIGN', ?, ?::jsonb, (select coalesce(max(sort), 0) + 1 from pr_report where org = ?), ?)""",
+                    org, title, kind, today, wm, body, org, rid);
+        }
+        return "定向发布 " + names.size() + " 家机构:已生成各机构发布报告,待签收(B4 / 移动端)";
+    }
+
+    /** 推进到下一环节(批准发布之后):定向发布 → 签收查阅 → 意见申诉 → 答复整改 → 归档。召集人与行政管理组均可。 */
+    @Transactional
+    public Map<String, Object> advance(long id) {
+        AuthUser u = CurrentUser.get();
+        FlowRow f = flow(id, true);
+        List<Node> ns = nodes(f.templateId());
+        int gate = gateIdx(ns), last = lastIdx(ns);
+        if (f.step() <= gate) throw ApiException.conflict("尚未批准发布,请先在第 " + gate + " 步审批");
+        if (f.step() >= last) throw ApiException.conflict("流程已归档");
+        Advance a = advance(f, ns, null);
+        if (!a.allowed()) throw ApiException.conflict(a.blocked());
+        Node cur = node(ns, f.step()).orElseThrow();
+        Node next = node(ns, a.toStep()).orElseThrow();
+        Optional<Map<String, Object>> rel = releaseOf(id);
+        String what;
+        switch (cur.name()) {
+            case "定向发布" -> {
+                List<PackageItem> items = new ArrayList<>();
+                jdbc.query("select name, detail from pub_package_item where flow_id = ? and not internal order by sort",
+                        rs -> { items.add(new PackageItem(rs.getString(1), rs.getString(2))); }, id);
+                what = dispatch(f, rel, items);
+            }
+            case "签收查阅" -> {
+                int[] st = rel.map(this::signStats).orElse(new int[]{0, 0, 0});
+                what = "签收期结束:已签收 " + st[0] + "/" + st[1] + " 家" + (st[0] < st[1] ? ",未签收 " + (st[1] - st[0]) + " 家" : "");
+            }
+            case "意见申诉" -> what = "意见申诉期结束:发布后共收到意见 " + a.opinions() + " 条";
+            case "答复整改" -> what = "答复整改完成:本期意见均已答复";
+            default -> what = "完成「" + cur.name() + "」";
+        }
+        moveTo(id, ns, next.idx());
+        log(id, ConvenerGuard.who(u), what + (next.idx() >= last ? ",归档复盘" : ",进入「" + next.name() + "」"));
+        if (next.idx() >= last) log(id, "系统", "流程已归档");
+        return Map.of("message", next.idx() >= last ? "已归档" : "已进入第 " + next.idx() + " 步「" + next.name() + "」", "step", next.idx());
     }
 }

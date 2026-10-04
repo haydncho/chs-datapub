@@ -14,10 +14,12 @@ public class PublishController {
 
     private final PublishService flows;
     private final TierApprovalService tiers;
+    private final IndicatorApprovalService indicators;
 
-    public PublishController(PublishService flows, TierApprovalService tiers) {
+    public PublishController(PublishService flows, TierApprovalService tiers, IndicatorApprovalService indicators) {
         this.flows = flows;
         this.tiers = tiers;
+        this.indicators = indicators;
     }
 
     @GetMapping("/todos")
@@ -50,6 +52,11 @@ public class PublishController {
         return flows.reject(id, req);
     }
 
+    @PostMapping("/flows/{id}/advance")
+    public Map<String, Object> advance(@PathVariable long id) {
+        return flows.advance(id);
+    }
+
     @PostMapping("/flows/{id}/corrections")
     public Map<String, Object> correct(@PathVariable long id, @RequestBody(required = false) PublishService.CorrectionReq req) {
         return flows.correct(id, req);
@@ -73,5 +80,20 @@ public class PublishController {
     @PostMapping("/tier-requests/{id}/reject")
     public Map<String, Object> rejectTier(@PathVariable long id, @RequestBody(required = false) PublishService.DecisionReq req) {
         return tiers.reject(id, req);
+    }
+
+    @GetMapping("/indicator-requests/{id}")
+    public IndicatorApprovalService.IndicatorRequest indicatorRequest(@PathVariable long id) {
+        return indicators.get(id);
+    }
+
+    @PostMapping("/indicator-requests/{id}/approve")
+    public Map<String, Object> approveIndicator(@PathVariable long id, @RequestBody(required = false) PublishService.DecisionReq req) {
+        return indicators.approve(id, req);
+    }
+
+    @PostMapping("/indicator-requests/{id}/reject")
+    public Map<String, Object> rejectIndicator(@PathVariable long id, @RequestBody(required = false) PublishService.DecisionReq req) {
+        return indicators.reject(id, req);
     }
 }

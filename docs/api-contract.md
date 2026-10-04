@@ -139,3 +139,34 @@
 | POST | `/supervision/recording/progress` | `{watchedS}` |
 
 引擎 `/v1/regional/`：`county`、`province`。
+
+---
+
+# 流程闭环(合并后补充)
+
+## 闭环 1:A4 指标上线审批 → A8 → 已上线
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/publish/indicator-requests/{draftId}` | 上线审批单详情(审批单号、指标、公式、申请的对标档位、申请人) |
+| POST | `/publish/indicator-requests/{draftId}/approve` | 仅召集人:指标「审批中」→「已上线」(v1.0);非仅内部指标登记到 A13 对标档位表(按申请的档位);写变更记录与审计「审批」 |
+| POST | `/publish/indicator-requests/{draftId}/reject` | 仅召集人,意见必填:撤销审批中的指标记录,A4 草稿解锁 |
+
+- `/publish/todos` 增加「指标上线审批」分组(`type: "indicator"`)。
+- A4 草稿 `rejection?: {approvalNo, opinion, decidedBy, decidedAt}`:最近一次驳回意见,草稿解锁后显示,修改后重新提交生成新审批单号。
+
+## 闭环 2:A8 批准发布之后 → 机构签收 → 归档
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| POST | `/publish/flows/{id}/advance` | 召集人 / 行政管理组:按当前环节推进(定向发布 → 签收查阅 → 意见申诉 → 答复整改 → 归档) |
+
+- 流程详情 `advance?: {toStep, toName, label, hint, allowed, blocked?, signed?, total?, opinions, openOpinions}`:批准后的下一动作与统计。
+- **定向发布**:按定向范围为每家机构生成待签收报告(`pr_report`,嵌入各机构水印编号),B4 报告中心与移动端可见;更正使原版本报告改为只读保留,撤回只送达通知。
+- **签收**:B4 签收后回写 `pub_release.signed`,A8「签收查阅」与「更正与撤回」页读取实时签收数。
+- **答复整改**:发布后收到的意见(B5 → `opinion_ticket`)须全部答复(A10)后才能归档,否则 409。
+
+## 闭环 3:A6 异常推荐 → A11 预警提醒
+
+- `POST /recommend/anomalies/{id}/letter`:生成提醒函草稿,同时在 A11 建立「待发出」触发记录(文号顺延);A11 已有同机构、同病组、同规则的记录则关联而不重复建。
+- 异常行 `alertStatus`:A11 触发记录进度(待发出 / 已发函 · 待回执 / 已回执 / 整改中 / 已销号),A6 显示并链接到 A11。

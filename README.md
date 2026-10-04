@@ -71,6 +71,7 @@ cd web && npm install && npm run dev
 - **身份与菜单裁剪**：登录后选择本次身份，会话令牌携带角色、机构与数据范围；侧栏只显示该身份可见的页面（`/auth/me → pages`），接口按同一张表（`server/.../common/Roles.java`）鉴权。三员分立：安全管理员看不到业务数据，审计员只读日志。
 - **安全规则**：常驻安全提示条；实名动态水印（姓名 机构 日期 时分，每分钟刷新，深色 / 打印同样保留）；导出一律走导出审批（用途、有效期、下载次数），返回 `WM-YYYYMMDD-NNNN` 水印编号并写审计日志，A14 可按编号溯源到人；越权访问接口返回 403 并记录「越权尝试」；全站无分享、复制链接、二维码入口；登录连续 5 次失败锁定 15 分钟。
 - **数字只来自引擎**：A3 及时性与机构关注项、A7 关键行为费用倍率、差异归因瀑布、文稿初稿由 Python 引擎计算 / 生成；引擎不可用时 A3 计算项显示「—」，A7 返回 503 提示稍后重试，服务端不自行计算。
+- **流程闭环**：A4 提交指标上线审批 → A8 召集人批准（指标上线并登记 A13 对标档位）或驳回（A4 显示驳回意见，修改后重新提交）；A8 批准发布 → 定向发布为各机构生成报告 → 机构在 B4 / 移动端签收（签收数回写 A8）→ 意见申诉 → 答复整改（意见全部答复后）→ 归档；A6 生成提醒函 → A11 待发出 → 发出 → 登记回执，A6 同步显示进度。
 - **串联流程**：流程 1（A3 到数登记 → 依赖指标恢复 → 质量校验 → A5 生成报告草稿进入发布工作流第 3 步）、流程 2（A7 七段逐段审定 → 提交机构核对与专家组审核）、流程 5（A11 规则触发 → 发出提醒函 → 机构回执 → 整改跟踪）。
 - **对标三档**（A13）：切换档位生成待审批的变更单（同一指标同时只能有一张），审批前保持原档位。
 
@@ -91,7 +92,7 @@ cd web && npm install && npm run dev
 cd engine && .venv/bin/pytest -q          # 引擎单测
 cd web && npm run typecheck && npm run build
 cd web && npm run e2e                     # 第二批端到端冒烟：需三端已启动且为种子数据；CHROME=浏览器路径（可选）
-cd web && node e2e/holo.mjs               # 各组端到端：holo / indicator / publish / portal-analysis / portal-reports / regional（每个都需全新种子库）
+cd web && node e2e/holo.mjs               # 各组端到端：holo / indicator / publish / portal-analysis / portal-reports / regional / closure（流程闭环）（每个都需全新种子库）
 ```
 
 `web/e2e/shot.mjs` 可按身份批量截图：`node e2e/shot.mjs ca A3 A7`、`THEME=dark node e2e/shot.mjs suntao A14`。

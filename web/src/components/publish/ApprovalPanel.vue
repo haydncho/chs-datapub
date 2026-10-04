@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 
 /**
- * 审批与留痕：第 5 步「召集人审批」批准（→ 第 6 步定向发布）或驳回至「分析成稿」（驳回意见必填）。
+ * 审批与留痕：第 5 步「召集人审批」批准（→ 第 6 步定向发布）或驳回至「分析成稿」（驳回意见必填）；
+ * 批准之后由经办推进:定向发布 → 签收查阅 → 意见申诉 → 答复整改 → 归档。
  * 批准 / 驳回只限召集人（服务端校验，行政管理组调用返回 403 并记审计）；第 5 步之前可提交至下一环节。
  */
 const props = defineProps<{ detail: FlowDetail; busy?: boolean }>()
-const emit = defineEmits<{ approve: [opinion: string]; reject: [opinion: string]; submit: [] }>()
+const emit = defineEmits<{ approve: [opinion: string]; reject: [opinion: string]; submit: []; advance: [] }>()
 
 const opinion = ref('')
 const missing = ref(false)
@@ -71,7 +72,20 @@ function reject() {
       </template>
       <template v-else>
         <div class="rounded-lg bg-subtle px-3 py-3 text-[12px] leading-[1.7] text-ink-body" data-testid="not-gate">
-          当前环节:{{ f.stepLabel }}。<template v-if="before">仅第 {{ f.gateIdx }} 步可审批。</template><template v-else-if="f.archived">流程已归档,发布版本见「更正与撤回」。</template><template v-else>已批准发布,后续由机构签收查阅、意见申诉推进。</template>
+          当前环节:{{ f.stepLabel }}。<template v-if="before">仅第 {{ f.gateIdx }} 步可审批。</template><template v-else-if="f.archived">流程已归档,发布版本见「更正与撤回」。</template><template v-else>已批准发布,经办按环节推进:定向发布 → 签收查阅 → 意见申诉 → 答复整改 → 归档。</template>
+        </div>
+        <div v-if="detail.advance" class="mt-3 rounded-lg border border-primary-line bg-primary-tint/60 px-3 py-3" data-testid="advance-box">
+          <div class="flex items-center gap-2 text-[12px]">
+            <span class="font-semibold text-ink">{{ f.stepLabel }}</span>
+            <span v-if="detail.advance.total != null" class="ml-auto tabular-nums text-ink-sub" data-testid="sign-stats">
+              签收 {{ detail.advance.signed }}/{{ detail.advance.total }}
+            </span>
+          </div>
+          <div v-if="detail.advance.hint" class="mt-1 text-[11px] leading-[1.7] text-ink-body" data-testid="advance-hint">{{ detail.advance.hint }}</div>
+          <div v-if="detail.advance.blocked" class="mt-1.5 text-[11px] text-warning" data-testid="advance-blocked">{{ detail.advance.blocked }}</div>
+          <Button size="sm" class="mt-2.5" :disabled="busy || !detail.advance.allowed" data-testid="advance-btn" @click="emit('advance')">
+            {{ detail.advance.label }}
+          </Button>
         </div>
         <Button v-if="before && f.nextStepName" size="sm" variant="outline" class="mt-2.5" :disabled="busy" data-testid="submit-btn" @click="emit('submit')">
           {{ f.step + 1 === f.gateIdx ? '提交召集人审批' : `提交至「${f.nextStepName}」` }}

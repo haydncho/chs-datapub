@@ -311,7 +311,7 @@ await p.waitForSelector('[data-anomaly]')
 const btn = p.locator('[data-anomaly] [data-act=letter]').first()
 if (await btn.count()) {
   await btn.click()
-  await toast(p, '进入发布工作流「预警提醒函」')
+  await toast(p, '关联 A11 已有触发记录')
 }
 await p.waitForSelector('[data-testid=letter-no]')
 await shot(p, 'a6-anom')

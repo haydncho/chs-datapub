@@ -117,6 +117,8 @@ export interface WizDraft {
   submitted: boolean
   approvalNo?: string
   indicatorId?: number
+  /** 最近一次被召集人驳回的上线审批(草稿已解锁,修改后可重新提交)。 */
+  rejection?: { approvalNo: string; opinion: string; decidedBy: string; decidedAt: string }
 }
 
 export interface FormulaCheck {
@@ -247,6 +249,8 @@ export interface AnomalyRow {
   letterNo?: string
   letterBy?: string
   letterAt?: string
+  /** A11 预警提醒里该触发记录的进度(待发出 / 已发函 · 待回执 / 已回执 / 整改中 / 已销号)。 */
+  alertStatus?: string
 }
 
 export interface PresentationRow {

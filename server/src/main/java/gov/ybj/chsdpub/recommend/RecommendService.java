@@ -192,26 +192,57 @@ public class RecommendService {
     // ================================================================ 异常
 
     public record Anomaly(long id, String rule, String org, String drg, String value, String level, String letterNo, String letterBy,
-                          OffsetDateTime letterAt) {}
+                          OffsetDateTime letterAt, String alertStatus) {}
+
+    private static String alertLabel(String status) {
+        return status == null ? null : ALERT_LABEL.get(status);
+    }
+
+    /** A11 触发记录状态 → 展示文字。 */
+    private static final Map<String, String> ALERT_LABEL = Map.of("GEN", "待发出", "SENT", "已发函 · 待回执", "RCPT", "已回执",
+            "FIX", "整改中", "CLOSED", "已销号");
 
     public List<Anomaly> anomalies() {
         return jdbc.query("""
-                select a.id, a.rule_name, a.org, a.drg_group, a.trigger_value, a.level, a.letter_no, u.name, a.letter_at
-                from rec_anomaly a left join app_user u on u.id = a.letter_by order by a.sort""",
+                select a.id, a.rule_name, a.org, a.drg_group, a.trigger_value, a.level, a.letter_no, u.name, a.letter_at, t.status
+                from rec_anomaly a left join app_user u on u.id = a.letter_by left join alert_trigger t on t.id = a.alert_trigger_id
+                order by a.sort""",
                 (rs, i) -> new Anomaly(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6),
-                        rs.getString(7), rs.getString(8), rs.getObject(9, OffsetDateTime.class)));
+                        rs.getString(7), rs.getString(8), rs.getObject(9, OffsetDateTime.class), alertLabel(rs.getString(10))));
     }
 
+    /**
+     * 生成提醒函草稿并进入 A11 预警提醒(流程 5):A11 已有同机构、同病组、同规则的触发记录则关联该记录,
+     * 否则新建「待发出」触发记录(文号顺延),由行政管理组在 A11 发出提醒函、登记机构回执。
+     */
     @Transactional
     public Map<String, Object> letter(long id, AuthUser u) {
         List<String> cur = jdbc.queryForList("select coalesce(letter_no, '') from rec_anomaly where id = ? for update", String.class, id);
         if (cur.isEmpty()) throw ApiException.notFound("异常推荐不存在");
         if (!cur.get(0).isEmpty()) throw ApiException.conflict("已生成提醒函草稿 " + cur.get(0));
+        Anomaly a = anomalies().stream().filter(x -> x.id() == id).findFirst().orElseThrow();
         Long n = jdbc.queryForObject("select nextval('rec_letter_seq')", Long.class);
         String no = String.format("TX-%d-%04d", LocalDate.now(zone).getYear(), n);
-        jdbc.update("update rec_anomaly set letter_no = ?, letter_by = ?, letter_at = now() where id = ?", no, u.userId(), id);
-        Anomaly a = anomalies().stream().filter(x -> x.id() == id).findFirst().orElseThrow();
-        return Map.of("row", a, "message", "已生成提醒函草稿 " + no + ",进入发布工作流「预警提醒函」");
+        List<Long> exist = jdbc.queryForList("select id from alert_trigger where org = ? and drg_group = ? and rule_name = ? order by id desc limit 1",
+                Long.class, a.org(), a.drg(), a.rule());
+        Long tid;
+        boolean created = exist.isEmpty();
+        if (created) {
+            String period = jdbc.queryForObject("select max(period) from collection_period", String.class);
+            String label = period == null ? "" : period.substring(0, 4) + "年" + Integer.parseInt(period.substring(5)) + "月";
+            tid = jdbc.queryForObject("""
+                    insert into alert_trigger (trig_date, period, org, drg_group, rule_name, value, status, letter_seq, sort)
+                    values (?, ?, ?, ?, ?, ?, 'GEN', (select coalesce(max(letter_seq), 16) + 1 from alert_trigger),
+                            (select coalesce(min(sort), 1) - 1 from alert_trigger)) returning id""", Long.class,
+                    LocalDate.now(zone).format(java.time.format.DateTimeFormatter.ofPattern("MM-dd")), label, a.org(), a.drg(), a.rule(), a.value());
+        } else {
+            tid = exist.get(0);
+        }
+        jdbc.update("update rec_anomaly set letter_no = ?, letter_by = ?, letter_at = now(), alert_trigger_id = ? where id = ?", no, u.userId(), tid, id);
+        Anomaly row = anomalies().stream().filter(x -> x.id() == id).findFirst().orElseThrow();
+        String msg = created ? "已生成提醒函草稿 " + no + ",进入 A11 预警提醒(待发出)"
+                : "已生成提醒函草稿 " + no + ",关联 A11 已有触发记录(" + row.alertStatus() + ")";
+        return Map.of("row", row, "message", msg);
     }
 
     // ================================================================ 呈现 / 方法卡

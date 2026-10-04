@@ -2,7 +2,7 @@
 import type { TodoGroup, TodoItem } from '@/api/publish'
 import { toneText } from '@/lib/tone'
 
-/** 左侧「我的待办」：六类发布流程 + 对标档位切换；每项显示当前步与时限，第 5 步红字。 */
+/** 左侧「我的待办」：六类发布流程 + 对标档位切换 + 指标上线审批；每项显示当前步与时限，第 5 步红字。 */
 defineProps<{ groups: TodoGroup[]; selected: { type: string; id: number } | null }>()
 defineEmits<{ select: [item: TodoItem] }>()
 </script>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { publishApi, type AudienceVersion, type FlowDetail, type Scope, type TierRequest, type TodoGroup, type TodoItem } from '@/api/publish'
+import { publishApi, type AudienceVersion, type FlowDetail, type IndicatorRequest, type Scope, type TierRequest, type TodoGroup, type TodoItem } from '@/api/publish'
 import ApprovalPanel from '@/components/publish/ApprovalPanel.vue'
 import AudienceVersions from '@/components/publish/AudienceVersions.vue'
 import CorrectionPanel from '@/components/publish/CorrectionPanel.vue'
+import IndicatorApproval from '@/components/publish/IndicatorApproval.vue'
 import PackageScope from '@/components/publish/PackageScope.vue'
 import StepBar from '@/components/publish/StepBar.vue'
 import TierApproval from '@/components/publish/TierApproval.vue'
@@ -18,16 +19,17 @@ import { useAuthStore } from '@/stores/auth'
 
 /**
  * A8 发布工作流：分析监测区数据只能经过十步工作流、整包审批后才进入发布区。
- * 左侧按流程类型分组的待办（含 A5 报告草稿、A13 档位切换单）；右侧十步进度条与四个标签页。
+ * 左侧按流程类型分组的待办（含 A5 报告草稿、A13 档位切换单、A4 指标上线审批）；右侧十步进度条与四个标签页。
  */
 const page = pageDef('A8')!
 const auth = useAuthStore()
 const isConvener = computed(() => auth.user?.role === 'CONVENER')
 
 const groups = ref<TodoGroup[]>([])
-const sel = ref<{ type: 'flow' | 'tier'; id: number } | null>(null)
+const sel = ref<{ type: 'flow' | 'tier' | 'indicator'; id: number } | null>(null)
 const detail = ref<FlowDetail | null>(null)
 const tier = ref<TierRequest | null>(null)
+const indicator = ref<IndicatorRequest | null>(null)
 const versions = ref<AudienceVersion[]>([])
 const busy = ref(false)
 
@@ -43,14 +45,17 @@ async function loadTodos() {
   groups.value = await publishApi.todos()
 }
 
-async function open(it: { type: 'flow' | 'tier'; id: number }) {
+async function open(it: { type: 'flow' | 'tier' | 'indicator'; id: number }) {
   sel.value = { type: it.type, id: it.id }
   if (it.type === 'flow') {
     const d = await publishApi.flow(it.id)
     if (sel.value?.type === 'flow' && sel.value.id === it.id) detail.value = d
-  } else {
+  } else if (it.type === 'tier') {
     const t = await publishApi.tierRequest(it.id)
     if (sel.value?.type === 'tier' && sel.value.id === it.id) tier.value = t
+  } else {
+    const q = await publishApi.indicatorRequest(it.id)
+    if (sel.value?.type === 'indicator' && sel.value.id === it.id) indicator.value = q
   }
 }
 
@@ -113,6 +118,7 @@ const fid = () => detail.value!.flow.id
 const approve = (op: string) => act(() => publishApi.approve(fid(), op))
 const reject = (op: string) => act(() => publishApi.reject(fid(), op))
 const submit = () => act(() => publishApi.submit(fid()))
+const advance = () => act(() => publishApi.advance(fid()))
 const initiate = (action: '更正' | '撤回', reason: string) =>
   act(
     () => publishApi.correct(fid(), action, reason),
@@ -131,6 +137,8 @@ async function afterTier() {
 }
 const approveTier = (op: string) => act(() => publishApi.approveTier(tier.value!.id, op), afterTier)
 const rejectTier = (op: string) => act(() => publishApi.rejectTier(tier.value!.id, op), afterTier)
+const approveIndicator = (op: string) => act(() => publishApi.approveIndicator(indicator.value!.id, op), afterTier)
+const rejectIndicator = (op: string) => act(() => publishApi.rejectIndicator(indicator.value!.id, op), afterTier)
 
 const f = computed(() => detail.value?.flow)
 </script>
@@ -146,6 +154,10 @@ const f = computed(() => detail.value?.flow)
 
       <div v-if="sel?.type === 'tier' && tier" class="min-w-0">
         <TierApproval :req="tier" :can-approve="isConvener" :busy="busy" @approve="approveTier" @reject="rejectTier" />
+      </div>
+
+      <div v-else-if="sel?.type === 'indicator' && indicator" class="min-w-0">
+        <IndicatorApproval :req="indicator" :can-approve="isConvener" :busy="busy" @approve="approveIndicator" @reject="rejectIndicator" />
       </div>
 
       <div v-else-if="detail && f" class="flex min-w-0 flex-col gap-3.5" :data-flow="f.name">
@@ -171,7 +183,7 @@ const f = computed(() => detail.value?.flow)
           <div class="px-[18px] py-4">
             <PackageScope v-if="tab === 'pkg'" :detail="detail" :coverage="detail.coverage" :busy="busy" @change="changeScope" />
             <AudienceVersions v-else-if="tab === 'ver'" :versions="versions" />
-            <ApprovalPanel v-else-if="tab === 'appr'" :detail="detail" :busy="busy" @approve="approve" @reject="reject" @submit="submit" />
+            <ApprovalPanel v-else-if="tab === 'appr'" :detail="detail" :busy="busy" @approve="approve" @reject="reject" @submit="submit" @advance="advance" />
             <CorrectionPanel v-else :detail="detail" :busy="busy" @initiate="initiate" />
           </div>
         </section>

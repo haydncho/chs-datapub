@@ -257,6 +257,10 @@ const showTplWarn = computed(() => cfg.value?.template === '排行条' && cfg.va
       <button type="button" class="ml-auto cursor-pointer text-[12px] text-ink-muted hover:text-primary" data-testid="restart" @click="restart">{{ locked ? '再建一个指标' : '重新开始' }}</button>
     </div>
 
+    <div v-if="draft?.rejection && !locked" class="mx-5 mt-3 rounded-lg border border-danger-line bg-danger-soft px-3.5 py-2.5 text-[12px] text-danger-ink" data-testid="rejected-banner">
+      <b>上线审批 {{ draft.rejection.approvalNo }} 已被{{ draft.rejection.decidedBy }}驳回</b>:{{ draft.rejection.opinion }}。请修改后重新提交。
+    </div>
+
     <!-- 步骤条（可点） -->
     <div class="flex items-center px-10 py-4" role="tablist" data-testid="wiz-steps">
       <button

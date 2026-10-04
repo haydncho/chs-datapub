@@ -208,8 +208,11 @@ public class IndicatorService {
                          Integer warnRise, Boolean internal, Integer tier, String template, String title, String unit, String note,
                          List<String> audiences, String granularity) {}
 
+    /** 最近一次被召集人驳回的上线审批(草稿已解锁,可修改后重新提交)。 */
+    public record Rejection(String approvalNo, String opinion, String decidedBy, OffsetDateTime decidedAt) {}
+
     public record Draft(long id, String version, OffsetDateTime savedAt, Config config, boolean submitted, String approvalNo,
-                        Long indicatorId) {}
+                        Long indicatorId, Rejection rejection) {}
 
     static Config defaults() {
         return new Config("术前平均住院日", "效", "DRG月度运行", "术前住院天数", "手术出院人次", List.of("机构", "等级", "病组", "时间"),
@@ -246,9 +249,15 @@ public class IndicatorService {
                 select id, version, saved_at, config::text, submitted_at is not null, approval_no, indicator_id
                 from ind_draft where id = ? and created_by = ?""",
                 (rs, i) -> new Draft(rs.getLong(1), rs.getString(2), rs.getObject(3, OffsetDateTime.class), parse(rs.getString(4)),
-                        rs.getBoolean(5), rs.getString(6), (Long) rs.getObject(7)), id, u.userId());
+                        rs.getBoolean(5), rs.getString(6), (Long) rs.getObject(7), null), id, u.userId());
         if (r.isEmpty()) throw ApiException.notFound("草稿不存在");
-        return r.get(0);
+        Draft d = r.get(0);
+        if (d.submitted()) return d;
+        List<Rejection> rej = jdbc.query("""
+                select x.approval_no, x.opinion, u.name, x.decided_at from pub_indicator_decision x join app_user u on u.id = x.decided_by
+                where x.draft_id = ? and x.decision = 'REJECTED' order by x.id desc limit 1""",
+                (rs, i) -> new Rejection(rs.getString(1), rs.getString(2), rs.getString(3), rs.getObject(4, OffsetDateTime.class)), id);
+        return rej.isEmpty() ? d : new Draft(d.id(), d.version(), d.savedAt(), d.config(), false, d.approvalNo(), d.indicatorId(), rej.get(0));
     }
 
     /** 新建指标：有未提交草稿则续编（草稿自动保存），否则按默认配置新建。 */

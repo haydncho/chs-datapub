@@ -5,6 +5,7 @@ import type { Tone } from '@/api/types'
 import BarTrack from '@/components/portal-analysis/BarTrack.vue'
 import PercentileBar from '@/components/portal-analysis/PercentileBar.vue'
 import Chip from '@/components/shared/Chip.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import Tag from '@/components/shared/Tag.vue'
@@ -87,6 +88,12 @@ function startPk() {
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div v-if="idx" class="mt-5 grid grid-cols-4 gap-3.5" data-testid="b3-kpis">
+      <KpiCard label="对标指标" :value="String(idx.indicators.length)" unit="项" icon="rpt" tone="primary" desc="按指标对标档位呈现" />
+      <KpiCard label="匿名分位" :value="String(idx.indicators.filter((i) => i.tier === 0).length)" unit="项" icon="pct" tone="success" desc="仅见本院所处分位" />
+      <KpiCard label="匿名编号" :value="String(idx.indicators.filter((i) => i.tier === 1).length)" unit="项" icon="lock" tone="ai" desc="“三级医院A”式横向对比" />
+      <KpiCard label="具名对比与排行" :value="String(idx.indicators.filter((i) => i.tier === 2).length)" unit="项" icon="inst" tone="warning" :desc="`同级 ${idx.peerCount} 家`" />
+    </div>
 
     <div v-if="error" class="mt-5 rounded-2xl border border-line-soft bg-surface shadow-card px-6 py-10 text-center text-[13px] text-ink-muted">
       加载失败:{{ error }} <button type="button" class="ml-2 cursor-pointer text-primary" @click="load">重试</button>

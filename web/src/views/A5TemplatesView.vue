@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { templateApi } from '@/api'
 import type { ChartTemplate, ReportBlock, ReportPreset } from '@/api/types'
 import Chip from '@/components/shared/Chip.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import SegTabs from '@/components/shared/SegTabs.vue'
@@ -98,6 +99,13 @@ const glyph: Record<string, string> = {
         <SegTabs v-model="tab" :items="[{ value: 'lib', label: '图表模板库' }, { value: 'asm', label: '报告拼装器' }]" />
       </template>
     </PageHeader>
+
+    <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="a5-kpis">
+      <KpiCard label="图表模板" :value="String(charts.length)" unit="种" icon="rpt" tone="primary" :spark="charts.map((c) => c.usedBy)" desc="柱高为各模板被引用次数" />
+      <KpiCard label="报告模块" :value="String(blocks.length)" unit="个" icon="doc" tone="ai" desc="拼装器可拖拽组合" />
+      <KpiCard label="报告预设" :value="String(presets.length)" unit="套" icon="slider" tone="success" desc="月报 / 季报 / 年报 / 专题" />
+      <KpiCard label="画布模块" :value="String(canvas.length)" unit="个" icon="grip" tone="warning" desc="当前拼装中的报告" />
+    </div>
 
     <!-- 图表模板库 -->
     <div v-if="tab === 'lib'" class="mt-5 grid grid-cols-[minmax(0,1fr)_300px] items-start gap-4">

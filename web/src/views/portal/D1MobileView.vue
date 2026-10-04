@@ -59,7 +59,7 @@ const attention = computed(() => mark.value >= (alert.value?.line ?? 70))
   <div class="min-h-screen bg-body">
     <div class="relative mx-auto flex min-h-screen w-full max-w-[390px] flex-col bg-app text-[13px] text-ink" data-testid="mobile">
       <!-- 顶栏：无分享入口 -->
-      <header class="sticky top-0 z-20 border-b border-divider bg-surface">
+      <header class="sticky top-0 z-20 border-b border-primary-line bg-surface" style="background-image: linear-gradient(135deg, color-mix(in srgb, var(--c-primary) 14%, var(--c-surface)), var(--c-surface) 70%)">
         <div class="flex h-12 items-center gap-1.5 px-2">
           <button
             v-if="view === 'alert'"
@@ -78,7 +78,7 @@ const attention = computed(() => mark.value >= (alert.value?.line ?? 70))
       <main v-if="sum" class="flex flex-1 flex-col gap-2.5 p-3">
         <template v-if="view === 'home'">
           <!-- 待签收（与 B4 同一数据） -->
-          <div v-if="sum.pending" class="flex items-center gap-2.5 rounded-[10px] bg-surface px-3.5 py-3" data-testid="m-pending">
+          <div v-if="sum.pending" class="flex items-center gap-2.5 rounded-2xl border border-line-soft bg-surface shadow-card px-3.5 py-3" data-testid="m-pending">
             <div class="min-w-0 flex-1">
               <div class="text-[11px] text-warning-ink">待签收</div>
               <div class="font-semibold">{{ sum.pending.title }}</div>
@@ -98,7 +98,7 @@ const attention = computed(() => mark.value >= (alert.value?.line ?? 70))
             v-for="a in sum.alerts"
             :key="a.id"
             type="button"
-            class="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-[10px] bg-surface px-3.5 py-3 text-left"
+            class="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-2xl border border-line-soft bg-surface shadow-card px-3.5 py-3 text-left"
             :data-alert="a.id"
             @click="openAlert(a.id)"
           >
@@ -111,10 +111,10 @@ const attention = computed(() => mark.value >= (alert.value?.line ?? 70))
           </button>
 
           <!-- 本院 4 KPI -->
-          <div v-if="sum.kpis" class="rounded-[10px] bg-surface p-3.5" data-testid="m-kpis">
+          <div v-if="sum.kpis" class="rounded-2xl border border-line-soft bg-surface shadow-card p-3.5" data-testid="m-kpis">
             <div class="mb-2.5 font-semibold">本院 {{ sum.period }}</div>
             <div class="grid grid-cols-2 gap-2.5">
-              <div v-for="k in sum.kpis" :key="k.label">
+              <div v-for="k in sum.kpis" :key="k.label" class="rounded-xl border border-line-soft px-3 py-2.5" :style="{ backgroundImage: 'linear-gradient(135deg, color-mix(in srgb, ' + (k.tone === 'danger' ? 'var(--c-danger)' : 'var(--c-primary)') + ' 10%, var(--c-surface)), var(--c-surface) 75%)' }">
                 <div class="text-[11px] text-ink-muted">{{ k.label }}</div>
                 <div class="text-[18px] leading-[1.4] font-semibold" :class="kpiTone(k.tone)">{{ k.value }}</div>
                 <div v-if="k.sub" class="text-[11px] text-ink-muted">{{ k.sub }}</div>
@@ -123,7 +123,7 @@ const attention = computed(() => mark.value >= (alert.value?.line ?? 70))
           </div>
 
           <!-- 重点病组 -->
-          <div v-if="sum.groups" class="rounded-[10px] bg-surface p-3.5" data-testid="m-groups">
+          <div v-if="sum.groups" class="rounded-2xl border border-line-soft bg-surface shadow-card p-3.5" data-testid="m-groups">
             <div class="mb-2 font-semibold">重点病组 <span class="text-[11px] font-normal text-ink-muted">· 例均基金差额(元)</span></div>
             <div class="grid grid-cols-[48px_1fr_72px] gap-y-2 text-[12px]">
               <template v-for="g in sum.groups" :key="g.code">
@@ -135,7 +135,7 @@ const attention = computed(() => mark.value >= (alert.value?.line ?? 70))
           </div>
 
           <!-- 核对引导 -->
-          <div v-if="sum.check" class="flex min-h-11 items-center justify-between gap-2 rounded-[10px] bg-surface px-3.5 py-3" data-testid="m-check">
+          <div v-if="sum.check" class="flex min-h-11 items-center justify-between gap-2 rounded-2xl border border-line-soft bg-surface shadow-card px-3.5 py-3" data-testid="m-check">
             <span>{{ sum.check.title.replace('(核对稿)', '') }}核对</span>
             <span class="text-[12px] text-ai">{{ sum.check.closed ? '核对期已截止' : `请在 PC 端完成 · 截止 ${sum.check.deadlineLabel}` }}</span>
           </div>
@@ -143,7 +143,7 @@ const attention = computed(() => mark.value >= (alert.value?.line ?? 70))
 
         <!-- 预警详情 -->
         <template v-else-if="alert">
-          <div class="rounded-[10px] bg-surface p-3.5" data-testid="m-alert">
+          <div class="rounded-2xl border border-line-soft bg-surface shadow-card p-3.5" data-testid="m-alert">
             <span class="rounded-[3px] bg-danger-soft px-1.5 py-px text-[11px] text-danger-ink">预警</span>
             <div class="mt-1.5 text-[16px] font-semibold">{{ alert.title }}</div>
             <div class="text-[12px] text-ink-muted">{{ alert.period }} · 示例市医保数据工作组</div>
@@ -156,8 +156,8 @@ const attention = computed(() => mark.value >= (alert.value?.line ?? 70))
               <div class="mt-1.5 text-[12px] text-ink-sub">同级 P{{ alert.percentile }} · 关注线 P{{ alert.line }}</div>
             </template>
           </div>
-          <div v-if="alert.narrative" class="rounded-[10px] bg-surface p-3.5 text-[12px] leading-[1.8] text-ink-body">{{ alert.narrative }}</div>
-          <div class="rounded-[10px] bg-surface px-3.5 py-3 text-[12px] text-ink-muted">提醒函 {{ alert.letterNo }} · 涉及 {{ alert.group }}</div>
+          <div v-if="alert.narrative" class="rounded-2xl border border-line-soft bg-surface shadow-card p-3.5 text-[12px] leading-[1.8] text-ink-body">{{ alert.narrative }}</div>
+          <div class="rounded-2xl border border-line-soft bg-surface shadow-card px-3.5 py-3 text-[12px] text-ink-muted">提醒函 {{ alert.letterNo }} · 涉及 {{ alert.group }}</div>
           <div class="text-center text-[11px] text-ink-faint">移动端仅查看,回执与意见请在 PC 端处理</div>
         </template>
       </main>

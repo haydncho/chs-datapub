@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { fmtNum, portalAnalysisApi, signed, type GroupDetail, type GroupIndex } from '@/api/portalAnalysis'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import Chip from '@/components/shared/Chip.vue'
@@ -59,6 +60,12 @@ const valText = (v: number, d: number, unit: string) => (unit === '%' ? `${fmtNu
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div v-if="idx" class="mt-5 grid grid-cols-4 gap-3.5" data-testid="b2-kpis">
+      <KpiCard label="重点病组" :value="String(idx.groups.length)" unit="个" icon="topic" tone="primary" desc="本院病例 ≥ 30" />
+      <KpiCard label="小样本病组" :value="String(idx.small.length)" unit="个" icon="lock" tone="warning" desc="已并入“其他”,不下发数值" />
+      <KpiCard label="同级对比组" :value="idx.peerGroup" icon="inst" tone="ai" small :desc="`${idx.peerCount} 家 · 匿名分位`" />
+      <KpiCard label="关联专题" :value="String(idx.topics.length)" unit="项" icon="doc" tone="success" :desc="idx.periodLabel" />
+    </div>
 
     <div v-if="error" class="mt-5 rounded-2xl border border-line-soft bg-surface shadow-card px-6 py-10 text-center text-[13px] text-ink-muted">
       加载失败:{{ error }} <button type="button" class="ml-2 cursor-pointer text-primary" @click="load">重试</button>

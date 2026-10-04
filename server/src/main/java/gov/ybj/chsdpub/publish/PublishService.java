@@ -489,9 +489,14 @@ public class PublishService {
         int ver = (max == null ? 0 : max) + 1;
         if ("撤回".equals(f.action())) {
             int rows = jdbc.update("update pub_release set status = 'WITHDRAWN' where subject = ? and status = 'CURRENT'", f.subject());
+            // 撤回批准即生效:机构端该版本报告立即显示「已撤回」,对应数据期次停止对外展示
+            markReports("WITHDRAWN", f.subject());
+            setPeriod(f.subject(), "WITHDRAWN");
             return rows > 0 ? "已撤回「" + f.subject() + "」现行版本,原版保留只读;通知 " + n + " 家机构" : "无现行版本可撤回";
         }
         jdbc.update("update pub_release set status = 'SUPERSEDED' where subject = ? and status = 'CURRENT'", f.subject());
+        markReports("OLD", f.subject());
+        setPeriod(f.subject(), "PUBLISHED");
         jdbc.update("insert into pub_release (subject, version, flow_id, published_on, signed, total, status, note) values (?,?,?,?,0,?,'CURRENT',?)",
                 f.subject(), ver, f.id(), today, n, "更正".equals(f.action()) ? "经专家组复核与召集人审批" : "经召集人审批");
         return "更正".equals(f.action())
@@ -623,6 +628,26 @@ public class PublishService {
         return new Advance(next.idx(), next.name(), label, hint, allowed, blocked, signed, total, ops, open);
     }
 
+    /** 被取代 / 撤回的发布版本下尚未归档的机构报告改为只读保留(更正 → 已更正 OLD;撤回 → 已撤回 WITHDRAWN)。 */
+    private void markReports(String status, String subject) {
+        jdbc.update("""
+                update pr_report set status = ? where status in ('SIGN', 'CHECK', 'SIGNED') and release_id in
+                (select id from pub_release where subject = ? and status in ('SUPERSEDED', 'WITHDRAWN'))""", status, subject);
+    }
+
+    private static final java.util.regex.Pattern MONTH = java.util.regex.Pattern.compile("(\\d{4})年(\\d{1,2})月");
+
+    /** 月度发布物对应的数据期次:发布 → PUBLISHED,撤回 → WITHDRAWN(外部读取据此放行或拦截)。 */
+    private void setPeriod(String subject, String status) {
+        var m = MONTH.matcher(subject);
+        if (!m.find() || !subject.contains("月度")) return;
+        String period = String.format("%s-%02d", m.group(1), Integer.parseInt(m.group(2)));
+        jdbc.update("""
+                insert into pub_period (period, status, note) values (?, ?, ?)
+                on conflict (period) do update set status = excluded.status, note = excluded.note, updated_at = now()""",
+                period, status, "WITHDRAWN".equals(status) ? "经召集人审批撤回" : "经召集人审批发布");
+    }
+
     private static String kindOfSubject(String subject, String flowKind) {
         if (subject.contains("专题") || "病组与机构专题".equals(flowKind)) return "专题报告";
         return subject.contains("体检") ? "体检报告" : "月度报告";
@@ -631,12 +656,7 @@ public class PublishService {
     /** 执行定向发布:按定向范围为每家机构生成待签收报告(B4 / D1 可见);更正使原版本只读保留。返回留痕文字。 */
     private String dispatch(FlowRow f, Optional<Map<String, Object>> rel, List<PackageItem> items) {
         boolean withdraw = "撤回".equals(f.action());
-        // 更正 / 撤回:原发布版本下尚未归档的机构报告改为只读保留
-        // 更正:原版报告「已更正」(OLD);撤回:原版报告「已撤回」(WITHDRAWN);均只读保留,不再需要签收
-        jdbc.update("""
-                update pr_report set status = ? where status in ('SIGN', 'CHECK', 'SIGNED') and release_id in
-                (select id from pub_release where subject = ? and status in ('SUPERSEDED', 'WITHDRAWN'))""",
-                withdraw ? "WITHDRAWN" : "OLD", f.subject());
+        // 原版报告的「已更正 / 已撤回」状态已在批准发布时生效(见 release),此处只负责送达与生成新报告
         Map<String, Object> cov = coverage(f.scope());
         @SuppressWarnings("unchecked")
         List<String> names = (List<String>) cov.get("names");

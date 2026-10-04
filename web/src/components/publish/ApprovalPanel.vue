@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import type { FlowDetail } from '@/api/publish'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
+import ApprovalActions from './ApprovalActions.vue'
 
 /**
  * 审批与留痕：第 5 步「召集人审批」批准（→ 第 6 步定向发布）或驳回至「分析成稿」（驳回意见必填）；
@@ -12,13 +12,6 @@ import { Textarea } from '@/components/ui/textarea'
 const props = defineProps<{ detail: FlowDetail; busy?: boolean }>()
 const emit = defineEmits<{ approve: [opinion: string]; reject: [opinion: string]; submit: []; advance: [] }>()
 
-const opinion = ref('')
-const missing = ref(false)
-watch(() => [props.detail.flow.id, props.detail.flow.step], () => {
-  opinion.value = ''
-  missing.value = false
-})
-watch(opinion, (v) => v.trim() && (missing.value = false))
 
 const f = computed(() => props.detail.flow)
 const atGate = computed(() => !f.value.archived && f.value.step === f.value.gateIdx)
@@ -26,13 +19,6 @@ const before = computed(() => !f.value.archived && f.value.step < f.value.gateId
 const rejectTo = computed(() => props.detail.steps.find((s) => s.idx === f.value.rejectIdx)?.name ?? '分析成稿')
 const count = computed(() => props.detail.coverage?.count)
 
-function reject() {
-  if (!opinion.value.trim()) {
-    missing.value = true
-    return
-  }
-  emit('reject', opinion.value)
-}
 </script>
 
 <template>
@@ -44,31 +30,22 @@ function reject() {
           v-if="detail.openCheckOpinions && f.kind === '月告知'"
           class="mb-2.5 rounded-lg border border-ai-line bg-ai-soft px-2.5 py-2 text-[12px] text-ai-ink"
         >尚有 {{ detail.openCheckOpinions }} 条核对期异议未答复(意见管理),将影响本期发布包定稿。</div>
-        <Textarea
-          v-model="opinion"
-          placeholder="填写审批意见(驳回时必填)"
-          class="h-[110px] resize-none text-[13px]"
-          :class="{ 'border-danger': missing }"
-          :aria-invalid="missing"
-          data-testid="approval-opinion"
-        />
-        <div v-if="missing" class="mt-1 text-[12px] text-danger" data-testid="opinion-required">驳回须填写意见,说明退回修改的原因</div>
-        <div class="mt-2.5 flex gap-2">
-          <Button class="px-[18px]" :disabled="busy || !detail.canApprove" data-testid="approve-btn" @click="emit('approve', opinion)">批准发布</Button>
-          <Button
-            variant="outline"
-            class="border-danger px-[18px] text-danger hover:border-danger hover:bg-danger-soft"
-            :disabled="busy || !detail.canApprove"
-            data-testid="reject-btn"
-            @click="reject"
-          >驳回至「{{ rejectTo }}」</Button>
-        </div>
-        <div class="mt-2 text-[11px] leading-[1.6] text-ink-muted">
-          批准即整包放行,数据由分析监测区进入发布区,按定向范围推送 <b class="text-ink-sub">{{ count ?? '—' }}</b> 家机构。
-        </div>
-        <div v-if="!detail.canApprove" class="mt-2 rounded-lg bg-subtle px-2.5 py-2 text-[11px] leading-[1.6] text-ink-muted" data-testid="role-hint">
-          当前身份可提交与调整定向范围;批准与驳回由召集人办理,所有操作全程留痕。
-        </div>
+        <ApprovalActions
+          :can-approve="detail.canApprove"
+          :busy="busy"
+          approve-text="批准发布"
+          :reject-text="`驳回至「${rejectTo}」`"
+          :ids="{ opinion: 'approval-opinion', approve: 'approve-btn', reject: 'reject-btn', required: 'opinion-required' }"
+          :reset-key="`${detail.flow.id}-${detail.flow.step}`"
+          :rows-height="110"
+          role-hint="当前身份可提交与调整定向范围;批准与驳回由召集人办理,所有操作全程留痕。"
+          @approve="emit('approve', $event)"
+          @reject="emit('reject', $event)"
+        >
+          <div class="mt-2 text-[11px] leading-[1.6] text-ink-muted">
+            批准即整包放行,数据由分析监测区进入发布区,按定向范围推送 <b class="text-ink-sub">{{ count ?? '—' }}</b> 家机构。
+          </div>
+        </ApprovalActions>
       </template>
       <template v-else>
         <div class="rounded-lg bg-subtle px-3 py-3 text-[12px] leading-[1.7] text-ink-body" data-testid="not-gate">

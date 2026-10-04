@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { topicApi } from '@/api'
 import type { Topic } from '@/api/types'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import Tag from '@/components/shared/Tag.vue'
@@ -78,6 +79,12 @@ const pct = (v: number) => (t.value ? (v / t.value.waterfall.axisMax) * 100 : 0)
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div v-if="t" class="mt-5 grid grid-cols-4 gap-3.5" data-testid="a7-kpis">
+      <KpiCard label="专题病例" :value="t.overview.cases.toLocaleString('zh-CN')" unit="例" icon="bed" tone="primary" :desc="`${t.overview.orgs} 家机构收治`" />
+      <KpiCard label="例均基金差额" :value="`${t.overview.avgDiff > 0 ? '+' : ''}${t.overview.avgDiff.toLocaleString('zh-CN')}元`" icon="money" :tone="t.overview.avgDiff > 0 ? 'danger' : 'success'" small :desc="`差额合计 ${t.overview.diffTotalWan} 万`" />
+      <KpiCard label="次均总费用" :value="`${t.overview.avgCost.toLocaleString('zh-CN')}元`" icon="pct" tone="warning" small :delta="{ text: `${Math.abs(t.overview.yoyPct)}%`, dir: t.overview.yoyPct >= 0 ? 'up' : 'down', good: false }" desc="同比" />
+      <KpiCard label="偏离标杆机构" :value="String(t.overview.deviantOrgs)" unit="家" icon="alert" tone="ai" :desc="`标杆机构 ${t.overview.benchOrgs} 家`" />
+    </div>
 
     <div v-if="error" class="mt-5 rounded-2xl border border-line-soft bg-surface shadow-card px-6 py-10 text-center text-[13px] text-ink-muted">
       专题加载失败:{{ error }} <button type="button" class="ml-2 cursor-pointer text-primary" @click="load">重试</button>

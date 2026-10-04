@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { adminApi } from '@/api'
 import type { AccountRow, OrgUnit, PermRole } from '@/api/types'
 import Chip from '@/components/shared/Chip.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import SegTabs from '@/components/shared/SegTabs.vue'
 import Tag from '@/components/shared/Tag.vue'
@@ -49,6 +50,12 @@ async function operate(target: string, action: string) {
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="a12-kpis">
+      <KpiCard label="组织单元" :value="String(orgs.length)" unit="个" icon="inst" tone="primary" desc="按组织授权" />
+      <KpiCard label="角色" :value="String(roles.length)" unit="类" icon="users" tone="ai" desc="含三员分立角色" />
+      <KpiCard label="账号" :value="String(accounts.length)" unit="个" icon="lock" tone="success" desc="含生命周期各阶段" />
+      <KpiCard label="权限控制维度" :value="String(columns.length)" unit="项" icon="shield" tone="warning" desc="矩阵列即控制维度" />
+    </div>
     <div class="mt-5 rounded-[10px] border border-warning-line bg-warning-soft px-4 py-2.5 text-[12px] text-warning-ink" data-testid="three-roles">
       三员分立:系统管理员、安全管理员、审计员互不兼任。当前账号为<b>安全管理员</b>,可管理授权,不能查看业务数据,也不能修改审计日志。
     </div>

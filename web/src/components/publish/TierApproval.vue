@@ -1,38 +1,21 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import type { TierRequest } from '@/api/publish'
 import Panel from '@/components/shared/Panel.vue'
 import Tag from '@/components/shared/Tag.vue'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
+import ApprovalActions from './ApprovalActions.vue'
 
 /**
  * 对标档位切换审批（A13 发起）：召集人批准后更新指标档位，驳回须填写意见；审批通过前按原档位发布。
  */
-const props = defineProps<{ req: TierRequest; canApprove: boolean; busy?: boolean }>()
+defineProps<{ req: TierRequest; canApprove: boolean; busy?: boolean }>()
 const emit = defineEmits<{ approve: [opinion: string]; reject: [opinion: string] }>()
 
 const TIERS = ['匿名分位', '匿名编号', '具名对比与排行']
 const DESC = ['机构仅见本院在同级中的分位', '如“三级医院A”,不具名横向对比', '显示机构名称与排名']
-const opinion = ref('')
-const missing = ref(false)
-watch(() => props.req.id, () => {
-  opinion.value = ''
-  missing.value = false
-})
-watch(opinion, (v) => v.trim() && (missing.value = false))
-
-function reject() {
-  if (!opinion.value.trim()) {
-    missing.value = true
-    return
-  }
-  emit('reject', opinion.value)
-}
 </script>
 
 <template>
-  <Panel title="对标档位切换审批" sub="A13 展示策略配置发起 · 审批通过前按原档位发布" data-testid="tier-approval">
+  <Panel title="对标档位切换审批" sub="展示策略配置发起 · 审批通过前按原档位发布" data-testid="tier-approval">
     <template #head><Tag tone="warning">待召集人审批</Tag></template>
     <div class="grid grid-cols-3 gap-2.5">
       <div
@@ -61,30 +44,21 @@ function reject() {
           具名对比与排行将向同级机构显示机构名称与名次,请确认已完成机构核对。
         </div>
       </div>
-      <div>
-        <Textarea
-          v-model="opinion"
-          placeholder="填写审批意见(驳回时必填)"
-          class="h-[92px] resize-none text-[13px]"
-          :class="{ 'border-danger': missing }"
-          data-testid="tier-opinion"
-        />
-        <div v-if="missing" class="mt-1 text-[12px] text-danger">驳回须填写意见</div>
-        <div class="mt-2.5 flex gap-2">
-          <Button class="px-[18px]" :disabled="busy || !canApprove" data-testid="tier-approve" @click="emit('approve', opinion)">批准切换</Button>
-          <Button
-            variant="outline"
-            class="border-danger px-[18px] text-danger hover:border-danger hover:bg-danger-soft"
-            :disabled="busy || !canApprove"
-            data-testid="tier-reject"
-            @click="reject"
-          >驳回申请</Button>
-        </div>
+      <ApprovalActions
+        :can-approve="canApprove"
+        :busy="busy"
+        approve-text="批准切换"
+        reject-text="驳回申请"
+        :ids="{ opinion: 'tier-opinion', approve: 'tier-approve', reject: 'tier-reject' }"
+        :reset-key="req.id"
+        role-hint="档位切换由召集人审批。"
+        @approve="emit('approve', $event)"
+        @reject="emit('reject', $event)"
+      >
         <div class="mt-2 text-[11px] leading-[1.6] text-ink-muted">
           批准后「{{ req.indicator }}」在展示策略配置与机构端按“{{ req.toName }}”展示;驳回则保持“{{ req.fromName }}”。
         </div>
-        <div v-if="!canApprove" class="mt-2 rounded-lg bg-subtle px-2.5 py-2 text-[11px] text-ink-muted">档位切换由召集人审批。</div>
-      </div>
+      </ApprovalActions>
     </div>
   </Panel>
 </template>

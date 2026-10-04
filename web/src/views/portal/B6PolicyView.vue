@@ -3,6 +3,7 @@ import { watchDebounced } from '@vueuse/core'
 import { onMounted, ref, watch } from 'vue'
 import { portalReportsApi, type Course, type PolicyDoc, type Quiz } from '@/api/portalReports'
 import Chip from '@/components/shared/Chip.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import Tag from '@/components/shared/Tag.vue'
@@ -74,6 +75,11 @@ function optClass(i: number) {
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div class="mt-5 grid grid-cols-3 gap-3.5" data-testid="b6-kpis">
+      <KpiCard label="政策文件" :value="String(docs.length)" unit="份" icon="book" tone="primary" desc="只读查看,带实名水印" />
+      <KpiCard label="培训课程" :value="String(courses.length)" unit="门" icon="topic" tone="ai" :spark="courses.map((c) => c.pct)" desc="柱高为各课完成进度" />
+      <KpiCard label="平均学习进度" :value="`${courses.length ? Math.round(courses.reduce((n, c) => n + c.pct, 0) / courses.length) : 0}%`" icon="check" tone="success" desc="含随堂测验" />
+    </div>
     <div class="mt-5 grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] items-start gap-3">
       <!-- 文件检索 -->
       <div>

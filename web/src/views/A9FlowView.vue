@@ -4,6 +4,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { flowApi } from '@/api'
 import type { FlowNode, FlowTemplateRow } from '@/api/types'
 import Chip from '@/components/shared/Chip.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import Tag from '@/components/shared/Tag.vue'
@@ -84,7 +85,14 @@ async function saveVersion() {
       </template>
     </PageHeader>
 
-    <div class="mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-3">
+    <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="a9-kpis">
+      <KpiCard label="流程模板" :value="String(templates.length)" unit="套" icon="flow" tone="primary" desc="月 / 季 / 年 / 专题 / 预警 / 更正" />
+      <KpiCard label="当前模板节点" :value="String(nodes.length)" unit="个" icon="grip" tone="ai" :spark="nodes.map((n) => n.days)" desc="柱高为各节点时限(天)" />
+      <KpiCard label="审批关口" :value="String(nodes.filter((n) => n.gate).length)" unit="个" icon="shield" tone="warning" desc="召集人审批,未批准不外发" />
+      <KpiCard label="总时限" :value="String(nodes.reduce((n, x) => n + x.days, 0))" unit="天" icon="clock" tone="success" desc="各节点时限合计" />
+    </div>
+
+    <div class="mt-3.5 flex flex-wrap items-center gap-2 rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-3">
       <span class="text-[12px] text-ink-muted">流程模板</span>
       <Chip v-for="t in templates" :key="t.id" :on="t.id === tplId" @click="tplId = t.id">{{ label(t) }}</Chip>
       <Tag v-if="tpl?.pendingVersion" tone="warning" class="ml-auto">{{ tpl.pendingVersion }} 待召集人确认</Tag>

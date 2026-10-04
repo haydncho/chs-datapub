@@ -29,8 +29,21 @@ public class GlobalExceptionHandler {
         return m;
     }
 
+    private final gov.ybj.chsdpub.audit.AuditService audit;
+
+    public GlobalExceptionHandler(gov.ybj.chsdpub.audit.AuditService audit) {
+        this.audit = audit;
+    }
+
+    /** 业务层返回 403(越权操作)统一写入审计「越权尝试」。 */
+    private void auditOverreach(jakarta.servlet.http.HttpServletRequest req) {
+        var u = gov.ybj.chsdpub.auth.CurrentUser.orNull();
+        if (u != null) audit.overreach(u, req.getMethod() + " " + req.getRequestURI(), gov.ybj.chsdpub.audit.AuditService.clientIp(req));
+    }
+
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<Map<String, Object>> api(ApiException e) {
+    public ResponseEntity<Map<String, Object>> api(ApiException e, jakarta.servlet.http.HttpServletRequest req) {
+        if (e.getStatus() == HttpStatus.FORBIDDEN) auditOverreach(req);
         return ResponseEntity.status(e.getStatus()).body(body(e.getCode(), e.getMessage()));
     }
 
@@ -59,7 +72,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, Object>> denied(AccessDeniedException e) {
+    public ResponseEntity<Map<String, Object>> denied(AccessDeniedException e, jakarta.servlet.http.HttpServletRequest req) {
+        auditOverreach(req);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body("FORBIDDEN", "无权执行该操作"));
     }
 

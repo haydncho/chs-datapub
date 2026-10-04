@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 import type { Tone } from '@/api/types'
 import { portalReportsApi, type AlertLetter, type CheckItem, type CheckRound, type MyOpinion, type OpinionRef } from '@/api/portalReports'
 import Chip from '@/components/shared/Chip.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import Tag from '@/components/shared/Tag.vue'
@@ -166,6 +167,12 @@ async function rate(o: MyOpinion, n: number) {
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="b5-kpis">
+      <KpiCard label="我提交的意见" :value="String(mine.length)" unit="条" icon="opinion" tone="primary" desc="均关联具体指标或报告" />
+      <KpiCard label="待答复" :value="String(mine.filter((m) => m.status !== 'DONE').length)" unit="条" icon="clock" tone="warning" desc="医保局承办人限时答复" />
+      <KpiCard label="已答复" :value="String(mine.filter((m) => m.status === 'DONE').length)" unit="条" icon="check" tone="success" desc="可对答复评价" />
+      <KpiCard label="收到的预警函" :value="String(letters.length)" unit="份" icon="alert" :tone="letters.some((l) => l.canReceipt) ? 'danger' : 'primary'" :desc="`待回执 ${letters.filter((l) => l.canReceipt).length} 份`" />
+    </div>
 
     <div class="mt-5 flex flex-col gap-3">
       <!-- 核对卡（紫边） -->

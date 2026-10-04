@@ -26,7 +26,6 @@ public class ConvenerGuard {
     public AuthUser require(String action) {
         AuthUser u = CurrentUser.get();
         if (!Roles.CONVENER.equals(u.role())) {
-            audit.overreach(u, action, AuditService.currentIp());
             throw ApiException.forbidden("仅召集人可审批;" + u.roleLabel() + "可提交、不可审批");
         }
         return u;

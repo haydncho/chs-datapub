@@ -152,7 +152,7 @@ assert.match(cd1, /^(\d+ 天 )?\d{2}:\d{2}:\d{2}$/)
 await s.waitForTimeout(1300)
 const cd2 = (await s.textContent('[data-testid=c3-countdown]')).trim()
 assert.notEqual(cd1, cd2, '倒计时应每秒刷新')
-assert.match(await s.textContent('[data-testid=c3-banner]'), /截止 2026-10-05 18:00.*不提供下载、打印、导出/)
+assert.match(await s.textContent('[data-testid=c3-banner]'), /截止 \d{4}-\d{2}-\d{2} 18:00.*不提供下载、打印、导出/)
 step(`C3 剩余有效期倒计时每秒刷新(${cd1} → ${cd2})`)
 
 assert.match(await s.textContent('[data-testid=c3-heading]'), /2026年前三季度 示例市医保基金运行情况/)
@@ -208,6 +208,7 @@ if (process.env.REGIONAL_DB) {
     execFileSync('psql', ['-h', 'localhost', '-U', 'dpub', '-d', process.env.REGIONAL_DB, '-qtAc', sql], {
       env: { ...process.env, PGPASSWORD: process.env.PGPASSWORD ?? 'dpub' },
     })
+  const saved = psql('select valid_until from rg_seat limit 1').toString().trim()
   psql("update rg_seat set valid_until = now() - interval '1 minute'")
   try {
     const r = await api(s, '/supervision/materials/1')
@@ -217,7 +218,7 @@ if (process.env.REGIONAL_DB) {
     await s.waitForSelector('[data-testid=c3-expired]:has-text("到期自动失效")')
     assert.equal(await s.locator('[data-testid=c3-heading]').count(), 0)
   } finally {
-    psql("update rg_seat set valid_until = '2026-10-05 18:00:00+08'")
+    psql(`update rg_seat set valid_until = '${saved}'`)
   }
   step('C3 服务端校验有效期:到期后接口 403 SEAT_EXPIRED,前端显示失效状态')
 }

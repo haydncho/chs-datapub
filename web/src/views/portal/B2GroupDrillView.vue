@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { fmtNum, portalAnalysisApi, signed, type GroupDetail, type GroupIndex } from '@/api/portalAnalysis'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
@@ -15,6 +15,7 @@ import { notifyError } from '@/lib/notify'
  */
 const page = pageDef('B2')!
 const router = useRouter()
+const route = useRoute()
 
 const idx = ref<GroupIndex | null>(null)
 const g = ref<GroupDetail | null>(null)
@@ -39,7 +40,10 @@ async function load() {
   try {
     idx.value = await portalAnalysisApi.groups()
     error.value = ''
-    if (idx.value.groups.length) await pick(idx.value.groups[0].code)
+    // 支持从 B1 本院全息图带病组编码进入（/b2?code=BR25）；不在本院重点病组里的编码回落到第一个
+    const want = typeof route.query.code === 'string' ? route.query.code : ''
+    const first = idx.value.groups.find((x) => x.code === want) ?? idx.value.groups[0]
+    if (first) await pick(first.code)
   } catch (e) {
     error.value = e instanceof Error ? e.message : '加载失败'
   }

@@ -129,7 +129,7 @@ export interface ReportPreset {
   blockIds: number[]
 }
 
-// ---------------------------------------------------------------- 病种专题（A7）
+// ---------------------------------------------------------------- 病组专题（A7）
 export interface TopicSection {
   idx: number
   name: string

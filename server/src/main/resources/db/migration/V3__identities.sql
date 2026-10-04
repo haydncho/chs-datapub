@@ -15,5 +15,5 @@ insert into user_identity (user_id, role, role_label, org, org_detail, scope, ho
  (9,  'PROVINCE',    '基金监管处',              '省医保局',           '省医保局 · 基金监管处',       '各统筹区汇总层 · 无机构级数据',  'C2', '首页:省级汇总',   1),
  (10, 'SUPERVISOR',  '外部监督 · 市人大代表',   '限时只读席位',       '示例市人大常委会',            '发布会材料 · 至 10-05 18:00',    'C3', '首页:只读席位',   1);
 
-update user_identity set home = 'A2', home_label = '首页:A2 全息图' where role = 'CONVENER';
-update user_identity set home = 'A2', home_label = '首页:A2 全息图' where role = 'ADMIN_GROUP';
+update user_identity set home = 'A2', home_label = '首页:全息图' where role = 'CONVENER';
+update user_identity set home = 'A2', home_label = '首页:全息图' where role = 'ADMIN_GROUP';

@@ -12,7 +12,7 @@ import { notify, notifyError } from '@/lib/notify'
 import { toneSoft, toneVar } from '@/lib/tone'
 
 /**
- * A13 展示策略配置：“谁在看 × 数据归谁”四象限策略；对标三档（匿名分位 / 匿名编号 / 具名PK与排行）。
+ * A13 展示策略配置：“谁在看 × 数据归谁”四象限策略；对标三档（匿名分位 / 匿名编号 / 具名对比与排行）。
  * 切换档位弹出审批申请，审批通过前保持原档位（行内显示「审批中:→ 新档位」）。
  */
 const page = pageDef('A13')!
@@ -141,7 +141,7 @@ async function submit() {
           <span class="text-ink-muted">审批人</span><span>{{ approver }}</span>
         </div>
         <div v-if="appr?.to === 2" class="mx-5 rounded-lg border border-warning-line bg-warning-soft px-2.5 py-2 text-[12px] text-warning-ink">
-          具名PK与排行将向同级机构显示机构名称与名次,请确认已完成机构核对。
+          具名对比与排行将向同级机构显示机构名称与名次,请确认已完成机构核对。
         </div>
         <div class="flex justify-end gap-2 px-5 py-4">
           <Button variant="outline" size="sm" @click="appr = null">取消</Button>

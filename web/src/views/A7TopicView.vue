@@ -11,7 +11,7 @@ import { notify, notifyError } from '@/lib/notify'
 import { useAuthStore } from '@/stores/auth'
 
 /**
- * A7 病种专题工作台（流程 2）：七段式结构；文稿区为引擎初稿，逐段人工审定，七段全审定才能提交机构核对与专家组审核。
+ * A7 病组专题工作台（流程 2）：七段式结构；文稿区为引擎初稿，逐段人工审定，七段全审定才能提交机构核对与专家组审核。
  * 受控分析环境：只输出经审核的聚合结果。专家组列席身份只读。
  */
 const page = pageDef('A7')!

@@ -54,7 +54,7 @@ const signNote = computed(() => {
   if (!d) return ''
   if (d.status === 'OLD') return '原版本只读保留'
   if (d.status === 'WITHDRAWN') return '该报告已撤回,仅保留只读,不需签收'
-  if (d.status === 'CHECK') return '核对稿:请在 B5 完成核对'
+  if (d.status === 'CHECK') return '核对稿:请在意见与核对页完成核对'
   return `✓ 已签收 · ${d.signedAt ?? ''}`
 })
 

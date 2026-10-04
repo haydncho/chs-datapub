@@ -93,7 +93,7 @@ await flowIs(c, M8)
 const draft = c.locator('[data-group="月告知"] [data-todo*="草稿"]')
 assert.equal(await draft.count(), 1)
 assert.match(await draft.textContent(), /第3步 · 分析成稿/)
-assert.match(await draft.textContent(), /A5 草稿/)
+assert.match(await draft.textContent(), /报告草稿/)
 step('A5 生成的报告草稿作为「月告知」待办出现在第 3 步')
 
 // 发布包与定向范围：仅内部项自动排除；定向范围实时覆盖（引擎）

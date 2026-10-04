@@ -32,7 +32,7 @@ import java.util.*;
 @Service
 public class PublishService {
 
-    public static final List<String> GROUPS = List.of("月告知", "季公布", "年通报", "病种与机构专题", "预警提醒函", "更正与撤回");
+    public static final List<String> GROUPS = List.of("月告知", "季公布", "年通报", "病组与机构专题", "预警提醒函", "更正与撤回");
     public static final List<String> DIMS = List.of("tiers", "districts", "batch", "alliance", "group");
     private static final DateTimeFormatter LOG_TIME = DateTimeFormatter.ofPattern("MM-dd HH:mm");
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("MM-dd");
@@ -191,7 +191,7 @@ public class PublishService {
                 String due = dueLabel(f, archived);
                 boolean overdue = due.contains("超期");
                 items.add(new TodoItem("flow", f.id(), f.name(), label, tone, due, overdue ? "danger" : "muted",
-                        f.draftId() != null ? "A5 草稿" : null));
+                        f.draftId() != null ? "报告草稿" : null));
             }
             out.add(new TodoGroup(g, items));
         }
@@ -200,7 +200,7 @@ public class PublishService {
                 join app_user u on u.id = r.requested_by where r.status = 'PENDING' order by r.created_at, r.id""",
                 (rs, i) -> new TodoItem("tier", rs.getLong(1), rs.getString(2) + " 档位切换",
                         TierApprovalService.tierName(rs.getInt(3)) + " → " + TierApprovalService.tierName(rs.getInt(4)), "warning",
-                        rs.getString(5) + " 申请", "muted", "A13"));
+                        rs.getString(5) + " 申请", "muted", "展示策略配置"));
         out.add(new TodoGroup(TierApprovalService.GROUP, tiers));
         out.add(new TodoGroup(IndicatorApprovalService.GROUP, indicatorApprovals.todos()));
         return out;
@@ -250,7 +250,7 @@ public class PublishService {
             }
             String at = String.valueOf(d.get("created_at"));
             jdbc.update("insert into pub_log (flow_id, at, who, what) values (?, ?::timestamptz, ?, ?)", fid, at,
-                    d.get("creator") + " · A5 报告模板",
+                    d.get("creator") + " · 报告模板",
                     "生成报告草稿「" + preset + "」(" + blocks.length + " 个区块),进入第 " + step + " 步「"
                             + node(ns, step).map(Node::name).orElse("分析成稿") + "」");
         }
@@ -458,7 +458,7 @@ public class PublishService {
     @Transactional
     public Map<String, Object> approve(long id, DecisionReq req) {
         FlowRow probe = flow(id, false);
-        AuthUser u = guard.require("A8 批准发布「" + probe.name() + "」");
+        AuthUser u = guard.require("发布工作流 · 批准发布「" + probe.name() + "」");
         FlowRow f = flow(id, true);
         List<Node> ns = nodes(f.templateId());
         int gate = gateIdx(ns);
@@ -471,7 +471,7 @@ public class PublishService {
         moveTo(id, ns, next);
         log(id, ConvenerGuard.who(u), withOpinion("批准发布", opinion));
         log(id, "系统", release(f, n));
-        guard.record(u, "A8 批准发布「" + f.name() + "」· 定向 " + n + " 家机构", "批准");
+        guard.record(u, "发布工作流 · 批准发布「" + f.name() + "」· 定向 " + n + " 家机构", "批准");
         String msg = "撤回".equals(f.action()) ? "已批准撤回 · 机构端将显示“已撤回”" : "已批准 · 发布包已定向发布至 " + n + " 家机构";
         return Map.of("message", msg, "step", next);
     }
@@ -497,7 +497,7 @@ public class PublishService {
     @Transactional
     public Map<String, Object> reject(long id, DecisionReq req) {
         FlowRow probe = flow(id, false);
-        AuthUser u = guard.require("A8 驳回「" + probe.name() + "」");
+        AuthUser u = guard.require("发布工作流 · 驳回「" + probe.name() + "」");
         if (req == null || Texts.blank(req.opinion())) throw ApiException.validation("请填写驳回意见");
         FlowRow f = flow(id, true);
         List<Node> ns = nodes(f.templateId());
@@ -507,7 +507,7 @@ public class PublishService {
         String target = node(ns, back).map(Node::name).orElse("分析成稿");
         moveTo(id, ns, back);
         log(id, ConvenerGuard.who(u), withOpinion("驳回至「" + target + "」", Texts.truncate(req.opinion().trim(), 200)));
-        guard.record(u, "A8 驳回「" + f.name() + "」至「" + target + "」", "驳回");
+        guard.record(u, "发布工作流 · 驳回「" + f.name() + "」至「" + target + "」", "驳回");
         return Map.of("message", "已驳回至第 " + back + " 步「" + target + "」", "step", back);
     }
 
@@ -590,7 +590,7 @@ public class PublishService {
                 int n = cov == null ? (total == null ? 0 : total) : count(cov);
                 label = withdraw ? "送达撤回通知" : "执行定向发布";
                 hint = withdraw ? "向 " + n + " 家机构送达撤回通知,原版本已标记撤回、保留只读。"
-                        : "按定向范围向 " + n + " 家机构生成发布报告(嵌入各机构实名水印编号),机构在 B4 报告中心 / 移动端签收。";
+                        : "按定向范围向 " + n + " 家机构生成发布报告(嵌入各机构实名水印编号),机构在报告中心(含手机版)签收。";
             }
             case "签收查阅" -> {
                 label = "结束签收期,进入「" + next.name() + "」";
@@ -599,14 +599,14 @@ public class PublishService {
             }
             case "意见申诉" -> {
                 label = "结束意见申诉期,进入「" + next.name() + "」";
-                hint = "发布后共收到意见 " + ops + " 条,其中待答复 " + open + " 条(A10 意见与申诉管理)。";
+                hint = "发布后共收到意见 " + ops + " 条,其中待答复 " + open + " 条(意见管理)。";
             }
             case "答复整改" -> {
                 label = "完成答复整改,归档复盘";
                 hint = "发布后收到的意见须全部答复后方可归档;当前待答复 " + open + " 条。";
                 if (open > 0) {
                     allowed = false;
-                    blocked = "还有 " + open + " 条意见未答复,请在 A10 答复后再归档";
+                    blocked = "还有 " + open + " 条意见未答复,请在意见管理答复后再归档";
                 }
             }
             default -> {
@@ -618,7 +618,7 @@ public class PublishService {
     }
 
     private static String kindOfSubject(String subject, String flowKind) {
-        if (subject.contains("专题") || "病种与机构专题".equals(flowKind)) return "专题报告";
+        if (subject.contains("专题") || "病组与机构专题".equals(flowKind)) return "专题报告";
         return subject.contains("体检") ? "体检报告" : "月度报告";
     }
 
@@ -652,7 +652,7 @@ public class PublishService {
                     values (?, ?, ?, ?, 12, 'SIGN', ?, ?::jsonb, (select coalesce(max(sort), 0) + 1 from pr_report where org = ?), ?)""",
                     org, title, kind, today, wm, body, org, rid);
         }
-        return "定向发布 " + names.size() + " 家机构:已生成各机构发布报告,待签收(B4 / 移动端)";
+        return "定向发布 " + names.size() + " 家机构:已生成各机构发布报告,待签收(机构报告中心 / 手机版)";
     }
 
     /** 推进到下一环节(批准发布之后):定向发布 → 签收查阅 → 意见申诉 → 答复整改 → 归档。召集人与行政管理组均可。 */

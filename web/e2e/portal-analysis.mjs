@@ -132,9 +132,9 @@ await p.click('[data-pk=示例市中医院]')
 assert.match(await text(p, '[data-testid=pk-card]'), /示例市中医院 96\.2% 同级第 4 名/)
 assert.match(await text(p, '[data-testid=pk-cards]'), /示例市第一人民医院 96\.4% 同级第 3 名/)
 assert.equal(await p.locator('[data-testid=rank-rows] > div').count(), 6)
-step('B3 具名PK与排行 → 选择对比医院 → 两卡并排 + 同级排行')
+step('B3 具名对比与排行 → 选择对比医院 → 两卡并排 + 同级排行')
 
-// 模拟 A13 改档单经 A8 审批通过：CMI值 匿名编号 → 具名PK与排行；B3 随之变化（结束后还原）
+// 模拟 A13 改档单经 A8 审批通过：CMI值 匿名编号 → 具名对比与排行；B3 随之变化（结束后还原）
 const psql = (sql) => execFileSync('psql', ['-h', 'localhost', '-U', 'dpub', '-d', PGDB, '-qtc', sql], { env: { ...process.env, PGPASSWORD: 'dpub' } })
 psql("update benchmark_tier set tier = 2 where indicator = 'CMI值'")
 try {

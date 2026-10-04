@@ -294,7 +294,7 @@ async function letter(a: AnomalyRow) {
                 <td>{{ a.value }}</td>
                 <td><span class="font-semibold" :class="a.level === '预警' ? 'text-danger' : 'text-warning'">{{ a.level }}</span></td>
                 <td>
-                  <span v-if="a.letterNo" class="text-ink-muted" :title="`${a.letterBy ?? ''} 生成`" data-testid="letter-no">已生成 <span class="font-mono">{{ a.letterNo }}</span><RouterLink v-if="a.alertStatus" to="/a11" class="ml-1.5 text-primary" data-testid="alert-status">A11 · {{ a.alertStatus }}</RouterLink></span>
+                  <span v-if="a.letterNo" class="text-ink-muted" :title="`${a.letterBy ?? ''} 生成`" data-testid="letter-no">已生成 <span class="font-mono">{{ a.letterNo }}</span><RouterLink v-if="a.alertStatus" to="/a11" class="ml-1.5 text-primary" data-testid="alert-status">预警与整改 · {{ a.alertStatus }}</RouterLink></span>
                   <button v-else type="button" class="act text-primary" :disabled="busy === `a${a.id}`" data-act="letter" @click="letter(a)">生成提醒函</button>
                 </td>
               </tr>

@@ -163,7 +163,7 @@ export interface MobileAlert {
   group: string
 }
 
-/** 医保局发来的预警提醒函;已发函待回执的可提交回执(原因分析与整改措施)。 */
+/** 医保局发来的预警提醒函;已发出待回执的可提交回执(原因分析与整改措施)。 */
 export interface AlertLetter {
   id: number
   letterNo: string

@@ -48,7 +48,7 @@ export interface BenchIndex {
 
 export interface BenchDetail {
   indicator: string
-  /** 0 匿名分位 / 1 匿名编号 / 2 具名PK与排行 */
+  /** 0 匿名分位 / 1 匿名编号 / 2 具名对比与排行 */
   tier: number
   tierName: string
   unit: string
@@ -72,7 +72,7 @@ export interface BenchDetail {
   }
   /** 仅匿名编号档（无名称） */
   anonymous?: { label: string; value: number; own: boolean }[]
-  /** 仅具名PK与排行档 */
+  /** 仅具名对比与排行档 */
   named?: { ownName: string; ownRank: number; rows: { rank: number; name: string; value: number; own: boolean }[] }
 }
 

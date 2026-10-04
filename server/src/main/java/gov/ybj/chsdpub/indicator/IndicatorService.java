@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Service
 public class IndicatorService {
 
-    public static final List<String> TIER_NAMES = List.of("匿名分位", "匿名编号", "具名PK与排行");
+    public static final List<String> TIER_NAMES = List.of("匿名分位", "匿名编号", "具名对比与排行");
     public static final List<String> GROUPS = List.of("钱", "效", "错");
     public static final List<String> DIMS = List.of("机构", "等级", "病组", "县区", "时间", "险种");
     public static final List<String> FILTER_FIELDS = List.of("手术标志", "离院方式", "险种", "入院途径", "年龄");
@@ -384,7 +384,7 @@ public class IndicatorService {
         if (Texts.blank(name) || name.length() > 32) throw ApiException.validation("指标名称须为 1–32 字");
         Integer dup = jdbc.queryForObject("select count(*) from ind_indicator where name = ?", Integer.class, name);
         if (dup != null && dup > 0) throw ApiException.conflict("指标「" + name + "」已存在");
-        if ("排行条".equals(c.template()) && c.tier() != 2) throw ApiException.validation("排行条仅用于「具名PK与排行」档位");
+        if ("排行条".equals(c.template()) && c.tier() != 2) throw ApiException.validation("排行条仅用于「具名对比与排行」档位");
         boolean internal = Boolean.TRUE.equals(c.internal());
 
         List<Map<String, Object>> src = jdbc.queryForList("select source from ind_atom where name = ?", c.denominator() == null ? c.numerator() : c.denominator());

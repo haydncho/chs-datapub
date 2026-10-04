@@ -23,7 +23,7 @@ import java.util.Map;
 public class TierApprovalService {
 
     public static final String GROUP = "对标档位切换";
-    public static final List<String> TIERS = List.of("匿名分位", "匿名编号", "具名PK与排行");
+    public static final List<String> TIERS = List.of("匿名分位", "匿名编号", "具名对比与排行");
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("MM-dd HH:mm");
 
     private final JdbcTemplate jdbc;
@@ -64,25 +64,25 @@ public class TierApprovalService {
 
     @Transactional
     public Map<String, Object> approve(long id, PublishService.DecisionReq req) {
-        AuthUser u = guard.require("A8 批准对标档位切换 #" + id);
+        AuthUser u = guard.require("发布工作流 · 批准对标档位切换 #" + id);
         TierRequest t = pending(id);
         String opinion = req == null || Texts.blank(req.opinion()) ? null : Texts.truncate(req.opinion().trim(), 256);
         jdbc.update("update benchmark_tier set tier = ? where indicator = ?", t.toTier(), t.indicator());
         jdbc.update("update tier_change_request set status = 'APPROVED' where id = ?", id);
         jdbc.update("insert into pub_tier_decision (request_id, decision, opinion, decided_by) values (?, 'APPROVED', ?, ?)", id, opinion, u.userId());
-        guard.record(u, "A13 对标档位「" + t.indicator() + "」" + t.fromName() + " → " + t.toName(), "批准");
+        guard.record(u, "展示策略配置 · 对标档位「" + t.indicator() + "」" + t.fromName() + " → " + t.toName(), "批准");
         return Map.of("message", "已批准 · 「" + t.indicator() + "」对标档位切换为" + t.toName());
     }
 
     @Transactional
     public Map<String, Object> reject(long id, PublishService.DecisionReq req) {
-        AuthUser u = guard.require("A8 驳回对标档位切换 #" + id);
+        AuthUser u = guard.require("发布工作流 · 驳回对标档位切换 #" + id);
         if (req == null || Texts.blank(req.opinion())) throw ApiException.validation("请填写驳回意见");
         TierRequest t = pending(id);
         jdbc.update("update tier_change_request set status = 'REJECTED' where id = ?", id);
         jdbc.update("insert into pub_tier_decision (request_id, decision, opinion, decided_by) values (?, 'REJECTED', ?, ?)", id,
                 Texts.truncate(req.opinion().trim(), 256), u.userId());
-        guard.record(u, "A13 对标档位「" + t.indicator() + "」" + t.fromName() + " → " + t.toName(), "驳回");
+        guard.record(u, "展示策略配置 · 对标档位「" + t.indicator() + "」" + t.fromName() + " → " + t.toName(), "驳回");
         return Map.of("message", "已驳回 · 「" + t.indicator() + "」保持" + tierName(t.currentTier()));
     }
 }

@@ -117,7 +117,7 @@ create table report_draft (
     created_at timestamptz not null default now()
 );
 
--- ---------------------------------------------------------------- 病种专题（A7）
+-- ---------------------------------------------------------------- 病组专题（A7）
 create table topic (
     code        varchar(8)  primary key,
     name        varchar(32) not null,
@@ -284,7 +284,7 @@ create table display_quadrant (
 
 create table benchmark_tier (
     indicator varchar(32) primary key,
-    tier      int         not null,             -- 0 匿名分位 / 1 匿名编号 / 2 具名PK与排行
+    tier      int         not null,             -- 0 匿名分位 / 1 匿名编号 / 2 具名对比与排行
     sort      int         not null
 );
 

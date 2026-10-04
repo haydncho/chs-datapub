@@ -40,7 +40,6 @@ const tipClass = 'rounded-[7px] bg-tip px-[11px] py-[7px] text-[12px] leading-no
                 <StrokeIcon :d="iconPaths[item.icon]" :size="17" class="flex-none opacity-90" />
                 <template v-if="!collapsed">
                   <span class="nav-fade whitespace-nowrap">{{ item.label }}</span>
-                  <span class="ml-auto font-mono text-[10px] text-ink-ghost">{{ item.key }}</span>
                 </template>
               </a>
             </TooltipTrigger>

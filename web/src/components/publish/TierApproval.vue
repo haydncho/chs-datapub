@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 const props = defineProps<{ req: TierRequest; canApprove: boolean; busy?: boolean }>()
 const emit = defineEmits<{ approve: [opinion: string]; reject: [opinion: string] }>()
 
-const TIERS = ['匿名分位', '匿名编号', '具名PK与排行']
+const TIERS = ['匿名分位', '匿名编号', '具名对比与排行']
 const DESC = ['机构仅见本院在同级中的分位', '如“三级医院A”,不具名横向对比', '显示机构名称与排名']
 const opinion = ref('')
 const missing = ref(false)
@@ -58,7 +58,7 @@ function reject() {
         <span class="text-ink-muted">申请人</span><span>{{ req.requestedBy }} · 行政管理组 · {{ req.requestedAt }}</span>
         <span class="text-ink-muted">审批人</span><span>{{ req.approver }}</span>
         <div v-if="req.named" class="col-span-2 rounded-lg border border-warning-line bg-warning-soft px-2.5 py-2 text-warning-ink">
-          具名PK与排行将向同级机构显示机构名称与名次,请确认已完成机构核对。
+          具名对比与排行将向同级机构显示机构名称与名次,请确认已完成机构核对。
         </div>
       </div>
       <div>
@@ -81,7 +81,7 @@ function reject() {
           >驳回申请</Button>
         </div>
         <div class="mt-2 text-[11px] leading-[1.6] text-ink-muted">
-          批准后「{{ req.indicator }}」在 A13 与机构端按“{{ req.toName }}”展示;驳回则保持“{{ req.fromName }}”。
+          批准后「{{ req.indicator }}」在展示策略配置与机构端按“{{ req.toName }}”展示;驳回则保持“{{ req.fromName }}”。
         </div>
         <div v-if="!canApprove" class="mt-2 rounded-lg bg-subtle px-2.5 py-2 text-[11px] text-ink-muted">档位切换由召集人审批,服务端校验身份。</div>
       </div>

@@ -249,7 +249,7 @@ export interface AnomalyRow {
   letterNo?: string
   letterBy?: string
   letterAt?: string
-  /** A11 预警提醒里该触发记录的进度(待发出 / 已发函 · 待回执 / 已回执 / 整改中 / 已销号)。 */
+  /** A11 预警提醒里该触发记录的进度(待发出 / 已发出 · 待回执 / 已回执 / 整改中 / 已销号)。 */
   alertStatus?: string
 }
 

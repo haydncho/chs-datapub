@@ -52,7 +52,7 @@ async function exportOnce(p, content) {
 const q = await session('qianli')
 assert.match(q.url(), /\/c1$/)
 assert.deepEqual(await navKeys(q), ['C1'])
-assert.equal(await q.textContent('[data-testid=zone-tag]'), '发布区')
+assert.equal(await q.$('[data-testid=zone-tag]'), null)
 await q.waitForSelector('[data-testid=c1-institutions] tbody tr')
 const INST = '[data-testid=c1-institutions]'
 assert.equal((await col(q, 'c1-institutions', 0))[0], '甲县人民医院')

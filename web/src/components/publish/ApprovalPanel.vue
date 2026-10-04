@@ -43,7 +43,7 @@ function reject() {
         <div
           v-if="detail.openCheckOpinions && f.kind === '月告知'"
           class="mb-2.5 rounded-lg border border-ai-line bg-ai-soft px-2.5 py-2 text-[12px] text-ai-ink"
-        >尚有 {{ detail.openCheckOpinions }} 条核对期异议未答复(A10 意见与申诉),将影响本期发布包定稿。</div>
+        >尚有 {{ detail.openCheckOpinions }} 条核对期异议未答复(意见管理),将影响本期发布包定稿。</div>
         <Textarea
           v-model="opinion"
           placeholder="填写审批意见(驳回时必填)"

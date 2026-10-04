@@ -13,7 +13,7 @@ import { notify, notifyError } from '@/lib/notify'
 
 /**
  * B3 对标与PK（机构门户）：每个指标按其对标档位（第二批 A13 的 benchmark_tier，审批通过后生效）呈现——
- * 匿名分位 → 分位条；匿名编号 → 横条（他院「三级医院A–E」）；具名PK与排行 → 选择对比医院、两卡并排 + 同级排行。
+ * 匿名分位 → 分位条；匿名编号 → 横条（他院「三级医院A–E」）；具名对比与排行 → 选择对比医院、两卡并排 + 同级排行。
  * 非具名档后端不下发他院名称；「发起 PK」置灰并提示。
  */
 const page = pageDef('B3')!
@@ -175,7 +175,7 @@ function startPk() {
           <div class="mt-3 text-[12px] text-ink-sub">匿名编号档位:他院以“三级医院A–E”呈现,按数值顺序编号,每期重排,不与具体医院对应。</div>
         </template>
 
-        <!-- 具名PK与排行 -->
+        <!-- 具名对比与排行 -->
         <template v-else-if="d.tier === 2 && named">
           <div class="mb-3.5 flex flex-wrap items-center gap-1.5" data-testid="pk-chips">
             <span class="mr-1 text-[12px] text-ink-muted">选择对比医院</span>

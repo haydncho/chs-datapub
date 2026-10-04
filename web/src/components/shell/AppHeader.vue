@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { LogOut, Moon, Sun } from '@lucide/vue'
 import { computed } from 'vue'
-import type { Tone } from '@/api/types'
+import type { Zone } from '@/lib/nav'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import { useAuthStore } from '@/stores/auth'
 import BrandLogo from './BrandLogo.vue'
 
 /** 顶栏：品牌、医保专网、区标签；右侧主题切换与当前身份（姓名 · 角色 · 机构 / 数据范围）。全站不出现分享、复制链接、二维码入口。 */
-defineProps<{ zone?: { label: string; tone: Tone } }>()
+defineProps<{ zone?: Zone }>()
 const emit = defineEmits<{ logout: [] }>()
 const auth = useAuthStore()
 const { resolved, toggle } = useTheme()
@@ -28,7 +28,7 @@ const u = computed(() => auth.user)
     <BrandLogo />
     <div class="text-[17px] leading-[1.15] font-bold tracking-[.04em] text-ink">{{ u?.role === 'INSTITUTION' ? '医保数据公开 · 医疗机构门户' : '医保数据公开定向发布平台' }}</div>
     <span class="rounded-full border border-primary-line-strong px-2.5 py-[1px] text-[11px] text-primary">医保专网</span>
-    <span v-if="zone" class="rounded-full border px-2.5 py-[1px] text-[11px] font-semibold" :class="toneTag[zone.tone]" data-testid="zone-tag">{{ zone.label }}</span>
+    <span v-if="zone" class="cursor-help rounded-full border px-2.5 py-[1px] text-[11px] font-semibold" :class="toneTag[zone.tone]" :title="zone.hint" data-testid="zone-tag">{{ zone.label }}</span>
     <div class="flex-1" />
     <button
       type="button"

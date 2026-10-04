@@ -67,8 +67,8 @@ function reject() {
         </div>
         <div class="mt-2 text-[11px] leading-[1.6] text-ink-muted">
           <template v-if="req.internal">批准后「{{ req.name }}」仅在分析监测区可见。</template>
-          <template v-else>批准后「{{ req.name }}」出现在全息图“{{ req.grp }}”图层、机构门户核心指标区,并登记到 A13 对标档位。</template>
-          驳回则退回 A4,提交人修改后可重新提交。
+          <template v-else>批准后「{{ req.name }}」出现在全息图“{{ req.grp }}”图层、机构门户核心指标区,并登记到展示策略配置的对标档位。</template>
+          驳回则退回指标配置,提交人修改后可重新提交。
         </div>
         <div v-if="!canApprove" class="mt-2 rounded-lg bg-subtle px-2.5 py-2 text-[11px] text-ink-muted">指标上线由召集人审批,服务端校验身份。</div>
       </div>

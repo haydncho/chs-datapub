@@ -23,7 +23,7 @@ create table ind_indicator (
     domain       varchar(16)  not null,           -- 主题域
     source       varchar(32)  not null,           -- 数据来源（= A3 数据源名称；未按时到达 → 本期暂缓）
     freq         varchar(4)   not null,
-    tier         int,                             -- 0 匿名分位 / 1 匿名编号 / 2 具名PK与排行；仅内部为空
+    tier         int,                             -- 0 匿名分位 / 1 匿名编号 / 2 具名对比与排行；仅内部为空
     scope        varchar(32)  not null,           -- 可见范围
     version      varchar(8)   not null,
     status       varchar(8)   not null,           -- 已上线 / 审批中 / 草稿
@@ -472,7 +472,7 @@ insert into rec_anomaly (rule_name, org, drg_group, trigger_value, level, sort) 
 
 insert into rec_presentation (indicator, chart, reason, sort) values
  ('例均基金差额',     '气泡全景', '需同时表达病例量、差额方向与费用规模,三变量适合气泡。', 1),
- ('结算清单质控率',   '排行条',   '该指标已配置“具名PK与排行”档位;其余档位自动降级为分位条。', 2),
+ ('结算清单质控率',   '排行条',   '该指标已配置“具名对比与排行”档位;其余档位自动降级为分位条。', 2),
  ('异地就医基金支出', '流向图',   '表达去向与占比;机构级流向仅医保局可见。', 3),
  ('BR25 费用变化',    '归因瀑布', '拆分患者差异与行为差异,便于专题第四段“差异归因”。', 4);
 

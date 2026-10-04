@@ -27,7 +27,7 @@ create table pub_scope_dim (
 create table pub_flow (
     id              bigserial primary key,
     code            varchar(16) unique,         -- 样例编码；A5 草稿生成的流程为空
-    kind            varchar(16) not null,       -- 待办分组：月告知 / 季公布 / 年通报 / 病种与机构专题 / 预警提醒函 / 更正与撤回
+    kind            varchar(16) not null,       -- 待办分组：月告知 / 季公布 / 年通报 / 病组与机构专题 / 预警提醒函 / 更正与撤回
     template_id     bigint      not null references flow_template(id),
     name            varchar(64) not null,
     subject         varchar(64) not null,       -- 发布物名称：更正 / 撤回按此关联原版本
@@ -180,8 +180,8 @@ from (values
  (2, 'w8',   '月告知',         '月告知',     '2026年8月 运行预警汇总',        '2026年8月 运行预警汇总',         'v1', 3,  current_date + 4,  '',     '不限', null, null),
  (3, 'q3',   '季公布',         '季公布',     '2026年第三季度运行公布',        '2026年第三季度运行公布',         'v1', 2,  current_date + 18, '',     '不限', null, null),
  (4, 'y25',  '年通报',         '年通报',     '2025年度支付方式改革通报',      '2025年度支付方式改革通报',       'v2', 10, null,              '',     '不限', null, null),
- (5, 'br25', '病种与机构专题', '病种专题',   'BR25 脑缺血性疾患专题',         'BR25 脑缺血性疾患专题报告',      'v2', 4,  current_date + 2,  '核对', 'BR25', null, null),
- (6, 'org',  '病种与机构专题', '病种专题',   '2026年上半年机构体检报告',      '2026年上半年机构体检报告',       'v1', 3,  current_date + 6,  '',     '不限', null, null),
+ (5, 'br25', '病组与机构专题', '病组专题',   'BR25 脑缺血性疾患专题',         'BR25 脑缺血性疾患专题报告',      'v2', 4,  current_date + 2,  '核对', 'BR25', null, null),
+ (6, 'org',  '病组与机构专题', '病组专题',   '2026年上半年机构体检报告',      '2026年上半年机构体检报告',       'v1', 3,  current_date + 6,  '',     '不限', null, null),
  (7, 'gg19', '预警提醒函',     '预警提醒函', 'GG19 次均费用预警提醒函',       'GG19 次均费用预警提醒函',        'v1', 7,  current_date + 3,  '回执', 'GG19', null, null),
  (8, 'c7',   '更正与撤回',     '更正与撤回', '2026年7月月度报告更正',         '2026年7月 DRG月度运行报告',      'v2', 10, null,              '',     '不限', '更正',
   '第 3.2 节甲县人民医院 BR25 例均基金差额由 +1,320 元更正为 +960 元。原因:8 月补传 7 月清算数据 412 条。受影响机构 3 家已重新签收。')
@@ -194,7 +194,7 @@ insert into pub_package_item (flow_id, sort, name, detail, internal)
 select f.id, i.sort, coalesce(case when i.sort = 2 then f.rpt end, i.name), coalesce(case when i.sort = 2 then f.rpt_detail end, i.detail), i.internal
 from (values
  (1, '月度运行报告', 'v3 · 18 页'), (2, '运行预警汇总', 'v1 · 6 页'), (3, '季度运行公布', 'v1 · 24 页'),
- (4, '年度通报', 'v2 · 32 页'), (5, '病种专题报告', 'v2 · 七段 · 14 页'), (6, '机构体检报告', 'v1 · 52 份'),
+ (4, '年度通报', 'v2 · 32 页'), (5, '病组专题报告', 'v2 · 七段 · 14 页'), (6, '机构体检报告', 'v1 · 52 份'),
  (7, '预警提醒函', 'v1 · 9 份'), (8, '月度运行报告(更正版)', 'v2 · 18 页')
 ) as f(id, rpt, rpt_detail)
 cross join (values

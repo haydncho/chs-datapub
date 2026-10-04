@@ -126,7 +126,7 @@ public class RecommendService {
         };
         if (!"CAND".equals(status(code))) throw ApiException.conflict("该候选已处理,如需变更请先撤销");
         jdbc.update("update rec_topic set status = ?, decided_by = ?, decided_at = now() where code = ?", to, u.userId(), code);
-        String msg = "ADOPT".equals(to) ? "已采纳 " + code + ",进入病种专题工作台(A7)" : "已否决 " + code + ",理由将记入方法卡复核";
+        String msg = "ADOPT".equals(to) ? "已采纳 " + code + ",进入病组专题工作台" : "已否决 " + code + ",理由将记入方法卡复核";
         return Map.of("row", topic(code), "message", msg);
     }
 
@@ -199,7 +199,7 @@ public class RecommendService {
     }
 
     /** A11 触发记录状态 → 展示文字。 */
-    private static final Map<String, String> ALERT_LABEL = Map.of("GEN", "待发出", "SENT", "已发函 · 待回执", "RCPT", "已回执",
+    private static final Map<String, String> ALERT_LABEL = Map.of("GEN", "待发出", "SENT", "已发出 · 待回执", "RCPT", "已回执",
             "FIX", "整改中", "CLOSED", "已销号");
 
     public List<Anomaly> anomalies() {
@@ -240,8 +240,8 @@ public class RecommendService {
         }
         jdbc.update("update rec_anomaly set letter_no = ?, letter_by = ?, letter_at = now(), alert_trigger_id = ? where id = ?", no, u.userId(), tid, id);
         Anomaly row = anomalies().stream().filter(x -> x.id() == id).findFirst().orElseThrow();
-        String msg = created ? "已生成提醒函草稿 " + no + ",进入 A11 预警提醒(待发出)"
-                : "已生成提醒函草稿 " + no + ",关联 A11 已有触发记录(" + row.alertStatus() + ")";
+        String msg = created ? "已生成提醒函草稿 " + no + ",进入预警与整改(待发出)"
+                : "已生成提醒函草稿 " + no + ",关联预警与整改已有触发记录(" + row.alertStatus() + ")";
         return Map.of("row", row, "message", msg);
     }
 

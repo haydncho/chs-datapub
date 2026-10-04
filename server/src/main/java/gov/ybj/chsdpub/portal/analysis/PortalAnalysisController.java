@@ -37,7 +37,7 @@ public class PortalAnalysisController {
         return svc.benchmarks(CurrentUser.get().org());
     }
 
-    /** B3：按档位裁剪的对标结果（匿名分位 / 匿名编号 / 具名PK与排行）。 */
+    /** B3：按档位裁剪的对标结果（匿名分位 / 匿名编号 / 具名对比与排行）。 */
     @GetMapping("/benchmark/{indicator}")
     public PortalAnalysisService.BenchDetail benchmark(@PathVariable String indicator) {
         return svc.benchmark(CurrentUser.get().org(), indicator);

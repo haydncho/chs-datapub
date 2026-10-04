@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 展示策略（A13）：「谁在看 × 数据归谁」四象限；对标三档（匿名分位 / 匿名编号 / 具名PK与排行）。
+ * 展示策略（A13）：「谁在看 × 数据归谁」四象限；对标三档（匿名分位 / 匿名编号 / 具名对比与排行）。
  * 切换档位须提交召集人审批，审批通过前按原档位发布。
  */
 @RestController
 @RequestMapping("/api/v1")
 public class DisplayPolicyController {
 
-    public static final List<String> TIERS = List.of("匿名分位", "匿名编号", "具名PK与排行");
+    public static final List<String> TIERS = List.of("匿名分位", "匿名编号", "具名对比与排行");
 
     private final JdbcTemplate jdbc;
 

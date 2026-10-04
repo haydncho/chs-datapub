@@ -166,7 +166,7 @@ const f = computed(() => detail.value?.flow)
             <span class="text-[16px] font-semibold text-ink" data-testid="flow-name">{{ f.name }}</span>
             <Tag>{{ f.kind }}</Tag>
             <Tag tone="primary">发布包 {{ f.packageVersion }} · 整包审批</Tag>
-            <Tag v-if="f.reportDraftId" tone="ai">A5 报告草稿 #{{ f.reportDraftId }}</Tag>
+            <Tag v-if="f.reportDraftId" tone="ai">报告草稿 #{{ f.reportDraftId }}</Tag>
             <Tag v-if="f.action" :tone="f.action === '撤回' ? 'danger' : 'warning'">{{ f.action }}</Tag>
             <span class="ml-auto text-[12px] text-ink-sub" data-testid="flow-step">当前:{{ f.stepLabel }}</span>
           </div>

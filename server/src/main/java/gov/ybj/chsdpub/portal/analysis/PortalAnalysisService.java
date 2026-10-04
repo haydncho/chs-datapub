@@ -17,7 +17,7 @@ import java.util.*;
  * <ul>
  *   <li>B2 小样本病组（病例 &lt; 30，由引擎判定）只下发编码与名称，数值并入「其他」；</li>
  *   <li>B3 按第二批 {@code benchmark_tier} 的当前档位裁剪：匿名分位只下发本院值与分位，
- *       匿名编号只下发「三级医院A–E」与数值，只有具名PK与排行档才下发他院名称；</li>
+ *       匿名编号只下发「三级医院A–E」与数值，只有具名对比与排行档才下发他院名称；</li>
  *   <li>B7 只有按地区、等级、病种的汇总，库中不存、接口不返回就医地机构明细。</li>
  * </ul>
  * 分位、排名、匿名编号、小样本合并、偏差与差距由引擎计算；引擎不可用时 503。
@@ -170,7 +170,7 @@ public class PortalAnalysisService {
     /** 匿名编号：「三级医院A–E」与数值，按数值降序；不含名称。 */
     public record AnonRow(String label, double value, boolean own) {}
 
-    /** 具名PK与排行：同级排行（含名称），本院名次。 */
+    /** 具名对比与排行：同级排行（含名称），本院名次。 */
     public record NamedRow(int rank, String name, double value, boolean own) {}
 
     public record Named(String ownName, int ownRank, List<NamedRow> rows) {}

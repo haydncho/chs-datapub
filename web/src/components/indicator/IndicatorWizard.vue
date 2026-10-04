@@ -478,7 +478,7 @@ const showTplWarn = computed(() => cfg.value?.template === '排行条' && cfg.va
               </template>
             </svg>
           </div>
-          <div v-if="showTplWarn" class="rounded-lg border border-warning-line bg-warning-soft px-3 py-2 text-warning-ink">⚠ 排行条仅用于「具名PK与排行」档位;当前档位提交时将被拒绝,请改用分位条。</div>
+          <div v-if="showTplWarn" class="rounded-lg border border-warning-line bg-warning-soft px-3 py-2 text-warning-ink">⚠ 排行条仅用于「具名对比与排行」档位;当前档位提交时将被拒绝,请改用分位条。</div>
         </div>
       </div>
 

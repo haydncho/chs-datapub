@@ -28,7 +28,7 @@ onMounted(async () => {
 
 const tr = computed(() => triggers.value.find((t) => t.id === selId.value))
 const ST: Record<AlertTrigger['status'], [string, Tone]> = {
-  GEN: ['待生成提醒函', 'muted'], SENT: ['已发函 · 待回执', 'warning'], RCPT: ['已回执', 'primary'], FIX: ['整改中', 'primary'], CLOSED: ['已销号', 'success'],
+  GEN: ['待发出', 'muted'], SENT: ['已发出 · 待回执', 'warning'], RCPT: ['已回执', 'primary'], FIX: ['整改中', 'primary'], CLOSED: ['已销号', 'success'],
 }
 
 async function toggle(r: AlertRule, v: boolean) {

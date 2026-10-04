@@ -89,12 +89,12 @@ public class IndicatorApprovalService {
                 select d.id, i.name, d.approval_no, u.name from ind_draft d join ind_indicator i on i.id = d.indicator_id
                 join app_user u on u.id = d.created_by where d.submitted_at is not null and i.status = '审批中' order by d.submitted_at, d.id""",
                 (rs, n) -> new PublishService.TodoItem("indicator", rs.getLong(1), rs.getString(2) + " 上线", "审批单 " + rs.getString(3),
-                        "warning", rs.getString(4) + " 申请", "muted", "A4"));
+                        "warning", rs.getString(4) + " 申请", "muted", "指标配置"));
     }
 
     @Transactional
     public Map<String, Object> approve(long draftId, PublishService.DecisionReq req) {
-        AuthUser u = guard.require("A8 批准指标上线 #" + draftId);
+        AuthUser u = guard.require("发布工作流 · 批准指标上线 #" + draftId);
         Row r = pending(draftId);
         IndicatorRequest q = get(draftId);
         String opinion = req == null || Texts.blank(req.opinion()) ? null : Texts.truncate(req.opinion().trim(), 256);
@@ -110,13 +110,13 @@ public class IndicatorApprovalService {
                 r.indicatorId(), u.name(), "上线审批通过(审批单 " + r.approvalNo() + ")" + (opinion == null ? "" : ":" + opinion));
         jdbc.update("insert into pub_indicator_decision (draft_id, approval_no, decision, opinion, decided_by) values (?, ?, 'APPROVED', ?, ?)",
                 draftId, r.approvalNo(), opinion, u.userId());
-        guard.record(u, "A4 指标「" + q.name() + "」上线审批 " + r.approvalNo(), "批准");
+        guard.record(u, "指标配置 · 指标「" + q.name() + "」上线审批 " + r.approvalNo(), "批准");
         return Map.of("message", "已批准 · 「" + q.name() + "」已上线" + (q.internal() ? "(仅内部,不进入发布包)" : ",对标档位为" + q.tierName()));
     }
 
     @Transactional
     public Map<String, Object> reject(long draftId, PublishService.DecisionReq req) {
-        AuthUser u = guard.require("A8 驳回指标上线 #" + draftId);
+        AuthUser u = guard.require("发布工作流 · 驳回指标上线 #" + draftId);
         if (req == null || Texts.blank(req.opinion())) throw ApiException.validation("请填写驳回意见");
         Row r = pending(draftId);
         IndicatorRequest q = get(draftId);
@@ -127,7 +127,7 @@ public class IndicatorApprovalService {
         jdbc.update("delete from ind_change_log where indicator_id = ?", r.indicatorId());
         jdbc.update("delete from ind_package_item where indicator_id = ?", r.indicatorId());
         jdbc.update("delete from ind_indicator where id = ?", r.indicatorId());
-        guard.record(u, "A4 指标「" + q.name() + "」上线审批 " + r.approvalNo(), "驳回");
-        return Map.of("message", "已驳回 · 「" + q.name() + "」退回 A4,提交人修改后可重新提交");
+        guard.record(u, "指标配置 · 指标「" + q.name() + "」上线审批 " + r.approvalNo(), "驳回");
+        return Map.of("message", "已驳回 · 「" + q.name() + "」退回指标配置,提交人修改后可重新提交");
     }
 }

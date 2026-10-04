@@ -195,7 +195,7 @@ insert into opinion_ticket (no, org, ref, category, owner, due_date, status, con
   '本院 8 月医保外费用中含 3 例临床试验费用,是否剔除?',
   '临床试验费用已于 9 月口径中剔除,本院更正后为 6.1%。', '2026-09-08 16:40+08', null, '2026-09-06');
 
--- 本院预警（D1 预警卡 → 详情；A11 触发记录同步可见，状态为已发函待回执）
+-- 本院预警（D1 预警卡 → 详情；A11 触发记录同步可见，状态为已发出待回执）
 with t as (
     insert into alert_trigger (trig_date, period, org, drg_group, rule_name, value, status, letter_seq, receipt, sent_at, sort)
     values ('09-12', '2026年8月', '示例市第一人民医院', 'BR25、IU29 自费耗材', '医保外费用占比', '6.8%(同级 P72)', 'SENT', 22, null,

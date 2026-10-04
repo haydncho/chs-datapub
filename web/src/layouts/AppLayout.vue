@@ -6,7 +6,7 @@ import PageWatermark from '@/components/shell/PageWatermark.vue'
 import SecurityBar from '@/components/shell/SecurityBar.vue'
 import SideNav from '@/components/shell/SideNav.vue'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { pageDef } from '@/lib/nav'
+import { INTERNAL_ROLES, pageDef } from '@/lib/nav'
 import { useAuthStore } from '@/stores/auth'
 
 /** 应用外壳：安全提示条（常驻）+ 液态玻璃顶栏 + 分组侧栏 + 内容区 + 实名动态水印。 */
@@ -14,6 +14,8 @@ const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const page = computed(() => pageDef((route.meta.page as string) ?? ''))
+/** 区标签只对医保局内部角色显示：机构、县区、省级、监督席位看不到内部架构。 */
+const zone = computed(() => (INTERNAL_ROLES.includes(auth.user?.role ?? '') ? page.value?.zone : undefined))
 
 const headerEl = ref<HTMLElement | null>(null)
 const top = ref(0)
@@ -33,7 +35,7 @@ async function logout() {
     <div class="relative flex min-h-screen min-w-[1280px] flex-col bg-app" :style="{ '--shell-top': `${top}px` }">
       <div ref="headerEl" class="sticky top-0 z-30">
         <SecurityBar />
-        <AppHeader :zone="page?.zone" @logout="logout" />
+        <AppHeader :zone="zone" @logout="logout" />
       </div>
       <div class="flex min-h-0 flex-1">
         <SideNav />

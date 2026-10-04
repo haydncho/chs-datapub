@@ -10,9 +10,11 @@ const exportOpen = ref(false)
 </script>
 
 <template>
-  <div class="flex flex-wrap items-baseline gap-x-4 gap-y-2 border-b border-line pb-[9px]">
-    <span class="text-[13px] font-semibold text-ink" data-testid="page-title">{{ title ?? page.label }}</span>
-    <span class="text-[12px] text-ink-faint">{{ page.summary }}</span>
+  <div class="flex flex-wrap items-end gap-x-6 gap-y-2 pb-1">
+    <div class="min-w-0">
+      <h1 class="text-[20px] leading-[1.3] font-semibold tracking-[.01em] text-ink" data-testid="page-title">{{ title ?? page.label }}</h1>
+      <p class="mt-1 text-[13px] leading-[1.5] text-ink-muted">{{ page.summary }}</p>
+    </div>
     <div class="ml-auto flex items-center gap-2.5">
       <slot name="actions" />
       <Button v-if="page.exportable" variant="outline" class="px-4 py-[7px]" data-testid="export-btn" @click="exportOpen = true">导出</Button>

@@ -19,14 +19,14 @@
   --c-primary-hover: #1d4ed8;
   --c-primary-tint: #eff6ff;
   --c-surface: #ffffff;
-  --c-app-bg: #f7f8fa;
+  --c-app-bg: #f4f6fa;
   --c-subtle: #fafbfc;
   --c-text: #111827;
   --c-text-sub: #4b5563;
   --c-text-muted: #6b7280;
-  --c-text-faint: #9ca3af;
-  --c-border: #e5e9ef;
-  --c-border-soft: #edf0f3;
+  --c-text-faint: #7b8494;
+  --c-border: #e2e7ee;
+  --c-border-soft: #e9edf3;
   --c-divider: #f1f3f5;
   --c-hover: #f1f5fb;
 
@@ -169,6 +169,8 @@
   /* 文字描边光晕（桑基图标签）：与所在底色一致 */
   --c-halo: #ffffff;
 
+  --sh-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.03);
+  --shadow-pop: 0 8px 28px rgba(16, 24, 40, 0.12);
   --r-sm: 6px;
   --r: 8px;
   --r-lg: 10px;
@@ -219,6 +221,7 @@
     --c-border-soft: #232b37;
     --c-divider: #202733;
     --c-hover: #1e2633;
+    --sh-card: 0 0 0 1px rgba(255, 255, 255, 0.015), 0 1px 2px rgba(0, 0, 0, 0.35);
 
     --c-danger: #f87171;
     --c-warning: #f59e0b;
@@ -484,6 +487,7 @@ html[data-accent="green"] [data-paper] {
   --color-surface: var(--c-surface);
   --color-app: var(--c-app-bg);
   --color-subtle: var(--c-subtle);
+  --shadow-card: var(--sh-card);
   --color-line: var(--c-border);
   --color-line-soft: var(--c-border-soft);
   --color-line-strong: var(--c-border-strong);
@@ -587,6 +591,15 @@ html[data-accent="green"] [data-paper] {
 }
 
 @layer base {
+  :focus-visible {
+    outline: 2px solid var(--c-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
   * {
     @apply border-border;
   }
@@ -726,9 +739,9 @@ html.theme-fade *::after {
     border-collapse: separate;
     border-spacing: 0;
     border: 1px solid var(--c-border);
-    border-radius: 10px;
+    border-radius: 12px;
     background: var(--c-surface);
-    font-size: 12px;
+    font-size: 13px;
     font-variant-numeric: tabular-nums;
   }
   .data-table thead th {
@@ -786,15 +799,16 @@ html.theme-fade *::after {
   .sect-title {
     display: flex;
     align-items: center;
-    gap: 9px;
-    font-size: 13px;
+    gap: 8px;
+    font-size: 14px;
     font-weight: 600;
+    letter-spacing: 0.01em;
     color: var(--c-text);
   }
   .sect-title::before {
     content: "";
     width: 3px;
-    height: 15px;
+    height: 14px;
     background: var(--c-primary);
     border-radius: 2px;
     flex: none;

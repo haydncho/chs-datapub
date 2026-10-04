@@ -24,11 +24,11 @@ const text = computed(() => {
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 const bg = computed(() => {
-  const a = props.light ? 0.05 : 0.085
+  const a = props.light ? 0.03 : 0.05
   const fill = resolved.value === 'dark' ? `rgba(255,255,255,${a * 0.7})` : `rgba(29,38,51,${a})`
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="150">` +
-    `<text x="150" y="75" text-anchor="middle" dominant-baseline="middle" transform="rotate(-24 150 75)" ` +
+    `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="190">` +
+    `<text x="180" y="95" text-anchor="middle" dominant-baseline="middle" transform="rotate(-24 180 95)" ` +
     `font-family="Inter, PingFang SC, Microsoft YaHei, sans-serif" font-size="13" fill="${fill}">${esc(text.value)}</text></svg>`
   return `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}")`
 })

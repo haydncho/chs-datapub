@@ -15,29 +15,28 @@ const tipClass = 'rounded-[7px] bg-tip px-[11px] py-[7px] text-[12px] leading-no
 
 <template>
   <nav
-    class="sticky top-(--shell-top) z-[15] flex h-[calc(100dvh-var(--shell-top,0px))] flex-none flex-col self-start border-r border-line bg-surface pt-[18px] pb-4 transition-[width] duration-[240ms]"
-    :class="collapsed ? 'w-[65px]' : 'w-[201px]'"
+    class="sticky top-(--shell-top) z-[15] flex h-[calc(100dvh-var(--shell-top,0px))] flex-none flex-col self-start border-r border-line bg-surface pt-4 pb-4 transition-[width] duration-[240ms]"
+    :class="collapsed ? 'w-[68px]' : 'w-[212px]'"
     data-testid="side-nav"
   >
     <div class="side-scroll min-h-0 flex-1 pb-3">
-      <div v-for="g in groups" :key="g.label" class="mb-6">
-        <div v-if="!collapsed" class="px-5 pb-2.5 text-[12px] text-ink-faint">{{ g.label }}</div>
-        <div v-else class="mx-3.5 mb-2 h-px bg-divider" />
+      <div v-for="g in groups" :key="g.label" class="mb-5 px-2.5">
+        <div v-if="!collapsed" class="px-3 pt-1 pb-2 text-[11px] font-medium tracking-[.08em] text-ink-faint">{{ g.label }}</div>
+        <div v-else class="mx-2 mb-2 h-px bg-divider" />
         <RouterLink v-for="item in g.items" :key="item.key" v-slot="{ href, navigate, isActive }" :to="pagePath(item)" custom>
           <Tooltip :disabled="!collapsed">
             <TooltipTrigger as-child>
               <a
                 :href="href"
-                class="relative flex cursor-pointer items-center gap-2.5 py-3 text-[12px] no-underline hover:no-underline"
+                class="relative mb-0.5 flex cursor-pointer items-center gap-2.5 rounded-lg py-[9px] text-[13px] no-underline transition-colors hover:no-underline"
                 :class="[
-                  collapsed ? 'justify-center px-0' : 'justify-start pr-[18px] pl-[22px]',
+                  collapsed ? 'justify-center px-0' : 'justify-start px-3',
                   isActive ? 'bg-primary-tint font-semibold text-primary' : 'bg-transparent text-ink-sub hover:bg-hover',
                 ]"
                 :data-nav="item.key"
                 @click="navigate"
               >
-                <span class="absolute top-[9px] bottom-[9px] left-0 w-[3px] rounded-r-[3px]" :class="isActive ? 'bg-primary-solid' : 'bg-transparent'" />
-                <StrokeIcon :d="iconPaths[item.icon]" :size="17" class="flex-none opacity-90" />
+                                <StrokeIcon :d="iconPaths[item.icon]" :size="17" class="flex-none opacity-90" />
                 <template v-if="!collapsed">
                   <span class="nav-fade whitespace-nowrap">{{ item.label }}</span>
                 </template>
@@ -49,7 +48,7 @@ const tipClass = 'rounded-[7px] bg-tip px-[11px] py-[7px] text-[12px] leading-no
       </div>
     </div>
     <div
-      class="mx-3 mt-2 flex flex-none cursor-pointer items-center gap-2 overflow-hidden rounded-md border border-line bg-subtle px-2.5 py-2 text-[12px] whitespace-nowrap text-ink-muted hover:border-ring hover:bg-primary-tint hover:text-primary"
+      class="mx-2.5 mt-2 flex flex-none cursor-pointer items-center gap-2 overflow-hidden rounded-md border border-line bg-subtle px-2.5 py-2 text-[12px] whitespace-nowrap text-ink-muted hover:border-ring hover:bg-primary-tint hover:text-primary"
       :class="collapsed ? 'justify-center' : 'justify-start'"
       role="button"
       tabindex="0"

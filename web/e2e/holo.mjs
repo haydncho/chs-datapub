@@ -52,7 +52,7 @@ const api = (p, path) =>
 
 // ================================================================ A2 召集人（UKey）
 const c = await session('ca')
-await c.waitForURL(/\/a2$/)
+await c.goto(BASE + '/a2')
 await c.waitForSelector('[data-testid=bubble-chart] [data-code=BR25]')
 assert.equal(await c.locator('[data-testid=bubble-chart] [data-code]').count(), 23)
 assert.match(await text(c, '[data-testid=key-summary]'), /关键少数病组 6 个 · 合计逆差 554\.8万/)

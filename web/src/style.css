@@ -1069,3 +1069,11 @@ html.dark .shell-glass {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
+
+/* 应用底色:参考图式的柔和晕染(浅色);深色保持纯色 */
+.app-wash {
+  background-image:
+    radial-gradient(900px 420px at 8% -6%, color-mix(in srgb, var(--c-primary) 9%, transparent), transparent 70%),
+    radial-gradient(800px 420px at 96% 0%, color-mix(in srgb, var(--c-ai) 8%, transparent), transparent 70%);
+  background-attachment: fixed;
+}

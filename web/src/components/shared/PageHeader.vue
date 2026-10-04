@@ -5,6 +5,7 @@ import StrokeIcon from '@/components/ui/stroke-icon/StrokeIcon.vue'
 import { iconPaths } from '@/lib/icons'
 import type { PageDef } from '@/lib/nav'
 import ExportDialog from './ExportDialog.vue'
+import WorkspaceTabs from './WorkspaceTabs.vue'
 
 /** 标题行（睿衡页头）：13px 标题 + 弱化说明 + 右侧操作；可导出页面带「导出」（导出审批）。 */
 defineProps<{ page: PageDef; title?: string }>()
@@ -12,6 +13,7 @@ const exportOpen = ref(false)
 </script>
 
 <template>
+  <WorkspaceTabs />
   <div class="flex flex-wrap items-end gap-x-6 gap-y-2 pb-1">
     <span class="ph-chip flex size-11 flex-none items-center justify-center rounded-2xl text-white"><StrokeIcon :d="iconPaths[page.icon]" :size="21" /></span>
     <div class="min-w-0">

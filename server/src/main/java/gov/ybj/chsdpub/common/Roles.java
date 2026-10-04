@@ -30,6 +30,8 @@ public final class Roles {
 
     static {
         Map<String, Set<String>> m = new LinkedHashMap<>();
+        m.put("W0", Set.of(CONVENER, ADMIN_GROUP));
+        m.put("W1", Set.of(CONVENER, ADMIN_GROUP));
         m.put("A2", Set.of(CONVENER, ADMIN_GROUP));
         m.put("A3", Set.of(CONVENER, ADMIN_GROUP));
         m.put("A4", Set.of(CONVENER, ADMIN_GROUP));

@@ -33,7 +33,7 @@ async function logout() {
 
 <template>
   <TooltipProvider :delay-duration="0" :skip-delay-duration="0">
-    <div class="relative flex min-h-screen min-w-[1280px] flex-col bg-app" :style="{ '--shell-top': `${top}px` }">
+    <div class="app-wash relative flex min-h-screen min-w-[1280px] flex-col bg-app" :style="{ '--shell-top': `${top}px` }">
       <div ref="headerEl" class="sticky top-0 z-30">
         <SecurityBar />
         <AppHeader :zone="zone" @logout="logout" />

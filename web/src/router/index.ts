@@ -4,6 +4,8 @@ import { notify } from '@/lib/notify'
 import { useAuthStore } from '@/stores/auth'
 
 const views: Record<string, () => Promise<unknown>> = {
+  W0: () => import('@/views/W0HomeView.vue'),
+  W1: () => import('@/views/W1PublishGuideView.vue'),
   // 第一批
   A2: () => import('@/views/holo/A2HoloView.vue'),
   A4: () => import('@/views/indicator/A4IndicatorView.vue'),

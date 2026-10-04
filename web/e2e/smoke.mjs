@@ -36,15 +36,35 @@ async function session(who, identity) {
 const toast = async (p, text) => p.waitForSelector(`[data-sonner-toast]:has-text("${text}")`, { timeout: 5000 })
 const navKeys = (p) => p.$$eval('[data-nav]', (els) => els.map((e) => e.getAttribute('data-nav')))
 const step = (name) => console.log('✓', name)
+const text = async (p, sel) => (await p.textContent(sel)).trim()
 
 // ---------------------------------------------------------------- 召集人（UKey）
 const c = await session('ca', 'CONVENER')
-assert.match(c.url(), /\/a2$/)
-assert.deepEqual(await navKeys(c), ['A2', 'A3', 'A4', 'A6', 'A7', 'A5', 'A8', 'A13', 'A9', 'A10', 'A11', 'E1'])
+assert.match(c.url(), /\/w0$/)
+assert.deepEqual(await navKeys(c), ['W0', 'A2', 'W1', 'A4', 'A10', 'A13', 'E1'])
 await c.goto(BASE + '/a3')
 assert.match(await c.getAttribute('[data-testid=page-watermark]', 'data-text'), /^陈志远 示例市医疗保障局 \d{4}-\d{2}-\d{2} \d{2}:\d{2}$/)
 assert.equal(await c.textContent('[data-testid=zone-tag]'), '分析监测区')
-step('A1 UKey 登录 → 选择召集人身份 → 首页 A2,菜单按身份裁剪,实名水印')
+step('A1 UKey 登录 → 选择召集人身份 → 首页工作台,菜单按身份裁剪为 5 个工作区,实名水印')
+
+// 工作台:今日待办聚合 + 月度发布向导
+await c.goto(BASE + '/w0')
+await c.waitForSelector('[data-testid=home-tasks] [data-task]')
+assert.ok((await c.locator('[data-task=审批]').count()) >= 1, '工作台含待审批事项')
+assert.ok((await c.locator('[data-task=意见]').count()) >= 1, '工作台含机构意见')
+await c.click('[data-filter=意见]')
+assert.equal(await c.locator('[data-task=审批]').count(), 0, '按类别筛选')
+await c.click('[data-testid=home-guide]')
+await c.waitForURL(/\/w1$/)
+await c.waitForSelector('[data-testid=guide-steps] [data-state=now]')
+assert.equal(await c.locator('[data-testid=guide-steps] li').count(), 10)
+assert.match(await text(c, '[data-testid=guide-steps] [data-state=now]'), /召集人审批/)
+assert.equal(await c.locator('[data-ws-tab]').count(), 5, '月度发布工作区页签:向导 + 4 页')
+await c.click('[data-testid=guide-cta]')
+await c.waitForURL(/\/a8$/)
+await c.waitForSelector('[data-testid=ws-tabs]')
+step('工作台聚合待办并可筛选;月度发布向导 10 步主线、当前步高亮、一键直达;工作区页签在成员页间切换')
+await c.goto(BASE + '/a3')
 
 // 流程 1：A3 数据到达 → 质量校验 → A5 生成报告
 assert.equal(await c.textContent('[data-testid=timeliness]').then((s) => s.trim()), '90%')

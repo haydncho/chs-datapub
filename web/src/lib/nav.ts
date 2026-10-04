@@ -17,7 +17,28 @@ export interface PageDef {
   exportable?: boolean
   /** 路由路径（缺省 /<小写编号>）；D1 移动端为独立布局 /m。 */
   path?: string
+  /** 所属工作区(见 WORKSPACES):同一工作区的页面在菜单里合并为一项,页头显示工作区页签。 */
+  workspace?: string
 }
+
+/** 工作区:把同一业务任务的多个页面收成一个菜单项,页头用页签 / 步骤条在其成员间切换。 */
+export interface Workspace {
+  id: string
+  label: string
+  icon: string
+  group: string
+  members: string[]
+  /** 成员页面按步骤编号显示(月度发布主线) */
+  numbered?: boolean
+}
+export const WORKSPACES: Workspace[] = [
+  { id: 'pub', label: '月度发布', icon: 'send', group: '核心业务', members: ['W1', 'A3', 'A5', 'A7', 'A8'], numbered: true },
+  { id: 'ind', label: '指标与算法', icon: 'slider', group: '核心业务', members: ['A4', 'A6'] },
+  { id: 'resp', label: '响应中心', icon: 'opinion', group: '运营与配置', members: ['A10', 'A11'] },
+  { id: 'cfg', label: '策略与流程', icon: 'policy', group: '运营与配置', members: ['A13', 'A9'] },
+]
+export const workspaceOf = (key: string) => WORKSPACES.find((w) => w.members.includes(key))
+
 
 export interface Zone {
   label: string
@@ -34,17 +55,19 @@ const publishFlow: Zone = { label: '分析监测区 → 发布区', tone: 'warni
 const publish: Zone = { label: '发布区', tone: 'success', hint: '发布区：经审批、面向定向对象的发布内容' }
 
 export const PAGES: PageDef[] = [
-  { key: 'A2', label: '全息图', group: '驾驶舱', icon: 'holo', zone: analysis, summary: '一屏掌握“钱、效、错”与发布状态，定位关键少数病组并下钻', exportable: true },
-  { key: 'A3', label: '数据归集中心', group: '数据底座', icon: 'data', zone: analysis, summary: '监控十类数据源到数与质量，保证指标可算、可追溯' },
-  { key: 'A4', label: '指标配置', group: '指标与算法', icon: 'slider', zone: analysis, summary: '指标可视化设计与算法模拟：不写代码定义指标、试算口径、预览呈现并提交上线' },
-  { key: 'A6', label: '智能推荐中心', group: '指标与算法', icon: 'ai', zone: analysis, summary: '算法给出候选，人工采纳、修改或否决，推荐可追溯到方法卡' },
-  { key: 'A7', label: '病组专题工作台', group: '指标与算法', icon: 'topic', zone: controlled, summary: '七段式病组专题，所有解读须人工审定', exportable: true },
-  { key: 'A5', label: '图表与报告模板', group: '指标与算法', icon: 'rpt', zone: analysis, summary: '统一图表规范，用拼装器快速生成标准报告' },
-  { key: 'A8', label: '发布工作流', group: '发布管理', icon: 'send', zone: publishFlow, summary: '分析监测区数据只能经十步工作流、整包审批后进入发布区；另含指标上线与档位切换审批' },
-  { key: 'A13', label: '展示策略配置', group: '发布管理', icon: 'policy', summary: '“谁在看 × 数据归谁”落成可配置策略，并管控对标档位' },
-  { key: 'A9', label: '流程设计器', group: '发布管理', icon: 'flow', summary: '可视化配置发布流程模板，模板带版本号' },
-  { key: 'A10', label: '意见管理', group: '发布后响应', icon: 'opinion', zone: publish, summary: '承办人在时限内答复机构意见，核对期内的数据异议单独处理' },
-  { key: 'A11', label: '预警与整改', group: '发布后响应', icon: 'alert', zone: analysis, summary: '预警触发 → 发出提醒函 → 机构回执 → 整改跟踪' },
+  { key: 'W0', label: '工作台', group: '总览', icon: 'grip', zone: analysis, summary: '今天要处理的事:待审批、临近超期的意见、待发出的预警,以及月度发布主线走到了哪一步' },
+  { key: 'W1', label: '月度发布向导', group: '核心业务', icon: 'send', zone: publishFlow, workspace: 'pub', summary: '月度发布的完整主线:归集校验 → 分析成稿 → 专家审核 → 召集人审批 → 定向发布 → 签收 → 意见整改 → 归档' },
+  { key: 'A2', label: '全息图', group: '总览', icon: 'holo', zone: analysis, summary: '一屏掌握“钱、效、错”与发布状态，定位关键少数病组并下钻', exportable: true },
+  { key: 'A3', label: '数据归集中心', group: '核心业务', workspace: 'pub', icon: 'data', zone: analysis, summary: '监控十类数据源到数与质量，保证指标可算、可追溯' },
+  { key: 'A4', label: '指标配置', group: '核心业务', workspace: 'ind', icon: 'slider', zone: analysis, summary: '指标可视化设计与算法模拟：不写代码定义指标、试算口径、预览呈现并提交上线' },
+  { key: 'A6', label: '智能推荐中心', group: '核心业务', workspace: 'ind', icon: 'ai', zone: analysis, summary: '算法给出候选，人工采纳、修改或否决，推荐可追溯到方法卡' },
+  { key: 'A7', label: '病组专题工作台', group: '核心业务', workspace: 'pub', icon: 'topic', zone: controlled, summary: '七段式病组专题，所有解读须人工审定', exportable: true },
+  { key: 'A5', label: '图表与报告模板', group: '核心业务', workspace: 'pub', icon: 'rpt', zone: analysis, summary: '统一图表规范，用拼装器快速生成标准报告' },
+  { key: 'A8', label: '发布工作流', group: '核心业务', workspace: 'pub', icon: 'send', zone: publishFlow, summary: '分析监测区数据只能经十步工作流、整包审批后进入发布区；另含指标上线与档位切换审批' },
+  { key: 'A10', label: '意见管理', group: '运营与配置', workspace: 'resp', icon: 'opinion', zone: publish, summary: '承办人在时限内答复机构意见，核对期内的数据异议单独处理' },
+  { key: 'A11', label: '预警与整改', group: '运营与配置', workspace: 'resp', icon: 'alert', zone: analysis, summary: '预警触发 → 发出提醒函 → 机构回执 → 整改跟踪' },
+  { key: 'A13', label: '展示策略配置', group: '运营与配置', workspace: 'cfg', icon: 'policy', summary: '“谁在看 × 数据归谁”落成可配置策略，并管控对标档位' },
+  { key: 'A9', label: '流程设计器', group: '运营与配置', workspace: 'cfg', icon: 'flow', summary: '可视化配置发布流程模板，模板带版本号' },
   { key: 'A12', label: '用户权限管理', group: '系统管理', icon: 'users', summary: '按组织、角色与五个控制维度管理权限' },
   { key: 'A14', label: '审计日志', group: '系统管理', icon: 'audit', summary: '全量记录敏感操作，可按水印编号溯源', exportable: true },
   // ---- 医疗机构门户（本院具名 + 同级匿名分位；不出现他院名称）
@@ -71,13 +94,40 @@ export const INTERNAL_ROLES = ['CONVENER', 'ADMIN_GROUP', 'HANDLER', 'ANALYST', 
 
 export const pageDef = (key: string) => PAGES.find((p) => p.key === key)
 
+export interface NavEntry {
+  /** data-nav / 路由目标:工作区取其第一个可见成员 */
+  key: string
+  label: string
+  icon: string
+  to: string
+  /** 该菜单项覆盖的页面(用于高亮) */
+  members: string[]
+}
+
+/**
+ * 菜单项(按身份裁剪):同一工作区的可见成员合并为一项;只有一个可见成员时保持页面自己的名称与图标。
+ * 例:召集人看到「月度发布」一项(含 归集 / 成稿 / 专题 / 审批发布 四页);意见承办人只有意见管理,显示「意见管理」。
+ */
 export function navGroups(visible: string[]) {
-  const groups: { label: string; items: PageDef[] }[] = []
+  const groups: { label: string; items: NavEntry[] }[] = []
+  const push = (group: string, e: NavEntry) => {
+    let g = groups.find((x) => x.label === group)
+    if (!g) groups.push((g = { label: group, items: [] }))
+    g.items.push(e)
+  }
+  const seen = new Set<string>()
   for (const p of PAGES) {
     if (!visible.includes(p.key)) continue
-    let g = groups.find((x) => x.label === p.group)
-    if (!g) groups.push((g = { label: p.group, items: [] }))
-    g.items.push(p)
+    const ws = p.workspace ? WORKSPACES.find((w) => w.id === p.workspace) : undefined
+    if (ws) {
+      if (seen.has(ws.id)) continue
+      seen.add(ws.id)
+      const mine = ws.members.filter((m) => visible.includes(m))
+      const first = pageDef(mine[0])!
+      push(ws.group, mine.length > 1 ? { key: first.key, label: ws.label, icon: ws.icon, to: pagePath(first), members: mine } : { key: first.key, label: first.label, icon: first.icon, to: pagePath(first), members: mine })
+    } else {
+      push(p.group, { key: p.key, label: p.label, icon: p.icon, to: pagePath(p), members: [p.key] })
+    }
   }
   return groups
 }

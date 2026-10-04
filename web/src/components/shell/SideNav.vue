@@ -3,12 +3,14 @@ import { computed, ref } from 'vue'
 import StrokeIcon from '@/components/ui/stroke-icon/StrokeIcon.vue'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { iconPaths } from '@/lib/icons'
-import { navGroups, pagePath } from '@/lib/nav'
+import { useRoute } from 'vue-router'
+import { navGroups } from '@/lib/nav'
 import { useAuthStore } from '@/stores/auth'
 
 /** 分组侧栏（按身份裁剪）：201px ↔ 65px，可收起；收起时悬停显示名称。 */
 const auth = useAuthStore()
 const groups = computed(() => navGroups(auth.user?.pages ?? []))
+const route = useRoute()
 const collapsed = ref(false)
 const tipClass = 'rounded-[7px] bg-tip px-[11px] py-[7px] text-[12px] leading-none font-medium text-tip-fg'
 </script>
@@ -23,20 +25,20 @@ const tipClass = 'rounded-[7px] bg-tip px-[11px] py-[7px] text-[12px] leading-no
       <div v-for="g in groups" :key="g.label" class="mb-3.5 px-2.5">
         <div v-if="!collapsed" class="px-3 pt-1 pb-2 text-[11px] font-medium tracking-[.08em] text-ink-faint">{{ g.label }}</div>
         <div v-else class="mx-2 mb-2 h-px bg-divider" />
-        <RouterLink v-for="item in g.items" :key="item.key" v-slot="{ href, navigate, isActive }" :to="pagePath(item)" custom>
+        <RouterLink v-for="item in g.items" :key="item.key" v-slot="{ href, navigate }" :to="item.to" custom>
           <Tooltip :disabled="!collapsed">
             <TooltipTrigger as-child>
               <a
                 :href="href"
-                class="relative mb-0.5 flex cursor-pointer items-center gap-2.5 rounded-lg py-2 text-[13px] no-underline transition-colors hover:no-underline"
+                class="relative mb-1 flex cursor-pointer items-center gap-3 rounded-xl py-2.5 text-[14px] no-underline transition-colors hover:no-underline"
                 :class="[
                   collapsed ? 'justify-center px-0' : 'justify-start px-3',
-                  isActive ? 'bg-primary-tint font-semibold text-primary' : 'bg-transparent text-ink-sub hover:bg-hover',
+                  item.members.includes(String(route.meta.page)) ? 'bg-primary-tint font-semibold text-primary' : 'bg-transparent text-ink-sub hover:bg-hover',
                 ]"
                 :data-nav="item.key"
                 @click="navigate"
               >
-                                <StrokeIcon :d="iconPaths[item.icon]" :size="17" class="flex-none opacity-90" />
+                                <StrokeIcon :d="iconPaths[item.icon]" :size="18" class="flex-none opacity-90" />
                 <template v-if="!collapsed">
                   <span class="nav-fade whitespace-nowrap">{{ item.label }}</span>
                 </template>

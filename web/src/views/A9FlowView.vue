@@ -84,14 +84,14 @@ async function saveVersion() {
       </template>
     </PageHeader>
 
-    <div class="mt-5 flex flex-wrap items-center gap-2 rounded-[10px] border border-line bg-surface px-[18px] py-3">
+    <div class="mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-3">
       <span class="text-[12px] text-ink-muted">流程模板</span>
       <Chip v-for="t in templates" :key="t.id" :on="t.id === tplId" @click="tplId = t.id">{{ label(t) }}</Chip>
       <Tag v-if="tpl?.pendingVersion" tone="warning" class="ml-auto">{{ tpl.pendingVersion }} 待召集人确认</Tag>
     </div>
 
     <div class="mt-3.5 grid grid-cols-[minmax(0,1fr)_320px] items-start gap-3.5">
-      <div class="rounded-[10px] border border-line bg-surface bg-[radial-gradient(var(--c-border)_1px,transparent_1px)] bg-size-[16px_16px] p-[18px]">
+      <div class="rounded-2xl border border-line-soft bg-surface shadow-card bg-[radial-gradient(var(--c-border)_1px,transparent_1px)] bg-size-[16px_16px] p-[18px]">
         <div class="mb-3 text-[12px] text-ink-sub">{{ tpl ? label(tpl) : '' }} · {{ nodes.length }} 个节点 · 点击节点配置</div>
         <div class="grid grid-cols-5 gap-x-[22px] gap-y-7" data-testid="flow-nodes">
           <button

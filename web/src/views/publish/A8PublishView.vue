@@ -9,6 +9,7 @@ import PackageScope from '@/components/publish/PackageScope.vue'
 import StepBar from '@/components/publish/StepBar.vue'
 import TierApproval from '@/components/publish/TierApproval.vue'
 import TodoList from '@/components/publish/TodoList.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import SegTabs from '@/components/shared/SegTabs.vue'
@@ -33,6 +34,9 @@ const tier = ref<TierRequest | null>(null)
 const indicator = ref<IndicatorRequest | null>(null)
 const versions = ref<AudienceVersion[]>([])
 const busy = ref(false)
+const allItems = computed(() => groups.value.flatMap((g) => g.items))
+const pendingGate = computed(() => allItems.value.filter((i) => i.status.includes('召集人审批') || i.type !== 'flow').length)
+const dueSoon = computed(() => allItems.value.filter((i) => i.dueTone === 'danger' || i.dueTone === 'warning').length)
 
 const TABS = [
   { value: 'pkg', label: '发布包与定向范围' },
@@ -157,6 +161,12 @@ const f = computed(() => detail.value?.flow)
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="a8-kpis">
+      <KpiCard label="在办事项" :value="String(allItems.length)" unit="项" icon="send" tone="primary" :spark="groups.map((g) => g.items.length)" desc="按流程类型分组,柱高为各类数量" />
+      <KpiCard label="待召集人审批" :value="String(pendingGate)" unit="项" icon="shield" tone="warning" desc="含发布包、指标上线、档位切换" />
+      <KpiCard label="时限临近 / 超期" :value="String(dueSoon)" unit="项" icon="clock" :tone="dueSoon ? 'danger' : 'success'" desc="请优先处理" />
+      <KpiCard label="流程类型" :value="String(groups.length)" unit="类" icon="flow" tone="ai" desc="月 / 季 / 年 / 专题 / 预警 / 更正" />
+    </div>
 
     <div class="mt-5 grid grid-cols-[288px_minmax(0,1fr)] items-start gap-3.5">
       <Panel title="我的待办" class="px-3!">
@@ -172,7 +182,7 @@ const f = computed(() => detail.value?.flow)
       </div>
 
       <div v-else-if="detail && f" class="flex min-w-0 flex-col gap-3.5" :data-flow="f.name">
-        <section class="rounded-[10px] border border-line bg-surface px-[18px] pt-3.5 pb-4">
+        <section class="rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] pt-3.5 pb-4">
           <div class="flex flex-wrap items-center gap-2.5">
             <span class="text-[16px] font-semibold text-ink" data-testid="flow-name">{{ f.name }}</span>
             <Tag>{{ f.kind }}</Tag>
@@ -186,7 +196,7 @@ const f = computed(() => detail.value?.flow)
           </div>
         </section>
 
-        <section class="rounded-[10px] border border-line bg-surface">
+        <section class="rounded-2xl border border-line-soft bg-surface shadow-card">
           <div class="flex items-center gap-3 border-b border-divider px-[18px] py-2.5">
             <SegTabs v-model="tab" :items="TABS" data-testid="a8-tabs" />
             <span class="ml-auto truncate text-[11px] text-ink-faint">发布物:{{ f.subject }}</span>

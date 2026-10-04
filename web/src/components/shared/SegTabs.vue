@@ -5,7 +5,7 @@ const model = defineModel<T>({ required: true })
 </script>
 
 <template>
-  <div class="inline-flex flex-none items-center gap-0.5 rounded-[10px] border border-line bg-surface p-1" role="tablist">
+  <div class="inline-flex flex-none items-center gap-0.5 rounded-2xl border border-line-soft bg-surface shadow-card p-1" role="tablist">
     <button
       v-for="it in items"
       :key="String(it.value)"

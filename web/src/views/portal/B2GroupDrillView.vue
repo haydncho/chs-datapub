@@ -60,13 +60,13 @@ const valText = (v: number, d: number, unit: string) => (unit === '%' ? `${fmtNu
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
 
-    <div v-if="error" class="mt-5 rounded-[10px] border border-line bg-surface px-6 py-10 text-center text-[13px] text-ink-muted">
+    <div v-if="error" class="mt-5 rounded-2xl border border-line-soft bg-surface shadow-card px-6 py-10 text-center text-[13px] text-ink-muted">
       加载失败:{{ error }} <button type="button" class="ml-2 cursor-pointer text-primary" @click="load">重试</button>
     </div>
 
     <template v-else-if="idx">
       <!-- 病组芯片 -->
-      <div class="mt-5 flex flex-wrap items-center gap-2 rounded-[10px] border border-line bg-surface px-[18px] py-2.5" data-testid="group-chips">
+      <div class="mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-2.5" data-testid="group-chips">
         <span class="mr-1 text-[12px] text-ink-muted">本院重点病组</span>
         <Chip v-for="c in idx.groups" :key="c.code" :on="c.code === sel" :data-group="c.code" @click="pick(c.code)">
           <span class="font-mono">{{ c.code }}</span>
@@ -154,7 +154,7 @@ const valText = (v: number, d: number, unit: string) => (unit === '%' ? `${fmtNu
             </table>
           </Panel>
         </div>
-        <div v-else class="h-[460px] animate-pulse rounded-[10px] border border-line bg-surface" />
+        <div v-else class="h-[460px] animate-pulse rounded-2xl border border-line-soft bg-surface shadow-card" />
 
         <div class="flex flex-col gap-3.5">
           <!-- 小样本病组 -->
@@ -181,6 +181,6 @@ const valText = (v: number, d: number, unit: string) => (unit === '%' ? `${fmtNu
         </div>
       </div>
     </template>
-    <div v-else class="mt-5 h-[460px] animate-pulse rounded-[10px] border border-line bg-surface" />
+    <div v-else class="mt-5 h-[460px] animate-pulse rounded-2xl border border-line-soft bg-surface shadow-card" />
   </div>
 </template>

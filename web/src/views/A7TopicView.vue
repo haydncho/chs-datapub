@@ -79,13 +79,13 @@ const pct = (v: number) => (t.value ? (v / t.value.waterfall.axisMax) * 100 : 0)
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
 
-    <div v-if="error" class="mt-5 rounded-[10px] border border-line bg-surface px-6 py-10 text-center text-[13px] text-ink-muted">
+    <div v-if="error" class="mt-5 rounded-2xl border border-line-soft bg-surface shadow-card px-6 py-10 text-center text-[13px] text-ink-muted">
       专题加载失败:{{ error }} <button type="button" class="ml-2 cursor-pointer text-primary" @click="load">重试</button>
     </div>
 
     <template v-else-if="t">
       <!-- 专题条 -->
-      <div class="mt-5 flex flex-wrap items-center gap-3 rounded-[10px] border border-line bg-surface px-[18px] py-3">
+      <div class="mt-5 flex flex-wrap items-center gap-3 rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-3">
         <span class="font-mono font-semibold text-primary">{{ t.code }}</span>
         <span class="text-[15px] font-semibold text-ink">{{ t.name }} · {{ t.period }}专题</span>
         <Tag tone="success">来自{{ t.source }}</Tag>
@@ -98,7 +98,7 @@ const pct = (v: number) => (t.value ? (v / t.value.waterfall.axisMax) * 100 : 0)
 
       <div class="mt-3.5 grid grid-cols-[200px_minmax(0,1fr)_320px] items-start gap-3.5">
         <!-- 七段导航 -->
-        <nav class="rounded-[10px] border border-line bg-surface p-2" data-testid="sections">
+        <nav class="rounded-2xl border border-line-soft bg-surface shadow-card p-2" data-testid="sections">
           <button
             v-for="s in t.sections"
             :key="s.idx"
@@ -238,6 +238,6 @@ const pct = (v: number) => (t.value ? (v / t.value.waterfall.axisMax) * 100 : 0)
         </Panel>
       </div>
     </template>
-    <div v-else class="mt-5 h-[460px] animate-pulse rounded-[10px] border border-line bg-surface" />
+    <div v-else class="mt-5 h-[460px] animate-pulse rounded-2xl border border-line-soft bg-surface shadow-card" />
   </div>
 </template>

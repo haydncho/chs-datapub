@@ -88,7 +88,7 @@ function startPk() {
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
 
-    <div v-if="error" class="mt-5 rounded-[10px] border border-line bg-surface px-6 py-10 text-center text-[13px] text-ink-muted">
+    <div v-if="error" class="mt-5 rounded-2xl border border-line-soft bg-surface shadow-card px-6 py-10 text-center text-[13px] text-ink-muted">
       加载失败:{{ error }} <button type="button" class="ml-2 cursor-pointer text-primary" @click="load">重试</button>
     </div>
 
@@ -116,7 +116,7 @@ function startPk() {
       </Panel>
 
       <!-- 对标结果 -->
-      <section v-if="d" class="min-h-[440px] rounded-[10px] border border-line bg-surface px-[18px] py-4" data-testid="bench-detail" :data-tier="d.tier">
+      <section v-if="d" class="min-h-[440px] rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-4" data-testid="bench-detail" :data-tier="d.tier">
         <div class="mb-4 flex items-start justify-between gap-4">
           <div>
             <div class="text-[15px] font-semibold text-ink" data-testid="bench-title">{{ d.indicator }}</div>
@@ -208,8 +208,8 @@ function startPk() {
 
         <div class="mt-5 border-t border-divider pt-2.5 text-[11px] text-ink-faint">口径:{{ d.note }}{{ d.higherIsBetter ? ' · 越高越好' : ' · 越低越好' }}</div>
       </section>
-      <div v-else class="h-[440px] animate-pulse rounded-[10px] border border-line bg-surface" />
+      <div v-else class="h-[440px] animate-pulse rounded-2xl border border-line-soft bg-surface shadow-card" />
     </div>
-    <div v-else class="mt-5 h-[440px] animate-pulse rounded-[10px] border border-line bg-surface" />
+    <div v-else class="mt-5 h-[440px] animate-pulse rounded-2xl border border-line-soft bg-surface shadow-card" />
   </div>
 </template>

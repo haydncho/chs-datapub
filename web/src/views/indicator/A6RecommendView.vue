@@ -12,6 +12,7 @@ import {
 } from '@/api/indicator'
 import { fmt } from '@/components/indicator/tones'
 import Chip from '@/components/shared/Chip.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Tag from '@/components/shared/Tag.vue'
 import { Button } from '@/components/ui/button'
@@ -100,6 +101,8 @@ async function act(code: string, fn: () => Promise<{ row: TopicRow; message: str
 const decide = (r: TopicRow, a: 'adopt' | 'reject') => act(r.code, () => recommendApi.decide(r.code, a))
 const undo = (r: TopicRow) => act(r.code, () => recommendApi.undo(r.code))
 
+const tcount = (st: string) => (topics.value?.rows ?? []).filter((t) => t.status === st).length
+const topicSpark = computed(() => (topics.value?.rows ?? []).map((t) => t.score))
 const editing = ref<TopicRow | null>(null)
 const editReasons = ref<string[]>([])
 const editNote = ref('')
@@ -143,7 +146,13 @@ async function letter(a: AnomalyRow) {
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
-    <section class="mt-5 rounded-[10px] border border-line bg-surface">
+    <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="a6-kpis">
+      <KpiCard label="本期选题候选" :value="String(topics?.rows.length ?? 0)" unit="个" icon="ai" tone="primary" :spark="topicSpark" :desc="topics?.period ?? ''" />
+      <KpiCard label="待人工确认" :value="String(tcount('CAND'))" unit="个" icon="clock" tone="warning" desc="算法只给候选" />
+      <KpiCard label="已采纳" :value="String(tcount('ADOPT'))" unit="个" icon="check" tone="success" desc="进入病组专题工作台" />
+      <KpiCard label="已否决" :value="String(tcount('REJECT'))" unit="个" icon="x" tone="muted" desc="理由计入方法卡复核" />
+    </div>
+    <section class="mt-5 rounded-2xl border border-line-soft bg-surface shadow-card">
       <div class="flex items-center gap-6 border-b border-divider px-[18px]">
         <div class="flex gap-6" role="tablist" data-testid="a6-tabs">
           <button

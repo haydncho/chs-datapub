@@ -126,7 +126,7 @@ const diffCls = (v: number) => (v > 0 ? 'text-danger' : v < 0 ? 'text-success' :
       </section>
 
       <div class="mt-3.5 grid grid-cols-3 gap-3" data-testid="c2-insights">
-        <div v-for="i in data.insights" :key="i.title" class="rounded-[10px] border border-line bg-surface px-[18px] py-3.5 transition-colors hover:border-primary">
+        <div v-for="i in data.insights" :key="i.title" class="rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-3.5 transition-colors hover:border-primary">
           <div class="mb-1 text-[13px] font-semibold text-ink">{{ i.title }}</div>
           <div class="text-[12px] leading-[1.7] text-ink-sub">{{ i.body }}</div>
         </div>

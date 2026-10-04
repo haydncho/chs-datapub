@@ -172,11 +172,11 @@ const kpiCls = { default: 'text-ink', success: 'text-success', warning: 'text-wa
       <span class="ml-auto text-[12px]">如需继续查阅,请联系市医保局重新开通</span>
     </div>
 
-    <div v-if="blocked" class="mt-3.5 rounded-[10px] border border-line bg-surface px-[18px] py-6 text-center text-[12px] text-ink-muted">{{ blocked }}</div>
+    <div v-if="blocked" class="mt-3.5 rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-6 text-center text-[12px] text-ink-muted">{{ blocked }}</div>
 
     <div v-else-if="seat" class="mt-3.5 grid grid-cols-[300px_minmax(0,1fr)] items-start gap-3.5">
       <div class="flex flex-col gap-3.5">
-        <section class="rounded-[10px] border border-line bg-surface p-2.5" data-testid="c3-materials">
+        <section class="rounded-2xl border border-line-soft bg-surface shadow-card p-2.5" data-testid="c3-materials">
           <div class="px-1.5 pt-0.5 pb-2 text-[13px] font-semibold text-ink">发布会材料</div>
           <button
             v-for="m in seat.materials"
@@ -194,7 +194,7 @@ const kpiCls = { default: 'text-ink', success: 'text-success', warning: 'text-wa
           </button>
         </section>
 
-        <section v-if="rec" class="rounded-[10px] border border-line bg-surface px-3.5 py-3" data-testid="c3-recording">
+        <section v-if="rec" class="rounded-2xl border border-line-soft bg-surface shadow-card px-3.5 py-3" data-testid="c3-recording">
           <div class="mb-2 text-[13px] font-semibold text-ink">限时回看 · 发布会录像</div>
           <button
             type="button"

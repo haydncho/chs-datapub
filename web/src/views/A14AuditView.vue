@@ -4,6 +4,7 @@ import { auditApi } from '@/api'
 import { HttpError } from '@/api/http'
 import type { AuditLog, AuditTrace, Tone } from '@/api/types'
 import Chip from '@/components/shared/Chip.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Tag from '@/components/shared/Tag.vue'
 import { Button } from '@/components/ui/button'
@@ -64,8 +65,13 @@ const blocked = (r: string) => r === '已拦截' || r === '已锁定'
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div class="mt-5 grid grid-cols-3 gap-3.5" data-testid="a14-kpis">
+      <KpiCard label="今日审计记录" :value="today.count.toLocaleString('zh-CN')" unit="条" icon="audit" tone="primary" desc="登录、查阅、导出、审批全量留痕" />
+      <KpiCard label="今日越权尝试" :value="String(today.overreach)" unit="条" icon="lock" :tone="today.overreach ? 'danger' : 'success'" :desc="today.overreach ? '已拦截并记录' : '暂无越权访问'" />
+      <KpiCard label="记录总数" :value="total.toLocaleString('zh-CN')" unit="条" icon="data" tone="ai" desc="只增不改,保存 3 年" />
+    </div>
 
-    <div class="mt-5 flex flex-wrap items-center gap-3 rounded-[10px] border border-line bg-surface px-[18px] py-3.5">
+    <div class="mt-3.5 flex flex-wrap items-center gap-3 rounded-2xl border border-line-soft bg-surface px-5 py-3.5 shadow-card">
       <span class="sect-title">水印溯源</span>
       <Input v-model="wm" class="w-[240px] py-1.5 font-mono text-[12px]" placeholder="输入水印编号,如 WM-20261003-5208" aria-label="水印编号" data-testid="wm-input" @keydown.enter="trace" />
       <Button size="sm" data-testid="trace-btn" @click="trace">溯源</Button>

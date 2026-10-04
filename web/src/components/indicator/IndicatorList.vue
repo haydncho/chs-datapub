@@ -76,7 +76,7 @@ async function togglePkg(r: IndRow) {
 </script>
 
 <template>
-  <section class="rounded-[10px] border border-line bg-surface">
+  <section class="rounded-2xl border border-line-soft bg-surface shadow-card">
     <div class="flex flex-wrap items-center gap-2.5 border-b border-divider px-[18px] py-3">
       <span class="text-[12px] text-ink-muted">分组</span>
       <div class="flex gap-1.5" data-testid="grp-chips">

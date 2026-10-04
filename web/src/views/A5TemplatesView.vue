@@ -132,7 +132,7 @@ const glyph: Record<string, string> = {
     </div>
 
     <!-- 报告拼装器 -->
-    <div v-else class="mt-5 overflow-hidden rounded-[10px] border border-line bg-surface">
+    <div v-else class="mt-5 overflow-hidden rounded-2xl border border-line-soft bg-surface shadow-card">
       <div class="flex flex-wrap items-center gap-2 border-b border-divider px-4 py-3">
         <span class="text-[12px] text-ink-muted">预置模板</span>
         <Chip v-for="p in presets" :key="p.name" :on="p.name === preset" @click="applyPreset(p)">{{ p.name }}</Chip>

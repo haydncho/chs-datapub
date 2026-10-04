@@ -54,7 +54,7 @@ async function operate(target: string, action: string) {
     </div>
 
     <div class="mt-3.5 grid grid-cols-[240px_minmax(0,1fr)] items-start gap-3.5">
-      <div class="rounded-[10px] border border-line bg-surface px-1.5 py-2.5" data-testid="org-tree">
+      <div class="rounded-2xl border border-line-soft bg-surface shadow-card px-1.5 py-2.5" data-testid="org-tree">
         <div class="px-2 pb-2 text-[13px] font-semibold text-ink">组织树</div>
         <button
           v-for="o in orgs"
@@ -98,7 +98,7 @@ async function operate(target: string, action: string) {
           <div class="mt-2.5 text-[11px] text-ink-faint">点击角色行查看五维配置 · “申请”= 单次审批后生效</div>
         </template>
 
-        <div v-else-if="tab === 'dims'" class="rounded-[10px] border border-line bg-surface px-[18px] py-4">
+        <div v-else-if="tab === 'dims'" class="rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-4">
           <div class="mb-3.5 flex flex-wrap gap-1.5">
             <Chip v-for="r in roles" :key="r.id" :on="r.id === roleId" @click="roleId = r.id">{{ r.name }}</Chip>
           </div>

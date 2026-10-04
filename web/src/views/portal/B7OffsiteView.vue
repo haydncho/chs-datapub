@@ -36,7 +36,7 @@ const LEVEL = ['var(--c-primary-solid)', 'var(--c-chart-blue)', 'var(--c-text-fa
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
 
-    <div v-if="error" class="mt-5 rounded-[10px] border border-line bg-surface px-6 py-10 text-center text-[13px] text-ink-muted">
+    <div v-if="error" class="mt-5 rounded-2xl border border-line-soft bg-surface shadow-card px-6 py-10 text-center text-[13px] text-ink-muted">
       加载失败:{{ error }} <button type="button" class="ml-2 cursor-pointer text-primary" @click="load">重试</button>
     </div>
 
@@ -98,6 +98,6 @@ const LEVEL = ['var(--c-primary-solid)', 'var(--c-chart-blue)', 'var(--c-text-fa
       </div>
       <div class="mt-3 text-[11px] text-ink-faint">就医地机构排名与明细仅医保局可见,机构门户不提供。</div>
     </template>
-    <div v-else class="mt-5 h-[400px] animate-pulse rounded-[10px] border border-line bg-surface" />
+    <div v-else class="mt-5 h-[400px] animate-pulse rounded-2xl border border-line-soft bg-surface shadow-card" />
   </div>
 </template>

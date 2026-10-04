@@ -77,13 +77,13 @@ function goB2(code: string) {
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
 
-    <div v-if="error" class="mt-5 rounded-[10px] border border-line bg-surface px-6 py-10 text-center text-[13px] text-ink-muted">
+    <div v-if="error" class="mt-5 rounded-2xl border border-line-soft bg-surface shadow-card px-6 py-10 text-center text-[13px] text-ink-muted">
       本院全息图加载失败:{{ error }} <button type="button" class="ml-2 cursor-pointer text-primary" @click="load">重试</button>
     </div>
 
     <template v-else-if="h">
       <!-- 机构头 -->
-      <div class="mt-5 flex flex-wrap items-center gap-4 rounded-[10px] border border-line bg-surface px-[18px] py-3" data-testid="org-head">
+      <div class="mt-5 flex flex-wrap items-center gap-4 rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-3" data-testid="org-head">
         <div>
           <div class="text-[16px] font-semibold text-ink" data-testid="org-name">{{ h.org.name }}</div>
           <div class="text-[12px] text-ink-muted">同级组:{{ h.org.tier }}({{ h.org.peerCount }} 家)· {{ h.org.period }} · 对标档位:{{ h.org.tierMode }}</div>
@@ -197,6 +197,6 @@ function goB2(code: string) {
         </div>
       </div>
     </template>
-    <div v-else class="mt-5 h-[520px] animate-pulse rounded-[10px] border border-line bg-surface" />
+    <div v-else class="mt-5 h-[520px] animate-pulse rounded-2xl border border-line-soft bg-surface shadow-card" />
   </div>
 </template>

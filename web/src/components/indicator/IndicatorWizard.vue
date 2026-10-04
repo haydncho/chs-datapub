@@ -244,7 +244,7 @@ const showTplWarn = computed(() => cfg.value?.template === '排行条' && cfg.va
 </script>
 
 <template>
-  <section class="rounded-[10px] border border-line bg-surface" data-testid="wizard">
+  <section class="rounded-2xl border border-line-soft bg-surface shadow-card" data-testid="wizard">
     <div class="flex flex-wrap items-center gap-3 border-b border-divider px-5 py-3">
       <button type="button" class="cursor-pointer text-[12px] text-primary hover:underline" data-testid="back-list" @click="flush().then(() => emit('back', locked))">‹ 返回指标列表</button>
       <span class="text-[13px] font-semibold text-ink" data-testid="wiz-title">新建指标:{{ cfg?.name || '未命名' }}</span>

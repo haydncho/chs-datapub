@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { HttpError } from '@/api/http'
 import type { Tone } from '@/api/types'
 import { regionalApi, type CountyInstitution, type CountyOverview, type MonitorStatus } from '@/api/regional'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Tag from '@/components/shared/Tag.vue'
 import SortTh from '@/components/regional/SortTh.vue'
@@ -58,6 +59,12 @@ const ST: Record<MonitorStatus, [string, Tone]> = { ok: ['正常', 'success'], w
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div v-if="data" class="mt-5 grid grid-cols-4 gap-3.5" data-testid="c1-kpis">
+      <KpiCard label="本县区定点机构" :value="String(data.institutions.length)" unit="家" icon="inst" tone="primary" :spark="data.institutions.map((i) => i.cases)" desc="按病例数,具名展示" />
+      <KpiCard label="县区排名" :value="`第 ${data.counties.find((c) => c.self)?.rank ?? '—'}`" :unit="`/ ${data.counties.length}`" icon="pct" tone="ai" desc="综合考核得分" small />
+      <KpiCard label="监测指标预警" :value="String(data.statusCounts.bad ?? 0)" unit="项" icon="alert" :tone="(data.statusCounts.bad ?? 0) ? 'danger' : 'success'" :desc="`关注 ${data.statusCounts.warn ?? 0} 项 · 正常 ${data.statusCounts.ok ?? 0} 项`" />
+      <KpiCard label="质控关注机构" :value="String(data.institutions.filter((i) => i.qcLow).length)" unit="家" icon="shield" tone="warning" :desc="`清单质控率 < ${data.qcThreshold}%`" />
+    </div>
 
     <div v-if="error" class="mt-5 flex items-center gap-3 rounded-[10px] border border-danger-line bg-danger-soft px-[18px] py-3.5 text-[12px] text-danger-ink" data-testid="c1-error">
       {{ error }}
@@ -122,7 +129,7 @@ const ST: Record<MonitorStatus, [string, Tone]> = { ok: ['正常', 'success'], w
       </div>
 
       <!-- 医共体 14 项监测指标 -->
-      <section class="mt-3.5 rounded-[10px] border border-line bg-surface px-[18px] py-4" data-testid="c1-monitors">
+      <section class="mt-3.5 rounded-2xl border border-line-soft bg-surface shadow-card px-[18px] py-4" data-testid="c1-monitors">
         <div class="mb-3 flex flex-wrap items-center gap-3">
           <span class="sect-title">{{ data.county }}医共体 · {{ data.indicators.length }} 项医保监测指标</span>
           <span class="flex items-center gap-1.5">

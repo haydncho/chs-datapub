@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import type { Tone } from '@/api/types'
 import { portalReportsApi, type PortalReport, type PortalReportDetail, type ReportStatus } from '@/api/portalReports'
 import ReportPaper from '@/components/portal-reports/ReportPaper.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Tag from '@/components/shared/Tag.vue'
 import { Button } from '@/components/ui/button'
@@ -19,6 +20,7 @@ const rows = ref<PortalReport[]>([])
 const selId = ref<number | null>(null)
 const detail = ref<PortalReportDetail | null>(null)
 const busy = ref(false)
+const rc = (st: string) => rows.value.filter((r) => r.status === st).length
 
 const ST: Record<ReportStatus, [string, Tone]> = {
   SIGN: ['待签收', 'warning'],
@@ -80,9 +82,15 @@ const toOpinion = () => detail.value && router.push({ name: 'B5', query: { repor
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="b4-kpis">
+      <KpiCard label="收到的报告" :value="String(rows.length)" unit="份" icon="doc" tone="primary" desc="本院定向发布" />
+      <KpiCard label="待签收" :value="String(rc('SIGN'))" unit="份" icon="clock" tone="warning" desc="签收后可对报告提意见" />
+      <KpiCard label="核对中" :value="String(rc('CHECK'))" unit="份" icon="search" tone="ai" desc="须在核对期内确认数据" />
+      <KpiCard label="已签收" :value="String(rc('SIGNED'))" unit="份" icon="check" tone="success" desc="全程留痕" />
+    </div>
     <div class="mt-5 grid grid-cols-[400px_minmax(0,1fr)] items-start gap-3">
       <!-- 报告列表 -->
-      <section class="rounded-[10px] border border-line bg-surface" data-testid="report-list">
+      <section class="rounded-2xl border border-line-soft bg-surface shadow-card" data-testid="report-list">
         <div class="flex gap-5 border-b border-divider px-4" role="tablist">
           <button
             v-for="t in TABS"
@@ -116,7 +124,7 @@ const toOpinion = () => detail.value && router.push({ name: 'B5', query: { repor
       </section>
 
       <!-- 预览 -->
-      <section v-if="detail" class="rounded-[10px] border border-line bg-surface" data-testid="report-preview">
+      <section v-if="detail" class="rounded-2xl border border-line-soft bg-surface shadow-card" data-testid="report-preview">
         <div class="flex items-center justify-between gap-3 border-b border-divider px-4 py-3">
           <span class="text-[13px] font-semibold text-ink">{{ detail.title }}</span>
           <div class="flex flex-none items-center gap-2">

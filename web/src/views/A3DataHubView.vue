@@ -103,7 +103,7 @@ const timeliness = computed(() => ov.value?.quality.timelinessPct)
       </template>
     </PageHeader>
 
-    <div v-if="error" class="mt-5 rounded-[10px] border border-line bg-surface px-6 py-10 text-center text-[13px] text-ink-muted">
+    <div v-if="error" class="mt-5 rounded-2xl border border-line-soft bg-surface shadow-card px-6 py-10 text-center text-[13px] text-ink-muted">
       数据归集加载失败:{{ error }} <button type="button" class="ml-2 cursor-pointer text-primary" @click="load">重试</button>
     </div>
 
@@ -205,7 +205,7 @@ const timeliness = computed(() => ov.value?.quality.timelinessPct)
       </div>
     </template>
     <div v-else class="mt-5 grid grid-cols-5 gap-3">
-      <div v-for="i in 10" :key="i" class="h-[118px] animate-pulse rounded-[10px] border border-line bg-surface" />
+      <div v-for="i in 10" :key="i" class="h-[118px] animate-pulse rounded-2xl border border-line-soft bg-surface shadow-card" />
     </div>
   </div>
 </template>

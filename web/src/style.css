@@ -1,0 +1,905 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* 深色主题：<html class="dark">（由 src/composables/useTheme.ts 切换，index.html 内联脚本首屏前预置） */
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * 设计令牌：与原型 :root 的 --c-* 变量一一对应（project/睿衡·预算数智平台原型.dc.html）。
+ * 业务代码优先使用 Tailwind 语义类：text-ink / text-ink-sub / bg-surface / border-line …
+ * 组件里不要再写十六进制色：没有合适令牌时在这里新增（浅色 + 深色两套），见 docs/architecture.md「深色主题」。
+ *
+ * 浅色令牌写在 `:root, [data-paper]`：带 data-paper 的「公文纸」元素（通知书 / 说明函 / 报表预览等）
+ * 即使处在深色主题下也重新声明为浅色令牌，保持白底黑字（与打印、导出一致）。
+ */
+:root,
+[data-paper] {
+  color-scheme: light;
+  --c-primary: #2563eb;
+  --c-primary-hover: #1d4ed8;
+  --c-primary-tint: #eff6ff;
+  --c-surface: #ffffff;
+  --c-app-bg: #f7f8fa;
+  --c-subtle: #fafbfc;
+  --c-text: #111827;
+  --c-text-sub: #4b5563;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #9ca3af;
+  --c-border: #e5e9ef;
+  --c-border-soft: #edf0f3;
+  --c-divider: #f1f3f5;
+  --c-hover: #f1f5fb;
+
+  --c-danger: #b91c1c;
+  --c-warning: #b45309;
+  --c-success: #15803d;
+  --c-info: #0369a1;
+  --c-ai: #7c3aed;
+  --c-ai-deep: #6d28d9;
+  --c-cyan: #0e7490;
+
+  /* 语义色的浅底 / 描边 / 浅色块（原先各组件直接写十六进制，统一为令牌） */
+  --c-primary-line: #bfdbfe;
+  --c-danger-soft: #fef2f2;
+  --c-danger-line: #fecaca;
+  --c-warning-soft: #fffbeb;
+  --c-warning-tint: #fef3c7;
+  --c-warning-line: #fde68a;
+  --c-success-soft: #f0fdf4;
+  --c-success-tint: #dcfce7;
+  --c-success-line: #bbf7d0;
+  --c-ai-soft: #f5f3ff;
+  --c-ai-tint: #ede9fe;
+  --c-ai-line: #ddd6fe;
+  --c-cyan-soft: #ecfeff;
+
+  /* ---- 主题扩展令牌（浅色值 = 原先散落在组件里的十六进制；深色值见 html.dark） ---- */
+  /* 实心填充（配白字）：与文字 / 描边用的强调色分开——深色下强调色提亮，填充色仍保证白字对比 */
+  --c-primary-solid: #2563eb;
+  --c-primary-solid-hover: #1d4ed8;
+  --c-ai-solid: #7c3aed;
+  --c-ai-solid-hover: #6d28d9;
+  --c-danger-solid: #b91c1c;
+  --c-danger-solid-hover: #991b1b;
+  --c-success-solid: #15803d;
+  --c-warning-solid: #b45309;
+  --c-red-solid: #dc2626;
+  --c-muted-solid: #6b7280;
+  /* 浅底上的深色字（语义色 -ink） */
+  --c-primary-ink: #1e3a8a;
+  --c-warning-ink: #92400e;
+  --c-danger-ink: #991b1b;
+  --c-success-ink: #166534;
+  --c-ai-ink: #4c1d95;
+  --c-ai-muted: #7c6fae;
+  /* 浅底 / 描边变体补充 */
+  --c-primary-soft: #dbeafe;
+  --c-primary-tint-hover: #dce9fe;
+  --c-primary-line-strong: #c7dbfb;
+  --c-danger-tint: #fee2e2;
+  --c-cyan-tint: #cffafe;
+  --c-cyan-line: #a5f3fc;
+  --c-field-tint: #f8fbff;
+  --c-ai-faint: #fafaff;
+  --c-ai-line-strong: #c4b5fd;
+  --c-warning-line-strong: #fcd34d;
+  --c-unread: #f8faff;
+  --c-ink-tint: #f3f5f9;
+  --c-chip: #f3f4f6;
+  /* 品牌 / 图标底色渐变（白色图标放其上，两种主题下取值相同） */
+  --c-brand-a: #3b82f6;
+  --c-brand-b: #1d4ed8;
+  --c-cyan-solid: #0e7490;
+  --c-teal: #0f766e;
+  --c-teal-soft: #ecfdf5;
+  --c-sky: #0ea5e9;
+  /* 登录页：底色 / 光斑 / 输入框描边（蓝底 + 液态玻璃卡片；深色换成深蓝底） */
+  --c-lg-bg: #2563eb;
+  --c-lg-o1a: #67e8f9;
+  --c-lg-o1b: #3b82f6;
+  --c-lg-o2a: #c4b5fd;
+  --c-lg-o2b: #6366f1;
+  --c-lg-field: rgba(100, 116, 139, 0.38);
+  --c-ai-grad: #a78bfa;
+  --c-ic-blue-a: #60a5fa;
+  --c-ic-blue-b: #2563eb;
+  --c-ic-cyan-a: #22d3ee;
+  --c-ic-cyan-b: #0e7490;
+  --c-ic-violet-a: #a78bfa;
+  --c-ic-violet-b: #7c3aed;
+  --c-ic-amber-a: #fbbf24;
+  --c-ic-amber-b: #d97706;
+  /* 中性 */
+  --c-body-bg: #eef1f5;
+  --c-popover: #ffffff;
+  --c-th-bg: #f5f7fa;
+  --c-row-alt: #fcfdfe;
+  --c-row-hover: #f3f7fd;
+  --c-hover-soft: #f5f8fd;
+  --c-hover-strong: #e3eeff;
+  --c-border-strong: #cbd5e1;
+  --c-neutral: #d5dbe3;
+  --c-neutral-2: #d1d5db;
+  --c-text-body: #374151;
+  --c-text-ghost: #c4c9d2;
+  --c-glyph: #cbd5e1;
+  /* 气泡提示 / toast：浅色为深底白字，深色为比表面更亮一级的抬升面 */
+  --c-tip-bg: #111827;
+  --c-tip-fg: #ffffff;
+  --c-tip-ai: #c4b5fd;
+  --c-toast-fg: #f7f8fa;
+  --c-code-bg: #0f172a;
+  --c-code-fg: #c7d2fe;
+  /* 遮罩与阴影 */
+  --c-overlay: rgba(20, 29, 38, 0.45);
+  --c-overlay-light: rgba(15, 23, 42, 0.18);
+  --c-overlay-mid: rgba(15, 23, 42, 0.42);
+  /* 图表：series-a 为柱体渐变上端 / 描边色，series-b 为下端浅色；深色下改为「亮色 → 压暗」 */
+  --c-chart-blue: #3b82f6;
+  --c-chart-red: #dc2626;
+  --c-chart-amber: #f59e0b;
+  --c-chart-green: #22c55e;
+  --c-chart-ink: #111827;
+  --c-s-blue-a: #1d4ed8;
+  --c-s-blue-b: #93c5fd;
+  --c-s-cyan-a: #0e7490;
+  --c-s-cyan-b: #67e8f9;
+  --c-s-violet-a: #6d28d9;
+  --c-s-violet-b: #c4b5fd;
+  --c-s-amber-a: #b45309;
+  --c-s-amber-b: #fcd34d;
+  --c-s-red-a: #b91c1c;
+  --c-s-red-b: #fca5a5;
+  --c-s-green-a: #15803d;
+  --c-s-green-b: #86efac;
+  --c-s-sky-b: #0ea5e9;
+  --c-bar-neutral-a: #cbd5e1;
+  --c-bar-neutral-b: #94a3b8;
+  --c-bar-light-a: #e2e8f0;
+  --c-bar-light-b: #cbd5e1;
+  --c-bar-blue-a: #60a5fa;
+  --c-bar-blue-b: #2563eb;
+  --c-bar-blue-lt-a: #93c5fd;
+  --c-bar-red-a: #f87171;
+  --c-bar-red-b: #dc2626;
+  --c-chart-amber-dk: #d97706;
+  --c-s-cyan-c: #a5f3fc;
+  /* 渐变「浅端」的混合底色：浅色为白，深色向暗灰淡出 */
+  --c-mix: #ffffff;
+  /* 文字描边光晕（桑基图标签）：与所在底色一致 */
+  --c-halo: #ffffff;
+
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 10px;
+  --font-ui: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+
+  /* shadcn-vue 主题变量，映射到同一套令牌 */
+  --radius: 10px;
+  --background: var(--c-app-bg);
+  --foreground: var(--c-text);
+  --card: var(--c-surface);
+  --card-foreground: var(--c-text);
+  --popover: var(--c-popover);
+  --popover-foreground: var(--c-text);
+  --primary: var(--c-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--c-primary-tint);
+  --secondary-foreground: var(--c-primary);
+  --muted: var(--c-divider);
+  --muted-foreground: var(--c-text-muted);
+  --accent: var(--c-hover);
+  --accent-foreground: var(--c-text);
+  --destructive: var(--c-danger);
+  --border: var(--c-border);
+  --input: var(--c-border);
+  --ring: #93b4f5;
+}
+
+/*
+ * 深色主题：只重定义基础令牌（shadcn 变量是 var() 映射，自动跟随）。
+ * 限定 screen：打印始终走浅色令牌（纸张与屏幕一致）。
+ * 层次：app-bg < surface < popover / hover 逐级抬升；文字对比度 主文字 ≥ 7:1、次要 ≥ 4.5:1、faint ≥ 3:1。
+ * status 的 soft / tint / line 用低饱和半透明底 + 亮色字，红 / 橙 / 绿 / 蓝 / 紫语义保持可辨。
+ */
+@media screen {
+  html.dark {
+    color-scheme: dark;
+    --c-primary: #60a5fa;
+    --c-primary-hover: #93c5fd;
+    --c-primary-tint: rgba(96, 165, 250, 0.12);
+    --c-surface: #151a22;
+    --c-app-bg: #0d1117;
+    --c-subtle: #11161d;
+    --c-text: #e8ecf2;
+    --c-text-sub: #b4bdcb;
+    --c-text-muted: #8f9aab;
+    --c-text-faint: #6f7b8d;
+    --c-border: #2a3340;
+    --c-border-soft: #232b37;
+    --c-divider: #202733;
+    --c-hover: #1e2633;
+
+    --c-danger: #f87171;
+    --c-warning: #f59e0b;
+    --c-success: #4ade80;
+    --c-info: #38bdf8;
+    --c-ai: #a78bfa;
+    --c-ai-deep: #c4b5fd;
+    --c-cyan: #22d3ee;
+
+    --c-primary-line: rgba(96, 165, 250, 0.38);
+    --c-danger-soft: rgba(248, 113, 113, 0.1);
+    --c-danger-line: rgba(248, 113, 113, 0.34);
+    --c-warning-soft: rgba(245, 158, 11, 0.1);
+    --c-warning-tint: rgba(245, 158, 11, 0.2);
+    --c-warning-line: rgba(245, 158, 11, 0.36);
+    --c-success-soft: rgba(74, 222, 128, 0.09);
+    --c-success-tint: rgba(74, 222, 128, 0.18);
+    --c-success-line: rgba(74, 222, 128, 0.32);
+    --c-ai-soft: rgba(167, 139, 250, 0.12);
+    --c-ai-tint: rgba(167, 139, 250, 0.2);
+    --c-ai-line: rgba(167, 139, 250, 0.38);
+    --c-cyan-soft: rgba(34, 211, 238, 0.1);
+
+    --c-primary-solid: #2563eb;
+    --c-primary-solid-hover: #3b78f0;
+    --c-ai-solid: #7c3aed;
+    --c-ai-solid-hover: #8b5cf6;
+    --c-danger-solid: #dc2626;
+    --c-danger-solid-hover: #ef4444;
+    --c-success-solid: #15803d;
+    --c-warning-solid: #b45309;
+    --c-red-solid: #dc2626;
+    --c-muted-solid: #596373;
+    --c-primary-ink: #bfdbfe;
+    --c-warning-ink: #fcd34d;
+    --c-danger-ink: #fca5a5;
+    --c-success-ink: #86efac;
+    --c-ai-ink: #ddd6fe;
+    --c-ai-muted: #a99bd8;
+    --c-primary-soft: rgba(96, 165, 250, 0.2);
+    --c-primary-tint-hover: rgba(96, 165, 250, 0.2);
+    --c-primary-line-strong: rgba(96, 165, 250, 0.45);
+    --c-danger-tint: rgba(248, 113, 113, 0.2);
+    --c-cyan-tint: rgba(34, 211, 238, 0.16);
+    --c-cyan-line: rgba(34, 211, 238, 0.36);
+    --c-field-tint: rgba(96, 165, 250, 0.08);
+    --c-ai-faint: rgba(167, 139, 250, 0.07);
+    --c-ai-line-strong: rgba(167, 139, 250, 0.6);
+    --c-warning-line-strong: rgba(245, 158, 11, 0.5);
+    --c-unread: rgba(96, 165, 250, 0.08);
+    --c-teal: #2dd4bf;
+    --c-teal-soft: rgba(45, 212, 191, 0.1);
+    --c-ai-grad: #8b5cf6;
+    --c-lg-bg: #0a1530;
+    --c-lg-o1a: #22d3ee;
+    --c-lg-o1b: #2563eb;
+    --c-lg-o2a: #a78bfa;
+    --c-lg-o2b: #4f46e5;
+    --c-lg-field: rgba(148, 163, 184, 0.34);
+    --c-ink-tint: #1c222c;
+    --c-chip: #1f2630;
+    --c-body-bg: #090c11;
+    --c-popover: #1b212b;
+    --c-th-bg: #1a212c;
+    --c-row-alt: #171d26;
+    --c-row-hover: #1f2a3a;
+    --c-hover-soft: #1b2431;
+    --c-hover-strong: #23324a;
+    --c-border-strong: #3b4657;
+    --c-neutral: #3a4454;
+    --c-neutral-2: #5b6678;
+    --c-text-body: #c3ccd8;
+    --c-text-ghost: #667286;
+    --c-glyph: #667286;
+    --c-tip-bg: #2b3445;
+    --c-tip-fg: #eef1f6;
+    --c-toast-fg: #e8ecf2;
+    --c-code-bg: #0a0e15;
+    --c-code-fg: #c7d2fe;
+    --c-overlay: rgba(0, 0, 0, 0.62);
+    --c-overlay-light: rgba(0, 0, 0, 0.5);
+    --c-overlay-mid: rgba(0, 0, 0, 0.6);
+
+    --c-chart-blue: #60a5fa;
+    --c-chart-red: #f87171;
+    --c-chart-amber: #fbbf24;
+    --c-chart-green: #4ade80;
+    --c-chart-ink: #8da2c0;
+    --c-s-blue-a: #60a5fa;
+    --c-s-blue-b: #1e4fa8;
+    --c-s-cyan-a: #22d3ee;
+    --c-s-cyan-b: #0e6c80;
+    --c-s-violet-a: #a78bfa;
+    --c-s-violet-b: #5b3fb5;
+    --c-s-amber-a: #fbbf24;
+    --c-s-amber-b: #8a5a0a;
+    --c-s-red-a: #f87171;
+    --c-s-red-b: #9b2c2c;
+    --c-s-green-a: #4ade80;
+    --c-s-green-b: #1b7a43;
+    --c-s-sky-b: #0b6fa8;
+    --c-bar-neutral-a: #4a5568;
+    --c-bar-neutral-b: #364152;
+    --c-bar-light-a: #3a4454;
+    --c-bar-light-b: #2e3744;
+    --c-bar-blue-a: #60a5fa;
+    --c-bar-blue-b: #2563eb;
+    --c-bar-blue-lt-a: #3b82f6;
+    --c-bar-red-a: #ef4444;
+    --c-bar-red-b: #b91c1c;
+    --c-chart-amber-dk: #f59e0b;
+    --c-s-cyan-c: #0e6c80;
+    --c-mix: #1b212b;
+    --c-halo: #151a22;
+
+    --ring: #3f6fc0;
+  }
+}
+
+/*
+ * 主色调（系统参数「主题与界面 · 主色调」）：<html data-accent="…">，缺省 = 上面的蓝色令牌。
+ * 只覆盖主色相关令牌（主色、品牌标识、登录页背景光斑、焦点环），状态色（红 / 橙 / 绿）不变。
+ */
+html[data-accent="teal"],
+html[data-accent="teal"] [data-paper] {
+  --c-primary: #0d9488;
+  --c-primary-hover: #0f766e;
+  --c-primary-tint: #f0fdfa;
+  --c-primary-line: #99f6e4;
+  --c-primary-solid: #0d9488;
+  --c-primary-solid-hover: #0f766e;
+  --c-primary-ink: #134e4a;
+  --c-primary-soft: #ccfbf1;
+  --c-primary-tint-hover: #d5f7f0;
+  --c-primary-line-strong: #a7ecdf;
+  --c-brand-a: #14b8a6;
+  --c-brand-b: #0f766e;
+  --c-lg-bg: #0d9488;
+  --c-lg-o1a: #67e8f9;
+  --c-lg-o1b: #14b8a6;
+  --c-lg-o2a: #a7f3d0;
+  --c-lg-o2b: #059669;
+  --ring: #7dd3c4;
+}
+@media screen {
+  html.dark[data-accent="teal"] {
+    --c-primary: #2dd4bf;
+    --c-primary-hover: #5eead4;
+    --c-primary-tint: rgba(45, 212, 191, 0.12);
+    --c-primary-line: rgba(45, 212, 191, 0.38);
+    --c-primary-solid: #0d9488;
+    --c-primary-solid-hover: #14a89a;
+    --c-primary-ink: #99f6e4;
+    --c-primary-soft: rgba(45, 212, 191, 0.2);
+    --c-primary-tint-hover: rgba(45, 212, 191, 0.2);
+    --c-primary-line-strong: rgba(45, 212, 191, 0.45);
+    --c-brand-a: #14b8a6;
+    --c-brand-b: #0f766e;
+    --c-lg-bg: #04201e;
+    --c-lg-o1a: #22d3ee;
+    --c-lg-o1b: #0d9488;
+    --c-lg-o2a: #6ee7b7;
+    --c-lg-o2b: #047857;
+    --ring: #2a8f84;
+  }
+}
+html[data-accent="indigo"],
+html[data-accent="indigo"] [data-paper] {
+  --c-primary: #4f46e5;
+  --c-primary-hover: #4338ca;
+  --c-primary-tint: #eef2ff;
+  --c-primary-line: #c7d2fe;
+  --c-primary-solid: #4f46e5;
+  --c-primary-solid-hover: #4338ca;
+  --c-primary-ink: #312e81;
+  --c-primary-soft: #e0e7ff;
+  --c-primary-tint-hover: #e2e6fe;
+  --c-primary-line-strong: #cdd3fb;
+  --c-brand-a: #6366f1;
+  --c-brand-b: #4338ca;
+  --c-lg-bg: #4f46e5;
+  --c-lg-o1a: #a5b4fc;
+  --c-lg-o1b: #6366f1;
+  --c-lg-o2a: #f0abfc;
+  --c-lg-o2b: #a855f7;
+  --ring: #a5a8f5;
+}
+@media screen {
+  html.dark[data-accent="indigo"] {
+    --c-primary: #818cf8;
+    --c-primary-hover: #a5b4fc;
+    --c-primary-tint: rgba(129, 140, 248, 0.12);
+    --c-primary-line: rgba(129, 140, 248, 0.38);
+    --c-primary-solid: #4f46e5;
+    --c-primary-solid-hover: #6058ec;
+    --c-primary-ink: #c7d2fe;
+    --c-primary-soft: rgba(129, 140, 248, 0.2);
+    --c-primary-tint-hover: rgba(129, 140, 248, 0.2);
+    --c-primary-line-strong: rgba(129, 140, 248, 0.45);
+    --c-brand-a: #6366f1;
+    --c-brand-b: #4338ca;
+    --c-lg-bg: #12103a;
+    --c-lg-o1a: #818cf8;
+    --c-lg-o1b: #4f46e5;
+    --c-lg-o2a: #e879f9;
+    --c-lg-o2b: #9333ea;
+    --ring: #5b5fc7;
+  }
+}
+html[data-accent="green"],
+html[data-accent="green"] [data-paper] {
+  --c-primary: #16a34a;
+  --c-primary-hover: #15803d;
+  --c-primary-tint: #f0fdf4;
+  --c-primary-line: #bbf7d0;
+  --c-primary-solid: #16a34a;
+  --c-primary-solid-hover: #15803d;
+  --c-primary-ink: #14532d;
+  --c-primary-soft: #dcfce7;
+  --c-primary-tint-hover: #d9f7e2;
+  --c-primary-line-strong: #b6ecc8;
+  --c-brand-a: #22c55e;
+  --c-brand-b: #15803d;
+  --c-lg-bg: #16a34a;
+  --c-lg-o1a: #bef264;
+  --c-lg-o1b: #22c55e;
+  --c-lg-o2a: #67e8f9;
+  --c-lg-o2b: #0d9488;
+  --ring: #86d7a4;
+}
+@media screen {
+  html.dark[data-accent="green"] {
+    --c-primary: #4ade80;
+    --c-primary-hover: #86efac;
+    --c-primary-tint: rgba(74, 222, 128, 0.12);
+    --c-primary-line: rgba(74, 222, 128, 0.38);
+    --c-primary-solid: #16a34a;
+    --c-primary-solid-hover: #1fb456;
+    --c-primary-ink: #bbf7d0;
+    --c-primary-soft: rgba(74, 222, 128, 0.2);
+    --c-primary-tint-hover: rgba(74, 222, 128, 0.2);
+    --c-primary-line-strong: rgba(74, 222, 128, 0.45);
+    --c-brand-a: #22c55e;
+    --c-brand-b: #15803d;
+    --c-lg-bg: #06200f;
+    --c-lg-o1a: #a3e635;
+    --c-lg-o1b: #16a34a;
+    --c-lg-o2a: #22d3ee;
+    --c-lg-o2b: #0f766e;
+    --ring: #2f9a57;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-ui);
+
+  --color-ink: var(--c-text);
+  --color-ink-sub: var(--c-text-sub);
+  --color-ink-muted: var(--c-text-muted);
+  --color-ink-faint: var(--c-text-faint);
+  --color-ink-body: var(--c-text-body);
+  --color-ink-ghost: var(--c-text-ghost);
+  --color-surface: var(--c-surface);
+  --color-app: var(--c-app-bg);
+  --color-subtle: var(--c-subtle);
+  --color-line: var(--c-border);
+  --color-line-soft: var(--c-border-soft);
+  --color-line-strong: var(--c-border-strong);
+  --color-divider: var(--c-divider);
+  --color-hover: var(--c-hover);
+  --color-hover-soft: var(--c-hover-soft);
+  --color-hover-strong: var(--c-hover-strong);
+  --color-primary-hover: var(--c-primary-hover);
+  --color-primary-tint: var(--c-primary-tint);
+  --color-danger: var(--c-danger);
+  --color-warning: var(--c-warning);
+  --color-success: var(--c-success);
+  --color-info: var(--c-info);
+  --color-ai: var(--c-ai);
+  --color-ai-deep: var(--c-ai-deep);
+  --color-cyan: var(--c-cyan);
+  --color-primary-line: var(--c-primary-line);
+  --color-danger-soft: var(--c-danger-soft);
+  --color-danger-line: var(--c-danger-line);
+  --color-warning-soft: var(--c-warning-soft);
+  --color-warning-tint: var(--c-warning-tint);
+  --color-warning-line: var(--c-warning-line);
+  --color-success-soft: var(--c-success-soft);
+  --color-success-tint: var(--c-success-tint);
+  --color-success-line: var(--c-success-line);
+  --color-ai-soft: var(--c-ai-soft);
+  --color-ai-tint: var(--c-ai-tint);
+  --color-ai-line: var(--c-ai-line);
+  --color-cyan-soft: var(--c-cyan-soft);
+
+  --color-primary-solid: var(--c-primary-solid);
+  --color-primary-solid-hover: var(--c-primary-solid-hover);
+  --color-ai-solid: var(--c-ai-solid);
+  --color-ai-solid-hover: var(--c-ai-solid-hover);
+  --color-danger-solid: var(--c-danger-solid);
+  --color-danger-solid-hover: var(--c-danger-solid-hover);
+  --color-success-solid: var(--c-success-solid);
+  --color-warning-solid: var(--c-warning-solid);
+  --color-primary-ink: var(--c-primary-ink);
+  --color-warning-ink: var(--c-warning-ink);
+  --color-danger-ink: var(--c-danger-ink);
+  --color-success-ink: var(--c-success-ink);
+  --color-ai-ink: var(--c-ai-ink);
+  --color-ai-muted: var(--c-ai-muted);
+  --color-primary-soft: var(--c-primary-soft);
+  --color-primary-tint-hover: var(--c-primary-tint-hover);
+  --color-primary-line-strong: var(--c-primary-line-strong);
+  --color-danger-tint: var(--c-danger-tint);
+  --color-cyan-tint: var(--c-cyan-tint);
+  --color-cyan-line: var(--c-cyan-line);
+  --color-field-tint: var(--c-field-tint);
+  --color-ai-faint: var(--c-ai-faint);
+  --color-ink-tint: var(--c-ink-tint);
+  --color-chip: var(--c-chip);
+  --color-body: var(--c-body-bg);
+  --color-neutral: var(--c-neutral);
+  --color-neutral-2: var(--c-neutral-2);
+  --color-tip: var(--c-tip-bg);
+  --color-tip-fg: var(--c-tip-fg);
+  --color-tip-solid: var(--c-tip-bg);
+  --color-tip-ai: var(--c-tip-ai);
+  --color-code: var(--c-code-bg);
+  --color-code-fg: var(--c-code-fg);
+  --color-chart-blue: var(--c-chart-blue);
+  --color-chart-red: var(--c-chart-red);
+  --color-red-solid: var(--c-red-solid);
+  --color-glyph: var(--c-glyph);
+  --color-chart-amber: var(--c-chart-amber);
+  --color-chart-green: var(--c-chart-green);
+  --color-ai-line-strong: var(--c-ai-line-strong);
+  --color-warning-line-strong: var(--c-warning-line-strong);
+  --color-unread: var(--c-unread);
+  --color-cyan-solid: var(--c-cyan-solid);
+  --color-th: var(--c-th-bg);
+
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r);
+  --radius-lg: var(--r-lg);
+  --radius-xl: 12px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --animate-lg-float: lgFloat 16s ease-in-out infinite;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    /* 顶栏固定：锚点跳转 / scrollIntoView 让出顶栏高度（见 composables/useShellTop.ts） */
+    scroll-padding-top: var(--shell-top, 0px);
+  }
+  body {
+    margin: 0;
+    background: var(--c-body-bg);
+    font-family: var(--font-ui);
+    color: var(--c-text);
+    font-size: 12px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
+    text-wrap: pretty;
+  }
+  a {
+    color: var(--c-primary);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  /* 大字号模式（适老化）：整体放大 115% */
+  html.big-font {
+    zoom: 1.15;
+  }
+  /* 公文纸：深色主题下仍是白底黑字（令牌已在 [data-paper] 重置为浅色，这里补文字色与底色） */
+  [data-paper] {
+    color: var(--c-text);
+  }
+}
+
+/* 深色主题下的原生控件 / 选区 / 滚动条 / 占位符 / 自动填充（color-scheme: dark 已处理 select、date、滚动条的基础配色） */
+@media screen {
+  html.dark {
+    scrollbar-color: #3b4657 transparent;
+  }
+  html.dark ::selection {
+    background: rgba(96, 165, 250, 0.38);
+    color: #ffffff;
+  }
+  html.dark [data-paper] ::selection {
+    background: rgba(37, 99, 235, 0.25);
+    color: inherit;
+  }
+  html.dark ::placeholder {
+    color: var(--c-text-faint);
+    opacity: 1;
+  }
+  html.dark [data-paper] ::placeholder {
+    color: #9ca3af;
+  }
+  /* 浏览器自动填充会强制浅黄 / 浅蓝底：用内阴影覆盖为表面色 */
+  html.dark input:-webkit-autofill,
+  html.dark input:-webkit-autofill:hover,
+  html.dark input:-webkit-autofill:focus,
+  html.dark textarea:-webkit-autofill,
+  html.dark select:-webkit-autofill {
+    -webkit-text-fill-color: var(--c-text);
+    caret-color: var(--c-text);
+    box-shadow: 0 0 0 1000px var(--c-surface) inset;
+    transition: background-color 9999s ease-out 0s;
+  }
+  html.dark [data-paper] input:-webkit-autofill,
+  html.dark [data-paper] textarea:-webkit-autofill {
+    -webkit-text-fill-color: #111827;
+    box-shadow: 0 0 0 1000px #ffffff inset;
+  }
+  html.dark ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  html.dark ::-webkit-scrollbar-thumb {
+    background: #3b4657;
+    border-radius: 6px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  html.dark ::-webkit-scrollbar-thumb:hover {
+    background: #4d5a6e;
+    background-clip: content-box;
+  }
+  html.dark ::-webkit-scrollbar-track,
+  html.dark ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  /* 深色下阴影改为纯黑加深，并给抬升面一圈极细高光边，避免「浮层与背景糊在一起」 */
+  html.dark [data-slot="popover-content"],
+  html.dark [data-slot="dropdown-menu-content"],
+  html.dark [data-slot="select-content"] {
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+}
+
+/* 主题切换的圆形揭示动画（View Transitions API）：新视图在上，从按钮位置扩散；不支持时由 useTheme 降级为整页淡入淡出 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+html.theme-fade,
+html.theme-fade *,
+html.theme-fade *::before,
+html.theme-fade *::after {
+  transition: background-color 0.28s ease, border-color 0.28s ease, color 0.28s ease, fill 0.28s ease, stroke 0.28s ease !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.theme-fade,
+  html.theme-fade *,
+  html.theme-fade *::before,
+  html.theme-fade *::after {
+    transition: none !important;
+  }
+}
+
+/* 原型全站表格规范：10px 圆角外框、浅灰表头、13px 单元格内边距、隔行浅底、悬停高亮 */
+@layer components {
+  .data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--c-border);
+    border-radius: 10px;
+    background: var(--c-surface);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .data-table thead th {
+    background: var(--c-th-bg);
+    color: var(--c-text-sub);
+    font-weight: 600;
+    font-size: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    height: 22px;
+    /* 原型无 border-box 重置：22px 为内容高度（Tailwind preflight 会改成含内边距） */
+    box-sizing: content-box;
+    border-bottom: 1px solid var(--c-border);
+    white-space: nowrap;
+    text-align: left;
+  }
+  .data-table thead th:first-child { border-top-left-radius: 10px; }
+  .data-table thead th:last-child { border-top-right-radius: 10px; }
+  .data-table th:first-child,
+  .data-table td:first-child { padding-left: 14px; }
+  .data-table th:last-child,
+  .data-table td:last-child { padding-right: 14px; }
+  .data-table tbody td {
+    border-top: 1px solid var(--c-divider);
+    transition: background 0.12s;
+    padding-top: 13px;
+    padding-bottom: 13px;
+    line-height: 1.65;
+    vertical-align: middle;
+  }
+  .data-table tbody tr:first-child td { border-top: none; }
+  .data-table tbody tr:nth-child(even) td { background: var(--c-row-alt); }
+  .data-table tbody tr:hover td { background: var(--c-row-hover); }
+
+  /* 表格横向滚动容器：表格放在 .table-scroll 里，内容放不下时在容器内左右滑动，不撑破页面。
+     单元格不折行（每行信息保持一行，靠横向滑动看全）。 */
+  .table-scroll {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .data-table tbody tr[data-on="true"] td { background: var(--c-primary-tint); }
+  .data-table tbody tr:last-child td:first-child { border-bottom-left-radius: 10px; }
+  .data-table tbody tr:last-child td:last-child { border-bottom-right-radius: 10px; }
+
+  /* 可点击行（下拉、列表） */
+  .row-hover {
+    cursor: pointer;
+  }
+  .row-hover:hover {
+    background: var(--c-hover);
+  }
+
+  /* 区块标题：3px 主色竖条 + 13px/600 */
+  .sect-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--c-text);
+  }
+  .sect-title::before {
+    content: "";
+    width: 3px;
+    height: 15px;
+    background: var(--c-primary);
+    border-radius: 2px;
+    flex: none;
+  }
+
+  .lg-rise {
+    animation: lgRise 0.7s cubic-bezier(0.22, 0.8, 0.3, 1) both;
+  }
+  .nav-fade {
+    animation: navFade 0.24s ease both;
+  }
+}
+
+@keyframes lgFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -26px, 0) scale(1.04); }
+}
+@keyframes lgFloat2 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(18px, 20px, 0); }
+}
+@keyframes lgPulse {
+  0%, 100% { opacity: 0.18; transform: scale(1); }
+  50% { opacity: 0.42; transform: scale(1.12); }
+}
+@keyframes lgRise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes lgBar {
+  from { transform: scaleY(0.25); }
+  to { transform: scaleY(1); }
+}
+@keyframes lgDash {
+  to { stroke-dashoffset: -400; }
+}
+@keyframes lgSweep {
+  0% { transform: translateX(-60%) skewX(-14deg); }
+  100% { transform: translateX(260%) skewX(-14deg); }
+}
+@keyframes navFade {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 横向滚动容器里的表格单元格不折行（桌面与平板一致）：放不下时在容器内左右滑动 */
+.table-scroll table th,
+.table-scroll table td {
+  white-space: nowrap;
+}
+
+/* 侧栏独立滚动区：细滚动条，悬停时才明显 */
+.side-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.side-scroll:hover {
+  scrollbar-color: var(--c-line-strong) transparent;
+}
+
+/*
+ * 顶栏液态玻璃（经办端 / 机构端 / 系统管理三种顶栏）：半透明底 + 模糊 + 饱和度提升，顶部一道高光、底部细描边与淡阴影；
+ * 内容区从顶栏下方滚过时透出模糊的色彩。不支持 backdrop-filter 或用户偏好减少透明度时退回实色底。
+ */
+.shell-glass {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.08)),
+    color-mix(in oklab, var(--c-surface) 58%, transparent);
+  border-bottom-color: color-mix(in oklab, var(--c-border) 80%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 8px 24px -16px rgba(15, 23, 42, 0.22);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+html.dark .shell-glass {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015)),
+    color-mix(in oklab, var(--c-surface) 70%, transparent);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 8px 24px -14px rgba(0, 0, 0, 0.6);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .shell-glass,
+  html.dark .shell-glass {
+    background: var(--c-surface);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .shell-glass,
+  html.dark .shell-glass {
+    background: var(--c-surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@media print {
+  .shell-glass {
+    background: var(--c-surface);
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+}

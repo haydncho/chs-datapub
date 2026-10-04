@@ -1,0 +1,8 @@
+# 演示模式：任意密码登录、固定短信验证码、模拟识别 UKey 证书（陈志远）
+app:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-change-me-dev-only-secret-change-me}
+  demo:
+    enabled: true
+    sms-code: "482916"
+    ca-holder: chenzhiyuan

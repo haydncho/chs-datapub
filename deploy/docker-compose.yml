@@ -1,0 +1,62 @@
+# 医保数据公开定向发布平台 · 容器编排（生产配置：演示模式关闭）
+# 用法：cd deploy && cp .env.example .env（填写 JWT_SECRET、DB_PASSWORD）&& docker compose up -d --build   →  http://localhost:8089
+# 演示：docker compose --env-file demo.env -f docker-compose.yml -f docker-compose.demo.yml up -d --build
+name: chs-dpub
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: dpub
+      POSTGRES_USER: dpub
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?必须设置 DB_PASSWORD（见 deploy/.env.example）}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dpub -d dpub"]
+      interval: 5s
+      retries: 20
+
+  engine:
+    build: ../engine
+    expose:
+      - "8091"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8091/v1/health', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  server:
+    build: ../server
+    depends_on:
+      postgres:
+        condition: service_healthy
+      engine:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/dpub
+      DB_USER: dpub
+      DB_PASSWORD: ${DB_PASSWORD:?必须设置 DB_PASSWORD（见 deploy/.env.example）}
+      ENGINE_URL: http://engine:8091
+      # ≥32 字符随机串；缺失或过短时服务拒绝启动
+      JWT_SECRET: ${JWT_SECRET:?必须设置 JWT_SECRET（≥32 字符随机串，见 deploy/.env.example）}
+    expose:
+      - "8081"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8081 && printf 'GET /actuator/health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && grep -q '\"status\":\"UP\"' <&3"]
+      interval: 15s
+      timeout: 5s
+      start_period: 90s
+      retries: 5
+
+  web:
+    build: ../web
+    depends_on:
+      server:
+        condition: service_healthy
+    ports:
+      - "${WEB_PORT:-8089}:80"
+
+volumes:
+  pgdata:

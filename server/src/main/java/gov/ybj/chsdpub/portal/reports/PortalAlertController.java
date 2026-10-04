@@ -60,7 +60,7 @@ public class PortalAlertController {
         if (!"SENT".equals(st.get(0))) throw ApiException.conflict("该提醒函" + ("RCPT".equals(st.get(0)) ? "已提交回执" : "当前不需要回执"));
         jdbc.update("update alert_trigger set status = 'RCPT', receipt = ?, receipt_at = now() where id = ?", Texts.truncate(req.text().trim(), 500), id);
         Letter l = letters(u.org(), id).get(0);
-        audit.record(u, AuditService.VIEW, "提交预警回执 · " + l.rule() + " " + l.letterNo(), "已提交");
+        audit.record(u, AuditService.RECEIPT, "提交预警回执 · " + l.rule() + " " + l.letterNo(), "已提交");
         return l;
     }
 }

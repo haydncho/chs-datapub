@@ -117,7 +117,7 @@ const ST: Record<MonitorStatus, [string, Tone]> = { ok: ['正常', 'success'], w
               </tr>
             </tbody>
           </table>
-          <div class="mt-2 text-[11px] text-ink-faint">排名口径:{{ data.rankBasis }}(由分析引擎计算)</div>
+          <div class="mt-2 text-[11px] text-ink-faint">排名口径:{{ data.rankBasis }}</div>
         </section>
       </div>
 

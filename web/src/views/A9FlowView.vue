@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirm } from '@/lib/confirm'
 import { computed, onMounted, ref, watch } from 'vue'
 import { flowApi } from '@/api'
 import type { FlowNode, FlowTemplateRow } from '@/api/types'
@@ -51,6 +52,7 @@ async function update(body: { mode?: string; days?: number }) {
 
 async function remove() {
   if (!tplId.value || !nd.value) return
+  if (!(await confirm({ title: '删除节点', body: `确定删除节点「${nd.value.name}」?后续节点顺序将自动调整。`, okText: '删除', danger: true }))) return
   try {
     notify((await flowApi.deleteNode(tplId.value, nd.value.idx)).message)
     await loadTpl()

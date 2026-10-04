@@ -1,5 +1,7 @@
 package gov.ybj.chsdpub.alert;
 
+import gov.ybj.chsdpub.audit.AuditService;
+import gov.ybj.chsdpub.auth.CurrentUser;
 import gov.ybj.chsdpub.common.ApiException;
 import gov.ybj.chsdpub.common.Texts;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,9 +22,11 @@ public class AlertController {
             {"机构回执", "10 个工作日内提交原因说明"}, {"整改跟踪", "连续 2 期监测"}, {"销号", "指标回落至阈值内"}};
 
     private final JdbcTemplate jdbc;
+    private final AuditService audit;
 
-    public AlertController(JdbcTemplate jdbc) {
+    public AlertController(JdbcTemplate jdbc, AuditService audit) {
         this.jdbc = jdbc;
+        this.audit = audit;
     }
 
     public record Rule(long id, String name, String scope, String condition, String frequency, int hits, boolean enabled) {}
@@ -47,7 +51,9 @@ public class AlertController {
     @Transactional
     public Rule toggle(@PathVariable long id, @RequestBody EnableReq req) {
         if (jdbc.update("update alert_rule set enabled = ? where id = ?", req.enabled(), id) == 0) throw ApiException.notFound("规则不存在");
-        return rules().stream().filter(r -> r.id() == id).findFirst().orElseThrow();
+        Rule r = rules().stream().filter(x -> x.id() == id).findFirst().orElseThrow();
+        audit.record(CurrentUser.get(), AuditService.CONFIG, "预警规则「" + r.name() + "」" + (req.enabled() ? "启用" : "停用"), "成功");
+        return r;
     }
 
     @GetMapping("/triggers")
@@ -75,7 +81,9 @@ public class AlertController {
     public Trigger send(@PathVariable long id) {
         if (!"GEN".equals(one(id).status())) throw ApiException.conflict("提醒函已发出");
         jdbc.update("update alert_trigger set status = 'SENT', sent_at = now() where id = ?", id);
-        return one(id);
+        Trigger t = one(id);
+        audit.record(CurrentUser.get(), AuditService.APPROVAL, "发出提醒函 " + t.letter().no() + " · " + t.org(), "已发出");
+        return t;
     }
 
     public record ReceiptReq(String text) {}
@@ -85,9 +93,11 @@ public class AlertController {
     @Transactional
     public Trigger receipt(@PathVariable long id, @RequestBody(required = false) ReceiptReq req) {
         if (!"SENT".equals(one(id).status())) throw ApiException.conflict("当前状态不能登记回执");
-        String text = req == null || Texts.blank(req.text())
-                ? "已组织科室分析,主要原因为高值耗材使用增加,拟于下月起执行耗材使用审批。" : req.text().trim();
+        if (req == null || Texts.blank(req.text())) throw ApiException.validation("请填写机构回执摘要(原因分析与整改措施)");
+        String text = req.text().trim();
         jdbc.update("update alert_trigger set status = 'RCPT', receipt = ?, receipt_at = now() where id = ?", text, id);
-        return one(id);
+        Trigger t = one(id);
+        audit.record(CurrentUser.get(), AuditService.RECEIPT, "登记机构回执 " + t.letter().no() + " · " + t.org(), "已登记");
+        return t;
     }
 }

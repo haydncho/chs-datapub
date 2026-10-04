@@ -54,7 +54,7 @@ export const alertApi = {
   toggle: (id: number, enabled: boolean) => http.put<T.AlertRule>(`/alerts/rules/${id}`, { enabled }),
   triggers: () => http.get<T.AlertTrigger[]>('/alerts/triggers'),
   send: (id: number) => http.post<T.AlertTrigger>(`/alerts/triggers/${id}/send`),
-  receipt: (id: number) => http.post<T.AlertTrigger>(`/alerts/triggers/${id}/receipt`),
+  receipt: (id: number, text: string) => http.post<T.AlertTrigger>(`/alerts/triggers/${id}/receipt`, { text }),
 }
 
 export const adminApi = {

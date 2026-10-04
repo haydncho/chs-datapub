@@ -170,7 +170,7 @@ const timeliness = computed(() => ov.value?.quality.timelinessPct)
             <span class="text-right" :class="q.listQcLow ? 'text-warning' : 'text-ink'">{{ Number(q.listQcPct).toFixed(1) }}%</span>
           </div>
           <div class="mt-1.5 text-[11px] text-ink-faint">
-            {{ ov.quality.engineAvailable ? '橙色:合并症编码率 < 60% 或质控率 < 95%' : '分析引擎暂不可用,及时性与关注项稍后显示' }}
+            {{ ov.quality.engineAvailable ? '橙色:合并症编码率 < 60% 或质控率 < 95%' : '统计服务暂不可用,及时性与关注项稍后显示' }}
           </div>
         </Panel>
 

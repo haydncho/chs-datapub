@@ -422,7 +422,7 @@ public class IndicatorService {
         r.put("code", code);
         r.put("message", "已提交上线审批 · 审批单 " + no);
         r.put("detail", internal ? "召集人批准后,该指标仅在分析监测区可见,不进入任何发布包。"
-                : "召集人批准后,该指标将出现在全息图“" + c.grp() + "”图层与机构门户核心指标区。");
+                : "召集人批准后,该指标正式上线(归入“" + c.grp() + "”),并可纳入发布包。");
         if (tierNote != null) r.put("tierNote", tierNote);
         r.put("draft", draft(id, u));
         return r;

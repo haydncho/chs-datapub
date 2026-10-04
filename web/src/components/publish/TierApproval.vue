@@ -71,11 +71,11 @@ function reject() {
         />
         <div v-if="missing" class="mt-1 text-[12px] text-danger">驳回须填写意见</div>
         <div class="mt-2.5 flex gap-2">
-          <Button class="px-[18px]" :disabled="busy" data-testid="tier-approve" @click="emit('approve', opinion)">批准切换</Button>
+          <Button class="px-[18px]" :disabled="busy || !canApprove" data-testid="tier-approve" @click="emit('approve', opinion)">批准切换</Button>
           <Button
             variant="outline"
             class="border-danger px-[18px] text-danger hover:border-danger hover:bg-danger-soft"
-            :disabled="busy"
+            :disabled="busy || !canApprove"
             data-testid="tier-reject"
             @click="reject"
           >驳回申请</Button>
@@ -83,7 +83,7 @@ function reject() {
         <div class="mt-2 text-[11px] leading-[1.6] text-ink-muted">
           批准后「{{ req.indicator }}」在展示策略配置与机构端按“{{ req.toName }}”展示;驳回则保持“{{ req.fromName }}”。
         </div>
-        <div v-if="!canApprove" class="mt-2 rounded-lg bg-subtle px-2.5 py-2 text-[11px] text-ink-muted">档位切换由召集人审批,服务端校验身份。</div>
+        <div v-if="!canApprove" class="mt-2 rounded-lg bg-subtle px-2.5 py-2 text-[11px] text-ink-muted">档位切换由召集人审批。</div>
       </div>
     </div>
   </Panel>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { confirm } from '@/lib/confirm'
 import { computed, onMounted, ref } from 'vue'
 import { alertApi } from '@/api'
 import type { AlertRule, AlertTrigger, Tone } from '@/api/types'
@@ -7,6 +8,7 @@ import Panel from '@/components/shared/Panel.vue'
 import Tag from '@/components/shared/Tag.vue'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
 import { pageDef } from '@/lib/nav'
 import { notify, notifyError } from '@/lib/notify'
 
@@ -32,6 +34,7 @@ const ST: Record<AlertTrigger['status'], [string, Tone]> = {
 }
 
 async function toggle(r: AlertRule, v: boolean) {
+  if (!v && !(await confirm({ title: '停用预警规则', body: `停用「${r.name}」后将不再产生新的触发记录,已有记录不受影响。`, okText: '停用', danger: true }))) return
   try {
     const n = await alertApi.toggle(r.id, v)
     rules.value = rules.value.map((x) => (x.id === n.id ? n : x))
@@ -41,13 +44,16 @@ async function toggle(r: AlertRule, v: boolean) {
   }
 }
 
+const receiptText = ref('')
 async function step(kind: 'send' | 'receipt') {
   if (!tr.value) return
+  if (kind === 'receipt' && !receiptText.value.trim()) return notify('请填写回执摘要(原因分析与整改措施)')
+  if (kind === 'send' && !(await confirm({ title: '发出提醒函', body: `提醒函将发送至「${tr.value.org}」,机构门户与手机版同步提醒,发出后不可撤回。`, okText: '发出' }))) return
   busy.value = true
   try {
-    const t = kind === 'send' ? await alertApi.send(tr.value.id) : await alertApi.receipt(tr.value.id)
+    const t = kind === 'send' ? await alertApi.send(tr.value.id) : await alertApi.receipt(tr.value.id, receiptText.value.trim())
     triggers.value = triggers.value.map((x) => (x.id === t.id ? t : x))
-    notify(kind === 'send' ? '提醒函已发出,机构门户与移动端同步提醒' : `已收到 ${t.org} 的回执`)
+    notify(kind === 'send' ? '提醒函已发出,机构门户与手机版同步提醒' : `已收到 ${t.org} 的回执`)
   } catch (e) {
     notifyError(e)
   } finally {
@@ -111,6 +117,13 @@ async function step(kind: 'send' | 'receipt') {
             <Button v-if="tr.status === 'GEN'" size="sm" :disabled="busy" data-testid="send-letter" @click="step('send')">发出提醒函</Button>
             <Button v-else-if="tr.status === 'SENT'" size="sm" variant="outline" :disabled="busy" data-testid="receipt-btn" @click="step('receipt')">登记机构回执</Button>
           </template>
+          <Textarea
+            v-if="tr.status === 'SENT'"
+            v-model="receiptText"
+            placeholder="线下收到机构回执时,在此填写回执摘要(必填)"
+            class="mb-3 h-16 resize-none text-[12px]"
+            data-testid="receipt-text-a11"
+          />
           <div v-for="k in tr.track" :key="k.name" class="flex gap-2.5 py-1 text-[12px]">
             <span class="mt-1 size-2.5 flex-none rounded-full" :class="k.done ? 'bg-success' : 'bg-neutral'" />
             <div><span class="font-medium" :class="k.done ? 'text-ink' : 'text-ink-faint'">{{ k.name }}</span><span class="text-ink-faint"> · {{ k.desc }}</span></div>

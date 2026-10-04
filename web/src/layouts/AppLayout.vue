@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import ConfirmHost from '@/components/shared/ConfirmHost.vue'
 import AppHeader from '@/components/shell/AppHeader.vue'
 import PageWatermark from '@/components/shell/PageWatermark.vue'
 import SecurityBar from '@/components/shell/SecurityBar.vue'
@@ -44,6 +45,7 @@ async function logout() {
         </main>
       </div>
     </div>
+    <ConfirmHost />
     <PageWatermark />
   </TooltipProvider>
 </template>

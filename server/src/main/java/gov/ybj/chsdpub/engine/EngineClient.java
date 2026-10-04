@@ -34,11 +34,11 @@ public class EngineClient {
     public Map<String, Object> post(String path, Object body) {
         try {
             Map<String, Object> r = client.post().uri(path).contentType(MediaType.APPLICATION_JSON).body(body).retrieve().body(MAP);
-            if (r == null) throw ApiException.engineUnavailable("分析引擎无响应,请稍后重试");
+            if (r == null) throw ApiException.engineUnavailable("统计服务暂无响应,请稍后重试");
             return r;
         } catch (RestClientException e) {
             log.warn("分析引擎调用失败 {}：{}", path, e.getMessage());
-            throw ApiException.engineUnavailable("分析引擎暂不可用,请稍后重试");
+            throw ApiException.engineUnavailable("统计服务暂不可用,请稍后重试");
         }
     }
 }

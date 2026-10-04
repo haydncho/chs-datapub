@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 /**
  * 审批与留痕：第 5 步「召集人审批」批准（→ 第 6 步定向发布）或驳回至「分析成稿」（驳回意见必填）；
  * 批准之后由经办推进:定向发布 → 签收查阅 → 意见申诉 → 答复整改 → 归档。
- * 批准 / 驳回只限召集人（服务端校验，行政管理组调用返回 403 并记审计）；第 5 步之前可提交至下一环节。
+ * 批准 / 驳回只限召集人（无权限时按钮置灰；越权调用接口返回 403 并记审计）；第 5 步之前可提交至下一环节。
  */
 const props = defineProps<{ detail: FlowDetail; busy?: boolean }>()
 const emit = defineEmits<{ approve: [opinion: string]; reject: [opinion: string]; submit: []; advance: [] }>()
@@ -54,11 +54,11 @@ function reject() {
         />
         <div v-if="missing" class="mt-1 text-[12px] text-danger" data-testid="opinion-required">驳回须填写意见,说明退回修改的原因</div>
         <div class="mt-2.5 flex gap-2">
-          <Button class="px-[18px]" :disabled="busy" data-testid="approve-btn" @click="emit('approve', opinion)">批准发布</Button>
+          <Button class="px-[18px]" :disabled="busy || !detail.canApprove" data-testid="approve-btn" @click="emit('approve', opinion)">批准发布</Button>
           <Button
             variant="outline"
             class="border-danger px-[18px] text-danger hover:border-danger hover:bg-danger-soft"
-            :disabled="busy"
+            :disabled="busy || !detail.canApprove"
             data-testid="reject-btn"
             @click="reject"
           >驳回至「{{ rejectTo }}」</Button>
@@ -67,7 +67,7 @@ function reject() {
           批准即整包放行,数据由分析监测区进入发布区,按定向范围推送 <b class="text-ink-sub">{{ count ?? '—' }}</b> 家机构。
         </div>
         <div v-if="!detail.canApprove" class="mt-2 rounded-lg bg-subtle px-2.5 py-2 text-[11px] leading-[1.6] text-ink-muted" data-testid="role-hint">
-          当前身份可提交与调整定向范围;批准与驳回由召集人办理,服务端校验身份并全程留痕。
+          当前身份可提交与调整定向范围;批准与驳回由召集人办理,所有操作全程留痕。
         </div>
       </template>
       <template v-else>

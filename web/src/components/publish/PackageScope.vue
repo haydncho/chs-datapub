@@ -81,7 +81,7 @@ function toggle(dim: ScopeDim, v: string) {
       <div v-if="locked" class="mt-2 text-[11px] text-ink-muted">已批准发布,定向范围已锁定;如需调整请发起更正。</div>
 
       <div class="mt-3 rounded-lg bg-subtle px-3 py-2.5 text-[12px] leading-[1.7] text-ink-body" data-testid="coverage-names">
-        <template v-if="!coverage">分析引擎暂不可用,覆盖机构稍后计算。</template>
+        <template v-if="!coverage">覆盖机构暂无法计算,请稍后刷新。</template>
         <template v-else-if="!coverage.count"><span class="text-danger">当前条件未覆盖任何机构,请放宽定向范围。</span></template>
         <template v-else-if="!showAll">{{ coverage.preview }}</template>
         <div v-else class="flex flex-wrap gap-x-3 gap-y-1">

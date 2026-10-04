@@ -20,7 +20,7 @@ const rows = ref<AuditLog[]>([])
 const total = ref(0)
 const size = ref(10)
 const today = ref({ count: 0, overreach: 0 })
-const wm = ref('WM-20261003-4471')
+const wm = ref('')
 const traced = ref<AuditTrace | null>(null)
 const miss = ref(false)
 
@@ -67,7 +67,7 @@ const blocked = (r: string) => r === '已拦截' || r === '已锁定'
 
     <div class="mt-5 flex flex-wrap items-center gap-3 rounded-[10px] border border-line bg-surface px-[18px] py-3.5">
       <span class="sect-title">水印溯源</span>
-      <Input v-model="wm" class="w-[240px] py-1.5 font-mono text-[12px]" aria-label="水印编号" data-testid="wm-input" @keydown.enter="trace" />
+      <Input v-model="wm" class="w-[240px] py-1.5 font-mono text-[12px]" placeholder="输入水印编号,如 WM-20261003-5208" aria-label="水印编号" data-testid="wm-input" @keydown.enter="trace" />
       <Button size="sm" data-testid="trace-btn" @click="trace">溯源</Button>
       <span class="text-[11px] text-ink-muted">输入截图或文件上的水印编号</span>
       <div v-if="traced" class="grid basis-full grid-cols-6 gap-2.5 rounded-lg border border-warning-line bg-warning-soft px-3 py-2.5 text-[12px]" data-testid="trace-result">

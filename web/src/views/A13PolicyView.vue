@@ -52,7 +52,7 @@ const params = computed(() =>
 function ask(r: TierRow, to: number) {
   if (to === r.tier || r.pending) return
   appr.value = { indicator: r.indicator, from: r.tier, to }
-  reason.value = '经工作组讨论,机构普遍认可该指标口径,拟提高透明度。'
+  reason.value = ''
 }
 
 async function submit() {
@@ -137,7 +137,7 @@ async function submit() {
         <div v-if="appr" class="grid grid-cols-[64px_1fr] items-start gap-3 px-5 py-4 text-[12px]">
           <span class="text-ink-muted">指标</span><span class="font-semibold text-ink">{{ appr.indicator }}</span>
           <span class="text-ink-muted">变更</span><span>{{ tierNames[appr.from] }} → <b class="text-primary">{{ tierNames[appr.to] }}</b></span>
-          <span class="pt-2 text-ink-muted">理由</span><Textarea v-model="reason" class="h-16 resize-none text-[12px]" />
+          <span class="pt-2 text-ink-muted">理由</span><Textarea v-model="reason" placeholder="必填:说明调整档位的依据" class="h-16 resize-none text-[12px]" data-testid="tier-reason" />
           <span class="text-ink-muted">审批人</span><span>{{ approver }}</span>
         </div>
         <div v-if="appr?.to === 2" class="mx-5 rounded-lg border border-warning-line bg-warning-soft px-2.5 py-2 text-[12px] text-warning-ink">

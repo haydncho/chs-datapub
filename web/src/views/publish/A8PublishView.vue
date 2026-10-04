@@ -13,6 +13,7 @@ import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import SegTabs from '@/components/shared/SegTabs.vue'
 import Tag from '@/components/shared/Tag.vue'
+import { confirm } from '@/lib/confirm'
 import { pageDef } from '@/lib/nav'
 import { notify, notifyError } from '@/lib/notify'
 import { useAuthStore } from '@/stores/auth'
@@ -115,7 +116,11 @@ async function act(fn: () => Promise<Result>, after?: (r: Result) => Promise<unk
 }
 
 const fid = () => detail.value!.flow.id
-const approve = (op: string) => act(() => publishApi.approve(fid(), op))
+const approve = async (op: string) => {
+  const n = detail.value?.coverage?.count
+  if (!(await confirm({ title: '批准发布', body: `批准即整包放行:数据由分析监测区进入发布区,按定向范围推送${n != null ? ` ${n} 家` : ''}机构。此操作留痕,批准后只能通过更正与撤回处理。`, okText: '批准发布' }))) return
+  await act(() => publishApi.approve(fid(), op))
+}
 const reject = (op: string) => act(() => publishApi.reject(fid(), op))
 const submit = () => act(() => publishApi.submit(fid()))
 const advance = () => act(() => publishApi.advance(fid()))
@@ -135,9 +140,15 @@ async function afterTier() {
   if (it) await open(it)
   else sel.value = null
 }
-const approveTier = (op: string) => act(() => publishApi.approveTier(tier.value!.id, op), afterTier)
+const approveTier = async (op: string) => {
+  if (!(await confirm({ title: '批准对标档位切换', body: `批准后「${tier.value!.indicator}」将按新档位向机构展示,此操作留痕且不可撤销。`, okText: '批准切换' }))) return
+  await act(() => publishApi.approveTier(tier.value!.id, op), afterTier)
+}
 const rejectTier = (op: string) => act(() => publishApi.rejectTier(tier.value!.id, op), afterTier)
-const approveIndicator = (op: string) => act(() => publishApi.approveIndicator(indicator.value!.id, op), afterTier)
+const approveIndicator = async (op: string) => {
+  if (!(await confirm({ title: '批准指标上线', body: `批准后「${indicator.value!.name}」正式上线并进入展示策略配置,此操作留痕。`, okText: '批准上线' }))) return
+  await act(() => publishApi.approveIndicator(indicator.value!.id, op), afterTier)
+}
 const rejectIndicator = (op: string) => act(() => publishApi.rejectIndicator(indicator.value!.id, op), afterTier)
 
 const f = computed(() => detail.value?.flow)

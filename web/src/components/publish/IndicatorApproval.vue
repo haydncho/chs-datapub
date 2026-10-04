@@ -56,21 +56,21 @@ function reject() {
         />
         <div v-if="missing" class="mt-1 text-[12px] text-danger">驳回须填写意见</div>
         <div class="mt-2.5 flex gap-2">
-          <Button class="px-[18px]" :disabled="busy" data-testid="ind-approve" @click="emit('approve', opinion)">批准上线</Button>
+          <Button class="px-[18px]" :disabled="busy || !canApprove" data-testid="ind-approve" @click="emit('approve', opinion)">批准上线</Button>
           <Button
             variant="outline"
             class="border-danger px-[18px] text-danger hover:border-danger hover:bg-danger-soft"
-            :disabled="busy"
+            :disabled="busy || !canApprove"
             data-testid="ind-reject"
             @click="reject"
           >驳回申请</Button>
         </div>
         <div class="mt-2 text-[11px] leading-[1.6] text-ink-muted">
           <template v-if="req.internal">批准后「{{ req.name }}」仅在分析监测区可见。</template>
-          <template v-else>批准后「{{ req.name }}」出现在全息图“{{ req.grp }}”图层、机构门户核心指标区,并登记到展示策略配置的对标档位。</template>
+          <template v-else>批准后「{{ req.name }}」正式上线(归入“{{ req.grp }}”),并登记到展示策略配置的对标档位。</template>
           驳回则退回指标配置,提交人修改后可重新提交。
         </div>
-        <div v-if="!canApprove" class="mt-2 rounded-lg bg-subtle px-2.5 py-2 text-[11px] text-ink-muted">指标上线由召集人审批,服务端校验身份。</div>
+        <div v-if="!canApprove" class="mt-2 rounded-lg bg-subtle px-2.5 py-2 text-[11px] text-ink-muted">指标上线由召集人审批。</div>
       </div>
     </div>
   </Panel>

@@ -93,6 +93,7 @@ cd engine && .venv/bin/pytest -q          # 引擎单测
 cd web && npm run typecheck && npm run build
 cd web && npm run e2e                     # 第二批端到端冒烟：需三端已启动且为种子数据；CHROME=浏览器路径（可选）
 cd web && node e2e/holo.mjs               # 各组端到端：holo / indicator / publish / portal-analysis / portal-reports / regional / closure（流程闭环）（每个都需全新种子库）
+scripts/e2e.sh [套件...]                  # 全量回归(smoke / holo / indicator / publish / portal-analysis / portal-reports / regional / closure / exports / gate):每个套件前自动重置库并重启服务;CI(.github/workflows/ci.yml)同样调用它
 ```
 
 `web/e2e/shot.mjs` 可按身份批量截图：`node e2e/shot.mjs ca A3 A7`、`THEME=dark node e2e/shot.mjs suntao A14`。

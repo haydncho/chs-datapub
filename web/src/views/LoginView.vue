@@ -109,7 +109,7 @@ async function enter() {
   }
 }
 
-const field = 'h-11 rounded-[10px] border-(--c-lg-field) bg-transparent text-[13px]'
+const field = 'h-11 rounded-[3px] border-line-strong bg-surface text-[13px]'
 const checks = ['专网地址 10.86.12.47', '终端准入通过', '浏览器版本符合']
 const features = [
   { t: '医保专网 / 政务云部署,无互联网出口', d: 'M12 2l8 4v6c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V6z' },
@@ -121,12 +121,12 @@ const certLine = computed(() => (cfg.value?.cert ? `${cfg.value.cert.holder} · 
 </script>
 
 <template>
-  <div class="fixed inset-0 z-[80] flex overflow-x-hidden overflow-y-auto bg-(--c-lg-bg)">
+  <div class="fixed inset-0 z-[80] flex overflow-x-hidden overflow-y-auto bg-app">
     <div class="absolute top-6 right-8 z-10">
       <button
         type="button"
         :aria-label="resolved === 'dark' ? '切换为浅色' : '切换为深色'"
-        class="flex size-9 cursor-pointer items-center justify-center rounded-full border border-white/45 bg-white/16 text-white backdrop-blur-[10px] hover:bg-white/24"
+        class="flex size-9 cursor-pointer items-center justify-center rounded-[3px] border border-line-strong bg-surface text-ink-sub hover:bg-hover"
         @click="toggle"
       >
         <Moon v-if="resolved === 'dark'" class="size-4" />
@@ -134,54 +134,41 @@ const certLine = computed(() => (cfg.value?.cert ? `${cfg.value.cert.holder} · 
       </button>
     </div>
 
-    <!-- 左:品牌与部署说明 -->
-    <div class="relative hidden min-w-0 flex-1 flex-col justify-center overflow-hidden py-0 pr-10 pl-[max(76px,calc((100vw_-_1400px)/2_+_76px))] text-white lg:flex">
-      <div class="pointer-events-none absolute inset-0 hidden bg-[radial-gradient(55%_50%_at_18%_8%,rgba(59,130,246,.34),transparent),radial-gradient(48%_58%_at_88%_92%,rgba(99,102,241,.26),transparent)] dark:block" />
-      <div class="absolute -top-[90px] -right-10 size-[520px] animate-[lgFloat_16s_ease-in-out_infinite] rounded-full bg-white/7" />
-      <div class="absolute -bottom-[190px] -left-40 size-[440px] animate-[lgFloat2_20s_ease-in-out_infinite] rounded-full bg-white/6" />
-      <div class="absolute top-[120px] right-[180px] size-[150px] animate-[lgFloat2_14s_ease-in-out_infinite] rounded-full border border-white/22" />
-      <div class="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,.9)_1.2px,transparent_1.2px)] bg-size-[26px_26px] opacity-[.13] [mask-image:radial-gradient(60%_60%_at_75%_30%,#000,transparent)]" />
-
-      <div class="absolute top-[52px] left-[max(76px,calc((100vw_-_1400px)/2_+_76px))] flex items-center gap-4">
-        <div class="flex size-14 items-center justify-center rounded-[14px] bg-white/16 text-[26px] font-bold">医</div>
-        <div class="flex flex-col gap-0.5 whitespace-nowrap">
-          <span class="text-[20px] font-bold tracking-[.04em]">医保数据公开定向发布平台</span>
-          <span class="text-[12px] tracking-[.06em] text-white/75">示例市医疗保障局 · 医保数据工作组</span>
+    <!-- 左:墨色刊头页 -->
+    <div class="login-ink relative hidden min-w-0 flex-1 flex-col justify-between overflow-hidden px-[max(64px,calc((100vw_-_1400px)/2_+_64px))] py-14 text-[#F3EFE4] lg:flex">
+      <div class="flex items-center gap-4">
+        <span class="seal">医</span>
+        <div class="flex flex-col gap-1 whitespace-nowrap">
+          <span class="text-[13px] tracking-[.28em] text-[#C9BFA8]">示例市医疗保障局 · 医保数据工作组</span>
+          <span class="h-px w-24 bg-[#C9BFA8]/40" />
         </div>
       </div>
 
-      <div class="lg-rise mb-[18px] flex items-center gap-[7px] self-start rounded-full border border-white/38 bg-white/16 px-3.5 py-[5px] text-[13px] font-semibold tracking-[.08em] shadow-[inset_0_1px_0_rgba(255,255,255,.4)] backdrop-blur-[10px]">
-        <span class="size-1.5 rounded-full bg-(--c-lg-o1a)" />医保专网 · 政务云
+      <div>
+        <div class="lg-rise mb-5 text-[12px] tracking-[.4em] text-[#E0816F]">医保专网 · 政务云</div>
+        <h1 class="lg-rise m-0 font-display text-[46px] leading-[1.25] font-bold tracking-[.04em] xl:text-[56px]">医保数据公开<br />定向发布平台</h1>
+        <div class="lg-rise mt-7 h-[3px] w-20 bg-[#C2371F]" />
+        <p class="lg-rise mt-7 max-w-[520px] text-[15px] leading-[2] text-[#D8D0BC]">按月 / 季 / 年向辖区定点医疗机构定向发布医保数据;经审批的聚合结果才进入发布区。</p>
+
+        <ol class="mt-12 grid max-w-[560px] grid-cols-1 gap-0 border-t border-[#F3EFE4]/20">
+          <li v-for="(f, i) in features" :key="f.t" class="lg-rise flex items-baseline gap-5 border-b border-[#F3EFE4]/20 py-3.5" :style="{ animationDelay: `${0.2 + i * 0.06}s` }">
+            <span class="w-6 font-display text-[18px] text-[#E0816F] tabular-nums">{{ String(i + 1).padStart(2, '0') }}</span>
+            <span class="text-[14px] text-[#EDE6D4]">{{ f.t }}</span>
+          </li>
+        </ol>
       </div>
-      <div class="lg-rise text-[36px] leading-[1.25] font-bold whitespace-nowrap xl:text-[42px]">医保数据公开定向发布平台</div>
-      <div class="lg-rise mt-[22px] h-[3px] w-16 rounded-[2px] bg-white/70" />
-      <div class="lg-rise mt-[22px] max-w-[560px] text-[15px] leading-[2] text-white/82">按月 / 季 / 年向辖区定点医疗机构定向发布医保数据;经审批的聚合结果才进入发布区。</div>
-      <div class="mt-[46px] flex flex-col gap-[20px]">
-        <div v-for="(f, i) in features" :key="f.t" class="lg-rise flex items-center gap-[18px]" :style="{ animationDelay: `${0.2 + i * 0.06}s` }">
-          <div class="flex size-[42px] flex-none items-center justify-center rounded-[10px] border border-white/12 bg-white/14">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path :d="f.d" /></svg>
-          </div>
-          <div class="text-[15px] whitespace-nowrap text-white/94">{{ f.t }}</div>
-        </div>
-      </div>
-      <div class="absolute right-10 bottom-10 left-[max(76px,calc((100vw_-_1400px)/2_+_76px))] text-[13px] text-white/55">
-        数据仅限内部工作使用,严禁外传。登录、查阅、导出全程留痕审计。
-      </div>
+
+      <div class="text-[12px] tracking-[.06em] text-[#9B9484]">数据仅限内部工作使用,严禁外传。登录、查阅、导出全程留痕审计。</div>
     </div>
 
-    <!-- 右:液态玻璃认证卡片 -->
-    <div class="relative flex min-h-full flex-1 flex-col items-center justify-center px-4 py-24 lg:flex-none lg:pt-[76px] lg:pr-[max(56px,calc((100vw_-_1400px)/2_+_56px))] lg:pb-6 lg:pl-6">
-      <div class="relative w-full max-w-[480px]">
-        <div class="absolute -top-[70px] -right-[90px] size-[300px] animate-[lgFloat_14s_ease-in-out_infinite] rounded-full bg-[radial-gradient(circle_at_35%_35%,var(--c-lg-o1a),var(--c-lg-o1b)_70%)] opacity-75 blur-[6px] dark:opacity-50" />
-        <div class="absolute -bottom-[60px] -left-[90px] size-[240px] animate-[lgFloat2_17s_ease-in-out_infinite] rounded-full bg-[radial-gradient(circle_at_40%_40%,var(--c-lg-o2a),var(--c-lg-o2b)_72%)] opacity-70 blur-[4px] dark:opacity-45" />
-        <div
-          class="relative box-border flex w-full flex-col overflow-hidden rounded-[24px] border border-white/65 bg-[linear-gradient(145deg,rgba(255,255,255,.86),rgba(255,255,255,.72))] px-12 pt-11 pb-8 shadow-[0_30px_80px_rgba(15,23,42,.28),inset_0_1px_0_rgba(255,255,255,.95)] backdrop-blur-[26px] backdrop-saturate-[170%] dark:border-white/12 dark:bg-[linear-gradient(145deg,rgba(26,33,44,.86),rgba(17,22,30,.74))]"
-          data-testid="login-card"
-        >
-          <div class="pointer-events-none absolute top-0 right-0 left-0 h-[46%] rounded-t-[24px] bg-[linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0))] dark:bg-[linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0))]" />
+    <!-- 右:认证卡片 -->
+    <div class="relative flex min-h-full flex-1 flex-col items-center justify-center px-4 py-24 lg:flex-none lg:basis-[560px] lg:px-14 lg:py-10">
+      <div class="relative w-full max-w-[440px]">
+        <div class="relative box-border flex w-full flex-col border border-line-strong bg-surface px-10 pt-9 pb-7" data-testid="login-card">
+          <span class="absolute -top-px left-0 h-[3px] w-24 bg-[#C2371F]" />
 
           <form v-if="step === 'login'" class="relative flex flex-col" @submit.prevent="login">
-            <div class="text-[26px] font-bold text-ink">统一身份认证</div>
+            <div class="font-display text-[26px] font-bold text-ink">统一身份认证</div>
             <div class="mt-2 text-[13px] text-ink-sub">省医保统一身份认证平台</div>
 
             <div class="mt-6 flex gap-5 border-b border-line" role="tablist">
@@ -198,12 +185,12 @@ const certLine = computed(() => (cfg.value?.cert ? `${cfg.value.cert.holder} · 
             </div>
 
             <template v-if="method === 'CA'">
-              <div v-if="cfg?.cert" class="mt-5 rounded-[10px] border border-primary-line bg-primary-tint/70 px-3.5 py-3 text-[12px]" data-testid="cert-card">
+              <div v-if="cfg?.cert" class="mt-5 border border-primary-line bg-primary-tint px-3.5 py-3 text-[12px]" data-testid="cert-card">
                 <div class="font-semibold text-primary">已识别数字证书</div>
                 <div class="mt-1 text-ink">{{ certLine }}</div>
                 <div class="text-ink-muted">颁发:{{ cfg.cert.issuer }} · 有效期至 {{ cfg.cert.expires }}</div>
               </div>
-              <div v-else class="mt-5 rounded-[10px] border border-warning-line bg-warning-soft px-3.5 py-3 text-[12px] text-warning-ink">
+              <div v-else class="mt-5 border border-warning-line bg-warning-soft px-3.5 py-3 text-[12px] text-warning-ink">
                 未识别到数字证书,请插入 UKey 后刷新页面,或改用账号 + 短信验证码。
               </div>
               <label class="mt-4 mb-1.5 text-[12px] text-ink-sub" for="lg-pin">证书 PIN 码</label>
@@ -219,7 +206,7 @@ const certLine = computed(() => (cfg.value?.cert ? `${cfg.value.cert.holder} · 
                 <Input id="lg-code" v-model="smsCode" inputmode="numeric" autocomplete="one-time-code" placeholder="6 位验证码" :class="[field, 'min-w-0 flex-1']" />
                 <button
                   type="button"
-                  class="h-11 flex-none cursor-pointer rounded-[10px] border border-(--c-lg-field) bg-transparent px-4 text-[13px] whitespace-nowrap text-ink-sub hover:bg-hover disabled:cursor-default disabled:text-ink-faint"
+                  class="h-11 flex-none cursor-pointer rounded-[3px] border border-line-strong bg-surface px-4 text-[13px] whitespace-nowrap text-ink-sub hover:bg-hover disabled:cursor-default disabled:opacity-60"
                   :disabled="resend > 0"
                   @click="sendCode"
                 >{{ resend ? `${resend} 秒后重发` : '获取验证码' }}</button>
@@ -229,7 +216,7 @@ const certLine = computed(() => (cfg.value?.cert ? `${cfg.value.cert.holder} · 
             <button
               type="submit"
               :disabled="busy || (method === 'CA' && !cfg?.cert)"
-              class="mt-[22px] h-[46px] w-full cursor-pointer rounded-xl border border-primary bg-[linear-gradient(180deg,var(--c-brand-a),var(--c-primary-solid))] text-[15px] font-semibold text-white shadow-[0_8px_20px_rgba(37,99,235,.35),inset_0_1px_0_rgba(255,255,255,.35)] disabled:cursor-default disabled:opacity-45"
+              class="mt-[22px] h-[46px] w-full cursor-pointer rounded-[3px] bg-ink text-[15px] font-semibold tracking-[.3em] text-surface transition-colors hover:bg-primary-solid disabled:cursor-default disabled:opacity-60"
               data-testid="login-submit"
             >{{ busy ? '认证中…' : '登 录' }}</button>
 
@@ -242,15 +229,15 @@ const certLine = computed(() => (cfg.value?.cert ? `${cfg.value.cert.holder} · 
           </form>
 
           <div v-else class="relative flex flex-col" data-testid="identity-step">
-            <div class="text-[22px] font-bold text-ink">选择本次登录身份</div>
+            <div class="font-display text-[22px] font-bold text-ink">选择本次登录身份</div>
             <div class="mt-2 text-[13px] text-ink-sub">{{ userName }} · 该账号绑定 {{ identities.length }} 个身份,不同身份的数据范围不同</div>
             <div class="mt-5 flex flex-col gap-2.5">
               <button
                 v-for="i in identities"
                 :key="i.id"
                 type="button"
-                class="cursor-pointer rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors"
-                :class="picked === i.id ? 'border-primary bg-primary-tint/80' : 'border-(--c-lg-field) bg-transparent hover:bg-hover'"
+                class="cursor-pointer border px-4 py-3.5 text-left transition-colors"
+                :class="picked === i.id ? 'border-primary bg-primary-tint' : 'border-line-strong bg-surface hover:bg-hover'"
                 :data-identity="i.role"
                 @click="picked = i.id"
               >
@@ -262,7 +249,7 @@ const certLine = computed(() => (cfg.value?.cert ? `${cfg.value.cert.holder} · 
             <button
               type="button"
               :disabled="busy || picked == null"
-              class="mt-[22px] h-[46px] w-full cursor-pointer rounded-xl border border-primary bg-[linear-gradient(180deg,var(--c-brand-a),var(--c-primary-solid))] text-[15px] font-semibold text-white shadow-[0_8px_20px_rgba(37,99,235,.35),inset_0_1px_0_rgba(255,255,255,.35)] disabled:opacity-45"
+              class="mt-[22px] h-[46px] w-full cursor-pointer rounded-[3px] bg-ink text-[15px] font-semibold tracking-[.3em] text-surface transition-colors hover:bg-primary-solid disabled:cursor-default disabled:opacity-60"
               data-testid="enter-btn"
               @click="enter"
             >进入工作台</button>
@@ -273,3 +260,26 @@ const certLine = computed(() => (cfg.value?.cert ? `${cfg.value.cert.holder} · 
     </div>
   </div>
 </template>
+
+<style scoped>
+.login-ink {
+  background:
+    linear-gradient(rgba(243, 239, 228, 0.045) 1px, transparent 1px) 0 0 / 100% 56px,
+    radial-gradient(900px 500px at 10% 0%, rgba(194, 55, 31, 0.16), transparent 60%),
+    #16130F;
+}
+.seal {
+  display: inline-flex;
+  width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  background: #C2371F;
+  color: #FBF3E4;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 2px rgba(251, 243, 228, 0.35);
+}
+</style>

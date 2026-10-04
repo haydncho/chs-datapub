@@ -8,7 +8,7 @@ defineEmits<{ click: [] }>()
   <button
     type="button"
     :disabled="disabled"
-    class="cursor-pointer rounded-full border px-3 py-[3px] text-[12px] whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+    class="cursor-pointer rounded-[3px] border px-3 py-[3px] text-[12px] whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50"
     :class="on ? 'border-primary-line-strong bg-primary-tint font-semibold text-primary' : 'border-line bg-surface text-ink-sub hover:bg-hover'"
     :aria-pressed="on"
     @click="$emit('click')"

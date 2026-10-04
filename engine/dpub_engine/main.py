@@ -10,6 +10,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from . import ENGINE_VERSION, quality, topic
+from .routers import holo, indicator, portal_analysis, portal_reports, publish, regional
 from .models import (
     BehaviorRequest,
     BehaviorResponse,
@@ -68,3 +69,8 @@ def topic_waterfall(req: WaterfallRequest) -> WaterfallResponse:
 def topic_draft(req: DraftRequest) -> DraftResponse:
     """七段式文稿初稿（规则模板）；结果须人工审定后才能进入发布包。"""
     return topic.draft(req)
+
+
+# ---------------------------------------------------------------- 第一批 / 第三批（各组路由）
+for _r in (holo, indicator, publish, portal_analysis, portal_reports, regional):
+    app.include_router(_r.router)

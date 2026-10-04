@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import StrokeIcon from '@/components/ui/stroke-icon/StrokeIcon.vue'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { iconPaths } from '@/lib/icons'
-import { navGroups } from '@/lib/nav'
+import { navGroups, pagePath } from '@/lib/nav'
 import { useAuthStore } from '@/stores/auth'
 
 /** 分组侧栏（按身份裁剪）：201px ↔ 65px，可收起；收起时悬停显示名称。 */
@@ -23,7 +23,7 @@ const tipClass = 'rounded-[7px] bg-tip px-[11px] py-[7px] text-[12px] leading-no
       <div v-for="g in groups" :key="g.label" class="mb-6">
         <div v-if="!collapsed" class="px-5 pb-2.5 text-[12px] text-ink-faint">{{ g.label }}</div>
         <div v-else class="mx-3.5 mb-2 h-px bg-divider" />
-        <RouterLink v-for="item in g.items" :key="item.key" v-slot="{ href, navigate, isActive }" :to="`/${item.key.toLowerCase()}`" custom>
+        <RouterLink v-for="item in g.items" :key="item.key" v-slot="{ href, navigate, isActive }" :to="pagePath(item)" custom>
           <Tooltip :disabled="!collapsed">
             <TooltipTrigger as-child>
               <a

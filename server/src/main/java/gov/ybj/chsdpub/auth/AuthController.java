@@ -29,7 +29,7 @@ public class AuthController {
         m.put("demo", props.demo().enabled());
         if (props.demo().enabled()) {
             m.put("demoSmsCode", props.demo().smsCode());
-            m.put("demoAccounts", new String[]{"chenzhiyuan", "lihua", "zhouting", "zhangyue", "zhaoqiang", "suntao"});
+            m.put("demoAccounts", new String[]{"chenzhiyuan", "lihua", "zhouting", "zhangyue", "zhaoqiang", "suntao", "limin", "qianli", "wanglei", "liudaibiao"});
         }
         return m;
     }

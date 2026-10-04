@@ -26,7 +26,7 @@ const u = computed(() => auth.user)
 <template>
   <header class="shell-glass flex items-center gap-3.5 border-b px-6 py-3 whitespace-nowrap">
     <BrandLogo />
-    <div class="text-[17px] leading-[1.15] font-bold tracking-[.04em] text-ink">医保数据公开定向发布平台</div>
+    <div class="text-[17px] leading-[1.15] font-bold tracking-[.04em] text-ink">{{ u?.role === 'INSTITUTION' ? '医保数据公开 · 医疗机构门户' : '医保数据公开定向发布平台' }}</div>
     <span class="rounded-full border border-primary-line-strong px-2.5 py-[1px] text-[11px] text-primary">医保专网</span>
     <span v-if="zone" class="rounded-full border px-2.5 py-[1px] text-[11px] font-semibold" :class="toneTag[zone.tone]" data-testid="zone-tag">{{ zone.label }}</span>
     <div class="flex-1" />

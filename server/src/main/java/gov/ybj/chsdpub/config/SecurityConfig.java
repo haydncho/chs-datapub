@@ -54,6 +54,16 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/config", "/api/v1/auth/login", "/api/v1/auth/sms-code",
                                 "/api/v1/auth/identity", "/actuator/health", "/actuator/info", "/error").permitAll()
                         .requestMatchers("/api/v1/auth/**").authenticated()
+                        // ---- 第一批 / 第三批：每个开发分组只使用自己的接口前缀
+                        .requestMatchers("/api/v1/holo/**").hasAnyRole(Roles.of("A2"))
+                        .requestMatchers("/api/v1/indicators/**").hasAnyRole(Roles.of("A4"))
+                        .requestMatchers("/api/v1/recommend/**").hasAnyRole(Roles.of("A6"))
+                        .requestMatchers("/api/v1/publish/**").hasAnyRole(Roles.of("A8"))
+                        .requestMatchers("/api/v1/portal/**").hasAnyRole(INSTITUTION)
+                        .requestMatchers("/api/v1/county/**").hasAnyRole(Roles.of("C1"))
+                        .requestMatchers("/api/v1/province/**").hasAnyRole(Roles.of("C2"))
+                        .requestMatchers("/api/v1/supervision/**").hasAnyRole(Roles.of("C3"))
+                        // ---- 第二批
                         .requestMatchers("/api/v1/collection/**").hasAnyRole(Roles.of("A3"))
                         .requestMatchers("/api/v1/chart-templates/**", "/api/v1/report-blocks/**", "/api/v1/report-presets/**",
                                 "/api/v1/report-drafts/**").hasAnyRole(Roles.of("A5"))
@@ -68,7 +78,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/display-policy/**", "/api/v1/benchmark-tiers/**").hasAnyRole(Roles.of("A13"))
                         .requestMatchers("/api/v1/audit/**").hasAnyRole(Roles.of("A14"))
                         // 导出：受控环境与审计员各自导出本页结果，服务端按内容范围再校验
-                        .requestMatchers("/api/v1/exports/**").hasAnyRole(CONVENER, ADMIN_GROUP, ANALYST, AUDITOR)
+                        .requestMatchers("/api/v1/exports/**").hasAnyRole(CONVENER, ADMIN_GROUP, ANALYST, AUDITOR, INSTITUTION, COUNTY, PROVINCE)
                         .anyRequest().denyAll())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) ->

@@ -66,7 +66,7 @@ const stars = (n: number) => '★'.repeat(n) + '☆'.repeat(5 - n)
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
-    <div class="mt-5 grid grid-cols-[minmax(0,1fr)_380px] items-start gap-3.5">
+    <div class="mt-5 grid grid-cols-[minmax(0,1fr)_320px] items-start gap-3.5">
       <div>
         <SegTabs v-model="tab" :items="tabItems" class="mb-3" data-testid="opinion-tabs" />
         <div class="table-scroll">

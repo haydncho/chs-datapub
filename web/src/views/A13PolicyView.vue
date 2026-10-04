@@ -76,12 +76,12 @@ async function submit() {
     <PageHeader :page="page" />
     <div class="mt-5 grid grid-cols-2 items-start gap-3.5">
       <Panel title="展示策略四象限">
-        <div class="grid grid-cols-[28px_minmax(0,1fr)] gap-2">
+        <div class="grid grid-cols-[36px_minmax(0,1fr)] gap-2">
           <span />
           <div class="grid grid-cols-2 gap-2 text-center text-[12px] text-ink-muted"><span>数据归属:区域内</span><span>数据归属:区域外</span></div>
           <div class="grid grid-rows-2 gap-2 text-[12px] text-ink-muted">
-            <div class="flex items-center justify-center"><span class="[writing-mode:vertical-rl] tracking-[.1em]">查看者:区域内</span></div>
-            <div class="flex items-center justify-center"><span class="[writing-mode:vertical-rl] tracking-[.1em]">查看者:区域外</span></div>
+            <div class="flex items-center justify-center"><span class="whitespace-nowrap [writing-mode:vertical-rl] tracking-[.1em]">查看者 · 区域内</span></div>
+            <div class="flex items-center justify-center"><span class="whitespace-nowrap [writing-mode:vertical-rl] tracking-[.1em]">查看者 · 区域外</span></div>
           </div>
           <div class="grid auto-rows-[minmax(140px,auto)] grid-cols-2 gap-2" data-testid="quadrants">
             <button

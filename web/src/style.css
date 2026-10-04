@@ -757,6 +757,8 @@ html.theme-fade *::after {
     border-bottom: 1px solid var(--c-border);
     white-space: nowrap;
     text-align: left;
+    padding-left: 8px;
+    padding-right: 8px;
   }
   .data-table thead th:first-child { border-top-left-radius: 10px; }
   .data-table thead th:last-child { border-top-right-radius: 10px; }
@@ -771,6 +773,8 @@ html.theme-fade *::after {
     padding-bottom: 13px;
     line-height: 1.65;
     vertical-align: middle;
+    padding-left: 8px;
+    padding-right: 8px;
   }
   .data-table tbody tr:first-child td { border-top: none; }
   .data-table tbody tr:nth-child(even) td { background: var(--c-row-alt); }

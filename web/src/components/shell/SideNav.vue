@@ -20,7 +20,7 @@ const tipClass = 'rounded-[7px] bg-tip px-[11px] py-[7px] text-[12px] leading-no
     data-testid="side-nav"
   >
     <div class="side-scroll min-h-0 flex-1 pb-3">
-      <div v-for="g in groups" :key="g.label" class="mb-5 px-2.5">
+      <div v-for="g in groups" :key="g.label" class="mb-3.5 px-2.5">
         <div v-if="!collapsed" class="px-3 pt-1 pb-2 text-[11px] font-medium tracking-[.08em] text-ink-faint">{{ g.label }}</div>
         <div v-else class="mx-2 mb-2 h-px bg-divider" />
         <RouterLink v-for="item in g.items" :key="item.key" v-slot="{ href, navigate, isActive }" :to="pagePath(item)" custom>
@@ -28,7 +28,7 @@ const tipClass = 'rounded-[7px] bg-tip px-[11px] py-[7px] text-[12px] leading-no
             <TooltipTrigger as-child>
               <a
                 :href="href"
-                class="relative mb-0.5 flex cursor-pointer items-center gap-2.5 rounded-lg py-[9px] text-[13px] no-underline transition-colors hover:no-underline"
+                class="relative mb-0.5 flex cursor-pointer items-center gap-2.5 rounded-lg py-2 text-[13px] no-underline transition-colors hover:no-underline"
                 :class="[
                   collapsed ? 'justify-center px-0' : 'justify-start px-3',
                   isActive ? 'bg-primary-tint font-semibold text-primary' : 'bg-transparent text-ink-sub hover:bg-hover',

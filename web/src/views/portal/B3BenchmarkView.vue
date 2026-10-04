@@ -124,7 +124,7 @@ function startPk() {
               {{ d.peerGroup }}同级组 {{ d.peerCount }} 家 · {{ d.periodLabel }} · 档位:<span data-testid="bench-tier">{{ d.tierName }}</span>
             </div>
           </div>
-          <span v-if="d.tier === 2" class="inline-flex h-[30px] items-center rounded-lg bg-primary-solid px-3.5 text-[12px] text-white" data-testid="pk-open">具名 PK 已开放</span>
+          <span v-if="d.tier === 2" class="inline-flex h-[30px] items-center rounded-lg bg-primary-solid px-3.5 text-[12px] text-white" data-testid="pk-open">具名对比已开放</span>
           <button
             v-else
             type="button"
@@ -134,7 +134,7 @@ function startPk() {
             data-testid="pk-disabled"
             @click="startPk"
           >
-            发起 PK · 该指标未开放具名对比
+            具名对比未开放
           </button>
         </div>
 

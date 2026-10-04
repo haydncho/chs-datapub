@@ -1,0 +1,255 @@
+{
+  "templates": [
+    {
+      "name": "DRG 月度运行报告",
+      "desc": "月告知 · 定点医疗机构",
+      "refs": 14,
+      "version": 3,
+      "sections": [
+        {
+          "name": "本月运行概况",
+          "indicators": "例均基金差额 · 记账 vs 支付",
+          "charts": [
+            "KPI 卡",
+            "对比条"
+          ]
+        },
+        {
+          "name": "核心指标与同级分位",
+          "indicators": "CMI · 费用/时间消耗指数",
+          "charts": [
+            "分位条"
+          ]
+        },
+        {
+          "name": "病组结构与偏离贡献",
+          "indicators": "病组差额",
+          "charts": [
+            "气泡图",
+            "贡献条"
+          ]
+        },
+        {
+          "name": "质量与监管",
+          "indicators": "清单质控率 · 审核扣款",
+          "charts": [
+            "趋势线"
+          ]
+        },
+        {
+          "name": "异地就医",
+          "indicators": "异地支出占比",
+          "charts": [
+            "流向条"
+          ]
+        },
+        {
+          "name": "政策提示与下月关注",
+          "indicators": "—",
+          "charts": [
+            "文本"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "季度运行分析",
+      "desc": "季度 · 县区医保 / 专家组",
+      "refs": 4,
+      "version": 2,
+      "sections": [
+        {
+          "name": "基金运行",
+          "indicators": "结余率 · 预算执行",
+          "charts": [
+            "趋势线",
+            "KPI 卡"
+          ]
+        },
+        {
+          "name": "县区对比",
+          "indicators": "例均差额",
+          "charts": [
+            "对比条"
+          ]
+        },
+        {
+          "name": "病组专题摘要",
+          "indicators": "—",
+          "charts": [
+            "文本"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "病种专题(七段式)",
+      "desc": "专题 · 收治机构",
+      "refs": 6,
+      "version": 1,
+      "sections": [
+        {
+          "name": "整体描述",
+          "indicators": "—",
+          "charts": [
+            "KPI 卡",
+            "堆叠条"
+          ]
+        },
+        {
+          "name": "费用结构",
+          "indicators": "—",
+          "charts": [
+            "堆叠条"
+          ]
+        },
+        {
+          "name": "关键行为",
+          "indicators": "—",
+          "charts": [
+            "点图"
+          ]
+        },
+        {
+          "name": "差异归因",
+          "indicators": "—",
+          "charts": [
+            "瀑布图"
+          ]
+        },
+        {
+          "name": "标杆对比",
+          "indicators": "—",
+          "charts": [
+            "哑铃图"
+          ]
+        },
+        {
+          "name": "优化空间",
+          "indicators": "—",
+          "charts": [
+            "KPI 卡"
+          ]
+        },
+        {
+          "name": "建议",
+          "indicators": "—",
+          "charts": [
+            "文本"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "预警提醒函",
+      "desc": "即时 · 单机构",
+      "refs": 22,
+      "version": 1,
+      "sections": [
+        {
+          "name": "预警事项",
+          "indicators": "—",
+          "charts": [
+            "KPI 卡"
+          ]
+        },
+        {
+          "name": "趋势与阈值",
+          "indicators": "—",
+          "charts": [
+            "趋势线"
+          ]
+        },
+        {
+          "name": "回执要求",
+          "indicators": "—",
+          "charts": [
+            "文本"
+          ]
+        }
+      ]
+    }
+  ],
+  "library": [
+    {
+      "name": "KPI 卡",
+      "desc": "单值 + 环比",
+      "thumb": {
+        "track": "M6 6h30v4H6z M6 32h22v3H6z",
+        "accent": "M6 14h42v13H6z",
+        "fill": "M54 22h8v5h-8z",
+        "stroke": "M72 27l7-9 7 9",
+        "accentTone": "ink"
+      }
+    },
+    {
+      "name": "分位条",
+      "desc": "同级位置",
+      "thumb": {
+        "track": "M4 17h92v6H4z",
+        "fill": "M27 17h46v6H27z",
+        "dash": "M50 9v22",
+        "accent": "M70 9h4v22h-4z",
+        "accentTone": "warn"
+      }
+    },
+    {
+      "name": "趋势线",
+      "desc": "12 期",
+      "thumb": {
+        "dash": "M2 14h96",
+        "glow": "M2 33L16 27L30 29L44 21L58 23L72 13L86 16L98 8V38H2z",
+        "stroke": "M2 33L16 27L30 29L44 21L58 23L72 13L86 16L98 8",
+        "accent": "M95.4 8a2.6 2.6 0 1 0 5.2 0a2.6 2.6 0 1 0 -5.2 0"
+      }
+    },
+    {
+      "name": "对比条",
+      "desc": "本院 vs 全市",
+      "thumb": {
+        "accent": "M4 5h72v6H4z M4 22h52v6H4z",
+        "fill": "M4 12h58v4H4z M4 29h40v4H4z"
+      }
+    },
+    {
+      "name": "气泡图",
+      "desc": "量 × 差额",
+      "thumb": {
+        "track": "M50 0h50v20H50z",
+        "dash": "M0 20h100 M50 0v40",
+        "fill": "M17 28a5 5 0 1 0 10 0a5 5 0 1 0 -10 0M32.5 12a3.5 3.5 0 1 0 7 0a3.5 3.5 0 1 0 -7 0M58 30a6 6 0 1 0 12 0a6 6 0 1 0 -12 0M83 26a3 3 0 1 0 6 0a3 3 0 1 0 -6 0",
+        "accent": "M69 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0M54 14a4 4 0 1 0 8 0a4 4 0 1 0 -8 0",
+        "accentTone": "bad"
+      }
+    },
+    {
+      "name": "堆叠条",
+      "desc": "结构占比",
+      "thumb": {
+        "accent": "M4 6h32v9H4z M4 25h24v9H4z",
+        "fill": "M37 6h22v9H37z M29 25h32v9H29z",
+        "track": "M60 6h36v9H60z M62 25h34v9H62z"
+      }
+    },
+    {
+      "name": "瀑布图",
+      "desc": "差异分解",
+      "thumb": {
+        "fill": "M6 18h16v20H6z M78 4h16v34H78z",
+        "accent": "M30 11h16v7H30z M54 4h16v7H54z",
+        "dash": "M22 18h8 M46 11h8 M70 4h8",
+        "accentTone": "warn"
+      }
+    },
+    {
+      "name": "哑铃图",
+      "desc": "两组对比",
+      "thumb": {
+        "track": "M18 7h58v2H18z M28 19h52v2H28z M12 31h44v2H12z",
+        "fill": "M14 8a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M24 20a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M8 32a4 4 0 1 0 8 0a4 4 0 1 0 -8 0",
+        "accent": "M72 8a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M76 20a4 4 0 1 0 8 0a4 4 0 1 0 -8 0M52 32a4 4 0 1 0 8 0a4 4 0 1 0 -8 0",
+        "accentTone": "bad"
+      }
+    }
+  ]
+}

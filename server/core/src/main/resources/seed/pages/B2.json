@@ -1,0 +1,239 @@
+{
+  "header": {
+    "code": "BR25",
+    "name": "脑缺血性疾患,伴并发症",
+    "meta": "权重 1.42 · 支付标准 12,340 元 · 2026年8月 · 本院 286 例"
+  },
+  "basis": "口径 v1.4 · B20260905-01",
+  "histNote": "本院 286 例 · 每格 2,000 元",
+  "standard": 12340,
+  "histMax": 28000,
+  "histAxis": [
+    "0",
+    "8k",
+    "16k",
+    "24k",
+    "28k+"
+  ],
+  "histSummary": {
+    "below": "38%",
+    "above": "62%",
+    "highMultiple": 7
+  },
+  "groups": [
+    {
+      "code": "BR25",
+      "cases": 286,
+      "cityCases": 4261,
+      "avgCost": 14820,
+      "cityAvgCost": 13080,
+      "avgDiff": 2140,
+      "cityAvgDiff": 1862,
+      "peerPercentile": 71,
+      "los": 11.6,
+      "cityLos": 10.4,
+      "comorbidityRate": "74%",
+      "cityComorbidityRate": "72%",
+      "histogram": [
+        2,
+        5,
+        11,
+        19,
+        28,
+        36,
+        41,
+        38,
+        32,
+        24,
+        18,
+        14,
+        10,
+        8
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 4820,
+          "city": 4110
+        },
+        {
+          "item": "耗材",
+          "hospital": 1960,
+          "city": 1720
+        },
+        {
+          "item": "检查检验",
+          "hospital": 3540,
+          "city": 2980
+        },
+        {
+          "item": "治疗",
+          "hospital": 2680,
+          "city": 2860
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 1820,
+          "city": 1530
+        }
+      ]
+    },
+    {
+      "code": "ES35",
+      "cases": 312,
+      "cityCases": 4649,
+      "avgCost": 9640,
+      "cityAvgCost": 9860,
+      "avgDiff": 180,
+      "cityAvgDiff": 157,
+      "peerPercentile": 58,
+      "los": 8.9,
+      "cityLos": 7.7,
+      "comorbidityRate": "81%",
+      "cityComorbidityRate": "72%",
+      "histogram": [
+        4,
+        12,
+        28,
+        40,
+        52,
+        48,
+        38,
+        30,
+        22,
+        16,
+        10,
+        6,
+        4,
+        2
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 3620,
+          "city": 3480
+        },
+        {
+          "item": "耗材",
+          "hospital": 620,
+          "city": 640
+        },
+        {
+          "item": "检查检验",
+          "hospital": 2480,
+          "city": 2310
+        },
+        {
+          "item": "治疗",
+          "hospital": 1680,
+          "city": 1720
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 1240,
+          "city": 1150
+        }
+      ]
+    },
+    {
+      "code": "IU29",
+      "cases": 168,
+      "cityCases": 2503,
+      "avgCost": 11020,
+      "cityAvgCost": 9780,
+      "avgDiff": 1640,
+      "cityAvgDiff": 1427,
+      "peerPercentile": 58,
+      "los": 10.2,
+      "cityLos": 9,
+      "comorbidityRate": "69%",
+      "cityComorbidityRate": "72%",
+      "histogram": [
+        1,
+        3,
+        7,
+        12,
+        18,
+        24,
+        26,
+        22,
+        18,
+        14,
+        10,
+        7,
+        4,
+        2
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 2680,
+          "city": 2410
+        },
+        {
+          "item": "耗材",
+          "hospital": 3920,
+          "city": 3180
+        },
+        {
+          "item": "检查检验",
+          "hospital": 2010,
+          "city": 1890
+        },
+        {
+          "item": "治疗",
+          "hospital": 1480,
+          "city": 1520
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 930,
+          "city": 880
+        }
+      ]
+    }
+  ],
+  "teams": [
+    {
+      "name": "神经内科一组",
+      "cases": 92,
+      "avgCost": 15960,
+      "avgDiff": 3020,
+      "los": 12.4,
+      "repeatRate": 38
+    },
+    {
+      "name": "神经内科二组",
+      "cases": 78,
+      "avgCost": 14210,
+      "avgDiff": 1480,
+      "los": 11.1,
+      "repeatRate": 24
+    },
+    {
+      "name": "神经内科三组",
+      "cases": 64,
+      "avgCost": 13980,
+      "avgDiff": 1260,
+      "los": 10.9,
+      "repeatRate": 21
+    },
+    {
+      "name": "老年医学科",
+      "cases": 31,
+      "avgCost": 16480,
+      "avgDiff": 3880,
+      "los": 13.6,
+      "repeatRate": 42
+    },
+    {
+      "name": "其他(合并)",
+      "cases": 21,
+      "avgCost": 13240,
+      "avgDiff": 820,
+      "los": 10.4,
+      "repeatRate": 18
+    }
+  ],
+  "teamsNote": "仅本院可见 · 病例 < 10 的医疗组合并"
+}

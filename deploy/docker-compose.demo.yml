@@ -1,6 +1,0 @@
-# 演示环境叠加配置（勿用于生产）：服务端以 dev profile 运行——任意密码、固定短信验证码、模拟识别 UKey 证书。
-#   cd deploy && docker compose --env-file demo.env -f docker-compose.yml -f docker-compose.demo.yml up -d --build
-services:
-  server:
-    environment:
-      SPRING_PROFILES_ACTIVE: dev

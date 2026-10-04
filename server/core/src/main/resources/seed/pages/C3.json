@@ -1,0 +1,202 @@
+{
+  "year": 2026,
+  "kpis": [
+    {
+      "label": "统筹基金支出 · 本年",
+      "value": "29.6 亿",
+      "sub": "同比 +5.8%",
+      "tone": "info",
+      "icon": "coin"
+    },
+    {
+      "label": "DRG 覆盖病例",
+      "value": "97.9%",
+      "sub": "全市二级以上",
+      "tone": "ok",
+      "icon": "shield"
+    },
+    {
+      "label": "已公开发布",
+      "value": "46 期",
+      "sub": "按时率 98%",
+      "tone": "info",
+      "icon": "doc"
+    },
+    {
+      "label": "机构签收率",
+      "value": "96%",
+      "sub": "52 家定点机构",
+      "tone": "ok",
+      "icon": "check"
+    }
+  ],
+  "calendar": [
+    {
+      "month": "1",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": true
+        }
+      ]
+    },
+    {
+      "month": "2",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": true
+        }
+      ]
+    },
+    {
+      "month": "3",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": true
+        },
+        {
+          "label": "季度",
+          "kind": "quarterly",
+          "done": true
+        }
+      ]
+    },
+    {
+      "month": "4",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": true
+        }
+      ]
+    },
+    {
+      "month": "5",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": true
+        }
+      ]
+    },
+    {
+      "month": "6",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": true
+        },
+        {
+          "label": "季度",
+          "kind": "quarterly",
+          "done": true
+        }
+      ]
+    },
+    {
+      "month": "7",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": true
+        }
+      ]
+    },
+    {
+      "month": "8",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": true
+        }
+      ]
+    },
+    {
+      "month": "9",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": true
+        },
+        {
+          "label": "季度",
+          "kind": "quarterly",
+          "done": true
+        },
+        {
+          "label": "专题",
+          "kind": "topic",
+          "done": true
+        }
+      ]
+    },
+    {
+      "month": "10",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": false
+        }
+      ]
+    },
+    {
+      "month": "11",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": false
+        }
+      ]
+    },
+    {
+      "month": "12",
+      "events": [
+        {
+          "label": "月告知",
+          "kind": "monthly",
+          "done": false
+        },
+        {
+          "label": "季度",
+          "kind": "quarterly",
+          "done": false
+        }
+      ]
+    }
+  ],
+  "feedback": [
+    {
+      "label": "机构意见答复率",
+      "value": "78%",
+      "pct": 78
+    },
+    {
+      "label": "意见平均答复",
+      "value": "3.2 天",
+      "pct": 68
+    },
+    {
+      "label": "引发报告更正",
+      "value": "2 次 · 全部完成",
+      "pct": 100
+    },
+    {
+      "label": "预警回执率",
+      "value": "67%",
+      "pct": 67
+    }
+  ]
+}

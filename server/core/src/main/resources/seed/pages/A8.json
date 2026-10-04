@@ -1,0 +1,856 @@
+{
+  "currentTaskId": "m8",
+  "tasks": [
+    {
+      "id": "m8",
+      "group": "月告知",
+      "name": "2026年8月 DRG月度运行告知",
+      "due": "剩 1 天",
+      "step": 5
+    },
+    {
+      "id": "w8",
+      "group": "月告知",
+      "name": "2026年8月 运行预警汇总",
+      "due": "剩 4 天",
+      "step": 3
+    },
+    {
+      "id": "q3",
+      "group": "季公布",
+      "name": "2026年第三季度运行公布",
+      "due": "剩 18 天",
+      "step": 2
+    },
+    {
+      "id": "y25",
+      "group": "年通报",
+      "name": "2025年度支付方式改革通报",
+      "due": "已归档",
+      "step": 10
+    },
+    {
+      "id": "br25",
+      "group": "专题",
+      "name": "BR25 脑缺血性疾患专题",
+      "due": "核对剩 2 天",
+      "step": 4
+    },
+    {
+      "id": "org",
+      "group": "专题",
+      "name": "2026年上半年机构体检报告",
+      "due": "剩 6 天",
+      "step": 3
+    },
+    {
+      "id": "gg19",
+      "group": "提醒函",
+      "name": "GG19 次均费用预警提醒函",
+      "due": "回执剩 3 天",
+      "step": 7
+    },
+    {
+      "id": "c7",
+      "group": "更正",
+      "name": "2026年7月月度报告更正",
+      "due": "已归档",
+      "step": 10
+    }
+  ],
+  "steps": [
+    "计划选题",
+    "归集校验",
+    "分析成稿",
+    "专家组审核",
+    "召集人审批",
+    "定向发布",
+    "签收查阅",
+    "意见申诉",
+    "答复整改",
+    "归档复盘"
+  ],
+  "owners": [
+    "李华",
+    "李华",
+    "张悦",
+    "专家组",
+    "陈志远",
+    "系统",
+    "定点机构",
+    "定点机构",
+    "王倩",
+    "李华"
+  ],
+  "gateDwell": "1 天 6 小时",
+  "packageVersion": "发布包 v3 · 整包审批",
+  "tiers": [
+    {
+      "name": "市三级",
+      "total": 6
+    },
+    {
+      "name": "县三级",
+      "total": 4
+    },
+    {
+      "name": "二级甲等",
+      "total": 9
+    },
+    {
+      "name": "二级其他",
+      "total": 11
+    },
+    {
+      "name": "一级",
+      "total": 22
+    }
+  ],
+  "districts": [
+    "市区",
+    "丙区",
+    "甲县",
+    "乙县"
+  ],
+  "institutions": [
+    {
+      "name": "第一人民医院",
+      "tier": 0,
+      "district": "市区",
+      "batch": "第二批",
+      "br25": true,
+      "gg19": true
+    },
+    {
+      "name": "第二人民医院",
+      "tier": 0,
+      "district": "丙区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": true
+    },
+    {
+      "name": "第三人民医院",
+      "tier": 0,
+      "district": "市区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "市中医院",
+      "tier": 0,
+      "district": "丙区",
+      "batch": "第二批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "市妇幼保健院",
+      "tier": 0,
+      "district": "市区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "市肿瘤医院",
+      "tier": 0,
+      "district": "丙区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "甲县人民医院",
+      "tier": 1,
+      "district": "甲县",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "乙县人民医院",
+      "tier": 1,
+      "district": "乙县",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "甲县中医院",
+      "tier": 1,
+      "district": "甲县",
+      "batch": "第二批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "乙县中医院",
+      "tier": 1,
+      "district": "乙县",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "甲县医院1",
+      "tier": 2,
+      "district": "甲县",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "乙县医院2",
+      "tier": 2,
+      "district": "乙县",
+      "batch": "第二批",
+      "br25": true,
+      "gg19": true
+    },
+    {
+      "name": "市区医院3",
+      "tier": 2,
+      "district": "市区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "丙区医院4",
+      "tier": 2,
+      "district": "丙区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "甲县医院5",
+      "tier": 2,
+      "district": "甲县",
+      "batch": "第二批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "乙县医院6",
+      "tier": 2,
+      "district": "乙县",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": true
+    },
+    {
+      "name": "市区医院7",
+      "tier": 2,
+      "district": "市区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "丙区医院8",
+      "tier": 2,
+      "district": "丙区",
+      "batch": "第二批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "甲县医院9",
+      "tier": 2,
+      "district": "甲县",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "乙县医院1",
+      "tier": 3,
+      "district": "乙县",
+      "batch": "第二批",
+      "br25": true,
+      "gg19": true
+    },
+    {
+      "name": "市区医院2",
+      "tier": 3,
+      "district": "市区",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": true
+    },
+    {
+      "name": "丙区医院3",
+      "tier": 3,
+      "district": "丙区",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": true
+    },
+    {
+      "name": "甲县医院4",
+      "tier": 3,
+      "district": "甲县",
+      "batch": "第二批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "乙县医院5",
+      "tier": 3,
+      "district": "乙县",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "市区医院6",
+      "tier": 3,
+      "district": "市区",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "丙区医院7",
+      "tier": 3,
+      "district": "丙区",
+      "batch": "第二批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "甲县医院8",
+      "tier": 3,
+      "district": "甲县",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "乙县医院9",
+      "tier": 3,
+      "district": "乙县",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "市区医院10",
+      "tier": 3,
+      "district": "市区",
+      "batch": "第二批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "丙区医院11",
+      "tier": 3,
+      "district": "丙区",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "市区社区中心1",
+      "tier": 4,
+      "district": "市区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "丙区社区中心2",
+      "tier": 4,
+      "district": "丙区",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "甲县社区中心3",
+      "tier": 4,
+      "district": "甲县",
+      "batch": "第二批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "乙县社区中心4",
+      "tier": 4,
+      "district": "乙县",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "市区社区中心5",
+      "tier": 4,
+      "district": "市区",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "丙区社区中心6",
+      "tier": 4,
+      "district": "丙区",
+      "batch": "第二批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "甲县社区中心7",
+      "tier": 4,
+      "district": "甲县",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "乙县社区中心8",
+      "tier": 4,
+      "district": "乙县",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "市区社区中心9",
+      "tier": 4,
+      "district": "市区",
+      "batch": "第二批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "丙区社区中心10",
+      "tier": 4,
+      "district": "丙区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "甲县社区中心11",
+      "tier": 4,
+      "district": "甲县",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "乙县社区中心12",
+      "tier": 4,
+      "district": "乙县",
+      "batch": "第二批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "市区社区中心13",
+      "tier": 4,
+      "district": "市区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "丙区社区中心14",
+      "tier": 4,
+      "district": "丙区",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "甲县社区中心15",
+      "tier": 4,
+      "district": "甲县",
+      "batch": "第二批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "乙县社区中心16",
+      "tier": 4,
+      "district": "乙县",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "市区社区中心17",
+      "tier": 4,
+      "district": "市区",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "丙区社区中心18",
+      "tier": 4,
+      "district": "丙区",
+      "batch": "第二批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "甲县社区中心19",
+      "tier": 4,
+      "district": "甲县",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    },
+    {
+      "name": "乙县社区中心20",
+      "tier": 4,
+      "district": "乙县",
+      "batch": "第一批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "市区社区中心21",
+      "tier": 4,
+      "district": "市区",
+      "batch": "第二批",
+      "br25": false,
+      "gg19": false
+    },
+    {
+      "name": "丙区社区中心22",
+      "tier": 4,
+      "district": "丙区",
+      "batch": "第一批",
+      "br25": true,
+      "gg19": false
+    }
+  ],
+  "lastCoverage": 52,
+  "minCoverage": 40,
+  "packageCards": [
+    {
+      "label": "指标集",
+      "value": "12",
+      "unit": "项",
+      "sub": "必选 8 · 增选 4",
+      "tone": "muted",
+      "icon": "ind"
+    },
+    {
+      "label": "月度运行报告",
+      "value": "18",
+      "unit": "页",
+      "sub": "v3 · 七段齐备",
+      "tone": "muted",
+      "icon": "rpt"
+    },
+    {
+      "label": "解读",
+      "value": "6",
+      "unit": "段",
+      "sub": "已人工审定",
+      "tone": "ok",
+      "icon": "txt"
+    },
+    {
+      "label": "常见问答",
+      "value": "9",
+      "unit": "条",
+      "sub": "含 2 条典型",
+      "tone": "muted",
+      "icon": "qa"
+    },
+    {
+      "label": "方法卡",
+      "value": "4",
+      "unit": "张",
+      "sub": "选题 · 归因 · 标杆 · 异常",
+      "tone": "muted",
+      "icon": "card"
+    }
+  ],
+  "indicators": [
+    {
+      "name": "例均基金差额",
+      "group": "钱",
+      "benchmark": "匿名分位",
+      "period": "2026-08",
+      "status": "on"
+    },
+    {
+      "name": "次均总费用",
+      "group": "钱",
+      "benchmark": "匿名分位",
+      "period": "2026-08",
+      "status": "on"
+    },
+    {
+      "name": "CMI 值",
+      "group": "效",
+      "benchmark": "匿名分位",
+      "period": "2026-08",
+      "status": "on"
+    },
+    {
+      "name": "费用消耗指数",
+      "group": "效",
+      "benchmark": "匿名分位",
+      "period": "2026-08",
+      "status": "on"
+    },
+    {
+      "name": "时间消耗指数",
+      "group": "效",
+      "benchmark": "匿名分位",
+      "period": "2026-08",
+      "status": "on"
+    },
+    {
+      "name": "结算清单质控率",
+      "group": "错",
+      "benchmark": "具名排行",
+      "period": "2026-08",
+      "status": "on"
+    },
+    {
+      "name": "异地就医支出占比",
+      "group": "钱",
+      "benchmark": "匿名分位",
+      "period": "数据待到",
+      "status": "hold"
+    },
+    {
+      "name": "单病例费用明细",
+      "group": "错",
+      "benchmark": "—",
+      "period": "—",
+      "status": "ex"
+    },
+    {
+      "name": "参保人就医轨迹",
+      "group": "错",
+      "benchmark": "—",
+      "period": "—",
+      "status": "ex"
+    }
+  ],
+  "previewHead": "示例市医保数据工作组 · 定向发布",
+  "audiences": [
+    {
+      "name": "第一人民医院",
+      "identity": "市三级 · 本院具名",
+      "rows": [
+        {
+          "label": "例均基金差额",
+          "method": "本院 · 同级匿名分位",
+          "value": "+486 · P62",
+          "tone": "bad",
+          "hidden": false
+        },
+        {
+          "label": "CMI",
+          "method": "本院 · 同级匿名分位",
+          "value": "1.12 · P68",
+          "tone": "ink",
+          "hidden": false
+        },
+        {
+          "label": "清单质控率",
+          "method": "具名排行",
+          "value": "第 3 / 6",
+          "tone": "ink",
+          "hidden": false
+        },
+        {
+          "label": "他院明细",
+          "method": "匿名机构不渲染",
+          "value": "—",
+          "tone": "muted",
+          "hidden": true
+        },
+        {
+          "label": "单病例费用明细",
+          "method": "仅内部",
+          "value": "—",
+          "tone": "muted",
+          "hidden": true
+        },
+        {
+          "label": "医保外费用占比",
+          "method": "本院",
+          "value": "6.8%",
+          "tone": "ink",
+          "hidden": false
+        }
+      ]
+    },
+    {
+      "name": "甲县社区5",
+      "identity": "一级 · 本院具名",
+      "rows": [
+        {
+          "label": "次均总费用",
+          "method": "本院 · 同级匿名分位",
+          "value": "3,120 · P41",
+          "tone": "ink",
+          "hidden": false
+        },
+        {
+          "label": "例均基金差额",
+          "method": "本院",
+          "value": "−64",
+          "tone": "ok",
+          "hidden": false
+        },
+        {
+          "label": "病组明细",
+          "method": "病例 < 30 并入其他",
+          "value": "6 组",
+          "tone": "warn",
+          "hidden": false
+        },
+        {
+          "label": "CMI 分位",
+          "method": "同级仅 3 家 · 小样本抑制",
+          "value": "—",
+          "tone": "muted",
+          "hidden": true
+        },
+        {
+          "label": "他院明细",
+          "method": "不渲染",
+          "value": "—",
+          "tone": "muted",
+          "hidden": true
+        },
+        {
+          "label": "单病例费用明细",
+          "method": "仅内部",
+          "value": "—",
+          "tone": "muted",
+          "hidden": true
+        }
+      ]
+    },
+    {
+      "name": "甲县医保局",
+      "identity": "县区 · 本县具名",
+      "rows": [
+        {
+          "label": "甲县人民医院",
+          "method": "本县具名",
+          "value": "+712",
+          "tone": "bad",
+          "hidden": false
+        },
+        {
+          "label": "甲县中医院",
+          "method": "本县具名",
+          "value": "−138",
+          "tone": "ok",
+          "hidden": false
+        },
+        {
+          "label": "其他县区",
+          "method": "汇总",
+          "value": "甲县第 2",
+          "tone": "ink",
+          "hidden": false
+        },
+        {
+          "label": "医共体指标",
+          "method": "本县",
+          "value": "14 项",
+          "tone": "ink",
+          "hidden": false
+        },
+        {
+          "label": "市区机构明细",
+          "method": "不渲染",
+          "value": "—",
+          "tone": "muted",
+          "hidden": true
+        },
+        {
+          "label": "单病例费用明细",
+          "method": "仅内部",
+          "value": "—",
+          "tone": "muted",
+          "hidden": true
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "text": "仅内部指标已排除 · 2 项",
+      "ok": true,
+      "tab": "pkg"
+    },
+    {
+      "text": "小样本抑制已应用 · 县三级",
+      "ok": true,
+      "tab": "ver"
+    },
+    {
+      "text": "专家组审核 3/3 通过",
+      "ok": true,
+      "tab": "pkg"
+    },
+    {
+      "text": "机构核对 49/52 · 3 条异议转工单",
+      "ok": false,
+      "tab": "sig"
+    }
+  ],
+  "phrases": [
+    "数据口径已复核",
+    "同意按期发布",
+    "请补充县区解读",
+    "请核实异议工单"
+  ],
+  "logs": [
+    {
+      "time": "09-08 10:12",
+      "who": "李华",
+      "tag": "行政管理组",
+      "what": "提交发布包 v3 · 指标集 12 项 · 月度报告 18 页"
+    },
+    {
+      "time": "09-09 16:40",
+      "who": "专家组",
+      "tag": "3/3 通过",
+      "what": "附 2 条文字修改意见,已采纳"
+    },
+    {
+      "time": "09-10 09:05",
+      "who": "机构核对",
+      "tag": "49/52 确认",
+      "what": "3 家异议已转意见工单"
+    },
+    {
+      "time": "09-10 14:20",
+      "who": "系统",
+      "tag": "流转",
+      "what": "进入第 5 步:召集人审批"
+    }
+  ],
+  "signPeriod": "5 个工作日",
+  "signRemain": "剩 4 个工作日",
+  "signRate": 0.79,
+  "packageSize": "v3 · 37 项",
+  "correction": {
+    "oldTitle": "7月月度报告 v1",
+    "oldTag": "已更正 · 原版保留",
+    "oldMeta": "08-11 发布 · 签收 52/52 · 只读可查",
+    "newTitle": "7月月度报告 v2",
+    "newTag": "现行",
+    "newMeta": "09-03 更正发布 · 经复核与审批",
+    "note": "甲县人民医院 BR25 例均基金差额由 +1,320 元更正为 +960 元;原因:补传 7 月清算数据 412 条;受影响机构 3 家已重新签收。"
+  }
+}

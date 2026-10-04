@@ -3,38 +3,39 @@ import { cva } from "class-variance-authority"
 
 export { default as Button } from "./Button.vue"
 
-/**
- * 按钮变体对齐原型：
- * - default  ≙ .btn-solid（实心主色）
- * - outline  ≙ .btn（白底描边）
- * - pill / pillTint ≙ 工作台分解面板里的药丸按钮（实心蓝 / 浅蓝底描边）
- * - ai       ≙ AI 紫色实心按钮
- */
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg text-[13px] leading-[1.6] tracking-normal cursor-pointer transition-colors disabled:pointer-events-none disabled:opacity-45 disabled:cursor-default [&_svg]:pointer-events-none [&_svg]:shrink-0 shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring/60",
+  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg text-[13px] font-medium transition-[filter,transform,background-color] active:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
+        // prototype primary: brand fill, semibold, darken on hover
         default:
-          "border border-primary bg-primary-solid text-white font-semibold hover:bg-primary-solid-hover hover:border-primary-solid-hover",
+          "bg-brand text-white font-semibold hover:brightness-[.92]",
+        destructive:
+          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "border border-line bg-surface text-ink-sub hover:bg-hover hover:border-line-strong",
-        pill:
-          "rounded-full border border-primary bg-primary-solid text-white font-semibold hover:bg-primary-solid-hover hover:border-primary-solid-hover",
-        pillTint:
-          "rounded-full border border-primary-line-strong bg-primary-tint text-primary hover:bg-primary-tint-hover",
-        ai:
-          "rounded-lg border border-ai bg-ai-solid text-white font-semibold hover:bg-ai-solid-hover",
-        ghost: "text-ink-sub hover:bg-hover",
+          "border border-line-1 bg-white text-ink-1 hover:brightness-[.97]",
+        // light brand button (e.g. 完成质量校验)
+        soft:
+          "border border-brand-line bg-brand-soft text-brand hover:brightness-[.97]",
+        // dark button on the cockpit
+        dark:
+          "border border-[#24395C] bg-[#0E1A2E] text-[#DDE6F3] hover:brightness-110",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost:
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
-        destructive: "border border-danger bg-danger-solid text-white hover:bg-danger-solid-hover",
       },
       size: {
-        default: "px-4 py-2",
-        sm: "px-3 py-[5px] text-[12px]",
-        xs: "px-3 py-1 text-[11px]",
-        pill: "px-3.5 py-[7px]",
-        icon: "size-[30px] rounded-full p-0",
+        "default": "h-9 px-4 py-2 has-[>svg]:px-3.5",
+        "xs": "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        "sm": "h-8 rounded-lg gap-1.5 px-3 text-xs has-[>svg]:px-2.5",
+        "lg": "h-10 rounded-md px-6 has-[>svg]:px-4",
+        "icon": "size-9",
+        "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm": "size-8",
+        "icon-lg": "size-10",
       },
     },
     defaultVariants: {

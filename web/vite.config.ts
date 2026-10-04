@@ -1,22 +1,17 @@
-import { fileURLToPath, URL } from 'node:url'
+import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
+  // separate dep caches let several dev servers run side by side
+  cacheDir: process.env.VITE_CACHE_DIR ?? 'node_modules/.vite',
   resolve: {
-    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+    alias: { '@': path.resolve(import.meta.dirname, './src') },
   },
   server: {
-    port: 5173,
-    proxy: {
-      '/api': {
-        target: process.env.API_TARGET ?? 'http://localhost:8081',
-        changeOrigin: true,
-        // 经代理即同源访问，去掉 Origin，避免服务端 CORS 校验拦截
-        configure: (proxy) => proxy.on('proxyReq', (req) => req.removeHeader('origin')),
-      },
-    },
+    // dev: forward API calls to the core service (server/core, :8080)
+    proxy: { '/api': { target: process.env.API_TARGET ?? 'http://localhost:8080', changeOrigin: true } },
   },
 })

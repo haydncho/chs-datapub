@@ -4,68 +4,168 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
-  engine:
-    name: 分析引擎 · pytest
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.11', cache: pip, cache-dependency-path: engine/pyproject.toml }
-      - run: pip install -e "engine[dev]"
-      - run: pytest -q
-        working-directory: engine
-
   web:
-    name: 前端 · 类型检查与构建
+    name: web · type-check + build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '22', cache: npm, cache-dependency-path: web/package-lock.json }
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
       - run: npm ci
-        working-directory: web
-      - run: npm run build
-        working-directory: web
+      - name: vue-tsc
+        run: npx vue-tsc -b
+      - name: type-check e2e specs
+        run: npm run typecheck:e2e
+      - name: vite build
+        run: npx vite build
 
-  server:
-    name: 业务服务 · 构建
+  core:
+    name: core · Java 21 unit + integration tests
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: '21', cache: maven }
-      - run: mvn -B -q verify
-        working-directory: server
-
-  e2e:
-    name: 端到端回归(10 个套件)
-    runs-on: ubuntu-latest
-    needs: [engine, web, server]
     services:
       postgres:
         image: postgres:16
-        env: { POSTGRES_USER: dpub, POSTGRES_PASSWORD: dpub, POSTGRES_DB: dpub }
+        env:
+          POSTGRES_USER: ybdata
+          POSTGRES_PASSWORD: ybdata
+          POSTGRES_DB: ybdata_test
         ports: ['5432:5432']
         options: >-
-          --health-cmd "pg_isready -U dpub" --health-interval 5s --health-timeout 5s --health-retries 10
-    env:
-      PGPASSWORD: dpub
+          --health-cmd "pg_isready -U ybdata"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    defaults:
+      run:
+        working-directory: server/core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: unit tests
+        run: mvn -B test
+      - name: integration tests (PostgreSQL 16)
+        env:
+          YB_IT_DB_URL: jdbc:postgresql://localhost:5432/ybdata_test
+        run: mvn -B verify -Dtest='*IT' -Dsurefire.failIfNoSpecifiedTests=false
+
+  analytics:
+    name: analytics · pytest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server/analytics
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
-      - uses: actions/setup-node@v4
-        with: { node-version: '22', cache: npm, cache-dependency-path: web/package-lock.json }
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: server/analytics/requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - run: python -m pytest -q
+
+  e2e:
+    name: e2e · Playwright against core + analytics + vite preview
+    runs-on: ubuntu-latest
+    needs: [web]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ybdata
+          POSTGRES_PASSWORD: ybdata
+          POSTGRES_DB: ybdata
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ybdata"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/ybdata
+      DATABASE_URL: postgresql://ybdata:ybdata@localhost:5432/ybdata
+      ANALYTICS_URL: http://localhost:8090
+      E2E_BASE_URL: http://localhost:4173
+    steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
-        with: { distribution: temurin, java-version: '21', cache: maven }
-      - run: pip install -e "engine[dev]"
-      - run: mvn -B -q package -DskipTests
-        working-directory: server
-      - run: npm ci && npx playwright install --with-deps chromium
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: server/analytics/requirements*.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: build core jar
+        working-directory: server/core
+        run: mvn -B -q package -DskipTests
+      - name: start core (:8080, Flyway migrates + seeds on start)
+        working-directory: server/core
+        run: |
+          PORT=8080 nohup java -jar target/yb-core-0.1.0.jar > "$RUNNER_TEMP/core.log" 2>&1 &
+          for i in $(seq 1 90); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/actuator/health || true)
+            [ "$code" = 200 ] && echo "core up after ${i}s" && exit 0
+            sleep 1
+          done
+          echo "core did not come up"; tail -100 "$RUNNER_TEMP/core.log"; exit 1
+
+      - name: start analytics (:8090)
+        working-directory: server/analytics
+        run: |
+          pip install -r requirements.txt
+          nohup python -m uvicorn app.main:app --port 8090 > "$RUNNER_TEMP/analytics.log" 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:8090/analytics/health > /dev/null && exit 0; sleep 1; done
+          echo "analytics did not come up (A6 falls back to its seed)"; tail -50 "$RUNNER_TEMP/analytics.log"
+
+      - name: install web deps + Playwright chromium
         working-directory: web
-      - run: scripts/e2e.sh
-      - if: failure()
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: build + start vite preview (:4173, /api → core)
+        working-directory: web
+        run: |
+          npx vite build
+          API_TARGET=http://localhost:8080 nohup npx vite preview --port 4173 --strictPort > "$RUNNER_TEMP/preview.log" 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:4173/ > /dev/null && exit 0; sleep 1; done
+          cat "$RUNNER_TEMP/preview.log"; exit 1
+
+      - name: Playwright
+        working-directory: web
+        run: npm run test:e2e
+
+      - name: upload report + server logs
+        if: failure()
         uses: actions/upload-artifact@v4
-        with: { name: e2e-logs, path: /tmp/dpub-e2e }
+        with:
+          name: e2e-report
+          path: |
+            web/playwright-report
+            web/test-results
+            ${{ runner.temp }}/*.log
+          retention-days: 7

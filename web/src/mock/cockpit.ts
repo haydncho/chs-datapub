@@ -1,0 +1,388 @@
+/**
+ * 全息图 (cockpit) — demo seed. Two viewer identities share the city-wide
+ * reference tables (DRG groups, institutions, flows, publication matrix) and
+ * each carry their own KPIs, panels and loop progress.
+ * Backend: GET /api/v1/pages/cockpit returns the same `CockpitData` shape.
+ */
+
+export type IdentityId = 'conv' | 'hosp'
+export type CockpitView = 'bub' | 'inst' | 'flow' | 'pub' | 'dept' | 'peer'
+/** 1 = higher is better, -1 = lower is better, 0 = neutral (no good/bad colouring) */
+export type GoodDir = 1 | -1 | 0
+export type Tone = 'ok' | 'warn' | 'bad'
+export type LoopStatus = 'ok' | 'warn' | 'act'
+/** publication matrix cell: ok 已公开(查阅率) · low 查阅率低 · np 未公开 · cmt 意见未复 · int 仅内部 · na 不适用 */
+export type MatrixStatus = 'ok' | 'low' | 'np' | 'cmt' | 'int' | 'na'
+
+export interface CockpitKpi { label: string; value: string; unit: string; delta: number; goodDir: GoodDir }
+export interface CockpitEff { label: string; value: number }
+export interface CockpitErr { label: string; value: string; unit: string; tone: Tone }
+export interface CockpitAlert { type: string; text: string; date: string }
+export interface CockpitLoopStep { name: string; value: string; pct: number; sub: string; status: LoopStatus }
+
+export interface CockpitIdentity {
+  id: IdentityId
+  /** identity tab label */
+  tab: string
+  /** person (header / watermark) */
+  name: string
+  /** short organisation (tab subtitle / watermark) */
+  orgShort: string
+  role: string
+  scope: string
+  /** full organisation name on the big screen */
+  org: string
+  zone: string
+  title: string
+  views: CockpitView[]
+  money: {
+    title: string
+    unit: string
+    m1: string; budget: string
+    m2: string; spend: string
+    m3: string; balance: string
+    legendBar: string
+    legendLine: string
+  }
+  tornTitle: string
+  effTitle: string
+  errTitle: string
+  alertTitle: string
+  kpis: CockpitKpi[]
+  eff: CockpitEff[]
+  errs: CockpitErr[]
+  alerts: CockpitAlert[]
+  loopTitle: string
+  loop: CockpitLoopStep[]
+  flowNote: string
+  /** bubble x axis label */
+  xLabel: string
+  /** secondary screen titles */
+  screen2Title: string
+  screen2Right: string
+  /** alarm banner subtitle */
+  alarmSub: string
+  /** subscription recipients */
+  recipients: string[]
+  /** subscription preview: 待办 line */
+  todo: string
+}
+
+export interface CockpitDrg { code: string; name: string; cases: number; diff: number; cost: number }
+export interface CockpitInstitution { name: string; district: string; tier: number; diff: number }
+export interface CockpitFlow { name: string; scope: '省内' | '省外' | '—'; share: number; amount: string }
+export interface CockpitMatrixCell { status: MatrixStatus; value?: number }
+export interface CockpitMatrixRow { name: string; cells: CockpitMatrixCell[]; internal?: boolean }
+export interface CockpitDept { name: string; cases: number; diff: number; cmi: number }
+export interface CockpitPeer { name: string; values: number[]; higherIsBetter: boolean; value: string; pct: string }
+
+export interface CockpitData {
+  identities: CockpitIdentity[]
+  drgs: CockpitDrg[]
+  /** DRG codes ringed under the 错 / 效 lenses */
+  errFlag: string[]
+  effFlag: string[]
+  districts: string[]
+  tiers: string[]
+  institutions: CockpitInstitution[]
+  /** 参保地 node of the 异地流向 view */
+  flowOrigin: { name: string; sub: string }
+  flows: CockpitFlow[]
+  audiences: string[]
+  matrixSummary: { unpublished: number; unread: number; unanswered: number }
+  matrix: CockpitMatrixRow[]
+  months: string[]
+  /** city fund spend (亿元) per month and the monthly budget line */
+  spend: number[]
+  budgetLine: number
+  /** hospital 医保记账 / DRG 支付 (万元) per month */
+  hospRecorded: number[]
+  hospPaid: number[]
+  depts: CockpitDept[]
+  peers: CockpitPeer[]
+  peerSummary: { better: string; watch: string; cmiPct: string; diffPct: string }
+  subscription: { frequencies: string[]; whenLabels: string[]; contents: string[]; channels: string[] }
+  dataAsOf: string
+  periodLabels: { 月: string; 季: string; 年: string }
+}
+
+export const COCKPIT_SEED: CockpitData = {
+  identities: [
+    {
+      id: 'conv',
+      tab: '市医保局',
+      name: '陈志远',
+      orgShort: '示例市医保局',
+      role: '召集人',
+      scope: '全域 · 可下钻至诊疗行为',
+      org: '示例市医疗保障局',
+      zone: '分析监测区',
+      title: '医保数据全息图',
+      views: ['bub', 'inst', 'flow', 'pub'],
+      money: {
+        title: '钱 · 基金收支', unit: '亿元 · 近 12 月',
+        m1: '预算执行率', budget: '97.6%',
+        m2: '本月支出', spend: '3.86',
+        m3: '当期结余率', balance: '4.2%',
+        legendBar: '支出', legendLine: '预算',
+      },
+      tornTitle: '病组差额 · 逆差与结余',
+      effTitle: '效 · 支付效率',
+      errTitle: '错 · 审核监管',
+      alertTitle: '实时提醒',
+      kpis: [
+        { label: '统筹基金支出', value: '3.86', unit: '亿', delta: 6.2, goodDir: 1 },
+        { label: '当期结余率', value: '4.2', unit: '%', delta: 0.4, goodDir: 1 },
+        { label: '例均基金差额', value: '−38', unit: '元', delta: -12, goodDir: -1 },
+        { label: 'CMI', value: '1.04', unit: '', delta: 0.02, goodDir: 1 },
+        { label: '清单质控率', value: '96.4', unit: '%', delta: 0.8, goodDir: 1 },
+        { label: '本期签收率', value: '97', unit: '%', delta: 2, goodDir: 1 },
+      ],
+      eff: [
+        { label: 'CMI', value: 1.04 },
+        { label: '费用消耗指数', value: 0.98 },
+        { label: '时间消耗指数', value: 1.03 },
+      ],
+      errs: [
+        { label: '审核扣款', value: '186.4', unit: '万', tone: 'warn' },
+        { label: '疑似高套', value: '42', unit: '例', tone: 'bad' },
+        { label: '编码不达标', value: '3', unit: '家', tone: 'warn' },
+        { label: '逾期统筹', value: '0', unit: '个', tone: 'ok' },
+      ],
+      alerts: [
+        { type: '预警', text: '某肛肠专科医院 · GG19 次均 +23.6%', date: '09-08' },
+        { type: '预警', text: '甲县人民医院 · ES35 再住院 8.7%', date: '09-08' },
+        { type: '关注', text: '第三人民医院 · BR25 临界区 41%', date: '09-08' },
+        { type: '意见', text: '第一人民医院 · BR25 核对期异议', date: '10-03' },
+        { type: '关注', text: '医保外费用占比 · 3 家高于 P90', date: '09-12' },
+      ],
+      loopTitle: '五环节闭环',
+      loop: [
+        { name: '01 归集', value: '9/10', pct: 90, sub: '异地就医数据待到', status: 'warn' },
+        { name: '02 配置', value: '46', pct: 93, sub: '指标 · 3 项本期暂缓', status: 'ok' },
+        { name: '03 洞察', value: '7', pct: 60, sub: '候选选题 · 2 已采纳', status: 'ok' },
+        { name: '04 发布', value: '3', pct: 50, sub: '待召集人审批', status: 'act' },
+        { name: '05 反馈', value: '78%', pct: 78, sub: '意见答复率 · 5 条超期', status: 'warn' },
+      ],
+      flowNote: '来源:省平台回流,截至 2026-08-31 · 异地就医基金支出 4.87 亿,占 11.6% · 就医地机构排名仅医保局可见',
+      xLabel: '病例数(例)',
+      screen2Title: '公开与反馈 · 运行监测',
+      screen2Right: '公开矩阵 · 指标 × 受众',
+      alarmSub: '已推送召集人与行政管理组 · 3 分钟内未确认将升级',
+      recipients: ['陈志远 · 召集人', '行政管理组', '委托分析团队', '专家组'],
+      todo: '审批 3 · 督办 5',
+    },
+    {
+      id: 'hosp',
+      tab: '定点医药机构',
+      name: '李敏',
+      orgShort: '示例市第一人民医院',
+      role: '医保办主任',
+      scope: '本院具名 · 同级匿名分位',
+      org: '示例市第一人民医院',
+      zone: '发布区',
+      title: '本院医保数据全息图',
+      views: ['bub', 'dept', 'peer'],
+      money: {
+        title: '钱 · 本院医保结算', unit: '万元 · 近 12 月',
+        m1: '支付 / 记账', budget: '94.9%',
+        m2: '本月医保记账', spend: '4,862万',
+        m3: '本月结算盈亏', balance: '−246.7万',
+        legendBar: '医保记账', legendLine: 'DRG 支付',
+      },
+      tornTitle: '本院病组 · 超支与结余',
+      effTitle: '效 · 本院诊疗效率',
+      errTitle: '错 · 审核与质控',
+      alertTitle: '本院待办',
+      kpis: [
+        { label: 'DRG 支付', value: '4,616', unit: '万', delta: 3.8, goodDir: 0 },
+        { label: '支付 / 记账', value: '94.9', unit: '%', delta: -1.2, goodDir: 1 },
+        { label: '例均基金差额', value: '+486', unit: '元', delta: 38, goodDir: -1 },
+        { label: 'CMI', value: '1.12', unit: '', delta: 0.03, goodDir: 1 },
+        { label: 'DRG 入组率', value: '99.2', unit: '%', delta: 0.3, goodDir: 1 },
+        { label: '审核扣款', value: '12.6', unit: '万', delta: -2.4, goodDir: -1 },
+      ],
+      eff: [
+        { label: 'CMI · 同级 P68', value: 1.12 },
+        { label: '费用消耗指数', value: 1.04 },
+        { label: '时间消耗指数', value: 0.97 },
+      ],
+      errs: [
+        { label: '审核扣款', value: '12.6', unit: '万', tone: 'warn' },
+        { label: '拒付病例', value: '23', unit: '例', tone: 'bad' },
+        { label: '清单质控率', value: '96.4', unit: '%', tone: 'ok' },
+        { label: '高倍率病例', value: '7', unit: '例', tone: 'warn' },
+      ],
+      alerts: [
+        { type: '待签收', text: '8月 DRG 月度运行报告', date: '09-12' },
+        { type: '核对', text: 'BR25 专题核对稿 · 剩 2 天', date: '10-03' },
+        { type: '提醒函', text: 'IU29 例均差额超阈值 · 待回执', date: '09-28' },
+        { type: '答复', text: '医保外费用口径 · 已答复', date: '09-20' },
+      ],
+      loopTitle: '本院医保闭环',
+      loop: [
+        { name: '结算上传', value: '3,412', pct: 100, sub: '例 · 及时率 98.6%', status: 'ok' },
+        { name: '分组入组', value: '99.2%', pct: 99, sub: '未入组 27 例', status: 'ok' },
+        { name: '报告接收', value: '5', pct: 100, sub: '份 · 本期', status: 'ok' },
+        { name: '签收核对', value: '4/5', pct: 80, sub: '1 份待签收', status: 'act' },
+        { name: '意见整改', value: '2', pct: 50, sub: '条 · 1 条待复', status: 'warn' },
+      ],
+      flowNote: '',
+      xLabel: '本院病例数(例)',
+      screen2Title: '本院运行 · 对标与待办',
+      screen2Right: '同级对标 · 市三级 6 家',
+      alarmSub: '需在 10 个工作日内回执 · 已推送医保办主任',
+      recipients: ['李敏 · 医保办', '院长办公室', '质控科', '财务科'],
+      todo: '签收 1 · 核对 1',
+    },
+  ],
+  drgs: [
+    { code: 'BR25', name: '脑缺血性疾患,伴并发症', cases: 1420, diff: 1860, cost: 14200 },
+    { code: 'ES35', name: '呼吸系统感染/炎症,伴并发症', cases: 1280, diff: 240, cost: 9800 },
+    { code: 'RE19', name: '恶性增生性疾患化学治疗', cases: 1160, diff: -420, cost: 6900 },
+    { code: 'EX25', name: '慢性阻塞性肺病,伴并发症', cases: 960, diff: -180, cost: 11200 },
+    { code: 'FR45', name: '心绞痛', cases: 880, diff: -320, cost: 7600 },
+    { code: 'GG19', name: '肛门及肛周手术', cases: 820, diff: 980, cost: 7400 },
+    { code: 'OB29', name: '阴道分娩', cases: 720, diff: -140, cost: 4300 },
+    { code: 'IU29', name: '骨病及其他关节病', cases: 690, diff: 1420, cost: 9600 },
+    { code: 'KS15', name: '糖尿病,伴并发症', cases: 640, diff: 120, cost: 8200 },
+    { code: 'OF19', name: '剖宫产', cases: 610, diff: -260, cost: 8900 },
+    { code: 'FT35', name: '高血压', cases: 610, diff: -90, cost: 5200 },
+    { code: 'GZ15', name: '其他消化系统诊断', cases: 540, diff: 90, cost: 6100 },
+    { code: 'FM19', name: '经皮心血管操作及支架置入', cases: 520, diff: -2150, cost: 38600 },
+    { code: 'GU25', name: '食管炎、胃肠炎', cases: 470, diff: 60, cost: 4800 },
+    { code: 'DT19', name: '中耳炎及上呼吸道感染', cases: 430, diff: -60, cost: 3400 },
+    { code: 'LR15', name: '肾衰竭', cases: 380, diff: 210, cost: 12800 },
+    { code: 'HS25', name: '肝硬化', cases: 270, diff: 330, cost: 13600 },
+    { code: 'NS15', name: '女性生殖系统其他疾患', cases: 220, diff: 40, cost: 5600 },
+    { code: 'IC29', name: '髋、膝关节置换', cases: 210, diff: 2680, cost: 62000 },
+    { code: 'BR11', name: '颅内出血性疾患,伴严重并发症', cases: 190, diff: 2950, cost: 48000 },
+    { code: 'IB39', name: '脊柱融合手术', cases: 160, diff: -1680, cost: 71000 },
+    { code: 'JR15', name: '乳房良性病变', cases: 150, diff: -110, cost: 6800 },
+    { code: 'AH29', name: '气管切开伴呼吸机支持≥96小时', cases: 45, diff: -2600, cost: 168000 },
+  ],
+  errFlag: ['BR25', 'GG19', 'IU29', 'ES35'],
+  effFlag: ['BR11', 'IC29', 'AH29', 'LR15'],
+  districts: ['市区', '丙区', '甲县', '乙县'],
+  tiers: ['市三级', '县三级', '二级甲等', '二级其他', '一级'],
+  institutions: [
+    { name: '第一人民医院', district: '市区', tier: 0, diff: 486 },
+    { name: '第二人民医院', district: '丙区', tier: 0, diff: -639 },
+    { name: '第三人民医院', district: '市区', tier: 0, diff: 1120 },
+    { name: '市中医院', district: '丙区', tier: 0, diff: 684 },
+    { name: '市妇幼保健院', district: '市区', tier: 0, diff: 513 },
+    { name: '市肿瘤医院', district: '丙区', tier: 0, diff: -640 },
+    { name: '甲县人民医院', district: '甲县', tier: 1, diff: 712 },
+    { name: '乙县人民医院', district: '乙县', tier: 1, diff: 801 },
+    { name: '甲县中医院', district: '甲县', tier: 1, diff: -138 },
+    { name: '乙县中医院', district: '乙县', tier: 1, diff: 594 },
+    { name: '甲县第1医院', district: '甲县', tier: 2, diff: -205 },
+    { name: '乙县第2医院', district: '乙县', tier: 2, diff: 405 },
+    { name: '市区第3医院', district: '市区', tier: 2, diff: 180 },
+    { name: '丙区第4医院', district: '丙区', tier: 2, diff: 300 },
+    { name: '甲县第5医院', district: '甲县', tier: 2, diff: -250 },
+    { name: '乙县第6医院', district: '乙县', tier: 2, diff: -175 },
+    { name: '市区第7医院', district: '市区', tier: 2, diff: -400 },
+    { name: '丙区第8医院', district: '丙区', tier: 2, diff: -280 },
+    { name: '甲县第9医院', district: '甲县', tier: 2, diff: 70 },
+    { name: '某肛肠专科医院', district: '乙县', tier: 3, diff: 980 },
+    { name: '市区专科医院1', district: '市区', tier: 3, diff: -70 },
+    { name: '丙区专科医院2', district: '丙区', tier: 3, diff: -10 },
+    { name: '甲县专科医院3', district: '甲县', tier: 3, diff: -240 },
+    { name: '乙县专科医院4', district: '乙县', tier: 3, diff: -265 },
+    { name: '市区专科医院5', district: '市区', tier: 3, diff: -50 },
+    { name: '丙区专科医院6', district: '丙区', tier: 3, diff: 10 },
+    { name: '甲县专科医院7', district: '甲县', tier: 3, diff: -220 },
+    { name: '乙县专科医院8', district: '乙县', tier: 3, diff: -245 },
+    { name: '市区专科医院9', district: '市区', tier: 3, diff: -30 },
+    { name: '丙区专科医院10', district: '丙区', tier: 3, diff: 405 },
+    { name: '市区社区1', district: '市区', tier: 4, diff: -70 },
+    { name: '丙区社区2', district: '丙区', tier: 4, diff: -60 },
+    { name: '甲县社区3', district: '甲县', tier: 4, diff: 54 },
+    { name: '乙县社区4', district: '乙县', tier: 4, diff: 134 },
+    { name: '市区社区5', district: '市区', tier: 4, diff: -62 },
+    { name: '丙区社区6', district: '丙区', tier: 4, diff: -52 },
+    { name: '甲县社区7', district: '甲县', tier: 4, diff: 62 },
+    { name: '乙县社区8', district: '乙县', tier: 4, diff: 142 },
+    { name: '市区社区9', district: '市区', tier: 4, diff: -54 },
+    { name: '丙区社区10', district: '丙区', tier: 4, diff: 12 },
+    { name: '甲县社区11', district: '甲县', tier: 4, diff: 32 },
+    { name: '乙县社区12', district: '乙县', tier: 4, diff: 156 },
+    { name: '市区社区13', district: '市区', tier: 4, diff: 92 },
+    { name: '丙区社区14', district: '丙区', tier: 4, diff: 20 },
+    { name: '甲县社区15', district: '甲县', tier: 4, diff: 40 },
+    { name: '乙县社区16', district: '乙县', tier: 4, diff: 164 },
+    { name: '市区社区17', district: '市区', tier: 4, diff: 100 },
+    { name: '丙区社区18', district: '丙区', tier: 4, diff: 28 },
+    { name: '甲县社区19', district: '甲县', tier: 4, diff: 48 },
+    { name: '乙县社区20', district: '乙县', tier: 4, diff: -146 },
+    { name: '市区社区21', district: '市区', tier: 4, diff: 150 },
+    { name: '丙区社区22', district: '丙区', tier: 4, diff: 78 },
+  ],
+  flowOrigin: { name: '示例市', sub: '参保地 · 4,286 人次' },
+  flows: [
+    { name: '省会市', scope: '省内', share: 38.2, amount: '1.86亿' },
+    { name: '邻市', scope: '省内', share: 14.5, amount: '7,062万' },
+    { name: '外省A市', scope: '省外', share: 12.1, amount: '5,893万' },
+    { name: '外省B市', scope: '省外', share: 9.8, amount: '4,773万' },
+    { name: '外省C市', scope: '省外', share: 6.4, amount: '3,117万' },
+    { name: '其他地区', scope: '—', share: 19.0, amount: '9,253万' },
+  ],
+  audiences: ['市三级', '县三级', '二级', '一级', '县区医保', '专家组', '省级'],
+  matrixSummary: { unpublished: 3, unread: 3, unanswered: 2 },
+  matrix: [
+    { name: '例均基金差额', cells: [{ status: 'ok', value: 94 }, { status: 'ok', value: 88 }, { status: 'ok', value: 71 }, { status: 'low', value: 19 }, { status: 'ok', value: 92 }, { status: 'ok', value: 100 }, { status: 'ok', value: 83 }] },
+    { name: '次均总费用分位', cells: [{ status: 'ok', value: 91 }, { status: 'ok', value: 84 }, { status: 'np' }, { status: 'np' }, { status: 'ok', value: 90 }, { status: 'ok', value: 100 }, { status: 'ok', value: 80 }] },
+    { name: '医保外费用占比', cells: [{ status: 'cmt', value: 6 }, { status: 'ok', value: 76 }, { status: 'ok', value: 62 }, { status: 'na' }, { status: 'ok', value: 88 }, { status: 'ok', value: 100 }, { status: 'np' }] },
+    { name: 'CMI值', cells: [{ status: 'ok', value: 96 }, { status: 'ok', value: 89 }, { status: 'ok', value: 70 }, { status: 'na' }, { status: 'ok', value: 93 }, { status: 'ok', value: 100 }, { status: 'ok', value: 85 }] },
+    { name: '费用/时间消耗指数', cells: [{ status: 'ok', value: 90 }, { status: 'low', value: 22 }, { status: 'low', value: 14 }, { status: 'na' }, { status: 'ok', value: 86 }, { status: 'ok', value: 100 }, { status: 'ok', value: 78 }] },
+    { name: '结算清单质控率', cells: [{ status: 'cmt', value: 9 }, { status: 'ok', value: 82 }, { status: 'ok', value: 68 }, { status: 'low', value: 11 }, { status: 'ok', value: 95 }, { status: 'ok', value: 100 }, { status: 'na' }] },
+    { name: '异地就医支出占比', cells: [{ status: 'ok', value: 72 }, { status: 'ok', value: 66 }, { status: 'na' }, { status: 'na' }, { status: 'ok', value: 91 }, { status: 'ok', value: 100 }, { status: 'ok', value: 88 }] },
+    { name: '单病例费用明细', internal: true, cells: [{ status: 'int' }, { status: 'int' }, { status: 'int' }, { status: 'int' }, { status: 'int' }, { status: 'int' }, { status: 'int' }] },
+  ],
+  months: ['10', '11', '12', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+  spend: [3.42, 3.51, 3.38, 3.60, 3.55, 3.71, 3.64, 3.78, 3.69, 3.82, 3.74, 3.86],
+  budgetLine: 3.95,
+  hospRecorded: [452, 461, 447, 470, 465, 480, 472, 489, 478, 494, 482, 486],
+  hospPaid: [441, 452, 431, 455, 449, 462, 450, 466, 455, 468, 459, 462],
+  depts: [
+    { name: '神经内科', cases: 612, diff: 1240, cmi: 1.18 },
+    { name: '骨科', cases: 356, diff: 980, cmi: 1.42 },
+    { name: '老年医学科', cases: 146, diff: 1620, cmi: 1.12 },
+    { name: '呼吸内科', cases: 488, diff: 210, cmi: 0.96 },
+    { name: '泌尿外科', cases: 182, diff: 160, cmi: 1.05 },
+    { name: '消化内科', cases: 274, diff: 90, cmi: 0.88 },
+    { name: '普外科', cases: 318, diff: -120, cmi: 1.08 },
+    { name: '妇产科', cases: 248, diff: -140, cmi: 0.71 },
+    { name: '肿瘤科', cases: 296, diff: -380, cmi: 0.92 },
+    { name: '康复科', cases: 58, diff: 420, cmi: 0.64 },
+    { name: '心血管内科', cases: 402, diff: -860, cmi: 1.31 },
+    { name: '重症医学科', cases: 32, diff: -2140, cmi: 3.86 },
+  ],
+  peers: [
+    { name: 'CMI 值', values: [1.31, 1.18, 1.12, 1.06, 0.98, 0.91], higherIsBetter: true, value: '1.12', pct: 'P68' },
+    { name: '费用消耗指数', values: [0.92, 0.97, 1.04, 1.01, 1.08, 1.12], higherIsBetter: false, value: '1.04', pct: 'P42' },
+    { name: '时间消耗指数', values: [0.94, 0.99, 0.97, 1.0, 1.03, 1.06], higherIsBetter: false, value: '0.97', pct: 'P58' },
+    { name: '次均费用', values: [11800, 12400, 12860, 13400, 14100, 15200], higherIsBetter: false, value: '12,860', pct: 'P55' },
+    { name: '医保外费用占比', values: [3.1, 4.2, 6.8, 5.0, 5.6, 7.4], higherIsBetter: false, value: '6.8%', pct: 'P28' },
+    { name: '结算清单质控率', values: [98.3, 97.4, 96.4, 96.2, 95.1, 94.0], higherIsBetter: true, value: '96.4%', pct: 'P55' },
+    { name: '例均基金差额', values: [-120, 80, 486, 210, 640, 880], higherIsBetter: false, value: '+486', pct: 'P45' },
+  ],
+  peerSummary: { better: '3 / 7 项', watch: '医保外费用占比', cmiPct: 'P68', diffPct: 'P45' },
+  subscription: {
+    frequencies: ['每日 08:00', '每周一 08:30', '每月 5 日'],
+    whenLabels: ['每日 08:00', '周一 08:30', '每月 5 日'],
+    contents: ['大屏快照', '核心指标摘要', '告警汇总', '待办提醒'],
+    channels: ['政务微信', '邮件', '短信'],
+  },
+  dataAsOf: '2026-09-30',
+  periodLabels: { 月: '2026年8月', 季: '2026年Q3', 年: '2025年度' },
+}
+
+/**
+ * ACTIONS:
+ * saveSubscription({ identity: IdentityId, frequency: string, contents: string[], channel: string, recipients: string[] })
+ *   — 订阅推送 modal「保存订阅」: schedule snapshot/summary pushes for the current identity;
+ * ackAlarm({ identity: IdentityId, type: string, text: string })
+ *   — alarm banner「确认处置」: acknowledge the (simulated) high-level alert.
+ */

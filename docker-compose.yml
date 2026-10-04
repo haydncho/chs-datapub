@@ -1,0 +1,49 @@
+# 医保数据公开 · 定向发布平台 — full stack
+#   docker compose up --build   →  http://localhost:8000
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ybdata
+      POSTGRES_USER: ybdata
+      POSTGRES_PASSWORD: ybdata
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ybdata"]
+      interval: 5s
+      retries: 10
+
+  # Java: business API, schema migrations (Flyway), audit trail
+  core:
+    build: ./server/core
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/ybdata
+      DB_USER: ybdata
+      DB_PASSWORD: ybdata
+      ANALYTICS_URL: http://analytics:8090
+      # production: set a 32+ byte secret and turn the demo header off
+      YB_AUTH_SECRET: ${YB_AUTH_SECRET:-change-me-to-a-32-byte-random-secret!!}
+      YB_AUTH_DEV_HEADER: ${YB_AUTH_DEV_HEADER:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Python: DRG analytics & topic recommendation (reads the same database)
+  analytics:
+    build: ./server/analytics
+    environment:
+      DATABASE_URL: postgresql://ybdata:ybdata@db:5432/ybdata
+    depends_on:
+      core:
+        condition: service_started
+
+  web:
+    build: ./web
+    ports:
+      - "8000:80"
+    depends_on:
+      - core
+
+volumes:
+  pgdata:

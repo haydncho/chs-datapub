@@ -1,0 +1,230 @@
+{
+  "libraryTotal": 46,
+  "libraryNational": 28,
+  "libraryLocal": 16,
+  "libraryInternal": 2,
+  "targetPackage": "2026年8月 月告知发布包",
+  "indicators": [
+    {
+      "name": "例均基金差额",
+      "group": "钱",
+      "domain": "费用与支付",
+      "source": "national",
+      "tier": "pct",
+      "freq": "月",
+      "version": "v2.1",
+      "status": "on",
+      "refs": 14,
+      "numerator": "(Σ医保记账金额 − ΣDRG支付标准)",
+      "denominator": "出院病例数"
+    },
+    {
+      "name": "次均总费用",
+      "group": "钱",
+      "domain": "费用与支付",
+      "source": "national",
+      "tier": "pct",
+      "freq": "月",
+      "version": "v1.4",
+      "status": "on",
+      "refs": 12,
+      "numerator": "Σ住院总费用",
+      "denominator": "出院病例数"
+    },
+    {
+      "name": "医保外费用占比",
+      "group": "钱",
+      "domain": "费用与支付",
+      "source": "local",
+      "tier": "pct",
+      "freq": "季",
+      "version": "v1.0",
+      "status": "review",
+      "refs": 3,
+      "numerator": "Σ医保外费用",
+      "denominator": "Σ住院总费用"
+    },
+    {
+      "name": "CMI值",
+      "group": "效",
+      "domain": "病组结构",
+      "source": "national",
+      "tier": "anon",
+      "freq": "月",
+      "version": "v1.2",
+      "status": "on",
+      "refs": 11,
+      "numerator": "Σ(病组权重 × 病例数)",
+      "denominator": "总病例数"
+    },
+    {
+      "name": "费用消耗指数",
+      "group": "效",
+      "domain": "效率指数",
+      "source": "national",
+      "tier": "pct",
+      "freq": "月",
+      "version": "v1.0",
+      "status": "on",
+      "refs": 9,
+      "numerator": "Σ(本院例均 ÷ 全市例均 × 病例数)",
+      "denominator": "总病例数"
+    },
+    {
+      "name": "时间消耗指数",
+      "group": "效",
+      "domain": "效率指数",
+      "source": "national",
+      "tier": "pct",
+      "freq": "月",
+      "version": "v1.0",
+      "status": "on",
+      "refs": 9,
+      "numerator": "Σ(本院住院日 ÷ 全市住院日 × 病例数)",
+      "denominator": "总病例数"
+    },
+    {
+      "name": "床日付费例均费用",
+      "group": "效",
+      "domain": "床日付费",
+      "source": "local",
+      "tier": "pct",
+      "freq": "月",
+      "version": "v0.8",
+      "status": "draft",
+      "refs": 0,
+      "numerator": "Σ床日费用",
+      "denominator": "床日数"
+    },
+    {
+      "name": "结算清单质控率",
+      "group": "错",
+      "domain": "编码质量",
+      "source": "local",
+      "tier": "named",
+      "freq": "月",
+      "version": "v1.3",
+      "status": "on",
+      "refs": 8,
+      "numerator": "质控通过清单数",
+      "denominator": "上传清单数"
+    },
+    {
+      "name": "14天再住院率",
+      "group": "错",
+      "domain": "医疗质量",
+      "source": "local",
+      "tier": "pct",
+      "freq": "季",
+      "version": "v0.9",
+      "status": "hold",
+      "refs": 2,
+      "numerator": "14天内非计划再住院人次",
+      "denominator": "出院人次"
+    },
+    {
+      "name": "异地就医基金支出占比",
+      "group": "钱",
+      "domain": "异地就医",
+      "source": "national",
+      "tier": "pct",
+      "freq": "季",
+      "version": "v1.0",
+      "status": "on",
+      "refs": 5,
+      "numerator": "Σ异地就医基金支出",
+      "denominator": "Σ统筹基金支出"
+    },
+    {
+      "name": "中医优势病种例均费用",
+      "group": "钱",
+      "domain": "专病专项",
+      "source": "local",
+      "tier": "pct",
+      "freq": "季",
+      "version": "v1.1",
+      "status": "on",
+      "refs": 2,
+      "numerator": "Σ中医优势病种费用",
+      "denominator": "病例数"
+    },
+    {
+      "name": "单病例费用明细",
+      "group": "错",
+      "domain": "稽核明细",
+      "source": "internal",
+      "tier": "none",
+      "freq": "月",
+      "version": "v1.0",
+      "status": "on",
+      "refs": 0,
+      "numerator": "—",
+      "denominator": "—"
+    },
+    {
+      "name": "参保人就医轨迹",
+      "group": "错",
+      "domain": "稽核明细",
+      "source": "internal",
+      "tier": "none",
+      "freq": "月",
+      "version": "v1.0",
+      "status": "on",
+      "refs": 0,
+      "numerator": "—",
+      "denominator": "—"
+    }
+  ],
+  "versionHistory": {
+    "latest": {
+      "date": "2026-07-02",
+      "author": "李华",
+      "note": "同级分组由四档调整为五档"
+    },
+    "previous": {
+      "date": "2026-03-15",
+      "note": "小样本阈值 3 → 5 家,经召集人审批"
+    }
+  },
+  "audiences": [
+    "市三级",
+    "县三级",
+    "二级",
+    "一级",
+    "县区医保",
+    "专家组",
+    "省级汇总"
+  ],
+  "wizard": {
+    "name": "术前平均住院日",
+    "draftVersion": "v0.1",
+    "group": "效 · 地方增选",
+    "approver": "陈志远(召集人)",
+    "approvalNo": "ZB-2026-0917",
+    "tiers": [
+      {
+        "id": "pct",
+        "name": "匿名分位",
+        "desc": "机构仅见本院在同级中的分位",
+        "tag": "默认"
+      },
+      {
+        "id": "anon",
+        "name": "匿名编号",
+        "desc": "如“三级医院A”,不具名横比",
+        "tag": "需审批"
+      },
+      {
+        "id": "named",
+        "name": "具名PK与排行",
+        "desc": "显示机构名称与名次",
+        "tag": "需审批"
+      }
+    ],
+    "previewOrgs": [
+      "第一人民医院(市三级)",
+      "甲县人民医院(县三级)",
+      "召集人全量"
+    ]
+  }
+}

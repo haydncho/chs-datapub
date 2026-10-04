@@ -1,0 +1,33 @@
+{
+  "draft": "核对稿 · BR25 脑缺血性疾患专题 v3",
+  "title": "请确认本院相关数据",
+  "subtitle": "发布前核对 · 仅本院可见 · 截止 10-06 18:00",
+  "remainingDays": 2,
+  "footnote": "逾期未确认视为无异议 · 有差异的项将生成意见单进入医保局受理",
+  "items": [
+    {
+      "id": "cases",
+      "label": "BR25 本院病例数",
+      "value": "286 例",
+      "reference": "HIS 统计 286 例"
+    },
+    {
+      "id": "fundDiff",
+      "label": "BR25 例均基金差额",
+      "value": "+2,140 元",
+      "reference": ""
+    },
+    {
+      "id": "comorbidity",
+      "label": "BR25 合并症编码率",
+      "value": "74%",
+      "reference": ""
+    },
+    {
+      "id": "los",
+      "label": "BR25 平均住院日",
+      "value": "11.6 天",
+      "reference": ""
+    }
+  ]
+}

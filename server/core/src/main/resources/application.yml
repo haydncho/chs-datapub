@@ -1,0 +1,29 @@
+server:
+  port: ${PORT:8080}
+spring:
+  application:
+    name: yb-core
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/ybdata}
+    username: ${DB_USER:ybdata}
+    password: ${DB_PASSWORD:ybdata}
+  flyway:
+    enabled: true
+  jackson:
+    default-property-inclusion: non_null
+yb:
+  analytics-url: ${ANALYTICS_URL:http://localhost:8090}
+  seed-overwrite: ${SEED_OVERWRITE:false}
+  auth:
+    # HMAC-SHA256 key for session tokens (>= 32 bytes); blank = random per process
+    secret: ${YB_AUTH_SECRET:}
+    # accept X-YB-User / per-page demo identity without a bearer token (set false in production)
+    dev-header: ${YB_AUTH_DEV_HEADER:true}
+    ttl: 8h
+    sms-cooldown: 60s
+    demo-sms-code: ${YB_AUTH_DEMO_SMS_CODE:123456}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,102 @@
+{
+  "subtitle": "非本统筹区参保患者 · 2026年8月 · 来源:省平台异地结算回流",
+  "kpis": [
+    {
+      "label": "区域外患者",
+      "value": "506 人次",
+      "sub": "占本院出院 14.8%",
+      "tone": "info",
+      "icon": "users"
+    },
+    {
+      "label": "医保记账",
+      "value": "812 万",
+      "sub": "异地结算",
+      "tone": "info",
+      "icon": "coin"
+    },
+    {
+      "label": "省内 / 省外",
+      "value": "92% / 8%",
+      "sub": "本省为主",
+      "tone": "ok",
+      "icon": "map"
+    },
+    {
+      "label": "次均费用差",
+      "value": "+6.4%",
+      "sub": "高于本地患者",
+      "tone": "warn",
+      "icon": "trend"
+    }
+  ],
+  "sources": [
+    {
+      "name": "甲县",
+      "count": 186,
+      "group": "county"
+    },
+    {
+      "name": "乙县",
+      "count": 142,
+      "group": "county"
+    },
+    {
+      "name": "邻市",
+      "count": 98,
+      "group": "city"
+    },
+    {
+      "name": "省会市",
+      "count": 41,
+      "group": "city"
+    },
+    {
+      "name": "外省 A",
+      "count": 22,
+      "group": "province"
+    },
+    {
+      "name": "其他",
+      "count": 17,
+      "group": "other"
+    }
+  ],
+  "drgs": [
+    {
+      "code": "BR25",
+      "name": "脑缺血性疾患",
+      "cases": 64,
+      "offsiteAvg": 15840,
+      "localAvg": 14820
+    },
+    {
+      "code": "ES35",
+      "name": "呼吸系统感染",
+      "cases": 52,
+      "offsiteAvg": 10210,
+      "localAvg": 9640
+    },
+    {
+      "code": "IU29",
+      "name": "骨病及关节病",
+      "cases": 38,
+      "offsiteAvg": 11960,
+      "localAvg": 11020
+    },
+    {
+      "code": "FM19",
+      "name": "经皮心血管操作",
+      "cases": 31,
+      "offsiteAvg": 39100,
+      "localAvg": 38200
+    },
+    {
+      "code": "RE19",
+      "name": "恶性肿瘤化疗",
+      "cases": 27,
+      "offsiteAvg": 7420,
+      "localAvg": 7010
+    }
+  ]
+}

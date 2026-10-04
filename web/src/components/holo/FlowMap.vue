@@ -7,7 +7,7 @@ import type { Offsite } from '@/api/holo'
  * 区域外流向图：左侧“示例市 · 参保地”→ 贝塞尔曲线 → 右侧就医地区；线宽 ∝ 占比（引擎给出），省内蓝、省外橙、其他灰。
  * 只到地区汇总，不出现就医地机构。
  */
-const props = defineProps<{ flows: Offsite['flows']; origin?: string }>()
+const props = defineProps<{ flows: Offsite['flows']; origin?: string; animate?: boolean }>()
 const box = ref<HTMLElement | null>(null)
 const { width } = useElementSize(box)
 const H = 380
@@ -36,6 +36,9 @@ const rows = computed(() =>
         </path>
         <rect :x="endX" :y="f.y - 18" width="6" height="36" rx="2" :fill="f.c" />
       </g>
+    </svg>
+    <svg v-if="width && animate" :width="W" :height="H" class="pointer-events-none absolute inset-0 block" aria-hidden="true" data-ck-flow>
+      <path v-for="f in rows" :key="`fl${f.region}`" :d="f.d" fill="none" :stroke="f.c" stroke-opacity="0.95" style="stroke-width: 2px" stroke-linecap="round" class="ck-flow" />
     </svg>
     <div class="absolute top-[150px] left-0 flex h-20 w-[108px] flex-col items-center justify-center rounded-md bg-primary-solid leading-[1.3] text-white">
       <span class="text-[14px] font-semibold">{{ origin ?? '示例市' }}</span>

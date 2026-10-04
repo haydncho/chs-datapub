@@ -44,6 +44,8 @@
 | | POST | `/benchmark-tiers/{indicator}/change-requests` | `{toTier, reason}`；同一指标已有待审批单 409 |
 | A14 | GET | `/audit/logs?type=&page=&size=` | `{rows, total, todayCount, todayOverreach}`；仅审计员 |
 | | GET | `/audit/trace?wm=` | 未找到 404 |
+| 算法沙盘 | GET | `/indicators/sandbox/combos` | 可试算的原子指标组合 |
+| | POST | `/indicators/sandbox` | `{numerator, denominator, minOrgs, minCases}` → 引擎试算:各同级组分位、抑制判定、各机构明细(仅分析监测区) |
 | 导出 | GET | `/exports/options?scope=A7\|A14` | 导出内容（只读）与可选项 |
 | | POST | `/exports` | `{scope, purpose, validity, times}` → `{watermarkNo}`；审计「导出」 |
 | | GET | `/exports/mine` | 我的导出申请（状态：待审批 / 已批准 / 已驳回 / 已失效 / 已用尽；有效期、剩余次数） |

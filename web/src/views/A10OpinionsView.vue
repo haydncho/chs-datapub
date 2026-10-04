@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { opinionApi } from '@/api'
 import type { Ticket, Tone } from '@/api/types'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import SegTabs from '@/components/shared/SegTabs.vue'
@@ -33,6 +34,8 @@ watch(tab, () => load().catch(notifyError))
 watch(selNo, () => (reply.value = ''))
 
 const tk = computed(() => rows.value.find((r) => r.no === selNo.value))
+const openCount = computed(() => rows.value.filter((r) => r.status !== 'DONE').length)
+const overdueCount = computed(() => rows.value.filter((r) => r.status !== 'DONE' && r.dueTone === 'danger').length)
 const tabItems = computed(() => TABS.map((t) => ({ value: t as string, label: t, count: counts.value[t] ?? 0 })))
 const ST: Record<Ticket['status'], [string, Tone]> = { WAIT: ['待答复', 'warning'], DOING: ['处理中', 'primary'], DONE: ['已答复', 'success'] }
 const isCheck = (t: Ticket) => t.category === '核对期异议'
@@ -66,7 +69,13 @@ const stars = (n: number) => '★'.repeat(n) + '☆'.repeat(5 - n)
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
-    <div class="mt-5 grid grid-cols-[minmax(0,1fr)_320px] items-start gap-3.5">
+    <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="a10-kpis">
+      <KpiCard label="工单总数" :value="String(rows.length)" icon="opinion" tone="primary" desc="本期收到的机构意见" />
+      <KpiCard label="待办理" :value="String(openCount)" icon="clock" tone="warning" desc="含待答复与处理中" />
+      <KpiCard label="已超期" :value="String(overdueCount)" icon="alert" :tone="overdueCount ? 'danger' : 'success'" :desc="overdueCount ? '请优先答复' : '无超期工单'" />
+      <KpiCard label="核对期异议" :value="String(counts['核对期异议'] ?? 0)" icon="check" tone="ai" desc="影响本期发布包定稿" />
+    </div>
+    <div class="mt-3.5 grid grid-cols-[minmax(0,1fr)_320px] items-start gap-3.5">
       <div>
         <SegTabs v-model="tab" :items="tabItems" class="mb-3" data-testid="opinion-tabs" />
         <div class="table-scroll">

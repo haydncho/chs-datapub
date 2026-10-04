@@ -6,6 +6,7 @@ import type { HospitalHolo } from '@/api/holo'
 import BubbleChart from '@/components/holo/BubbleChart.vue'
 import type { ChartBubble } from '@/components/holo/BubbleChart.vue'
 import PercentileBar from '@/components/holo/PercentileBar.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import { pageDef } from '@/lib/nav'
@@ -94,13 +95,20 @@ function goB2(code: string) {
         </div>
       </div>
 
-      <div class="mt-3 grid grid-cols-[minmax(0,1fr)_380px] items-start gap-3">
+      <div class="mt-3 grid grid-cols-4 gap-3.5" data-testid="b1-kpis">
+        <KpiCard label="本院监测病组" :value="String(h.own.length)" unit="个" icon="holo" tone="primary" animate :desc="h.merged ? `另 ${h.merged.count} 个病组并入“其他”` : '全部单列展示'" />
+        <KpiCard label="逆差病组" :value="String(h.own.filter((o) => o.direction === '逆差').length)" unit="个" icon="alert" tone="danger" animate :desc="`结余 ${h.own.filter((o) => o.direction === '结余').length} 个`" />
+        <KpiCard label="记账 vs DRG 偏离" :value="`${h.ledger.direction === '逆差' ? '-' : '+'}${Math.abs(h.ledger.deviationWan).toLocaleString('zh-CN', { maximumFractionDigits: 1 })}万`" icon="money" :tone="h.ledger.direction === '逆差' ? 'danger' : 'success'" small animate :delta="{ text: `${Math.abs(h.ledger.deviationPct)}%`, dir: h.ledger.deviationPct > 0 ? 'up' : 'down', good: h.ledger.direction !== '逆差' }" desc="较 DRG 支付标准" />
+        <KpiCard label="例均基金差额" :value="`${signed(h.ledger.avgDiff)}元`" icon="pct" tone="warning" small :spark="h.trend.map((t) => Math.abs(t.avgDiff))" :desc="`同级 P${h.ledger.diffPct} · 近 6 月`" />
+      </div>
+
+      <div class="mt-3.5 grid grid-cols-[minmax(0,1fr)_380px] items-start gap-3">
         <!-- 本院病组全景 -->
-        <section class="rounded-[10px] border border-line bg-surface px-4 py-3.5">
+        <section class="rounded-2xl border border-line-soft bg-surface px-5 py-4 shadow-card">
           <div class="sect-title">本院病组全景</div>
           <div class="text-[12px] text-ink-muted">彩色为本院病组(红=逆差,绿=结余),灰色为全市同级机构同组均值 · 横轴本院病例数 · 纵轴例均基金差额</div>
           <div class="mt-1.5" data-testid="bubble-chart">
-            <BubbleChart :axis="h.axis" :bubbles="bubbles" :background="background" :selected="sel" :height="400" x-title="本院病例数(例)" @select="sel = $event" />
+            <BubbleChart :axis="h.axis" :bubbles="bubbles" :background="background" :selected="sel" :height="400" x-title="本院病例数(例)" animate @select="sel = $event" />
           </div>
           <div class="mt-1 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[11px] text-ink-sub">
             <span class="flex items-center gap-1"><span class="size-2.5 rounded-full" style="background: var(--c-red-solid)" />本院逆差</span>

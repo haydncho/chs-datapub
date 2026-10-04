@@ -371,6 +371,41 @@ public class IndicatorService {
         return r;
     }
 
+    // ================================================================ 算法沙盘(无状态试算:不落草稿,只读本期预览数据)
+
+    public List<Map<String, Object>> sandboxCombos() {
+        return jdbc.queryForList("select distinct numerator, denominator from ind_preview_value order by numerator, denominator");
+    }
+
+    public record SandboxReq(String numerator, String denominator, Integer minOrgs, Integer minCases) {}
+
+    /** 按给定阈值调用引擎试算,并附各机构明细(分析监测区内部使用,机构不可达)。 */
+    public Map<String, Object> sandbox(SandboxReq req) {
+        int minOrgs = req.minOrgs() == null ? 5 : Math.max(1, Math.min(50, req.minOrgs()));
+        int minCases = req.minCases() == null ? 30 : Math.max(0, Math.min(100000, req.minCases()));
+        Map<String, List<Map<String, Object>>> byGroup = new LinkedHashMap<>();
+        for (PeerGroup g : peerGroups()) byGroup.put(g.name(), new ArrayList<>());
+        jdbc.query("""
+                select o.peer_group, v.org, v.value, v.cases from ind_preview_value v join ind_org o on o.name = v.org
+                where v.numerator = ? and v.denominator = ? order by o.sort""", rs -> {
+            byGroup.get(rs.getString(1)).add(Map.of("org", rs.getString(2), "value", rs.getBigDecimal(3), "cases", rs.getInt(4)));
+        }, req.numerator(), req.denominator());
+        if (byGroup.values().stream().allMatch(List::isEmpty)) throw ApiException.conflict("该原子指标组合本期无可试算数据");
+        List<Map<String, Object>> groups = new ArrayList<>();
+        byGroup.forEach((k, v) -> groups.add(Map.of("name", k, "orgs", v)));
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("viewerOrg", null);
+        body.put("groups", groups);
+        body.put("minOrgs", minOrgs);
+        body.put("minCases", minCases);
+        body.put("internal", false);
+        Map<String, Object> r = new LinkedHashMap<>(engine.post("/v1/indicator/preview", body));
+        r.put("minOrgs", minOrgs);
+        r.put("minCases", minCases);
+        r.put("detail", groups);
+        return r;
+    }
+
     // ================================================================ 提交上线审批
 
     @Transactional

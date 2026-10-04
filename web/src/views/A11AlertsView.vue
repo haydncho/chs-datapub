@@ -3,6 +3,7 @@ import { confirm } from '@/lib/confirm'
 import { computed, onMounted, ref } from 'vue'
 import { alertApi } from '@/api'
 import type { AlertRule, AlertTrigger, Tone } from '@/api/types'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import Tag from '@/components/shared/Tag.vue'
@@ -44,6 +45,8 @@ async function toggle(r: AlertRule, v: boolean) {
   }
 }
 
+const cnt = (st: string) => triggers.value.filter((t) => t.status === st).length
+const hitsSpark = computed(() => rules.value.map((r) => r.hits))
 const receiptText = ref('')
 async function step(kind: 'send' | 'receipt') {
   if (!tr.value) return
@@ -65,8 +68,14 @@ async function step(kind: 'send' | 'receipt') {
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
+    <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="a11-kpis">
+      <KpiCard label="启用规则" :value="String(rules.filter((r) => r.enabled).length)" :unit="`/ ${rules.length} 条`" icon="alert" tone="primary" :spark="hitsSpark" desc="柱高为各规则本期命中" />
+      <KpiCard label="待发出提醒函" :value="String(cnt('GEN'))" icon="doc" tone="warning" desc="核定后发出" />
+      <KpiCard label="已发出 · 待回执" :value="String(cnt('SENT'))" icon="send" tone="ai" desc="机构 10 个工作日内回执" />
+      <KpiCard label="已回执 / 整改 / 销号" :value="`${cnt('RCPT') + cnt('FIX')} / ${cnt('CLOSED')}`" icon="check" tone="success" desc="整改中 + 已回执 / 已销号" small />
+    </div>
 
-    <div class="mt-5 mb-3 border-l-[3px] border-primary pl-[11px] text-[13px] font-semibold text-ink">预警规则</div>
+    <div class="sect-title mt-6 mb-3">预警规则</div>
     <div class="table-scroll">
       <table class="data-table" data-testid="rules">
         <thead><tr><th>规则</th><th>适用范围</th><th>触发条件</th><th>频次</th><th>本期命中</th><th class="text-right">启用</th></tr></thead>

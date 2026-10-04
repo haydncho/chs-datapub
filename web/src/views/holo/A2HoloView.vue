@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { BAND_COLOR, fmt, holoApi, signed, wanText } from '@/api/holo'
 import type { GroupDetail, HoloOverview, HoloPeriod, Offsite } from '@/api/holo'
@@ -7,6 +7,7 @@ import BubbleChart from '@/components/holo/BubbleChart.vue'
 import type { ChartBubble } from '@/components/holo/BubbleChart.vue'
 import FlowMap from '@/components/holo/FlowMap.vue'
 import PercentileBar from '@/components/holo/PercentileBar.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import SegTabs from '@/components/shared/SegTabs.vue'
@@ -149,21 +150,98 @@ function shortcut(kind: string) {
   }
 }
 
+// ---------------------------------------------------------------- 驾驶舱:KPI、巡航、全屏、播报
+const root = ref<HTMLElement | null>(null)
+const fullscreen = ref(false)
+const cruise = ref(false)
+let cruiseTimer = 0
+const now = ref(new Date())
+let clock = 0
+const hhmmss = computed(() => now.value.toLocaleTimeString('zh-CN', { hour12: false }))
+
+const groups = computed(() => pano.value?.groups ?? [])
+const totalCases = computed(() => groups.value.reduce((n, g) => n + g.cases, 0))
+const keyGroups = computed(() => [...groups.value].filter((g) => g.isKey).sort((a, b) => b.totalDiff - a.totalDiff))
+const bandSpark = computed(() => (pano.value?.bands ?? []).map((b) => groups.value.filter((g) => g.band === b.key).length))
+const keySpark = computed(() => keyGroups.value.slice(0, 10).map((g) => Math.abs(g.totalDiff)))
+const caseSpark = computed(() => [...groups.value].sort((a, b) => b.cases - a.cases).slice(0, 12).map((g) => g.cases))
+const status = computed(() => ov.value?.publication.status)
+const ticker = computed(() => {
+  const out: string[] = []
+  const k = keyGroups.value[0]
+  if (k) out.push(`逆差最大病组 ${k.code} ${k.shortName}:例均差额 ${signed(k.avgDiff)} 元,病例 ${fmt(k.cases)} 例`)
+  if (pano.value) out.push(`关键少数病组 ${pano.value.keyCount} 个,合计逆差 ${wanText(pano.value.keyDeficitWan)}`)
+  const c = ov.value?.publication.counts
+  if (c) out.push(`公开状态:${c.np} 项该公开未公开 · ${c.low} 项发了没人看 · ${c.cmt} 项意见集中未答复`)
+  if (status.value) out.push(`最近期次 ${status.value.latest} · 签收率 ${status.value.signPct}% · 查阅率 ${status.value.readPct}% · 答复率 ${status.value.replyPct}%(${status.value.overdue} 条超期)`)
+  return out
+})
+
+function startCruise() {
+  window.clearInterval(cruiseTimer)
+  if (!cruise.value) return
+  let i = Math.max(0, keyGroups.value.findIndex((g) => g.code === sel.value))
+  cruiseTimer = window.setInterval(() => {
+    if (!keyGroups.value.length) return
+    i = (i + 1) % keyGroups.value.length
+    select(keyGroups.value[i].code)
+  }, 6000)
+}
+watch(cruise, startCruise)
+async function toggleFullscreen() {
+  if (document.fullscreenElement) await document.exitFullscreen()
+  else await root.value?.requestFullscreen?.()
+}
+const onFs = () => (fullscreen.value = !!document.fullscreenElement)
+onMounted(() => {
+  document.addEventListener('fullscreenchange', onFs)
+  clock = window.setInterval(() => (now.value = new Date()), 1000)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('fullscreenchange', onFs)
+  window.clearInterval(cruiseTimer)
+  window.clearInterval(clock)
+})
+
 const mainSub = computed(() => (layer.value === 'out' && off.value ? `按地区汇总 · 来源:${off.value.source}` : TITLES[layer.value][1]))
 const isBubbleLayer = computed(() => layer.value === 'money' || layer.value === 'eff' || layer.value === 'err')
 </script>
 
 <template>
-  <div class="px-10 pt-[22px] pb-9">
-    <PageHeader :page="page" title="医保数据公开全息图" />
+  <div ref="root" class="cockpit ck-root min-h-[calc(100dvh-var(--shell-top,0px))] px-8 pt-[22px] pb-4" data-testid="cockpit" :data-fullscreen="fullscreen">
+    <PageHeader :page="page" title="医保数据公开全息图">
+      <template #actions>
+        <span class="mr-1 hidden items-center gap-2 text-[12px] text-ink-sub xl:flex"><i class="ck-live" />实时监测 <b class="font-mono text-ink tabular-nums" data-testid="ck-clock">{{ hhmmss }}</b></span>
+        <button
+          type="button"
+          class="cursor-pointer rounded-lg border px-3 py-[7px] text-[12px] transition-colors"
+          :class="cruise ? 'border-primary bg-primary-tint text-primary' : 'border-line bg-surface text-ink-sub hover:bg-hover'"
+          :aria-pressed="cruise"
+          data-testid="cruise-btn"
+          @click="cruise = !cruise"
+        >{{ cruise ? '■ 停止巡航' : '▶ 关键病组巡航' }}</button>
+        <button type="button" class="cursor-pointer rounded-lg border border-line bg-surface px-3 py-[7px] text-[12px] text-ink-sub transition-colors hover:bg-hover" data-testid="fullscreen-btn" @click="toggleFullscreen">
+          {{ fullscreen ? '退出全屏' : '大屏模式' }}
+        </button>
+      </template>
+    </PageHeader>
 
     <div v-if="error" class="mt-5 rounded-[10px] border border-line bg-surface px-6 py-10 text-center text-[13px] text-ink-muted">
       全息图加载失败:{{ error }} <button type="button" class="ml-2 cursor-pointer text-primary" @click="load">重试</button>
     </div>
 
     <template v-else>
+      <div class="mt-5 grid grid-cols-6 gap-3" data-testid="ck-kpis">
+        <KpiCard class="ck-rise" label="监测病组" :value="String(groups.length)" unit="个" icon="holo" tone="primary" :spark="bandSpark" animate :desc="ov?.periodLabel ?? ''" />
+        <KpiCard class="ck-rise" style="animation-delay: 60ms" label="关键少数病组" :value="String(pano?.keyCount ?? 0)" unit="个" icon="alert" tone="danger" :spark="keySpark" animate desc="逆差集中,优先下钻" />
+        <KpiCard class="ck-rise" style="animation-delay: 120ms" label="关键少数合计逆差" :value="pano ? wanText(pano.keyDeficitWan) : '—'" icon="money" tone="warning" :spark="keySpark" spark-type="line" animate small desc="按差额总额汇总" />
+        <KpiCard class="ck-rise" style="animation-delay: 180ms" label="结算病例" :value="fmt(totalCases)" unit="例" icon="bed" tone="ai" :spark="caseSpark" animate desc="全部监测病组合计" />
+        <KpiCard class="ck-rise" style="animation-delay: 240ms" label="发布签收率" :value="status ? `${status.signPct}%` : '—'" icon="send" tone="success" animate :desc="status ? `查阅率 ${status.readPct}%` : ''" />
+        <KpiCard class="ck-rise" style="animation-delay: 300ms" label="意见答复率" :value="status ? `${status.replyPct}%` : '—'" icon="opinion" :tone="status && status.replyPct < 60 ? 'danger' : 'primary'" animate :desc="status ? `${status.opinions} 条意见 · ${status.overdue} 条超期` : ''" />
+      </div>
+
       <!-- 层级下钻 + 口径 -->
-      <div class="mt-5 flex items-center gap-3 rounded-[10px] border border-line bg-surface px-3 py-2" data-testid="drill-bar">
+      <div class="mt-5 flex items-center gap-3 ck-card px-3 py-2" data-testid="drill-bar">
         <span class="text-[12px] whitespace-nowrap text-ink-faint">层级下钻</span>
         <div class="flex flex-1 flex-wrap items-center gap-1">
           <template v-for="([lvl, val], i) in drillLevels" :key="lvl">
@@ -187,7 +265,7 @@ const isBubbleLayer = computed(() => layer.value === 'money' || layer.value === 
 
       <div class="mt-3 grid grid-cols-[196px_minmax(0,1fr)_336px] items-start gap-3">
         <!-- 图层 -->
-        <nav class="flex flex-col gap-1.5 rounded-[10px] border border-line bg-surface px-2.5 py-3" data-testid="layers">
+        <nav class="ck-card flex flex-col gap-1.5 px-2.5 py-3" data-testid="layers">
           <div class="px-1 pb-1 text-[13px] font-semibold text-ink">图层</div>
           <button
             v-for="l in LAYERS"
@@ -212,14 +290,14 @@ const isBubbleLayer = computed(() => layer.value === 'money' || layer.value === 
 
         <!-- 主视图 -->
         <div class="flex min-w-0 flex-col gap-3">
-          <section class="rounded-[10px] border border-line bg-surface px-4 py-3.5" data-testid="main-view" :data-layer="layer">
+          <section class="ck-card px-4 py-3.5" data-testid="main-view" :data-layer="layer">
             <div class="sect-title" data-testid="main-title">{{ TITLES[layer][0] }}</div>
             <div class="mt-0.5 text-[12px] text-ink-muted">{{ mainSub }}</div>
 
             <!-- 气泡全景（钱 / 效 / 错） -->
             <template v-if="isBubbleLayer">
               <div v-if="pano" class="mt-1.5" data-testid="bubble-chart">
-                <BubbleChart :axis="pano.axis" :bubbles="bubbles" :selected="sel" :height="430" x-title="病例数(例)" @select="select" />
+                <BubbleChart :axis="pano.axis" :bubbles="bubbles" :selected="sel" :height="430" x-title="病例数(例)" animate @select="select" />
               </div>
               <div v-else class="mt-1.5 h-[430px] animate-pulse rounded-lg bg-subtle" />
               <div v-if="pano" class="mt-2.5 flex flex-wrap items-center gap-x-3.5 gap-y-1.5 border-t border-divider pt-2.5 text-[11px] text-ink-sub">
@@ -241,7 +319,7 @@ const isBubbleLayer = computed(() => layer.value === 'money' || layer.value === 
             <!-- 区域外 -->
             <template v-else-if="layer === 'out'">
               <div v-if="off" class="mt-2.5 flex flex-col gap-3.5">
-                <FlowMap :flows="off.flows" />
+                <FlowMap :flows="off.flows" animate />
                 <div class="grid grid-cols-3 gap-3.5 border-t border-divider pt-3 text-[12px]">
                   <div class="rounded-lg bg-subtle px-3 py-2.5">
                     <div class="text-[11px] text-ink-muted">异地就医基金支出</div>
@@ -302,8 +380,8 @@ const isBubbleLayer = computed(() => layer.value === 'money' || layer.value === 
               v-for="s in ov?.shortcuts ?? []"
               :key="s.kind"
               type="button"
-              class="cursor-pointer rounded-[10px] border bg-surface px-3 py-2.5 text-left transition-colors hover:border-primary"
-              :class="s.kind === 'freq' && focusFreq ? 'border-primary' : 'border-line'"
+              class="ck-card cursor-pointer px-3 py-2.5 text-left transition-all hover:-translate-y-0.5 hover:border-primary"
+              :class="s.kind === 'freq' && focusFreq ? '!border-primary' : ''"
               :aria-pressed="s.kind === 'freq' ? focusFreq : undefined"
               :data-shortcut="s.kind"
               @click="shortcut(s.kind)"
@@ -316,7 +394,7 @@ const isBubbleLayer = computed(() => layer.value === 'money' || layer.value === 
 
         <!-- 右侧：详情 / 机构排名 + 公开状态 -->
         <div class="flex flex-col gap-3">
-          <section v-if="layer !== 'out'" class="flex flex-col gap-3.5 rounded-[10px] border border-line bg-surface px-4 py-3.5" data-testid="detail">
+          <section v-if="layer !== 'out'" class="ck-card flex flex-col gap-3.5 px-4 py-3.5" data-testid="detail">
             <template v-if="det">
               <div>
                 <div class="flex items-center gap-2">
@@ -392,6 +470,10 @@ const isBubbleLayer = computed(() => layer.value === 'money' || layer.value === 
             </div>
           </Panel>
         </div>
+      </div>
+      <div v-if="ticker.length" class="ck-card mt-3 flex items-center gap-3 px-4 py-2 text-[12px] text-ink-sub" data-testid="ck-ticker">
+        <span class="flex flex-none items-center gap-1.5 font-semibold text-primary"><i class="ck-live" />实时播报</span>
+        <div class="ck-ticker min-w-0 flex-1"><div><span v-for="(t, i) in ticker" :key="i">{{ t }}</span></div></div>
       </div>
     </template>
   </div>

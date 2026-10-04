@@ -184,6 +184,18 @@ export const indicatorApi = {
   resetDraft: (id: number) => http.post<WizDraft>(`/indicators/drafts/${id}/reset`),
   preview: (id: number, org: string | null) => http.post<PreviewResult>(`/indicators/drafts/${id}/preview`, { org }),
   submit: (id: number) => http.post<SubmitResult>(`/indicators/drafts/${id}/submit`),
+  sandboxCombos: () => http.get<{ numerator: string; denominator: string }[]>('/indicators/sandbox/combos'),
+  sandbox: (body: { numerator: string; denominator: string; minOrgs: number; minCases: number }) => http.post<SandboxResult>('/indicators/sandbox', body),
+}
+
+/** 算法沙盘试算结果:引擎给出分位与抑制判定,detail 为各机构明细(分析监测区内部)。 */
+export interface SandboxResult {
+  groups: GroupStat[]
+  cityMean: number
+  totalCases: number
+  minOrgs: number
+  minCases: number
+  detail: { name: string; orgs: { org: string; value: number; cases: number }[] }[]
 }
 
 /* ================================================================ A6 智能推荐中心 */

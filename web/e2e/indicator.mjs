@@ -319,12 +319,25 @@ await p.click('[data-tab=pres]')
 await p.waitForSelector('[data-testid=pres]:has-text("推荐:归因瀑布")')
 step('异常:机构仅医保局可见,生成提醒函草稿;呈现推荐')
 
+// 算法沙盘:拖动抑制阈值 → 引擎重新判定被抑制的同级组;机构身份不可达
+await p.goto(BASE + '/a4')
+await p.click('[role=tab]:has-text("算法沙盘")')
+await p.waitForSelector('[data-sb-group]')
+const sup0 = await p.locator('[data-sb-suppressed]').count()
+await p.fill('[data-testid=sb-minorgs-range]', '10')
+await p.waitForFunction((n) => document.querySelectorAll('[data-sb-suppressed]').length > n, sup0, { timeout: 8000 })
+await p.fill('[data-testid=sb-minorgs-range]', '1')
+await p.waitForFunction(() => document.querySelectorAll('[data-sb-suppressed]').length === 0, null, { timeout: 8000 })
+step('算法沙盘:最少机构数 1 → 无抑制;调至 10 → 更多同级组被抑制(引擎试算)')
+
 // 越权：机构身份访问本组接口 → 403
 const m = await session('limin')
 const st = await m.evaluate(async () => {
   const h = { Authorization: `Bearer ${localStorage.getItem('dpub.token')}` }
   return [(await fetch('/api/v1/indicators', { headers: h })).status, (await fetch('/api/v1/recommend/anomalies', { headers: h })).status]
 })
+const sb = await m.evaluate(async () => (await fetch('/api/v1/indicators/sandbox/combos', { headers: { Authorization: `Bearer ${localStorage.getItem('dpub.token')}` } })).status)
+assert.equal(sb, 403)
 assert.deepEqual(st, [403, 403])
 step('机构身份访问 /indicators、/recommend → 403')
 

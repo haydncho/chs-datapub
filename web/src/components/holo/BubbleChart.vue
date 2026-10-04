@@ -33,8 +33,10 @@ const props = withDefaults(
     height?: number
     xTitle: string
     yTitle?: string
+    /** 驾驶舱动效:气泡依次弹出、选中项与关键少数脉冲光环 */
+    animate?: boolean
   }>(),
-  { background: () => [], selected: null, height: 430, yTitle: '例均基金差额(元)' },
+  { background: () => [], selected: null, height: 430, yTitle: '例均基金差额(元)', animate: false },
 )
 const emit = defineEmits<{ select: [id: string] }>()
 
@@ -147,7 +149,16 @@ function onKey(e: KeyboardEvent, id: string) {
           :stroke-width="b.id === selected ? 2 : 1"
           :stroke-dasharray="b.dashed ? '3 2' : undefined"
           class="bubble"
+          :class="animate ? 'ck-bubble-in' : ''"
+          :style="animate ? { animationDelay: `${(ordered.indexOf(b) % 40) * 18}ms` } : undefined"
         />
+      </g>
+
+      <!-- 脉冲光环(驾驶舱动效):独立于可点击气泡,避免动画影响点击目标稳定性 -->
+      <g v-if="animate" pointer-events="none">
+        <template v-for="b in ordered" :key="`pulse${b.id}`">
+          <circle v-if="b.label || b.id === selected" :cx="px(b.cases)" :cy="py(b.diff)" :r="b.r" fill="none" :stroke="b.fill" stroke-width="2" class="ck-pulse" />
+        </template>
       </g>
 
       <!-- 关键少数标注 -->

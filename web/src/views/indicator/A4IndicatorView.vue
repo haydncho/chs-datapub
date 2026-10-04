@@ -5,6 +5,8 @@ import IndicatorDrawer from '@/components/indicator/IndicatorDrawer.vue'
 import IndicatorList from '@/components/indicator/IndicatorList.vue'
 import IndicatorWizard from '@/components/indicator/IndicatorWizard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
+import SegTabs from '@/components/shared/SegTabs.vue'
+import SandboxPanel from '@/components/indicator/SandboxPanel.vue'
 import { pageDef } from '@/lib/nav'
 import { notifyError } from '@/lib/notify'
 
@@ -13,6 +15,7 @@ import { notifyError } from '@/lib/notify'
  */
 const page = pageDef('A4')!
 const mode = ref<'list' | 'wizard'>('list')
+const view = ref<'list' | 'sandbox'>('list')
 const drawerId = ref<number | null>(null)
 const meta = ref<IndMeta | null>(null)
 
@@ -35,8 +38,12 @@ function create() {
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" :title="mode === 'wizard' ? '指标可视化配置 · 新建指标' : undefined" />
-    <div class="mt-5">
-      <IndicatorList v-if="mode === 'list'" @open="drawerId = $event" @create="create" />
+    <div v-if="mode === 'list'" class="mt-5">
+      <SegTabs v-model="view" :items="[{ value: 'list', label: '指标列表' }, { value: 'sandbox', label: '算法沙盘' }]" data-testid="a4-views" />
+    </div>
+    <div class="mt-4">
+      <SandboxPanel v-if="mode === 'list' && view === 'sandbox'" />
+      <IndicatorList v-else-if="mode === 'list'" @open="drawerId = $event" @create="create" />
       <IndicatorWizard v-else-if="meta" :meta="meta" @back="mode = 'list'" />
     </div>
     <IndicatorDrawer :id="drawerId" @close="drawerId = null" />

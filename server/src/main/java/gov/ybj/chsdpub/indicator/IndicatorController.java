@@ -72,6 +72,16 @@ public class IndicatorController {
         return svc.resetDraft(id, CurrentUser.get());
     }
 
+    @GetMapping("/sandbox/combos")
+    public java.util.List<Map<String, Object>> sandboxCombos() {
+        return svc.sandboxCombos();
+    }
+
+    @PostMapping("/sandbox")
+    public Map<String, Object> sandbox(@RequestBody IndicatorService.SandboxReq req) {
+        return svc.sandbox(req);
+    }
+
     public record PreviewReq(String org) {}
 
     @PostMapping("/drafts/{id}/preview")

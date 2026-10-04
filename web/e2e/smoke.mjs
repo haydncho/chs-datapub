@@ -40,7 +40,7 @@ const step = (name) => console.log('✓', name)
 // ---------------------------------------------------------------- 召集人（UKey）
 const c = await session('ca', 'CONVENER')
 assert.match(c.url(), /\/a2$/)
-assert.deepEqual(await navKeys(c), ['A2', 'A3', 'A5', 'A7', 'A6', 'A4', 'A13', 'A9', 'A8', 'A10', 'A11', 'E1'])
+assert.deepEqual(await navKeys(c), ['A2', 'A3', 'A4', 'A6', 'A7', 'A5', 'A8', 'A13', 'A9', 'A10', 'A11', 'E1'])
 await c.goto(BASE + '/a3')
 assert.match(await c.getAttribute('[data-testid=page-watermark]', 'data-text'), /^陈志远 示例市医疗保障局 \d{4}-\d{2}-\d{2} \d{2}:\d{2}$/)
 assert.equal(await c.textContent('[data-testid=zone-tag]'), '分析监测区')

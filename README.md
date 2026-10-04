@@ -98,3 +98,4 @@ cd web && node e2e/holo.mjs               # 各组端到端：holo / indicator /
 `web/e2e/shot.mjs` 可按身份批量截图：`node e2e/shot.mjs ca A3 A7`、`THEME=dark node e2e/shot.mjs suntao A14`。
 
 接口契约见 [docs/api-contract.md](docs/api-contract.md)。
+业务路径与菜单分组见 [docs/business-paths.md](docs/business-paths.md);复盘结论与口径决定见 [docs/review.md](docs/review.md)。

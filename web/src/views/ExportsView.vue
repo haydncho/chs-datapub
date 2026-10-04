@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { exportApi } from '@/api'
 import { getToken } from '@/api/http'
 import type { ExportItem, Tone } from '@/api/types'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import SegTabs from '@/components/shared/SegTabs.vue'
@@ -76,7 +77,13 @@ async function decide(it: ExportItem, ok: boolean) {
 <template>
   <div class="px-10 pt-[22px] pb-9">
     <PageHeader :page="page" />
-    <div v-if="canDecide" class="mt-5"><SegTabs v-model="tab" :items="[{ value: 'mine', label: '我的申请', count: mine.length }, { value: 'pending', label: '待我审批', count: pending.length }]" /></div>
+    <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="e1-kpis">
+      <KpiCard label="我的申请" :value="String(mine.length)" icon="rpt" tone="primary" desc="累计提交的导出申请" />
+      <KpiCard label="待审批" :value="String(mine.filter((x) => x.status === '待审批').length)" icon="clock" tone="warning" desc="等待审批人处理" />
+      <KpiCard label="可下载" :value="String(mine.filter((x) => x.downloadable).length)" icon="check" tone="success" desc="已批准且未过期" />
+      <KpiCard label="待我审批" :value="String(pending.length)" icon="shield" tone="ai" :desc="canDecide ? '他人提交的导出申请' : '本身份无审批职责'" />
+    </div>
+    <div v-if="canDecide" class="mt-3.5"><SegTabs v-model="tab" :items="[{ value: 'mine', label: '我的申请', count: mine.length }, { value: 'pending', label: '待我审批', count: pending.length }]" /></div>
 
     <Panel v-if="tab === 'mine'" class="mt-4" flush>
       <table class="data-table !rounded-none !border-0" data-testid="my-exports">

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { collectionApi } from '@/api'
 import type { CollectionOverview, LineageStep, SourceDetail, Tone } from '@/api/types'
 import Chip from '@/components/shared/Chip.vue'
+import KpiCard from '@/components/shared/KpiCard.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
 import Tag from '@/components/shared/Tag.vue'
@@ -85,6 +86,8 @@ const stepStyle: Record<string, { label: string; cls: string; fg: string }> = {
 }
 
 const statusTone = (s: string): Tone => (s === 'LATE' ? 'danger' : s === 'PART' ? 'warning' : 'success')
+const arrived = computed(() => (ov.value?.sources ?? []).filter((s) => s.status === 'OK').length)
+const scoreSpark = computed(() => (ov.value?.sources ?? []).map((s) => s.score ?? 0))
 const timeliness = computed(() => ov.value?.quality.timelinessPct)
 </script>
 
@@ -105,8 +108,15 @@ const timeliness = computed(() => ov.value?.quality.timelinessPct)
     </div>
 
     <template v-else-if="ov">
+      <div class="mt-5 grid grid-cols-4 gap-3.5" data-testid="a3-kpis">
+        <KpiCard label="数据源按时到数" :value="`${arrived}`" :unit="`/ ${ov.sources.length} 个`" icon="data" :tone="arrived === ov.sources.length ? 'success' : 'warning'" :spark="scoreSpark" :desc="ov.allArrived ? '本期已全部到数' : '尚有数据源未到齐'" />
+        <KpiCard label="数据完整性" :value="`${ov.quality.completenessPct}%`" icon="check" tone="primary" :desc="`一致性 ${ov.quality.consistencyPct}%`" />
+        <KpiCard label="及时性" :value="ov.quality.timelinessPct != null ? `${ov.quality.timelinessPct}%` : '—'" icon="clock" tone="ai" desc="按约定到数日期统计" />
+        <KpiCard label="质量校验" :value="ov.qcDone ? '已完成' : '待校验'" icon="shield" :tone="ov.qcDone ? 'success' : 'warning'" :desc="ov.qcDone ? '可生成月度报告' : '到齐后由行政管理组执行'" small />
+      </div>
+
       <!-- 流水线 -->
-      <Panel :title="ov.title" class="mt-5">
+      <Panel :title="ov.title" icon="data" class="mt-3.5">
         <div class="grid grid-cols-6 gap-2" data-testid="pipeline">
           <div v-for="p in ov.pipeline" :key="p.no" class="rounded-lg border px-3 py-2.5" :class="stepStyle[p.state].cls" :data-state="p.state">
             <div class="flex justify-between text-[11px]" :class="stepStyle[p.state].fg"><span>{{ p.no }}</span><span>{{ stepStyle[p.state].label }}</span></div>

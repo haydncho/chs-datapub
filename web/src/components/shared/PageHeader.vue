@@ -1,20 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
+import StrokeIcon from '@/components/ui/stroke-icon/StrokeIcon.vue'
+import { iconPaths } from '@/lib/icons'
 import type { PageDef } from '@/lib/nav'
 import ExportDialog from './ExportDialog.vue'
 
-/** 刊头式页头:分组小标题(宋体字距)+ 大标题(宋体)+ 说明 + 双线;可导出页面带「导出」(导出审批)。 */
+/** 标题行（睿衡页头）：13px 标题 + 弱化说明 + 右侧操作；可导出页面带「导出」（导出审批）。 */
 defineProps<{ page: PageDef; title?: string }>()
 const exportOpen = ref(false)
 </script>
 
 <template>
-  <div class="mast flex flex-wrap items-end gap-x-6 gap-y-2 pb-3">
+  <div class="flex flex-wrap items-end gap-x-6 gap-y-2 pb-1">
+    <span class="ph-chip flex size-11 flex-none items-center justify-center rounded-2xl text-white"><StrokeIcon :d="iconPaths[page.icon]" :size="21" /></span>
     <div class="min-w-0">
-      <div class="flex items-center gap-2 text-[12px] leading-none tracking-[.24em] text-[#C2371F]"><span class="h-px w-5 bg-[#C2371F]" />{{ page.group }}</div>
-      <h1 class="mt-2 font-display text-[30px] leading-[1.2] font-bold tracking-[.03em] text-ink" data-testid="page-title">{{ title ?? page.label }}</h1>
-      <p class="mt-1.5 text-[13px] leading-[1.6] text-ink-muted">{{ page.summary }}</p>
+      <div class="text-[12px] leading-none text-ink-faint">{{ page.group }}</div>
+      <h1 class="mt-1 text-[22px] leading-[1.25] font-bold tracking-[.01em] text-ink" data-testid="page-title">{{ title ?? page.label }}</h1>
+      <p class="mt-1 text-[13px] leading-[1.5] text-ink-muted">{{ page.summary }}</p>
     </div>
     <div class="ml-auto flex items-center gap-2.5">
       <slot name="actions" />
@@ -25,7 +28,8 @@ const exportOpen = ref(false)
 </template>
 
 <style scoped>
-.mast {
-  border-bottom: 3px double var(--c-text);
+.ph-chip {
+  background: linear-gradient(135deg, var(--c-ic-blue-a), var(--c-ic-blue-b));
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--c-primary) 30%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 </style>

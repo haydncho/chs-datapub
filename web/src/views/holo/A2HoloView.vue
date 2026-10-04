@@ -3,7 +3,6 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { BAND_COLOR, fmt, holoApi, signed, wanText } from '@/api/holo'
 import type { GroupDetail, HoloOverview, HoloPeriod, Offsite } from '@/api/holo'
-import BusinessPath from '@/components/holo/BusinessPath.vue'
 import BubbleChart from '@/components/holo/BubbleChart.vue'
 import type { ChartBubble } from '@/components/holo/BubbleChart.vue'
 import FlowMap from '@/components/holo/FlowMap.vue'
@@ -232,9 +231,7 @@ const isBubbleLayer = computed(() => layer.value === 'money' || layer.value === 
     </div>
 
     <template v-else>
-      <BusinessPath class="mt-5" />
-
-      <div class="mt-3 grid grid-cols-6 gap-3" data-testid="ck-kpis">
+      <div class="mt-5 grid grid-cols-6 gap-3" data-testid="ck-kpis">
         <KpiCard class="ck-rise" label="监测病组" :value="String(groups.length)" unit="个" icon="holo" tone="primary" :spark="bandSpark" animate :desc="ov?.periodLabel ?? ''" />
         <KpiCard class="ck-rise" style="animation-delay: 60ms" label="关键少数病组" :value="String(pano?.keyCount ?? 0)" unit="个" icon="alert" tone="danger" :spark="keySpark" animate desc="逆差集中,优先下钻" />
         <KpiCard class="ck-rise" style="animation-delay: 120ms" label="关键少数合计逆差" :value="pano ? wanText(pano.keyDeficitWan) : '—'" icon="money" tone="warning" :spark="keySpark" spark-type="line" animate small desc="按差额总额汇总" />

@@ -7,5 +7,5 @@ withDefaults(defineProps<{ tone?: Tone }>(), { tone: 'muted' })
 </script>
 
 <template>
-  <span class="inline-flex items-center rounded-[2px] border px-2 py-px text-[11px] leading-[1.6] whitespace-nowrap" :class="toneTag[tone]"><slot /></span>
+  <span class="inline-flex items-center rounded-full border px-2 py-px text-[11px] leading-[1.6] whitespace-nowrap" :class="toneTag[tone]"><slot /></span>
 </template>

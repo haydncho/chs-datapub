@@ -15,86 +15,86 @@
 :root,
 [data-paper] {
   color-scheme: light;
-  --c-primary: #28458F;
-  --c-primary-hover: #1E3673;
-  --c-primary-tint: #EDF0F8;
-  --c-surface: #FFFEFB;
-  --c-app-bg: #F3EFE4;
-  --c-subtle: #F8F5EC;
-  --c-text: #16130F;
-  --c-text-sub: #4A443A;
-  --c-text-muted: #6B6457;
-  --c-text-faint: #857D6C;
-  --c-border: #D9D0BB;
-  --c-border-soft: #E6DFCD;
-  --c-divider: #EDE7D8;
-  --c-hover: #EEE9DA;
+  --c-primary: #2563eb;
+  --c-primary-hover: #1d4ed8;
+  --c-primary-tint: #eff6ff;
+  --c-surface: #ffffff;
+  --c-app-bg: #f4f6fa;
+  --c-subtle: #fafbfc;
+  --c-text: #111827;
+  --c-text-sub: #4b5563;
+  --c-text-muted: #6b7280;
+  --c-text-faint: #7b8494;
+  --c-border: #e2e7ee;
+  --c-border-soft: #e9edf3;
+  --c-divider: #f1f3f5;
+  --c-hover: #f1f5fb;
 
-  --c-danger: #B8321F;
-  --c-warning: #A55F08;
-  --c-success: #2B7A4B;
-  --c-info: #1F6E8C;
-  --c-ai: #6B3E91;
-  --c-ai-deep: #55307A;
-  --c-cyan: #1F7A7A;
+  --c-danger: #b91c1c;
+  --c-warning: #b45309;
+  --c-success: #15803d;
+  --c-info: #0369a1;
+  --c-ai: #7c3aed;
+  --c-ai-deep: #6d28d9;
+  --c-cyan: #0e7490;
 
   /* 语义色的浅底 / 描边 / 浅色块（原先各组件直接写十六进制，统一为令牌） */
-  --c-primary-line: #BFC9E6;
-  --c-danger-soft: #FAECE8;
-  --c-danger-line: #E9C1B8;
-  --c-warning-soft: #FAF0DA;
-  --c-warning-tint: #F3E0B0;
-  --c-warning-line: #E6CD92;
-  --c-success-soft: #E8F2EB;
-  --c-success-tint: #CFE6D8;
-  --c-success-line: #B2D4BF;
-  --c-ai-soft: #F1EBF6;
-  --c-ai-tint: #E6DAF0;
-  --c-ai-line: #D4C2E4;
-  --c-cyan-soft: #E6F3F2;
+  --c-primary-line: #bfdbfe;
+  --c-danger-soft: #fef2f2;
+  --c-danger-line: #fecaca;
+  --c-warning-soft: #fffbeb;
+  --c-warning-tint: #fef3c7;
+  --c-warning-line: #fde68a;
+  --c-success-soft: #f0fdf4;
+  --c-success-tint: #dcfce7;
+  --c-success-line: #bbf7d0;
+  --c-ai-soft: #f5f3ff;
+  --c-ai-tint: #ede9fe;
+  --c-ai-line: #ddd6fe;
+  --c-cyan-soft: #ecfeff;
 
   /* ---- 主题扩展令牌（浅色值 = 原先散落在组件里的十六进制；深色值见 html.dark） ---- */
   /* 实心填充（配白字）：与文字 / 描边用的强调色分开——深色下强调色提亮，填充色仍保证白字对比 */
-  --c-primary-solid: #28458F;
-  --c-primary-solid-hover: #1E3673;
-  --c-ai-solid: #6B3E91;
-  --c-ai-solid-hover: #55307A;
-  --c-danger-solid: #B8321F;
-  --c-danger-solid-hover: #9A2817;
-  --c-success-solid: #2B7A4B;
-  --c-warning-solid: #A55F08;
-  --c-red-solid: #C2371F;
-  --c-muted-solid: #6B6457;
+  --c-primary-solid: #2563eb;
+  --c-primary-solid-hover: #1d4ed8;
+  --c-ai-solid: #7c3aed;
+  --c-ai-solid-hover: #6d28d9;
+  --c-danger-solid: #b91c1c;
+  --c-danger-solid-hover: #991b1b;
+  --c-success-solid: #15803d;
+  --c-warning-solid: #b45309;
+  --c-red-solid: #dc2626;
+  --c-muted-solid: #6b7280;
   /* 浅底上的深色字（语义色 -ink） */
-  --c-primary-ink: #1B2E66;
-  --c-warning-ink: #7A4505;
-  --c-danger-ink: #862214;
-  --c-success-ink: #1D5535;
-  --c-ai-ink: #46286A;
+  --c-primary-ink: #1e3a8a;
+  --c-warning-ink: #92400e;
+  --c-danger-ink: #991b1b;
+  --c-success-ink: #166534;
+  --c-ai-ink: #4c1d95;
   --c-ai-muted: #7c6fae;
   /* 浅底 / 描边变体补充 */
-  --c-primary-soft: #DDE3F3;
-  --c-primary-tint-hover: #E1E6F4;
-  --c-primary-line-strong: #B3BFE0;
-  --c-danger-tint: #F5D9D2;
+  --c-primary-soft: #dbeafe;
+  --c-primary-tint-hover: #dce9fe;
+  --c-primary-line-strong: #c7dbfb;
+  --c-danger-tint: #fee2e2;
   --c-cyan-tint: #cffafe;
   --c-cyan-line: #a5f3fc;
-  --c-field-tint: #F9F7F0;
+  --c-field-tint: #f8fbff;
   --c-ai-faint: #fafaff;
   --c-ai-line-strong: #c4b5fd;
   --c-warning-line-strong: #fcd34d;
-  --c-unread: #F7F5EE;
-  --c-ink-tint: #F1EDE1;
-  --c-chip: #EEE9DB;
+  --c-unread: #f8faff;
+  --c-ink-tint: #f3f5f9;
+  --c-chip: #f3f4f6;
   /* 品牌 / 图标底色渐变（白色图标放其上，两种主题下取值相同） */
-  --c-brand-a: #3A5CB5;
-  --c-brand-b: #1E3673;
+  --c-brand-a: #3b82f6;
+  --c-brand-b: #1d4ed8;
   --c-cyan-solid: #0e7490;
   --c-teal: #0f766e;
   --c-teal-soft: #ecfdf5;
   --c-sky: #0ea5e9;
   /* 登录页：底色 / 光斑 / 输入框描边（蓝底 + 液态玻璃卡片；深色换成深蓝底） */
-  --c-lg-bg: #F3EFE4;
+  --c-lg-bg: #2563eb;
   --c-lg-o1a: #67e8f9;
   --c-lg-o1b: #3b82f6;
   --c-lg-o2a: #c4b5fd;
@@ -110,21 +110,21 @@
   --c-ic-amber-a: #fbbf24;
   --c-ic-amber-b: #d97706;
   /* 中性 */
-  --c-body-bg: #E9E4D6;
-  --c-popover: #FFFEFB;
-  --c-th-bg: #F3EFE3;
-  --c-row-alt: #FCFAF4;
-  --c-row-hover: #F4F0E3;
-  --c-hover-soft: #F6F2E6;
-  --c-hover-strong: #E6E8F3;
-  --c-border-strong: #BDB39B;
-  --c-neutral: #D3CAB5;
-  --c-neutral-2: #C9BFA8;
-  --c-text-body: #322D25;
-  --c-text-ghost: #BDB4A0;
-  --c-glyph: #C7BDA6;
+  --c-body-bg: #eef1f5;
+  --c-popover: #ffffff;
+  --c-th-bg: #f5f7fa;
+  --c-row-alt: #fcfdfe;
+  --c-row-hover: #f3f7fd;
+  --c-hover-soft: #f5f8fd;
+  --c-hover-strong: #e3eeff;
+  --c-border-strong: #cbd5e1;
+  --c-neutral: #d5dbe3;
+  --c-neutral-2: #d1d5db;
+  --c-text-body: #374151;
+  --c-text-ghost: #c4c9d2;
+  --c-glyph: #cbd5e1;
   /* 气泡提示 / toast：浅色为深底白字，深色为比表面更亮一级的抬升面 */
-  --c-tip-bg: #16130F;
+  --c-tip-bg: #111827;
   --c-tip-fg: #ffffff;
   --c-tip-ai: #c4b5fd;
   --c-toast-fg: #f7f8fa;
@@ -135,13 +135,13 @@
   --c-overlay-light: rgba(15, 23, 42, 0.18);
   --c-overlay-mid: rgba(15, 23, 42, 0.42);
   /* 图表：series-a 为柱体渐变上端 / 描边色，series-b 为下端浅色；深色下改为「亮色 → 压暗」 */
-  --c-chart-blue: #3A5CB5;
-  --c-chart-red: #C2371F;
+  --c-chart-blue: #3b82f6;
+  --c-chart-red: #dc2626;
   --c-chart-amber: #f59e0b;
   --c-chart-green: #22c55e;
-  --c-chart-ink: #16130F;
-  --c-s-blue-a: #28458F;
-  --c-s-blue-b: #9FB1DD;
+  --c-chart-ink: #111827;
+  --c-s-blue-a: #1d4ed8;
+  --c-s-blue-b: #93c5fd;
   --c-s-cyan-a: #0e7490;
   --c-s-cyan-b: #67e8f9;
   --c-s-violet-a: #6d28d9;
@@ -157,11 +157,11 @@
   --c-bar-neutral-b: #94a3b8;
   --c-bar-light-a: #e2e8f0;
   --c-bar-light-b: #cbd5e1;
-  --c-bar-blue-a: #6F89C9;
-  --c-bar-blue-b: #28458F;
+  --c-bar-blue-a: #60a5fa;
+  --c-bar-blue-b: #2563eb;
   --c-bar-blue-lt-a: #93c5fd;
-  --c-bar-red-a: #E0816F;
-  --c-bar-red-b: #C2371F;
+  --c-bar-red-a: #f87171;
+  --c-bar-red-b: #dc2626;
   --c-chart-amber-dk: #d97706;
   --c-s-cyan-c: #a5f3fc;
   /* 渐变「浅端」的混合底色：浅色为白，深色向暗灰淡出 */
@@ -169,15 +169,15 @@
   /* 文字描边光晕（桑基图标签）：与所在底色一致 */
   --c-halo: #ffffff;
 
-  --sh-card: none;
+  --sh-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.03);
   --shadow-pop: 0 8px 28px rgba(16, 24, 40, 0.12);
-  --r-sm: 2px;
-  --r: 3px;
-  --r-lg: 4px;
-  --font-ui: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --r-sm: 6px;
+  --r: 8px;
+  --r-lg: 10px;
+  --font-ui: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
 
   /* shadcn-vue 主题变量，映射到同一套令牌 */
-  --radius: 4px;
+  --radius: 10px;
   --background: var(--c-app-bg);
   --foreground: var(--c-text);
   --card: var(--c-surface);
@@ -208,25 +208,25 @@
   html.dark,
   .cockpit {
     color-scheme: dark;
-    --c-primary: #97ABE6;
-    --c-primary-hover: #B7C5F0;
+    --c-primary: #60a5fa;
+    --c-primary-hover: #93c5fd;
     --c-primary-tint: rgba(96, 165, 250, 0.12);
-    --c-surface: #171512;
-    --c-app-bg: #0F0E0C;
-    --c-subtle: #13110F;
-    --c-text: #EFEADD;
-    --c-text-sub: #C2BBA9;
-    --c-text-muted: #9B9484;
-    --c-text-faint: #7D7767;
-    --c-border: #2E2A23;
-    --c-border-soft: #25221C;
-    --c-divider: #201D18;
-    --c-hover: #1F1C17;
-    --sh-card: none;
+    --c-surface: #151a22;
+    --c-app-bg: #0d1117;
+    --c-subtle: #11161d;
+    --c-text: #e8ecf2;
+    --c-text-sub: #b4bdcb;
+    --c-text-muted: #8f9aab;
+    --c-text-faint: #6f7b8d;
+    --c-border: #2a3340;
+    --c-border-soft: #232b37;
+    --c-divider: #202733;
+    --c-hover: #1e2633;
+    --sh-card: 0 0 0 1px rgba(255, 255, 255, 0.015), 0 1px 2px rgba(0, 0, 0, 0.35);
 
-    --c-danger: #F08A76;
-    --c-warning: #E5A23C;
-    --c-success: #6FCB92;
+    --c-danger: #f87171;
+    --c-warning: #f59e0b;
+    --c-success: #4ade80;
     --c-info: #38bdf8;
     --c-ai: #a78bfa;
     --c-ai-deep: #c4b5fd;
@@ -246,15 +246,15 @@
     --c-ai-line: rgba(167, 139, 250, 0.38);
     --c-cyan-soft: rgba(34, 211, 238, 0.1);
 
-    --c-primary-solid: #3A5CB5;
-    --c-primary-solid-hover: #4A6DC7;
+    --c-primary-solid: #2563eb;
+    --c-primary-solid-hover: #3b78f0;
     --c-ai-solid: #7c3aed;
     --c-ai-solid-hover: #8b5cf6;
-    --c-danger-solid: #C2371F;
+    --c-danger-solid: #dc2626;
     --c-danger-solid-hover: #ef4444;
     --c-success-solid: #15803d;
     --c-warning-solid: #b45309;
-    --c-red-solid: #D2402A;
+    --c-red-solid: #dc2626;
     --c-muted-solid: #596373;
     --c-primary-ink: #bfdbfe;
     --c-warning-ink: #fcd34d;
@@ -282,22 +282,22 @@
     --c-lg-o2a: #a78bfa;
     --c-lg-o2b: #4f46e5;
     --c-lg-field: rgba(148, 163, 184, 0.34);
-    --c-ink-tint: #1C1915;
-    --c-chip: #221F1A;
-    --c-body-bg: #0B0A09;
-    --c-popover: #1C1915;
-    --c-th-bg: #1B1814;
-    --c-row-alt: #161411;
-    --c-row-hover: #211E18;
+    --c-ink-tint: #1c222c;
+    --c-chip: #1f2630;
+    --c-body-bg: #090c11;
+    --c-popover: #1b212b;
+    --c-th-bg: #1a212c;
+    --c-row-alt: #171d26;
+    --c-row-hover: #1f2a3a;
     --c-hover-soft: #1b2431;
     --c-hover-strong: #23324a;
-    --c-border-strong: #463F34;
+    --c-border-strong: #3b4657;
     --c-neutral: #3a4454;
     --c-neutral-2: #5b6678;
     --c-text-body: #c3ccd8;
     --c-text-ghost: #667286;
     --c-glyph: #667286;
-    --c-tip-bg: #2C2821;
+    --c-tip-bg: #2b3445;
     --c-tip-fg: #eef1f6;
     --c-toast-fg: #e8ecf2;
     --c-code-bg: #0a0e15;
@@ -567,10 +567,7 @@ html[data-accent="green"] [data-paper] {
   --radius-sm: var(--r-sm);
   --radius-md: var(--r);
   --radius-lg: var(--r-lg);
-  --radius-xl: 4px;
-  --radius-2xl: 4px;
-  --radius-3xl: 6px;
-  --font-display: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", "SimSun", Georgia, serif;
+  --radius-xl: 12px;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -742,8 +739,8 @@ html.theme-fade *::after {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    border: 1px solid var(--c-border-strong);
-    border-radius: 0;
+    border: 1px solid var(--c-border);
+    border-radius: 12px;
     background: var(--c-surface);
     font-size: 13px;
     font-variant-numeric: tabular-nums;
@@ -758,15 +755,15 @@ html.theme-fade *::after {
     height: 22px;
     /* 原型无 border-box 重置：22px 为内容高度（Tailwind preflight 会改成含内边距） */
     box-sizing: content-box;
-    border-top: 2px solid var(--c-text);
-    border-bottom: 1px solid var(--c-border-strong);
-    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--c-border);
     white-space: nowrap;
     text-align: left;
     padding-left: 8px;
     padding-right: 8px;
   }
-    .data-table th:first-child,
+  .data-table thead th:first-child { border-top-left-radius: 10px; }
+  .data-table thead th:last-child { border-top-right-radius: 10px; }
+  .data-table th:first-child,
   .data-table td:first-child { padding-left: 14px; }
   .data-table th:last-child,
   .data-table td:last-child { padding-right: 14px; }
@@ -792,6 +789,8 @@ html.theme-fade *::after {
     -webkit-overflow-scrolling: touch;
   }
   .data-table tbody tr[data-on="true"] td { background: var(--c-primary-tint); }
+  .data-table tbody tr:last-child td:first-child { border-bottom-left-radius: 10px; }
+  .data-table tbody tr:last-child td:last-child { border-bottom-right-radius: 10px; }
 
   /* 可点击行（下拉、列表） */
   .row-hover {
@@ -806,18 +805,17 @@ html.theme-fade *::after {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-family: var(--font-display);
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
     color: var(--c-text);
   }
   .sect-title::before {
     content: "";
-    width: 4px;
+    width: 3px;
     height: 14px;
-    background: #C2371F;
-    border-radius: 0;
+    background: var(--c-primary);
+    border-radius: 2px;
     flex: none;
   }
 
@@ -934,10 +932,10 @@ html.dark .shell-glass {
   position: relative;
   isolation: isolate;
   background:
-    radial-gradient(1200px 520px at 12% -8%, rgba(194, 55, 31, 0.2), transparent 60%),
-    radial-gradient(900px 480px at 92% 4%, rgba(229, 162, 60, 0.12), transparent 62%),
-    radial-gradient(900px 600px at 50% 112%, rgba(58, 92, 181, 0.16), transparent 60%),
-    #0C0B09;
+    radial-gradient(1200px 520px at 12% -8%, rgba(59, 130, 246, 0.22), transparent 60%),
+    radial-gradient(900px 480px at 92% 4%, rgba(139, 92, 246, 0.2), transparent 62%),
+    radial-gradient(900px 600px at 50% 112%, rgba(14, 165, 233, 0.14), transparent 60%),
+    #070b14;
   color: var(--c-text);
 }
 .ck-root::before {
@@ -946,16 +944,16 @@ html.dark .shell-glass {
   inset: 0;
   z-index: -1;
   background-image:
-    linear-gradient(rgba(243, 239, 228, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(243, 239, 228, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 85%);
 }
 .ck-card {
   position: relative;
-  border-radius: 3px;
-  border: 1px solid rgba(243, 239, 228, 0.16);
-  background: linear-gradient(160deg, rgba(30, 27, 22, 0.82), rgba(16, 14, 11, 0.74));
+  border-radius: 16px;
+  border: 1px solid rgba(96, 165, 250, 0.16);
+  background: linear-gradient(160deg, rgba(24, 33, 52, 0.78), rgba(12, 18, 32, 0.7));
   backdrop-filter: blur(14px);
   box-shadow: 0 12px 40px rgba(2, 6, 23, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
@@ -966,20 +964,20 @@ html.dark .shell-glass {
   right: 18px;
   top: -1px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(229, 162, 60, 0.75), transparent);
+  background: linear-gradient(90deg, transparent, rgba(96, 165, 250, 0.7), transparent);
 }
 .ck-root .panel,
 .ck-root .kpi {
   background-image: none;
-  background: linear-gradient(160deg, rgba(30, 27, 22, 0.82), rgba(16, 14, 11, 0.74));
-  border-color: rgba(243, 239, 228, 0.16);
+  background: linear-gradient(160deg, rgba(24, 33, 52, 0.78), rgba(12, 18, 32, 0.7));
+  border-color: rgba(96, 165, 250, 0.16);
   backdrop-filter: blur(14px);
 }
 .ck-root .kpi {
-  background: linear-gradient(160deg, rgba(30, 27, 22, 0.82), rgba(16, 14, 11, 0.74));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--k) 18%, rgba(14, 20, 34, 0.9)) 0%, rgba(12, 18, 32, 0.75) 70%);
 }
 .ck-title {
-  background: linear-gradient(90deg, #F3EFE4, #E5A23C 60%, #E0816F);
+  background: linear-gradient(90deg, #e0ecff, #93c5fd 45%, #c4b5fd);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -1012,7 +1010,7 @@ html.dark .shell-glass {
     height: 120px;
     z-index: -1;
     pointer-events: none;
-    background: linear-gradient(180deg, transparent, rgba(229, 162, 60, 0.06), transparent);
+    background: linear-gradient(180deg, transparent, rgba(96, 165, 250, 0.07), transparent);
     animation: ckScan 9s linear infinite;
   }
   .ck-live {

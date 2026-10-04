@@ -3,7 +3,7 @@ import { useIntervalFn } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import type { Tone } from '@/api/types'
-import { portalReportsApi, type CheckItem, type CheckRound, type MyOpinion, type OpinionRef } from '@/api/portalReports'
+import { portalReportsApi, type AlertLetter, type CheckItem, type CheckRound, type MyOpinion, type OpinionRef } from '@/api/portalReports'
 import Chip from '@/components/shared/Chip.vue'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import Panel from '@/components/shared/Panel.vue'
@@ -15,7 +15,8 @@ import { notify, notifyError } from '@/lib/notify'
 
 /**
  * B5 我的意见与机构核对：核对期倒计时（每秒刷新，截止后视为确认）+ 逐项确认 / 有异议；
- * 提交意见必须关联具体指标或报告段落、说明必填（前后端都校验）；查看答复并五星评价（流程 1）。
+ * 提交意见必须关联具体指标或报告段落、说明必填（前后端都校验）；查看答复并五星评价（流程 1）；
+ * 收到的预警提醒函在此提交回执（流程 5：10 个工作日内，原因分析与整改措施必填）。
  */
 const page = pageDef('B5')!
 const route = useRoute()
@@ -24,6 +25,8 @@ const round = ref<CheckRound | null>(null)
 const refs = ref<OpinionRef[]>([])
 const cats = ref<string[]>([])
 const mine = ref<MyOpinion[]>([])
+const letters = ref<AlertLetter[]>([])
+const receiptText = ref<Record<number, string>>({})
 
 const refId = ref<number | null>(null)
 const cat = ref('数据异议')
@@ -60,6 +63,25 @@ function setRound(r: CheckRound | null) {
 async function loadRound() {
   setRound((await portalReportsApi.check()).round)
 }
+async function loadLetters() {
+  letters.value = await portalReportsApi.alerts()
+}
+async function sendReceipt(l: AlertLetter) {
+  const text = (receiptText.value[l.id] ?? '').trim()
+  if (!text) return notify('请填写回执说明(原因分析与整改措施)')
+  busy.value = true
+  try {
+    const r = await portalReportsApi.alertReceipt(l.id, text)
+    letters.value = letters.value.map((x) => (x.id === r.id ? r : x))
+    notify('回执已提交,医保局可在预警提醒中查看')
+  } catch (e) {
+    notifyError(e)
+  } finally {
+    busy.value = false
+  }
+}
+const LST: Record<AlertLetter['status'], Tone> = { SENT: 'warning', RCPT: 'primary', FIX: 'primary', CLOSED: 'success' }
+
 async function loadOpinions() {
   const r = await portalReportsApi.opinions()
   refs.value = r.refs
@@ -69,7 +91,7 @@ async function loadOpinions() {
 
 onMounted(async () => {
   try {
-    await Promise.all([loadRound(), loadOpinions()])
+    await Promise.all([loadRound(), loadOpinions(), loadLetters()])
     // 从 B4「对本报告提意见」进入：预选该报告的第一个段落
     const rid = Number(route.query.report)
     if (rid) refId.value = refs.value.find((x) => x.reportId === rid)?.id ?? null
@@ -171,6 +193,24 @@ async function rate(o: MyOpinion, n: number) {
           </div>
         </div>
       </section>
+
+      <!-- 预警提醒函与回执 -->
+      <Panel v-if="letters.length" title="预警提醒函与回执" sub="收到提醒函后 10 个工作日内提交回执" data-testid="alert-letters">
+        <div v-for="l in letters" :key="l.id" class="border-b border-divider py-2.5 text-[12px] last:border-b-0" :data-letter="l.id">
+          <div class="flex items-center gap-2">
+            <span class="font-medium text-ink">{{ l.rule }}</span>
+            <span class="text-ink-muted">{{ l.group }} · {{ l.period }}</span>
+            <span class="text-warning">{{ l.value }}</span>
+            <Tag class="ml-auto" :tone="LST[l.status]" data-testid="letter-status">{{ l.statusLabel }}</Tag>
+          </div>
+          <div class="mt-0.5 text-[11px] text-ink-faint"><span class="font-mono">{{ l.letterNo }}</span></div>
+          <template v-if="l.canReceipt">
+            <Textarea v-model="receiptText[l.id]" placeholder="填写回执:原因分析与整改措施" class="mt-2 h-[72px] resize-none text-[12px]" maxlength="500" data-testid="receipt-text" />
+            <Button size="sm" class="mt-2" :disabled="busy" data-testid="receipt-submit" @click="sendReceipt(l)">提交回执</Button>
+          </template>
+          <div v-else-if="l.receipt" class="mt-1.5 rounded-lg bg-subtle px-2.5 py-2"><span class="text-ink-muted">本院回执:</span>{{ l.receipt }}</div>
+        </div>
+      </Panel>
 
       <div class="grid grid-cols-2 items-start gap-3">
         <!-- 提交意见 -->

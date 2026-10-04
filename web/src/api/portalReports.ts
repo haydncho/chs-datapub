@@ -3,7 +3,7 @@ import { http } from './http'
 /** 机构门户报告与意见（B4 报告中心 / B5 意见与机构核对 / B6 政策与培训 / D1 移动端）。只返回本院数据。 */
 
 // ---------------------------------------------------------------- B4
-export type ReportStatus = 'SIGN' | 'CHECK' | 'SIGNED' | 'OLD'
+export type ReportStatus = 'SIGN' | 'CHECK' | 'SIGNED' | 'OLD' | 'WITHDRAWN'
 export type ReportKind = '月度报告' | '专题报告' | '体检报告'
 
 export interface PortalReport {
@@ -163,7 +163,23 @@ export interface MobileAlert {
   group: string
 }
 
+/** 医保局发来的预警提醒函;已发函待回执的可提交回执(原因分析与整改措施)。 */
+export interface AlertLetter {
+  id: number
+  letterNo: string
+  rule: string
+  group: string
+  period: string
+  value: string
+  status: 'SENT' | 'RCPT' | 'FIX' | 'CLOSED'
+  statusLabel: string
+  receipt?: string
+  canReceipt: boolean
+}
+
 export const portalReportsApi = {
+  alerts: () => http.get<AlertLetter[]>('/portal/alerts'),
+  alertReceipt: (id: number, text: string) => http.post<AlertLetter>(`/portal/alerts/${id}/receipt`, { text }),
   reports: (kind?: string) => http.get<PortalReport[]>('/portal/reports', { kind }),
   report: (id: number) => http.get<PortalReportDetail>(`/portal/reports/${id}`),
   sign: (id: number) => http.post<PortalReport>(`/portal/reports/${id}/sign`),

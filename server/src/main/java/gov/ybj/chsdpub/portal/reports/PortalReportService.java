@@ -26,7 +26,7 @@ import java.util.Map;
 @Service
 public class PortalReportService {
 
-    public static final String SIGN = "SIGN", CHECK = "CHECK", SIGNED = "SIGNED", OLD = "OLD";
+    public static final String SIGN = "SIGN", CHECK = "CHECK", SIGNED = "SIGNED", OLD = "OLD", WITHDRAWN = "WITHDRAWN";
     public static final List<String> KINDS = List.of("月度报告", "专题报告", "体检报告");
 
     private static final DateTimeFormatter MD = DateTimeFormatter.ofPattern("MM-dd");
@@ -96,6 +96,7 @@ public class PortalReportService {
             throw ApiException.conflict(switch (r.status()) {
                 case CHECK -> "核对稿请在「意见与机构核对」完成核对";
                 case OLD -> "原版本只读保留,不需签收";
+                case WITHDRAWN -> "该报告已撤回,不需签收";
                 default -> "该报告已签收";
             });
         }

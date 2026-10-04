@@ -25,6 +25,7 @@ const ST: Record<ReportStatus, [string, Tone]> = {
   CHECK: ['核对中', 'ai'],
   SIGNED: ['已签收', 'success'],
   OLD: ['已更正', 'muted'],
+  WITHDRAWN: ['已撤回', 'danger'],
 }
 
 const shown = computed(() => rows.value.filter((r) => tab.value === '全部' || r.kind === tab.value))
@@ -52,6 +53,7 @@ const signNote = computed(() => {
   const d = detail.value
   if (!d) return ''
   if (d.status === 'OLD') return '原版本只读保留'
+  if (d.status === 'WITHDRAWN') return '该报告已撤回,仅保留只读,不需签收'
   if (d.status === 'CHECK') return '核对稿:请在 B5 完成核对'
   return `✓ 已签收 · ${d.signedAt ?? ''}`
 })
@@ -106,7 +108,7 @@ const toOpinion = () => detail.value && router.push({ name: 'B5', query: { repor
           @click="selId = r.id"
         >
           <div class="flex justify-between gap-2">
-            <span class="text-[13px] font-medium" :class="r.status === 'OLD' ? 'text-ink-muted' : 'text-ink'">{{ r.title }}</span>
+            <span class="text-[13px] font-medium" :class="r.status === 'OLD' || r.status === 'WITHDRAWN' ? 'text-ink-muted' : 'text-ink'">{{ r.title }}</span>
             <Tag :tone="ST[r.status][1]" class="h-max">{{ ST[r.status][0] }}</Tag>
           </div>
           <div class="mt-0.5 text-[11px] text-ink-faint">{{ r.kind }} · 发布于 {{ r.published }} · {{ r.pages }} 页</div>

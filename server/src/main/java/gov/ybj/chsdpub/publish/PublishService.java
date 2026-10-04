@@ -626,9 +626,11 @@ public class PublishService {
     private String dispatch(FlowRow f, Optional<Map<String, Object>> rel, List<PackageItem> items) {
         boolean withdraw = "撤回".equals(f.action());
         // 更正 / 撤回:原发布版本下尚未归档的机构报告改为只读保留
+        // 更正:原版报告「已更正」(OLD);撤回:原版报告「已撤回」(WITHDRAWN);均只读保留,不再需要签收
         jdbc.update("""
-                update pr_report set status = 'OLD' where status in ('SIGN', 'CHECK', 'SIGNED') and release_id in
-                (select id from pub_release where subject = ? and status in ('SUPERSEDED', 'WITHDRAWN'))""", f.subject());
+                update pr_report set status = ? where status in ('SIGN', 'CHECK', 'SIGNED') and release_id in
+                (select id from pub_release where subject = ? and status in ('SUPERSEDED', 'WITHDRAWN'))""",
+                withdraw ? "WITHDRAWN" : "OLD", f.subject());
         Map<String, Object> cov = coverage(f.scope());
         @SuppressWarnings("unchecked")
         List<String> names = (List<String>) cov.get("names");

@@ -23,11 +23,11 @@ const WM_CELLS = 24
     data-testid="report-paper"
   >
     <div
-      v-if="report.status === 'OLD'"
+      v-if="report.status === 'OLD' || report.status === 'WITHDRAWN'"
       class="absolute top-[18px] right-[-34px] rotate-[35deg] px-10 py-[3px] text-[12px] text-white"
-      style="background: var(--c-muted-solid)"
+      :style="{ background: report.status === 'WITHDRAWN' ? 'var(--c-danger-solid)' : 'var(--c-muted-solid)' }"
       data-testid="corrected-ribbon"
-    >已更正</div>
+    >{{ report.status === 'WITHDRAWN' ? '已撤回' : '已更正' }}</div>
     <div class="text-[11px] text-ink-faint" data-testid="paper-header">{{ report.header }}</div>
     <div class="mt-3.5 text-[20px] leading-[1.4] font-semibold">{{ report.title }}</div>
     <div class="mt-3 mb-4 h-px bg-primary" />

@@ -2,6 +2,7 @@
 //   闭环 1  A4 提交指标上线审批 → A8 召集人驳回(意见必填)→ A4 显示驳回意见并重新提交 → A8 批准 → 指标已上线 + A13 登记档位
 //   闭环 2  A5 生成报告 → A8 提交 → 召集人批准 → 执行定向发布 → B4 机构签收 → 签收数回写 → 意见申诉 → 答复整改 → 归档
 //   闭环 3  A6 生成提醒函 → A11 出现待发出触发记录 → 发出提醒函 → 登记机构回执 → A6 同步显示进度
+//   补充    机构在 B5 提交预警回执(A11 同步);A8 撤回已发布版本 → B4 显示「已撤回」
 import { chromium } from 'playwright'
 import assert from 'node:assert/strict'
 
@@ -235,6 +236,47 @@ assert.match(await text(L, '[data-anomaly="5"] [data-testid=alert-status]'), /A1
 await L.click('[data-anomaly="1"] [data-act=letter]')
 await toast(L, '关联 A11 已有触发记录')
 step('A6 生成提醒函 → A11 待发出 → 发出 → 回执;A6 同步显示进度;已有记录不重复建')
+
+// ================================================================ 补充 1:机构端提交预警回执(B5)
+await P.goto(BASE + '/b5')
+await P.waitForSelector('[data-testid=alert-letters]')
+const letterRow = P.locator('[data-letter]').first()
+assert.match(await letterRow.textContent(), /医保外费用占比 · 同级分位/)
+assert.equal((await letterRow.locator('[data-testid=letter-status]').textContent()).trim(), '待回执')
+await P.click('[data-testid=receipt-submit]')
+await toast(P, '请填写回执说明')
+const lid = Number(await letterRow.getAttribute('data-letter'))
+assert.equal((await api(P, 'POST', `/portal/alerts/${lid}/receipt`, { text: '  ' })).status, 400, '服务端同样校验必填')
+await P.fill('[data-testid=receipt-text]', '已组织医保办与药学部分析,主要原因为自费耗材使用增加,下月起执行耗材使用审批。')
+await P.click('[data-testid=receipt-submit]')
+await toast(P, '回执已提交')
+assert.equal((await letterRow.locator('[data-testid=letter-status]').textContent()).trim(), '已回执')
+assert.equal((await api(P, 'POST', `/portal/alerts/${lid}/receipt`, { text: '重复' })).status, 409, '已回执不能重复提交')
+await L.goto(BASE + '/a11')
+const arow = L.locator('[data-testid=triggers] tbody tr', { hasText: '示例市第一人民医院' }).first()
+await arow.click()
+assert.match(await arow.textContent(), /已回执/)
+await L.waitForSelector('text=回执摘要:已组织医保办与药学部分析')
+step('机构在 B5 提交预警回执(必填、不可重复),A11 同步显示已回执与回执摘要')
+
+// ================================================================ 补充 2:撤回 → B4 显示「已撤回」
+const corr = await api(L, 'POST', `/publish/flows/${fid}/corrections`, { action: '撤回', reason: '发布包中指标口径有误,撤回后重发' })
+assert.equal(corr.status, 200, JSON.stringify(corr.body))
+const wid = corr.body.id
+assert.equal((await api(L, 'POST', `/publish/flows/${wid}/submit`)).status, 200)
+assert.equal((await api(L, 'POST', `/publish/flows/${wid}/submit`)).status, 200)
+assert.equal((await api(L, 'POST', `/publish/flows/${wid}/approve`, { opinion: '同意' })).status, 403, '行政管理组不能批准撤回')
+assert.equal((await api(C, 'POST', `/publish/flows/${wid}/approve`, { opinion: '同意撤回' })).status, 200)
+assert.equal((await api(L, 'POST', `/publish/flows/${wid}/advance`)).status, 200)
+await P.goto(BASE + '/b4')
+const wrow = P.locator('[data-report]', { hasText: '2026年8月 月度运行报告' }).first()
+await wrow.waitFor()
+assert.equal(await wrow.getAttribute('data-status'), 'WITHDRAWN')
+await wrow.click()
+await P.waitForSelector('[data-testid=corrected-ribbon]')
+assert.equal((await text(P, '[data-testid=corrected-ribbon]')), '已撤回')
+assert.equal(await P.locator('[data-testid=sign-btn]').count(), 0, '已撤回的报告不再需要签收')
+step('A8 撤回已发布版本:B4 原报告显示「已撤回」,只读保留,不再需要签收')
 
 await browser.close()
 assert.deepEqual(errors, [], '页面脚本错误:\n' + errors.join('\n'))

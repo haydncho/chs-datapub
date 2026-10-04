@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#F3F5F8;font-family:"PingFang SC","Noto Sans SC","Source Han Sans SC",sans-serif;color:#1D2633;-webkit-font-smoothing:antialiased}*{box-sizing:border-box}a{color:#1F5FBF;text-decoration:none}a:hover{color:#174A96;text-decoration:underline}button,input,textarea{font-family:inherit}</style>
+</helmet>
+<div style="min-width:1280px;min-height:100vh;display:flex;flex-direction:column;font-size:13px;line-height:1.5;font-variant-numeric:tabular-nums;color:#1D2633;background:#F3F5F8">
+  <div style="height:28px;background:#FFF3E0;color:#7A4510;display:flex;align-items:center;justify-content:center;gap:18px;font-size:12px;border-bottom:1px solid #F1D7AE">
+    <span style="font-weight:600">本页数据仅限内部工作使用,禁止截图外传</span>
+    <span style="color:#A3713A">医保专网 · 政务云部署 · 全程留痕审计</span>
+  </div>
+  <div style="height:56px;background:#fff;border-bottom:1px solid #E3E7EE;display:flex;align-items:center;padding:0 20px;gap:12px">
+    <div style="width:30px;height:30px;border-radius:6px;background:#1F5FBF;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px">医</div>
+    <div style="font-size:16px;font-weight:600;letter-spacing:0.5px">医保数据公开定向发布平台</div>
+    <span style="font-size:11px;padding:2px 8px;border-radius:4px;border:1px solid #1F5FBF;color:#1F5FBF">医保专网</span>
+    <sc-if value="{{hasZone}}" hint-placeholder-val="{{true}}">
+      <span style="font-size:11px;padding:2px 8px;border-radius:4px;background:{{zoneBg}};color:{{zoneFg}};font-weight:600">{{zoneName}}</span>
+    </sc-if>
+    <div style="flex:1"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;line-height:1.35">
+      <div style="font-size:13px"><span style="font-weight:600">{{whoName}}</span><span style="color:#5B6676"> · {{whoRole}} · {{whoOrg}}</span></div>
+      <div style="font-size:11px;color:#5B6676">数据范围:{{whoScope}}</div>
+    </div>
+    <div style="width:32px;height:32px;border-radius:50%;background:#E8F0FB;color:#1F5FBF;display:flex;align-items:center;justify-content:center;font-weight:600">{{whoInitial}}</div>
+  </div>
+  <div style="flex:1;display:flex;align-items:flex-start">
+    <aside style="width:212px;flex-shrink:0;background:#fff;border-right:1px solid #E3E7EE;position:sticky;top:0;height:100vh;overflow-y:auto;padding:12px 10px 32px">
+      <div style="font-size:11px;color:#8A94A3;padding:2px 8px 8px">原型导航 · 全部页面</div>
+      <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+        <div style="margin-bottom:8px">
+          <div style="font-size:12px;color:#5B6676;font-weight:600;padding:6px 8px 4px">{{g.t}}</div>
+          <sc-for list="{{g.items}}" as="it" hint-placeholder-count="3">
+            <div onClick="{{it.onClick}}" style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;cursor:pointer;background:{{it.bg}};color:{{it.fg}}" style-hover="background:#F3F6FA">
+              <span style="font-size:11px;width:26px;color:{{it.codeFg}};font-family:ui-monospace,Menlo,monospace">{{it.code}}</span>
+              <span style="flex:1;font-weight:{{it.fw}}">{{it.name}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </aside>
+    <main style="flex:1;min-width:0;padding:14px 20px 48px">
+      <div style="font-size:12px;color:#7A8594;margin-bottom:4px">{{crumb}}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px">
+        <div style="font-size:20px;font-weight:600">{{title}}</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <sc-if value="{{notesClosed}}" hint-placeholder-val="{{false}}">
+            <span onClick="{{showNotesFn}}" style="font-size:12px;color:#1F5FBF;cursor:pointer">显示设计说明</span>
+          </sc-if>
+          <sc-if value="{{canExport}}" hint-placeholder-val="{{false}}">
+            <button onClick="{{openExport}}" style="height:30px;padding:0 14px;border:1px solid #D5DBE3;background:#fff;border-radius:6px;cursor:pointer;font-size:12px;color:#1D2633;white-space:nowrap;flex-shrink:0">导出</button>
+          </sc-if>
+        </div>
+      </div>
+      <sc-if value="{{showNotes}}" hint-placeholder-val="{{true}}">
+        <div style="background:#F7F9FC;border:1px dashed #B9C8E0;border-radius:8px;padding:10px 14px;margin-bottom:14px;display:flex;gap:18px;align-items:flex-start">
+          <div style="font-size:12px;font-weight:600;color:#1F5FBF;white-space:nowrap;padding-top:1px">设计说明</div>
+          <div style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:20px;font-size:12px;color:#3A4556">
+            <div><div style="font-size:11px;color:#8A94A3;margin-bottom:2px">页面目标</div><div style="text-wrap:pretty">{{note.goal}}</div></div>
+            <div><div style="font-size:11px;color:#8A94A3;margin-bottom:2px">关键交互</div>
+              <sc-for list="{{note.ix}}" as="x" hint-placeholder-count="3"><div>· {{x}}</div></sc-for>
+            </div>
+          </div>
+          <span onClick="{{hideNotes}}" style="cursor:pointer;color:#8A94A3;font-size:12px;white-space:nowrap">收起</span>
+        </div>
+      </sc-if>
+<sc-if value="{{isA1}}" hint-placeholder-val="{{true}}">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 460px;background:#fff;border:1px solid #E3E7EE;border-radius:8px;overflow:hidden;min-height:560px">
+  <div style="background:#173E7A;color:#fff;padding:40px 44px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;gap:8px"><span style="font-size:12px;padding:2px 10px;border-radius:4px;border:1px solid #9DB6DD;color:#DCE7F7">医保专网</span><span style="font-size:12px;padding:2px 10px;border-radius:4px;border:1px solid #9DB6DD;color:#DCE7F7">政务云</span></div>
+    <div style="font-size:28px;font-weight:600;margin-top:16px">医保数据公开定向发布平台</div>
+    <div style="font-size:14px;color:#C9D8EE">示例市医疗保障局 · 医保数据工作组</div>
+    <div style="flex:1"></div>
+    <div style="display:grid;grid-template-columns:96px 1fr;gap:10px;font-size:13px;color:#DCE7F7">
+      <span style="color:#9DB6DD">部署环境</span><span>医保专网 / 政务云,无互联网出口</span>
+      <span style="color:#9DB6DD">访问终端</span><span>仅限准入的专网终端</span>
+      <span style="color:#9DB6DD">身份认证</span><span>省医保统一身份认证平台</span>
+    </div>
+    <div style="font-size:12px;color:#9DB6DD;border-top:1px solid #2E5592;padding-top:14px">数据仅限内部工作使用,严禁外传。登录、查阅、导出全程留痕审计。</div>
+  </div>
+  <div style="padding:40px 40px;display:flex;flex-direction:column">
+    <sc-if value="{{a1Login}}" hint-placeholder-val="{{true}}">
+      <div style="font-size:18px;font-weight:600">统一身份认证</div>
+      <div style="font-size:12px;color:#7A8594;margin-top:2px">省医保统一身份认证平台</div>
+      <div style="display:flex;gap:20px;margin-top:20px;border-bottom:1px solid #EEF1F5">
+        <sc-for list="{{a1tabs}}" as="t" hint-placeholder-count="2"><div onClick="{{t.onClick}}" style="padding:8px 2px;border-bottom:2px solid {{t.bd}};color:{{t.fg}};font-weight:{{t.fw}};cursor:pointer">{{t.label}}</div></sc-for>
+      </div>
+      <sc-if value="{{a1Ca}}" hint-placeholder-val="{{true}}">
+        <div style="margin-top:18px;padding:12px 14px;border:1px solid #C9D8EE;background:#F2F6FC;border-radius:6px;font-size:12px">
+          <div style="font-weight:600;color:#1F5FBF">已识别数字证书</div>
+          <div style="margin-top:4px">陈志远 · 示例市医疗保障局</div>
+          <div style="color:#7A8594">颁发:省医保 CA · 有效期至 2027-06-30</div>
+        </div>
+        <div style="font-size:12px;color:#5B6676;margin:16px 0 6px">证书 PIN 码</div>
+        <div style="height:38px;border:1px solid #D5DBE3;border-radius:6px;display:flex;align-items:center;padding:0 12px;letter-spacing:4px">••••••</div>
+      </sc-if>
+      <sc-if value="{{a1Pwd}}" hint-placeholder-val="{{false}}">
+        <div style="font-size:12px;color:#5B6676;margin:18px 0 6px">账号</div>
+        <div style="height:38px;border:1px solid #D5DBE3;border-radius:6px;display:flex;align-items:center;padding:0 12px">chenzhiyuan@ybj.example</div>
+        <div style="font-size:12px;color:#5B6676;margin:12px 0 6px">密码</div>
+        <div style="height:38px;border:1px solid #D5DBE3;border-radius:6px;display:flex;align-items:center;padding:0 12px;letter-spacing:4px">••••••••••</div>
+        <div style="font-size:12px;color:#5B6676;margin:12px 0 6px">短信验证码(发送至登记手机 138****2061)</div>
+        <div style="display:flex;gap:8px"><div style="flex:1;height:38px;border:1px solid #D5DBE3;border-radius:6px;display:flex;align-items:center;padding:0 12px">482 916</div><span style="height:38px;padding:0 14px;border:1px solid #D5DBE3;border-radius:6px;display:flex;align-items:center;color:#8A94A3;font-size:12px">52 秒后重发</span></div>
+      </sc-if>
+      <button onClick="{{a1Next}}" style="margin-top:22px;height:40px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500">登录</button>
+      <div style="flex:1"></div>
+      <div style="display:flex;gap:16px;font-size:11px;color:#5B6676;margin-top:20px">
+        <span><span style="color:#1E8E5A">●</span> 专网地址 10.86.12.47</span><span><span style="color:#1E8E5A">●</span> 终端准入通过</span><span><span style="color:#1E8E5A">●</span> 浏览器版本符合</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{a1Role}}" hint-placeholder-val="{{false}}">
+      <div style="font-size:18px;font-weight:600">选择本次登录身份</div>
+      <div style="font-size:12px;color:#7A8594;margin-top:2px">陈志远 · 该账号绑定 2 个身份,不同身份的数据范围不同</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+        <sc-for list="{{a1roles}}" as="r" hint-placeholder-count="2">
+          <div onClick="{{r.onClick}}" style="padding:14px 16px;border:1.5px solid {{r.bd}};background:{{r.bg}};border-radius:8px;cursor:pointer">
+            <div style="display:flex;justify-content:space-between"><span style="font-weight:600">{{r.role}}</span><span style="font-size:11px;color:#7A8594">{{r.home}}</span></div>
+            <div style="font-size:12px;color:#5B6676;margin-top:2px">{{r.org}}</div>
+            <div style="font-size:12px;margin-top:6px">数据范围:{{r.scope}}</div>
+          </div>
+        </sc-for>
+      </div>
+      <button onClick="{{a1Enter}}" style="margin-top:22px;height:40px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500">进入工作台</button>
+      <span onClick="{{a1Back}}" style="margin-top:12px;font-size:12px;color:#7A8594;cursor:pointer;text-align:center">返回重新认证</span>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{isA3}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:12px">
+  <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-size:14px;font-weight:600">2026年8月 归集流水线</span>
+      <div style="display:flex;gap:8px">
+        <sc-if value="{{a3Late}}" hint-placeholder-val="{{true}}"><button onClick="{{a3Arrive}}" style="height:30px;padding:0 14px;border:1px solid #D5DBE3;background:#fff;border-radius:6px;cursor:pointer;font-size:12px">演示:异地就医数据到达</button></sc-if>
+        <sc-if value="{{a3CanQc}}" hint-placeholder-val="{{false}}"><button onClick="{{a3Qc}}" style="height:30px;padding:0 14px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:12px">完成质量校验</button></sc-if>
+        <sc-if value="{{a3Done}}" hint-placeholder-val="{{false}}"><button onClick="{{goA5}}" style="height:30px;padding:0 14px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:12px">生成月度报告 →</button></sc-if>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px">
+      <sc-for list="{{pipe}}" as="p" hint-placeholder-count="6">
+        <div style="border-radius:6px;padding:10px 12px;background:{{p.bg}};border:1px solid {{p.bd}}">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:{{p.fg}}"><span>{{p.n}}</span><span>{{p.st}}</span></div>
+          <div style="font-weight:600;margin-top:2px">{{p.name}}</div>
+          <div style="font-size:12px;color:#5B6676">{{p.cnt}}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+    <sc-for list="{{srcs}}" as="s" hint-placeholder-count="10">
+      <div onClick="{{s.onClick}}" style="background:#fff;border:1.5px solid {{s.bd}};border-radius:8px;padding:12px;cursor:pointer;display:flex;flex-direction:column;gap:6px">
+        <div style="font-weight:600">{{s.name}}</div>
+        <div style="font-size:11px;color:#5B6676">{{s.prov}}</div>
+        <div style="display:flex;gap:6px;font-size:11px;color:#5B6676"><span style="padding:0 6px;border:1px solid #E3E7EE;border-radius:3px">{{s.mode}}</span><span style="padding:0 6px;border:1px solid #E3E7EE;border-radius:3px">{{s.freq}}</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px">
+          <span style="font-size:11px;padding:1px 6px;border-radius:3px;background:{{s.stBg}};color:{{s.stFg}}">{{s.st}}</span>
+          <span style="font-size:12px;color:#5B6676">质量 <b style="color:{{s.scFg}};font-size:14px">{{s.score}}</b></span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.1fr);gap:12px;align-items:start">
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px">
+      <div style="font-size:14px;font-weight:600">{{a3sel.name}}</div>
+      <div style="font-size:12px;color:#7A8594;margin-bottom:10px">依赖该数据源的指标</div>
+      <sc-for list="{{a3sel.deps}}" as="d" hint-placeholder-count="3">
+        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F1F3F6;font-size:12px"><span>{{d.n}}</span><span style="font-size:11px;padding:1px 6px;border-radius:3px;background:{{d.bg}};color:{{d.fg}}">{{d.st}}</span></div>
+      </sc-for>
+      <sc-if value="{{a3sel.late}}" hint-placeholder-val="{{false}}"><div style="margin-top:10px;padding:8px 10px;border-radius:6px;background:#FDF0E2;color:#7A4510;font-size:12px">应于 09-05 到数,已逾期。依赖指标本期暂缓计算,已通知省平台。</div></sc-if>
+    </div>
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:10px">质量报告</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+        <div style="background:#F7F9FC;border-radius:6px;padding:8px 10px"><div style="font-size:11px;color:#7A8594">完整性</div><div style="font-size:18px;font-weight:600">98.2%</div></div>
+        <div style="background:#F7F9FC;border-radius:6px;padding:8px 10px"><div style="font-size:11px;color:#7A8594">一致性</div><div style="font-size:18px;font-weight:600">96.7%</div></div>
+        <div style="background:#F7F9FC;border-radius:6px;padding:8px 10px"><div style="font-size:11px;color:#7A8594">及时性</div><div style="font-size:18px;font-weight:600;color:{{a3timeFg}}">{{a3time}}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 76px 76px;font-size:11px;color:#7A8594;padding:4px 0;border-bottom:1px solid #EEF1F5"><span>机构</span><span style="text-align:right">合并症编码率</span><span style="text-align:right">清单质控率</span></div>
+      <sc-for list="{{qc}}" as="q" hint-placeholder-count="8">
+        <div style="display:grid;grid-template-columns:1fr 76px 76px;font-size:12px;padding:5px 0;border-bottom:1px solid #F3F5F8"><span>{{q.n}}</span><span style="text-align:right;color:{{q.aFg}}">{{q.a}}</span><span style="text-align:right;color:{{q.bFg}}">{{q.b}}</span></div>
+      </sc-for>
+      <div style="font-size:11px;color:#8A94A3;margin-top:6px">橙色:合并症编码率 &lt; 60% 或质控率 &lt; 95%</div>
+    </div>
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px">
+      <div style="font-size:14px;font-weight:600">血缘查询</div>
+      <div style="font-size:12px;color:#7A8594;margin-bottom:10px">选择指标反查来源</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px"><sc-for list="{{lineChips}}" as="c" hint-placeholder-count="4"><span onClick="{{c.onClick}}" style="padding:3px 10px;border-radius:6px;border:1px solid {{c.bd}};background:{{c.bg}};color:{{c.fg}};cursor:pointer;font-size:12px">{{c.label}}</span></sc-for></div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <sc-for list="{{lineage}}" as="l" hint-placeholder-count="5">
+          <div style="display:flex;gap:10px">
+            <div style="display:flex;flex-direction:column;align-items:center;width:12px"><span style="width:10px;height:10px;border-radius:50%;background:{{l.c}};margin-top:4px"></span><span style="flex:1;width:1.5px;background:#E3E7EE;opacity:{{l.line}}"></span></div>
+            <div style="padding-bottom:12px"><div style="font-size:11px;color:#7A8594">{{l.k}}</div><div style="font-family:ui-monospace,Menlo,monospace;font-size:12px;color:{{l.fg}}">{{l.v}}</div></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{isA5}}" hint-placeholder-val="{{false}}">
+<div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px">
+  <div style="display:flex;gap:24px;padding:0 16px;border-bottom:1px solid #EEF1F5">
+    <sc-for list="{{a5tabs}}" as="t" hint-placeholder-count="2"><div onClick="{{t.onClick}}" style="padding:12px 2px;border-bottom:2px solid {{t.bd}};color:{{t.fg}};font-weight:{{t.fw}};cursor:pointer">{{t.label}}</div></sc-for>
+  </div>
+  <sc-if value="{{a5Lib}}" hint-placeholder-val="{{false}}">
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;padding:16px">
+      <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+        <sc-for list="{{tpls}}" as="t" hint-placeholder-count="10">
+          <div onClick="{{t.onClick}}" style="border:1.5px solid {{t.bd}};background:{{t.bg}};border-radius:8px;padding:12px;cursor:pointer">
+            <div style="font-weight:600">{{t.name}}</div>
+            <div style="font-size:12px;color:#5B6676;margin-top:2px">{{t.use}}</div>
+            <div style="font-size:11px;color:#8A94A3;margin-top:6px">{{t.uses}} 个指标使用</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="border:1px solid #E3E7EE;border-radius:8px;padding:14px;font-size:12px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:14px;font-weight:600">{{tplSel.name}}</div>
+        <div style="display:grid;grid-template-columns:64px 1fr;gap:8px">
+          <span style="color:#7A8594">适用</span><span>{{tplSel.use}}</span>
+          <span style="color:#7A8594">示例指标</span><span>{{tplSel.ex}}</span>
+          <span style="color:#7A8594">适用档位</span><span>{{tplSel.tier}}</span>
+          <span style="color:#7A8594">版本</span><span>v1.2 · 2026-06 更新</span>
+        </div>
+        <div style="padding:8px 10px;border-radius:6px;background:#F7F9FC;color:#5B6676">图表规范:不使用 3D 与渐变;状态色固定为绿=结余/正常、橙=关注、红=逆差/预警。</div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{a5Asm}}" hint-placeholder-val="{{true}}">
+    <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid #EEF1F5;flex-wrap:wrap">
+      <span style="font-size:12px;color:#7A8594">预置模板</span>
+      <sc-for list="{{presets}}" as="c" hint-placeholder-count="5"><span onClick="{{c.onClick}}" style="padding:3px 12px;border-radius:6px;border:1px solid {{c.bd}};background:{{c.bg}};color:{{c.fg}};cursor:pointer;font-size:12px">{{c.label}}</span></sc-for>
+      <div style="flex:1"></div>
+      <button onClick="{{a5Gen}}" style="height:30px;padding:0 14px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:12px">生成报告并提交发布工作流</button>
+    </div>
+    <div style="display:grid;grid-template-columns:240px minmax(0,1fr);min-height:520px">
+      <div style="border-right:1px solid #EEF1F5;padding:12px">
+        <div style="font-size:12px;color:#7A8594;margin-bottom:8px">指标区块 · 拖到右侧或点 +</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <sc-for list="{{blocks}}" as="b" hint-placeholder-count="12">
+            <div draggable="true" onDragStart="{{b.onDrag}}" style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid #E3E7EE;border-radius:6px;cursor:grab;background:#fff;font-size:12px" style-hover="border-color:#1F5FBF">
+              <span style="color:#B3BAC5">⋮⋮</span><span style="flex:1">{{b.name}}</span><span onClick="{{b.add}}" style="color:#1F5FBF;cursor:pointer;font-weight:600">+</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div onDragOver="{{a5Over}}" onDrop="{{a5Drop}}" style="background:#F3F5F8;padding:16px;display:flex;justify-content:center">
+        <div style="width:100%;max-width:620px;background:#fff;border:1px solid #E3E7EE;border-radius:4px;padding:24px 28px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#8A94A3"><span>{{a5preset}} · 2026年8月</span><span>{{canvasN}} 个区块 · 约 {{canvasPages}} 页</span></div>
+          <sc-for list="{{canvas}}" as="c" hint-placeholder-count="6">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px dashed #C9D3E1;border-radius:6px">
+              <span style="font-size:11px;color:#8A94A3;width:20px">{{c.no}}</span>
+              <div style="flex:1"><div style="font-weight:500">{{c.name}}</div><div style="height:{{c.h}};margin-top:6px;background:#F3F6FA;border-radius:3px"></div></div>
+              <span onClick="{{c.up}}" style="cursor:pointer;color:#7A8594">↑</span><span onClick="{{c.del}}" style="cursor:pointer;color:#A62B22">✕</span>
+            </div>
+          </sc-for>
+          <div style="padding:14px;border:1.5px dashed #9DB6DD;border-radius:6px;text-align:center;color:#1F5FBF;font-size:12px">拖放区块到此处</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+<sc-if value="{{isA7}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:12px">
+  <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <span style="font-family:ui-monospace,Menlo,monospace;font-weight:600;color:#1F5FBF">BR25</span><span style="font-weight:600;font-size:15px">脑缺血性疾患,伴并发症 · 2026年第三季度专题</span>
+    <span style="font-size:11px;padding:1px 6px;border-radius:3px;background:#EEF7F1;color:#1E6B45">来自选题推荐 · 已采纳</span>
+    <span style="font-size:11px;color:#7A8594">受控分析环境 · 仅可导出经审核的聚合结果</span>
+    <div style="flex:1"></div>
+    <span style="font-size:12px;color:#5B6676">已审定 {{a7done}}/7 段</span>
+    <button onClick="{{a7Submit}}" style="height:30px;padding:0 14px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:12px">提交机构核对与专家组审核</button>
+  </div>
+  <div style="display:grid;grid-template-columns:200px minmax(0,1fr) 320px;gap:12px;align-items:start">
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:10px">
+      <sc-for list="{{secs}}" as="s" hint-placeholder-count="7">
+        <div onClick="{{s.onClick}}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;background:{{s.bg}};color:{{s.fg}}">
+          <span style="font-size:11px;width:16px;color:#8A94A3">{{s.n}}</span><span style="flex:1;font-weight:{{s.fw}}">{{s.name}}</span><span style="font-size:11px;color:#1E8E5A">{{s.ok}}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:16px 18px;min-height:460px">
+      <div style="font-size:15px;font-weight:600;margin-bottom:12px">{{secTitle}}</div>
+      <sc-if value="{{s0}}" hint-placeholder-val="{{true}}">
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px">
+          <div style="background:#F7F9FC;border-radius:6px;padding:10px 12px"><div style="font-size:11px;color:#7A8594">病例数</div><div style="font-size:20px;font-weight:600">4,262</div><div style="font-size:11px;color:#5B6676">18 家机构收治</div></div>
+          <div style="background:#F7F9FC;border-radius:6px;padding:10px 12px"><div style="font-size:11px;color:#7A8594">次均总费用</div><div style="font-size:20px;font-weight:600">14,200 元</div><div style="font-size:11px;color:#C8372D">同比 +8.4%</div></div>
+          <div style="background:#F7F9FC;border-radius:6px;padding:10px 12px"><div style="font-size:11px;color:#7A8594">例均基金差额</div><div style="font-size:20px;font-weight:600;color:#C8372D">+1,860 元</div><div style="font-size:11px;color:#5B6676">逆差合计 792.7 万</div></div>
+          <div style="background:#F7F9FC;border-radius:6px;padding:10px 12px"><div style="font-size:11px;color:#7A8594">平均住院日</div><div style="font-size:20px;font-weight:600">10.8 天</div><div style="font-size:11px;color:#5B6676">同级中位 9.6 天</div></div>
+        </div>
+        <div style="font-size:12px;color:#5B6676;margin:16px 0 6px">按机构等级分布(病例数)</div>
+        <div style="display:flex;height:22px;border-radius:4px;overflow:hidden;font-size:11px;color:#fff"><span style="width:52%;background:#1F5FBF;padding-left:8px;display:flex;align-items:center">市三级 52%</span><span style="width:23%;background:#5B8FD9;padding-left:8px;display:flex;align-items:center">县三级 23%</span><span style="width:19%;background:#9DBCE9;padding-left:8px;display:flex;align-items:center;color:#1D2633">二级 19%</span><span style="width:6%;background:#C9CFD8"></span></div>
+      </sc-if>
+      <sc-if value="{{s1}}" hint-placeholder-val="{{false}}">
+        <div style="display:grid;grid-template-columns:70px 1fr;gap:8px 10px;align-items:center;font-size:12px">
+          <span>全市</span><div style="display:flex;height:16px;border-radius:3px;overflow:hidden"><span style="width:31%;background:#1F5FBF"></span><span style="width:9%;background:#5B8FD9"></span><span style="width:22%;background:#9DBCE9"></span><span style="width:18%;background:#7A8594"></span><span style="width:20%;background:#C9CFD8"></span></div>
+          <span>标杆组</span><div style="display:flex;height:16px;border-radius:3px;overflow:hidden"><span style="width:24%;background:#1F5FBF"></span><span style="width:7%;background:#5B8FD9"></span><span style="width:20%;background:#9DBCE9"></span><span style="width:24%;background:#7A8594"></span><span style="width:25%;background:#C9CFD8"></span></div>
+          <span>偏离组</span><div style="display:flex;height:16px;border-radius:3px;overflow:hidden"><span style="width:33%;background:#1F5FBF"></span><span style="width:11%;background:#5B8FD9"></span><span style="width:25%;background:#9DBCE9"></span><span style="width:15%;background:#7A8594"></span><span style="width:16%;background:#C9CFD8"></span></div>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px;color:#5B6676;margin-top:10px"><span><span style="color:#1F5FBF">■</span> 药品</span><span><span style="color:#5B8FD9">■</span> 耗材</span><span><span style="color:#9DBCE9">■</span> 检查检验</span><span><span style="color:#7A8594">■</span> 治疗</span><span><span style="color:#C9CFD8">■</span> 护理及其他</span></div>
+      </sc-if>
+      <sc-if value="{{s2}}" hint-placeholder-val="{{false}}">
+        <div style="display:grid;grid-template-columns:minmax(0,1.6fr) 80px 110px 110px 70px;gap:10px;padding:8px 10px;background:#F7F9FC;border-radius:6px;font-size:12px;color:#5B6676"><span>行为变量</span><span style="text-align:right">发生率</span><span style="text-align:right">有该行为次均</span><span style="text-align:right">无该行为次均</span><span style="text-align:right">费用倍率</span></div>
+        <sc-for list="{{beh}}" as="b" hint-placeholder-count="5">
+          <div style="display:grid;grid-template-columns:minmax(0,1.6fr) 80px 110px 110px 70px;gap:10px;padding:9px 10px;border-bottom:1px solid #F1F3F6;font-size:12px"><span>{{b.n}}</span><span style="text-align:right">{{b.r}}</span><span style="text-align:right">{{b.a}}</span><span style="text-align:right">{{b.b}}</span><span style="text-align:right;color:{{b.fg}};font-weight:600">×{{b.m}}</span></div>
+        </sc-for>
+      </sc-if>
+      <sc-if value="{{s3}}" hint-placeholder-val="{{false}}">
+        <div style="font-size:12px;color:#5B6676;margin-bottom:8px">偏离组与全市例均费用差 4,860 元的拆分(元)</div>
+        <div style="position:relative;height:280px;border-bottom:1px solid #D5DBE3;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding:0 20px">
+          <sc-for list="{{wf}}" as="w" hint-placeholder-count="4">
+            <div style="position:relative">
+              <div style="position:absolute;left:0;right:0;bottom:{{w.b}}%;height:{{w.h}}%;background:{{w.c}};border-radius:2px"></div>
+              <div style="position:absolute;left:0;right:0;bottom:calc({{w.b}}% + {{w.h}}% + 4px);text-align:center;font-size:12px;font-weight:600">{{w.v}}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;padding:6px 20px 0;font-size:12px;color:#5B6676;text-align:center"><span>全市均值</span><span>患者差异</span><span>行为差异</span><span>偏离组均值</span></div>
+        <div style="font-size:12px;color:#3A4556;margin-top:12px">患者差异(年龄、合并症、入院途径)解释 38%;行为差异解释 62%。多层回归 R² = 0.64。</div>
+      </sc-if>
+      <sc-if value="{{s4}}" hint-placeholder-val="{{false}}">
+        <div style="display:grid;grid-template-columns:minmax(0,1.3fr) 1fr 1fr 1fr;gap:10px;padding:8px 10px;background:#F7F9FC;border-radius:6px;font-size:12px;color:#5B6676"><span>指标</span><span style="text-align:right">标杆组(4 家)</span><span style="text-align:right">偏离组(5 家)</span><span style="text-align:right">差距</span></div>
+        <sc-for list="{{benchT}}" as="b" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:minmax(0,1.3fr) 1fr 1fr 1fr;gap:10px;padding:9px 10px;border-bottom:1px solid #F1F3F6;font-size:12px"><span>{{b.n}}</span><span style="text-align:right;color:#1E6B45">{{b.a}}</span><span style="text-align:right;color:#C66A12">{{b.b}}</span><span style="text-align:right;font-weight:600">{{b.g}}</span></div>
+        </sc-for>
+        <div style="font-size:11px;color:#8A94A3;margin-top:8px">机构以匿名编号呈现(三级医院A–I);具名版本仅医保局内部可见</div>
+      </sc-if>
+      <sc-if value="{{s5}}" hint-placeholder-val="{{false}}">
+        <div style="padding:10px 12px;border-radius:6px;background:#FFF4E5;color:#7A4510;font-size:12px;margin-bottom:14px">理论测算结果,<b>不作为控费指标下达</b>,仅用于机构自我对照与医保侧规则评估。</div>
+        <div style="font-size:12px;color:#7A8594">理论优化空间(年化)</div>
+        <div style="font-size:30px;font-weight:600">约 1,286 万元</div>
+        <div style="font-size:12px;color:#5B6676;margin-top:4px">= (偏离组例均费用 − 标杆组例均费用)× 行为差异占比 × 偏离组年病例数</div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px">
+          <div style="border:1px solid #E3E7EE;border-radius:6px;padding:10px"><div style="font-size:11px;color:#7A8594">重复检查</div><div style="font-weight:600">约 412 万</div></div>
+          <div style="border:1px solid #E3E7EE;border-radius:6px;padding:10px"><div style="font-size:11px;color:#7A8594">辅助用药</div><div style="font-weight:600">约 368 万</div></div>
+          <div style="border:1px solid #E3E7EE;border-radius:6px;padding:10px"><div style="font-size:11px;color:#7A8594">住院日延长</div><div style="font-weight:600">约 506 万</div></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{s6}}" hint-placeholder-val="{{false}}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+          <div style="border:1px solid #E3E7EE;border-radius:8px;padding:12px"><div style="font-weight:600;margin-bottom:6px;color:#1F5FBF">医保侧</div><div>1. 评估 BR25 与 BR21/BR23 分组边界,复核合并症权重</div><div>2. 将“入院72小时内重复检查”纳入智能审核提示规则</div><div>3. 对偏离组机构开展病案编码专项质控</div></div>
+          <div style="border:1px solid #E3E7EE;border-radius:8px;padding:12px"><div style="font-weight:600;margin-bottom:6px;color:#1E6B45">医院侧</div><div>1. 建立院内检查结果互认,减少入院重复检查</div><div>2. 规范辅助用药目录与处方点评</div><div>3. 推进早期康复介入,缩短平均住院日</div></div>
+        </div>
+      </sc-if>
+    </div>
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:600">文稿区</span>
+        <sc-if value="{{secPending}}" hint-placeholder-val="{{true}}"><span style="font-size:10px;padding:1px 6px;border-radius:3px;background:#FDF0E2;color:#9A520F">大模型初稿 · 待人工审定</span></sc-if>
+        <sc-if value="{{secOk}}" hint-placeholder-val="{{false}}"><span style="font-size:10px;padding:1px 6px;border-radius:3px;background:#EEF7F1;color:#1E6B45">已人工审定</span></sc-if>
+      </div>
+      <div style="font-size:13px;line-height:1.8;color:#1D2633;padding:10px 12px;border:1px solid #E3E7EE;border-radius:6px;background:#FAFBFC;text-wrap:pretty">{{draft}}</div>
+      <div style="display:flex;gap:8px"><button onClick="{{a7Approve}}" style="height:30px;padding:0 14px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:12px">审定本段</button><button onClick="{{a7Regen}}" style="height:30px;padding:0 14px;border:1px solid #D5DBE3;background:#fff;border-radius:6px;cursor:pointer;font-size:12px">重新生成</button></div>
+      <div style="font-size:11px;color:#8A94A3">未审定段落不能进入发布包</div>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{isA9}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:12px">
+  <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <span style="font-size:12px;color:#7A8594">流程模板</span>
+    <sc-for list="{{ftpls}}" as="c" hint-placeholder-count="6"><span onClick="{{c.onClick}}" style="padding:3px 12px;border-radius:6px;border:1px solid {{c.bd}};background:{{c.bg}};color:{{c.fg}};cursor:pointer;font-size:12px">{{c.label}}</span></sc-for>
+    <div style="flex:1"></div>
+    <button onClick="{{a9Pub}}" style="height:30px;padding:0 14px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:12px">保存为新版本</button>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:12px;align-items:start">
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:16px;background-image:radial-gradient(#E3E7EE 1px,transparent 1px);background-size:16px 16px">
+      <div style="font-size:12px;color:#5B6676;margin-bottom:12px">{{ftplName}} · 10 个节点 · 点击节点配置</div>
+      <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:28px 22px">
+        <sc-for list="{{nodes}}" as="n" hint-placeholder-count="10">
+          <div onClick="{{n.onClick}}" style="position:relative;background:{{n.bg}};border:1.5px solid {{n.bd}};border-radius:8px;padding:10px 12px;cursor:pointer">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#8A94A3"><span>节点 {{n.n}}</span><span>{{n.mode}}</span></div>
+            <div style="font-weight:600;margin-top:2px">{{n.name}}</div>
+            <div style="font-size:11px;color:#5B6676;margin-top:2px">{{n.who}}</div>
+            <div style="font-size:11px;color:#5B6676">时限 {{n.days}}</div>
+            <sc-if value="{{n.gate}}" hint-placeholder-val="{{false}}"><span style="position:absolute;top:-9px;right:8px;font-size:10px;padding:0 6px;border-radius:3px;background:#C8372D;color:#fff">必经 · 未批准不外发</span></sc-if>
+            <span style="position:absolute;right:-17px;top:50%;margin-top:-9px;color:#9DB0C8;opacity:{{n.line}}">→</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:16px;font-size:11px;color:#5B6676"><span>↺ 节点 5 驳回 → 节点 3「分析成稿」</span><span>∥ 节点 4 与“机构同步核对”并行</span><span>节点 7、8 由机构处理</span></div>
+    </div>
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;font-size:12px">
+      <div style="font-size:14px;font-weight:600">节点配置 · {{nd.name}}</div>
+      <div><div style="color:#7A8594;margin-bottom:4px">处理人</div><div style="padding:6px 10px;border:1px solid #D5DBE3;border-radius:6px">{{nd.who}}</div></div>
+      <div><div style="color:#7A8594;margin-bottom:4px">处理方式</div><div style="display:flex;gap:6px"><sc-for list="{{ndModes}}" as="c" hint-placeholder-count="3"><span onClick="{{c.onClick}}" style="padding:3px 14px;border-radius:6px;border:1px solid {{c.bd}};background:{{c.bg}};color:{{c.fg}};cursor:pointer">{{c.label}}</span></sc-for></div><div style="color:#8A94A3;margin-top:4px">会签:全部同意才通过 · 或签:任一人处理即可</div></div>
+      <div><div style="color:#7A8594;margin-bottom:4px">处理时限</div><div style="display:flex;align-items:center;gap:8px"><div style="display:flex;align-items:center;border:1px solid #D5DBE3;border-radius:6px;overflow:hidden"><span onClick="{{dDown}}" style="padding:3px 10px;cursor:pointer;border-right:1px solid #D5DBE3">−</span><span style="padding:3px 14px;font-weight:600">{{nd.days}}</span><span onClick="{{dUp}}" style="padding:3px 10px;cursor:pointer;border-left:1px solid #D5DBE3">+</span></div><span>个工作日</span></div></div>
+      <div><div style="color:#7A8594;margin-bottom:4px">超时升级</div><div style="padding:6px 10px;border:1px solid #D5DBE3;border-radius:6px">超时 1 日提醒 → 2 日升级至 {{nd.esc}}</div></div>
+      <sc-if value="{{ndGate}}" hint-placeholder-val="{{false}}"><div style="padding:8px 10px;border-radius:6px;background:#FBE9E7;color:#A62B22">必经节点:不可删除、不可跳过。驳回固定退回“分析成稿”。</div></sc-if>
+      <div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid #EEF1F5"><span onClick="{{a9Del}}" style="color:#A62B22;cursor:pointer">删除节点</span><span style="color:#7A8594">版本记录:v2.3 · 2026-07-01 · 李华</span></div>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{isA10}}" hint-placeholder-val="{{false}}">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:12px;align-items:start">
+  <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px">
+    <div style="display:flex;gap:24px;padding:0 16px;border-bottom:1px solid #EEF1F5"><sc-for list="{{tkTabs}}" as="t" hint-placeholder-count="4"><div onClick="{{t.onClick}}" style="padding:11px 2px;border-bottom:2px solid {{t.bd}};color:{{t.fg}};font-weight:{{t.fw}};cursor:pointer">{{t.label}}</div></sc-for></div>
+    <div style="display:grid;grid-template-columns:96px minmax(0,1.1fr) minmax(0,1.6fr) 84px 76px 64px 60px;gap:10px;padding:8px 16px;background:#F7F9FC;font-size:12px;color:#5B6676"><span>工单号</span><span>机构</span><span>关联指标 / 报告段落</span><span>类别</span><span>承办人</span><span>剩余时限 ↕</span><span>状态</span></div>
+    <sc-for list="{{tkRows}}" as="r" hint-placeholder-count="6">
+      <div onClick="{{r.onClick}}" style="display:grid;grid-template-columns:96px minmax(0,1.1fr) minmax(0,1.6fr) 84px 76px 64px 60px;gap:10px;padding:10px 16px;border-bottom:1px solid #F1F3F6;font-size:12px;cursor:pointer;align-items:center;background:{{r.bg}}">
+        <span style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#5B6676">{{r.no}}</span><span>{{r.org}}</span><span>{{r.ref}}</span>
+        <span style="font-size:11px;padding:1px 6px;border-radius:3px;background:{{r.catBg}};color:{{r.catFg}};text-align:center">{{r.cat}}</span>
+        <span>{{r.owner}}</span><span style="color:{{r.leftFg}}">{{r.left}}</span>
+        <span style="font-size:11px;padding:1px 6px;border-radius:3px;background:{{r.stBg}};color:{{r.stFg}};text-align:center">{{r.st}}</span>
+      </div>
+    </sc-for>
+  </div>
+  <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;font-size:12px">
+    <div><div style="font-size:11px;color:#7A8594;font-family:ui-monospace,Menlo,monospace">{{tk.no}}</div><div style="font-size:14px;font-weight:600">{{tk.org}}</div></div>
+    <sc-if value="{{tk.isCheck}}" hint-placeholder-val="{{false}}"><div style="padding:6px 10px;border-radius:6px;background:#F1ECF9;color:#5B3A99">核对期异议:须在发布前答复,影响本期发布包定稿</div></sc-if>
+    <div style="display:grid;grid-template-columns:64px 1fr;gap:6px"><span style="color:#7A8594">关联</span><span style="color:#1F5FBF">{{tk.ref}}</span><span style="color:#7A8594">类别</span><span>{{tk.cat}}</span><span style="color:#7A8594">承办人</span><span>{{tk.owner}}</span></div>
+    <div style="padding:10px 12px;background:#F7F9FC;border-radius:6px;line-height:1.7">{{tk.text}}</div>
+    <sc-if value="{{tkOpen}}" hint-placeholder-val="{{true}}">
+      <textarea value="{{reply}}" onChange="{{onReply}}" placeholder="填写答复意见" style="width:100%;height:96px;border:1px solid #D5DBE3;border-radius:6px;padding:10px;font-size:12px;resize:none;outline:none"></textarea>
+      <div style="display:flex;gap:8px"><button onClick="{{tkAnswer}}" style="height:30px;padding:0 14px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:12px">答复</button><button onClick="{{tkTransfer}}" style="height:30px;padding:0 14px;border:1px solid #D5DBE3;background:#fff;border-radius:6px;cursor:pointer;font-size:12px">转办</button></div>
+    </sc-if>
+    <sc-if value="{{tkDone}}" hint-placeholder-val="{{false}}">
+      <div style="border-left:2px solid #1E8E5A;padding-left:10px"><div style="color:#7A8594">医保局答复</div><div style="line-height:1.7">{{tkReplyText}}</div></div>
+      <sc-if value="{{tkEvalOld}}" hint-placeholder-val="{{false}}"><div style="display:flex;justify-content:space-between;padding:8px 10px;border-radius:6px;background:#EEF7F1"><span>机构评价</span><span style="color:#1E6B45">满意 ★★★★☆</span></div></sc-if>
+      <sc-if value="{{tkEvalNew}}" hint-placeholder-val="{{false}}"><div style="padding:8px 10px;border-radius:6px;background:#F7F9FC;color:#7A8594">等待机构评价</div></sc-if>
+    </sc-if>
+    <div onClick="{{tkTypical}}" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding-top:8px;border-top:1px solid #EEF1F5"><span style="width:14px;height:14px;border-radius:3px;border:1.5px solid #1F5FBF;display:flex;align-items:center;justify-content:center;font-size:10px;color:#1F5FBF"><sc-if value="{{tk.typ}}" hint-placeholder-val="{{false}}">✓</sc-if></span>设为典型问答(进入下期“常见问答”)</div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{isA11}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:12px">
+  <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px">
+    <div style="padding:12px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #EEF1F5">预警规则</div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.6fr) 44px 80px 50px;gap:10px;padding:8px 16px;background:#F7F9FC;font-size:12px;color:#5B6676"><span>规则</span><span>适用范围</span><span>触发条件</span><span>频次</span><span>本期命中</span><span>启用</span></div>
+    <sc-for list="{{rules}}" as="r" hint-placeholder-count="5">
+      <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.6fr) 44px 80px 50px;gap:10px;padding:9px 16px;border-bottom:1px solid #F1F3F6;font-size:12px;align-items:center;opacity:{{r.op}}"><span style="font-weight:500">{{r.n}}</span><span>{{r.scope}}</span><span style="color:#5B6676">{{r.th}}</span><span>{{r.freq}}</span><span>{{r.hits}} 条</span>
+        <div onClick="{{r.onClick}}" style="width:38px;height:22px;border-radius:11px;background:{{r.swBg}};position:relative;cursor:pointer"><span style="position:absolute;top:2px;left:{{r.swX}};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)"></span></div></div>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:12px;align-items:start">
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px">
+      <div style="padding:12px 16px;font-size:14px;font-weight:600;border-bottom:1px solid #EEF1F5">触发记录</div>
+      <sc-for list="{{trig}}" as="t" hint-placeholder-count="5">
+        <div onClick="{{t.onClick}}" style="display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,1.2fr) 110px;gap:10px;padding:10px 16px;border-bottom:1px solid #F1F3F6;font-size:12px;cursor:pointer;align-items:center;background:{{t.bg}}">
+          <span style="color:#7A8594">{{t.t}}</span>
+          <div><div style="font-weight:500">{{t.org}}</div><div style="color:#7A8594">{{t.grp}}</div></div>
+          <div><div>{{t.rule}}</div><div style="color:#C66A12">{{t.val}}</div></div>
+          <span style="font-size:11px;padding:2px 6px;border-radius:3px;background:{{t.stBg}};color:{{t.stFg}};text-align:center">{{t.st}}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:20px 22px;font-size:12px;line-height:1.8">
+        <div style="text-align:center;font-size:15px;font-weight:600">关于 {{letter.grp}} 相关指标的提醒函</div>
+        <div style="text-align:center;color:#7A8594;margin-bottom:10px">{{letter.no}}</div>
+        <div>{{letter.org}}:</div>
+        <div style="text-indent:2em;text-wrap:pretty">经医保数据工作组监测,贵院 2026年8月 {{letter.grp}} 触发“{{letter.rule}}”规则,监测值为 {{letter.val}}。现予提醒,请贵院对照同级水平分析原因,并于 10 个工作日内通过机构门户提交回执。</div>
+        <div style="text-indent:2em">本提醒函仅用于内部工作沟通,不作为处罚依据。</div>
+        <div style="text-align:right;margin-top:8px">示例市医疗保障局 医保数据工作组</div>
+      </div>
+      <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-weight:600">回执与整改跟踪</span>
+          <sc-if value="{{trGen}}" hint-placeholder-val="{{true}}"><button onClick="{{trSend}}" style="height:28px;padding:0 12px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:12px">发出提醒函</button></sc-if>
+          <sc-if value="{{trSent}}" hint-placeholder-val="{{false}}"><button onClick="{{trRecv}}" style="height:28px;padding:0 12px;border:1px solid #D5DBE3;background:#fff;border-radius:6px;cursor:pointer;font-size:12px">演示:机构回执</button></sc-if>
+        </div>
+        <sc-for list="{{track}}" as="k" hint-placeholder-count="5">
+          <div style="display:flex;gap:10px;font-size:12px;padding:4px 0"><span style="width:10px;height:10px;border-radius:50%;background:{{k.c}};margin-top:4px;flex-shrink:0"></span><div><span style="font-weight:500;color:{{k.fg}}">{{k.n}}</span><span style="color:#8A94A3"> · {{k.d}}</span></div></div>
+        </sc-for>
+        <sc-if value="{{trRcpt}}" hint-placeholder-val="{{false}}"><div style="margin-top:8px;padding:8px 10px;border-radius:6px;background:#F7F9FC;font-size:12px">回执摘要:已组织科室分析,主要原因为高值耗材使用增加,拟于下月起执行耗材使用审批。</div></sc-if>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{isA12}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:12px">
+  <div style="padding:10px 14px;border-radius:8px;background:#FFF4E5;border:1px solid #F1D7AE;font-size:12px;color:#7A4510">三员分立:系统管理员、安全管理员、审计员互不兼任。当前账号为<b>安全管理员</b>,可管理授权,不能查看业务数据,也不能修改审计日志。</div>
+  <div style="display:grid;grid-template-columns:240px minmax(0,1fr);gap:12px;align-items:start">
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:10px 6px">
+      <div style="font-size:13px;font-weight:600;padding:2px 8px 8px">组织树</div>
+      <sc-for list="{{orgs}}" as="o" hint-placeholder-count="14">
+        <div onClick="{{o.onClick}}" style="display:flex;align-items:center;gap:6px;padding:5px 8px;padding-left:{{o.pad}};border-radius:6px;cursor:pointer;background:{{o.bg}};color:{{o.fg}};font-size:12px"><span style="flex:1">{{o.n}}</span><span style="font-size:10px;color:#9A520F">{{o.tag}}</span></div>
+      </sc-for>
+    </div>
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:24px;padding:0 16px;border-bottom:1px solid #EEF1F5"><sc-for list="{{a12tabs}}" as="t" hint-placeholder-count="3"><div onClick="{{t.onClick}}" style="padding:11px 2px;border-bottom:2px solid {{t.bd}};color:{{t.fg}};font-weight:{{t.fw}};cursor:pointer">{{t.label}}</div></sc-for><div style="flex:1"></div><span style="font-size:12px;color:#7A8594">当前组织:{{selOrg}}</span></div>
+      <div style="padding:14px 16px">
+        <sc-if value="{{t12m}}" hint-placeholder-val="{{true}}">
+          <div style="display:grid;grid-template-columns:140px repeat(6,minmax(0,1fr));gap:4px;font-size:12px">
+            <span style="color:#7A8594;padding:6px 4px">角色 \ 权限</span>
+            <sc-for list="{{rcols}}" as="c" hint-placeholder-count="6"><span style="color:#5B6676;padding:6px 4px;text-align:center;font-weight:500">{{c}}</span></sc-for>
+          </div>
+          <sc-for list="{{mrows}}" as="r" hint-placeholder-count="8">
+            <div onClick="{{r.onClick}}" style="display:grid;grid-template-columns:140px repeat(6,minmax(0,1fr));gap:4px;font-size:12px;margin-top:4px;cursor:pointer" style-hover="background:#F7F9FC">
+              <span style="padding:7px 4px;font-weight:500">{{r.r}}</span>
+              <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="6"><span style="padding:7px 4px;text-align:center;border-radius:4px;background:{{c.bg}};color:{{c.fg}};font-weight:500">{{c.c}}</span></sc-for>
+            </div>
+          </sc-for>
+          <div style="font-size:11px;color:#8A94A3;margin-top:10px">点击角色行查看五维配置 · “申请”= 单次审批后生效</div>
+        </sc-if>
+        <sc-if value="{{t12d}}" hint-placeholder-val="{{false}}">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px"><sc-for list="{{roleChips}}" as="c" hint-placeholder-count="8"><span onClick="{{c.onClick}}" style="padding:3px 10px;border-radius:6px;border:1px solid {{c.bd}};background:{{c.bg}};color:{{c.fg}};cursor:pointer;font-size:12px">{{c.label}}</span></sc-for></div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:8px">{{roleName}} · 五个控制维度</div>
+          <sc-for list="{{dims}}" as="d" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:100px 1fr 60px;gap:10px;padding:10px 0;border-bottom:1px solid #F1F3F6;font-size:12px;align-items:center"><span style="color:#5B6676">{{d.k}}</span><span>{{d.v}}</span><span onClick="{{a12Act}}" style="color:#1F5FBF;cursor:pointer;text-align:right">编辑</span></div>
+          </sc-for>
+        </sc-if>
+        <sc-if value="{{t12l}}" hint-placeholder-val="{{false}}">
+          <div style="display:flex;gap:6px;margin-bottom:12px;font-size:12px;align-items:center;flex-wrap:wrap"><span style="padding:3px 10px;border-radius:6px;background:#F1F3F6">开户(机构推荐名单)</span>→<span style="padding:3px 10px;border-radius:6px;background:#F1F3F6">授权</span>→<span style="padding:3px 10px;border-radius:6px;background:#F1F3F6">季度复核</span>→<span style="padding:3px 10px;border-radius:6px;background:#F1F3F6">变更回收</span><span style="margin-left:12px;padding:3px 10px;border-radius:6px;background:#FFF4E5;color:#A35A12">临时授权 · 到期自动失效</span></div>
+          <div style="display:grid;grid-template-columns:70px minmax(0,1.4fr) minmax(0,1fr) 90px minmax(0,1.2fr) 60px;gap:10px;padding:8px 10px;background:#F7F9FC;border-radius:6px;font-size:12px;color:#5B6676"><span>姓名</span><span>组织</span><span>角色</span><span>阶段</span><span>说明</span><span>操作</span></div>
+          <sc-for list="{{accts}}" as="a" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:70px minmax(0,1.4fr) minmax(0,1fr) 90px minmax(0,1.2fr) 60px;gap:10px;padding:10px;border-bottom:1px solid #F1F3F6;font-size:12px;align-items:center"><span style="font-weight:500">{{a.n}}</span><span>{{a.org}}</span><span>{{a.role}}</span><span style="font-size:11px;padding:1px 6px;border-radius:3px;background:{{a.bg}};color:{{a.fg}};text-align:center">{{a.st}}</span><span style="color:#5B6676">{{a.note}}</span><span onClick="{{a12Act}}" style="color:#1F5FBF;cursor:pointer">处理</span></div>
+          </sc-for>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+<sc-if value="{{isA13}}" hint-placeholder-val="{{false}}">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start">
+  <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:16px">
+    <div style="font-size:14px;font-weight:600;margin-bottom:12px">展示策略四象限</div>
+    <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px">
+      <span></span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><span style="text-align:center;font-size:12px;color:#5B6676">数据归属:区域内</span><span style="text-align:center;font-size:12px;color:#5B6676">数据归属:区域外</span></div>
+      <div style="display:grid;grid-template-rows:1fr 1fr;gap:8px"><span style="writing-mode:vertical-rl;font-size:12px;color:#5B6676;display:flex;align-items:center;justify-content:center">查看者:区域内</span><span style="writing-mode:vertical-rl;font-size:12px;color:#5B6676;display:flex;align-items:center;justify-content:center">查看者:区域外</span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(140px,auto);gap:8px">
+        <sc-for list="{{quads}}" as="q" hint-placeholder-count="4">
+          <div onClick="{{q.onClick}}" style="border-radius:8px;padding:14px;background:{{q.bg}};border:2px solid {{q.bd}};cursor:pointer;display:flex;flex-direction:column;gap:6px">
+            <div style="font-weight:600;color:{{q.fg}}">{{q.t}}</div><div style="font-size:12px;color:#3A4556;text-wrap:pretty">{{q.d}}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#8A94A3;margin-top:8px;padding-left:36px">无权查看的数据不渲染</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:10px">策略编辑 · {{qT}}</div>
+      <sc-for list="{{qParams}}" as="p" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:80px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid #F1F3F6;font-size:12px"><span style="color:#5B6676">{{p.k}}</span><span>{{p.v}}</span></div>
+      </sc-for>
+      <sc-if value="{{qNone}}" hint-placeholder-val="{{false}}"><div style="margin-top:10px;padding:8px 10px;border-radius:6px;background:#F0F2F5;color:#5B6676;font-size:12px">固定策略:不提供,不可编辑。</div></sc-if>
+    </div>
+    <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="font-size:14px;font-weight:600">对标三档</span><span style="font-size:11px;color:#7A8594">切换需召集人审批</span></div>
+      <sc-for list="{{tierRows}}" as="r" hint-placeholder-count="6">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F1F3F6;font-size:12px">
+          <span style="flex:1;font-weight:500">{{r.n}}</span>
+          <sc-if value="{{r.pend}}" hint-placeholder-val="{{false}}"><span style="font-size:11px;color:#9A520F">{{r.pendTxt}}</span></sc-if>
+          <div style="display:flex;border:1px solid #D5DBE3;border-radius:6px;overflow:hidden"><sc-for list="{{r.opts}}" as="o" hint-placeholder-count="3"><span onClick="{{o.onClick}}" style="padding:3px 10px;background:{{o.bg}};color:{{o.fg}};cursor:pointer;font-size:11px">{{o.label}}</span></sc-for></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+<sc-if value="{{hasAppr}}" hint-placeholder-val="{{false}}">
+  <div style="position:fixed;inset:0;background:rgba(20,30,45,.35);z-index:80;display:flex;align-items:center;justify-content:center">
+    <div style="width:460px;background:#fff;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.18)">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #EEF1F5"><span style="font-size:15px;font-weight:600">对标档位切换审批申请</span><span onClick="{{apprClose}}" style="cursor:pointer;color:#7A8594;font-size:18px">×</span></div>
+      <div style="padding:16px 18px;display:grid;grid-template-columns:64px 1fr;gap:12px;font-size:12px">
+        <span style="color:#5B6676">指标</span><span style="font-weight:600">{{apprN}}</span>
+        <span style="color:#5B6676">变更</span><span>{{apprFrom}} → <b style="color:#1F5FBF">{{apprTo}}</b></span>
+        <span style="color:#5B6676">理由</span><div style="padding:8px 10px;border:1px solid #D5DBE3;border-radius:6px;min-height:56px;color:#3A4556">经工作组讨论,机构普遍认可该指标口径,拟提高透明度。</div>
+        <span style="color:#5B6676">审批人</span><span>陈志远(召集人)</span>
+      </div>
+      <sc-if value="{{apprNamed}}" hint-placeholder-val="{{false}}"><div style="margin:0 18px;padding:8px 10px;border-radius:6px;background:#FFF4E5;color:#7A4510;font-size:12px">具名PK与排行将向同级机构显示机构名称与名次,请确认已完成机构核对。</div></sc-if>
+      <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 18px"><button onClick="{{apprClose}}" style="height:32px;padding:0 16px;border:1px solid #D5DBE3;background:#fff;border-radius:6px;cursor:pointer">取消</button><button onClick="{{apprSubmit}}" style="height:32px;padding:0 16px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer">提交审批</button></div>
+    </div>
+  </div>
+</sc-if>
+</sc-if>
+<sc-if value="{{isA14}}" hint-placeholder-val="{{false}}">
+<div style="display:flex;flex-direction:column;gap:12px">
+  <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px;padding:14px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <span style="font-weight:600">水印溯源</span>
+    <input value="{{wmq}}" onChange="{{onWmq}}" style="width:240px;height:32px;border:1px solid #D5DBE3;border-radius:6px;padding:0 10px;font-family:ui-monospace,Menlo,monospace;font-size:12px;outline:none">
+    <button onClick="{{trace}}" style="height:32px;padding:0 16px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer;font-size:12px">溯源</button>
+    <span style="font-size:11px;color:#7A8594">输入截图或文件上的水印编号</span>
+    <sc-if value="{{traced}}" hint-placeholder-val="{{false}}">
+      <div style="flex-basis:100%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;padding:10px 12px;border-radius:6px;background:#FFF8EF;border:1px solid #F1D7AE;font-size:12px">
+        <div><div style="color:#7A8594;font-size:11px">操作人</div><b>{{tr.u}}</b></div><div><div style="color:#7A8594;font-size:11px">机构</div>{{tr.org}}</div><div><div style="color:#7A8594;font-size:11px">时间</div>{{tr.t}}</div><div><div style="color:#7A8594;font-size:11px">操作</div>{{tr.ty}}</div><div><div style="color:#7A8594;font-size:11px">对象</div>{{tr.obj}}</div><div><div style="color:#7A8594;font-size:11px">终端</div>{{tr.ip}}</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{traceMiss}}" hint-placeholder-val="{{false}}"><div style="flex-basis:100%;font-size:12px;color:#A62B22">未找到该水印编号</div></sc-if>
+  </div>
+  <div style="background:#fff;border:1px solid #E3E7EE;border-radius:8px">
+    <div style="display:flex;align-items:center;gap:6px;padding:12px 16px;border-bottom:1px solid #EEF1F5;flex-wrap:wrap"><span style="font-size:12px;color:#7A8594;margin-right:4px">操作类型</span><sc-for list="{{ltypes}}" as="c" hint-placeholder-count="7"><span onClick="{{c.onClick}}" style="padding:3px 10px;border-radius:6px;border:1px solid {{c.bd}};background:{{c.bg}};color:{{c.fg}};cursor:pointer;font-size:12px">{{c.label}}</span></sc-for><div style="flex:1"></div><span style="font-size:11px;color:#7A8594">日志只读 · 保存 3 年</span></div>
+    <div style="display:grid;grid-template-columns:88px 90px minmax(0,1.1fr) 70px minmax(0,1.6fr) 100px 140px 70px;gap:10px;padding:8px 16px;background:#F7F9FC;font-size:12px;color:#5B6676"><span>时间 ↓</span><span>用户</span><span>机构</span><span>类型</span><span>对象</span><span>终端 IP</span><span>水印编号</span><span>结果</span></div>
+    <sc-for list="{{logs}}" as="l" hint-placeholder-count="10">
+      <div style="display:grid;grid-template-columns:88px 90px minmax(0,1.1fr) 70px minmax(0,1.6fr) 100px 140px 70px;gap:10px;padding:9px 16px;border-bottom:1px solid #F1F3F6;font-size:12px;align-items:center;background:{{l.bg}}">
+        <span style="color:#5B6676">{{l.t}}</span><span>{{l.u}}</span><span>{{l.org}}</span><span style="font-size:11px;padding:1px 6px;border-radius:3px;background:{{l.tyBg}};color:{{l.tyFg}};text-align:center">{{l.ty}}</span><span>{{l.obj}}</span><span style="font-family:ui-monospace,Menlo,monospace;font-size:11px">{{l.ip}}</span><span style="font-family:ui-monospace,Menlo,monospace;font-size:11px">{{l.wm}}</span><span style="color:{{l.resFg}};font-weight:500">{{l.res}}</span>
+      </div>
+    </sc-for>
+    <div style="display:flex;justify-content:space-between;padding:10px 16px;font-size:12px;color:#5B6676"><span>今日 1,284 条 · 越权尝试 2 条</span><div style="display:flex;gap:4px"><span style="padding:2px 8px;border:1px solid #D5DBE3;border-radius:4px">‹</span><span style="padding:2px 8px;border-radius:4px;background:#1F5FBF;color:#fff">1</span><span style="padding:2px 8px;border:1px solid #D5DBE3;border-radius:4px">2</span><span style="padding:2px 8px;border:1px solid #D5DBE3;border-radius:4px">›</span></div></div>
+  </div>
+</div>
+</sc-if>
+      <div id="pages-end"></div>
+    </main>
+  </div>
+<sc-if value="{{exportOpen}}" hint-placeholder-val="{{false}}">
+  <div style="position:fixed;inset:0;background:rgba(20,30,45,.35);z-index:80;display:flex;align-items:center;justify-content:center">
+    <div style="width:480px;background:#fff;border-radius:8px;box-shadow:0 12px 40px rgba(0,0,0,.18)">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #EEF1F5"><span style="font-size:15px;font-weight:600">导出审批申请</span><span onClick="{{closeExport}}" style="cursor:pointer;color:#7A8594;font-size:18px">×</span></div>
+      <sc-if value="{{exportForm}}" hint-placeholder-val="{{true}}">
+        <div style="padding:16px 18px;display:grid;grid-template-columns:64px 1fr;gap:14px 10px;align-items:center;font-size:12px">
+          <span style="color:#5B6676">导出内容</span><span>{{exWhat}}</span>
+          <span style="color:#5B6676">用途</span><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{exPurp}}" as="c" hint-placeholder-count="3"><span onClick="{{c.onClick}}" style="padding:3px 10px;border-radius:6px;border:1px solid {{c.bd}};background:{{c.bg}};color:{{c.fg}};cursor:pointer">{{c.label}}</span></sc-for></div>
+          <span style="color:#5B6676">有效期</span><div style="display:flex;gap:6px"><sc-for list="{{exDays}}" as="c" hint-placeholder-count="3"><span onClick="{{c.onClick}}" style="padding:3px 10px;border-radius:6px;border:1px solid {{c.bd}};background:{{c.bg}};color:{{c.fg}};cursor:pointer">{{c.label}}</span></sc-for></div>
+          <span style="color:#5B6676">下载次数</span><div style="display:flex;gap:6px"><sc-for list="{{exTimes}}" as="c" hint-placeholder-count="2"><span onClick="{{c.onClick}}" style="padding:3px 10px;border-radius:6px;border:1px solid {{c.bd}};background:{{c.bg}};color:{{c.fg}};cursor:pointer">{{c.label}}</span></sc-for></div>
+        </div>
+        <div style="margin:0 18px;padding:10px 12px;border-radius:6px;background:#FFF4E5;color:#7A4510;font-size:12px">导出文件嵌入实名水印与编号,审批通过后在“我的导出”下载。仅提供专网内下载。</div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 18px"><button onClick="{{closeExport}}" style="height:32px;padding:0 16px;border:1px solid #D5DBE3;background:#fff;border-radius:6px;cursor:pointer">取消</button><button onClick="{{submitExport}}" style="height:32px;padding:0 16px;border:0;background:#1F5FBF;color:#fff;border-radius:6px;cursor:pointer">提交审批</button></div>
+      </sc-if>
+      <sc-if value="{{exportDone}}" hint-placeholder-val="{{false}}">
+        <div style="padding:24px 18px;text-align:center"><div style="font-size:15px;font-weight:600;color:#1E6B45">✓ 已提交导出审批</div><div style="font-size:12px;color:#5B6676;margin-top:6px">水印编号 {{wmNo}} · 审计日志已记录</div></div>
+        <div style="display:flex;justify-content:flex-end;padding:0 18px 14px"><button onClick="{{closeExport}}" style="height:32px;padding:0 16px;border:1px solid #D5DBE3;background:#fff;border-radius:6px;cursor:pointer">关闭</button></div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+  <div id="modals-end"></div>
+  <div style="position:fixed;inset:0;pointer-events:none;z-index:90;display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:150px;overflow:hidden;opacity:{{wmOp}}">
+    <sc-for list="{{wm}}" as="w" hint-placeholder-count="0">
+      <div style="display:flex;align-items:center;justify-content:center"><span style="transform:rotate(-24deg);font-size:13px;color:#1D2633;white-space:nowrap">{{wmText}}</span></div>
+    </sc-for>
+  </div>
+  <sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+    <div style="position:fixed;left:50%;bottom:32px;transform:translateX(-50%);background:#1D2633;color:#fff;padding:9px 18px;border-radius:6px;font-size:13px;z-index:95;box-shadow:0 6px 20px rgba(0,0,0,.2)">{{toast}}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;watermark&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;标准&quot;,&quot;浅&quot;],&quot;default&quot;:&quot;标准&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const FILES={1:'医保数据公开平台 第一批.dc.html',2:'医保数据公开平台 第二批.dc.html',3:'医保数据公开平台 第三批.dc.html'};
+const THIS=2;
+const NAV=[
+{t:'总览',items:[['ia','00','信息架构与导航',1],['ID','F4','身份切换演示',3]]},
+{t:'医保局工作台',items:[['A1','A1','登录与身份',2],['A2','A2','全息图',1],['A3','A3','数据归集中心',2],['A4','A4','指标可视化配置',1],['A5','A5','图表与报告模板',2],['A6','A6','智能推荐中心',1],['A7','A7','病种专题工作台',2],['A8','A8','发布工作流',1],['A9','A9','流程设计器',2],['A10','A10','意见与申诉管理',2],['A11','A11','预警提醒',2],['A12','A12','用户权限管理',2],['A13','A13','展示策略配置',2],['A14','A14','审计日志',2]]},
+{t:'医疗机构门户',items:[['B1','B1','本院全息图',1],['B2','B2','病组下钻与专题',3],['B3','B3','对标与PK',3],['B4','B4','报告中心',3],['B5','B5','意见与机构核对',3],['B6','B6','政策指南与培训',3],['B7','B7','区域外数据',3]]},
+{t:'其他视图',items:[['C1','C1','县区医保视图',3],['C2','C2','省级与区域外汇总',1],['C3','C3','外部监督只读席位',3],['D1','D1','移动端摘要',3]]}];
+const goFile=(f,id)=>{window.location.href=encodeURI(FILES[f])+'#'+id;};
+const soft=on=>({bg:on?'#E8F0FB':'#fff',fg:on?'#1F5FBF':'#3A4556',bd:on?'#1F5FBF':'#D5DBE3'});
+const tab=on=>({fg:on?'#1F5FBF':'#5B6676',bd:on?'#1F5FBF':'transparent',fw:on?600:400});
+const BLUE=['分析监测区','#E8F0FB','#1F5FBF'];
+const WHO={A1:['陈志远','未选择身份','示例市医疗保障局','登录后显示'],A3:['李华','行政管理组','示例市医保经办中心','示例市全域 · 归集监控'],A5:['李华','行政管理组','示例市医保局','示例市全域 · 模板编辑'],A7:['张悦','委托分析团队','某高校卫生经济研究所','受控环境 · 仅导出审核后聚合结果'],A9:['李华','行政管理组','示例市医保局','流程模板配置'],A10:['周婷','行政管理组 · 承办人','示例市医保经办中心','意见工单 · 本人承办'],A11:['李华','行政管理组','示例市医保局','示例市全域 · 预警规则'],A12:['赵强','安全管理员','示例市医保局','用户与授权 · 不可查看业务数据'],A13:['李华','行政管理组','示例市医保局','展示策略 · 档位切换需审批'],A14:['孙涛','审计员','示例市医保局','审计日志只读']};
+const ZONE={A3:BLUE,A5:BLUE,A7:['分析监测区 · 受控分析环境','#E8F0FB','#1F5FBF'],A10:['发布区 · 意见通道','#EAF6EF','#1E6B45'],A11:BLUE,A12:['系统管理','#F1F3F6','#4A5566'],A13:['策略配置','#F1F3F6','#4A5566'],A14:['审计','#F1F3F6','#4A5566']};
+const META={
+A1:['医保局工作台 / 登录','A1 登录与身份',{goal:'通过统一身份认证进入平台,明确本次身份与数据范围。',ix:['数字证书与账号+短信两种认证方式;页面无任何公网元素','同一账号多身份时需选择本次身份','进入工作台后顶部常驻显示角色与数据范围']}],
+A3:['医保局工作台 / 多源归集','A3 数据归集中心',{goal:'监控十类数据源到数与质量,保证指标可算、可追溯。',ix:['点击“演示:异地就医数据到达”,依赖指标由“本期暂缓”恢复;再完成质量校验进入报告生成(流程1)','点击数据源卡片查看依赖指标','血缘查询:选指标反查指标卡版本、取数批次、源表']}],
+A5:['医保局工作台 / 指标配置','A5 图表与报告模板',{goal:'统一图表规范,并用拼装器快速生成标准报告。',ix:['图表模板库:点击卡片查看适用场景与档位','报告拼装器:左侧区块拖到画布或点 +;画布内可上移、删除','切换预置模板一键套用;生成后进入发布工作流']}],
+A7:['医保局工作台 / 智能推荐','A7 病种专题工作台',{goal:'按七段式结构完成病种专题,所有解读须人工审定。',ix:['左侧七段导航切换','右侧文稿区为大模型初稿,逐段“审定”','优化空间固定标注“理论优化空间,不作为控费指标下达”;成稿后提交机构核对(流程2)']}],
+A9:['医保局工作台 / 审批发布','A9 流程设计器',{goal:'行政管理组可视化配置发布流程模板,模板带版本号。',ix:['切换流程模板与版本','点击节点在右侧配置处理人、会签/或签、时限、超时升级','“召集人审批”为必经节点,不可删除']}],
+A10:['医保局工作台 / 审批发布','A10 意见与申诉管理',{goal:'承办人在时限内答复机构意见,核对期异议单独处理。',ix:['标签页切换全部 / 核对期异议 / 待答复 / 已答复','点击工单查看详情,可答复、转办、设为典型问答','答复后显示机构评价']}],
+A11:['医保局工作台 / 审批发布','A11 预警提醒',{goal:'规则触发 → 提醒函 → 机构回执 → 整改跟踪的闭环(流程5)。',ix:['规则可启停','点击触发记录预览提醒函并发出','演示机构回执,跟踪整改状态']}],
+A12:['医保局工作台 / 系统管理','A12 用户权限管理',{goal:'按组织、角色与五个控制维度管理权限,账号全生命周期可控。',ix:['左侧组织树,医共体为虚拟组织','角色权限矩阵;点击角色查看五维配置','账号生命周期:开户、授权、季度复核、变更回收、临时授权到期自动失效']}],
+A13:['医保局工作台 / 系统管理','A13 展示策略配置',{goal:'把“谁在看 × 数据归谁”落成可配置策略,并管控对标档位。',ix:['点击四象限进入策略编辑','每条策略四个参数','切换对标档位弹出审批申请,审批前保持原档位']}],
+A14:['医保局工作台 / 系统管理','A14 审计日志',{goal:'全量记录敏感操作,可按水印编号溯源泄露。',ix:['按操作类型筛选;越权尝试红色标注','输入水印编号溯源到人、时间、文件']}]};
+const SRC=[['结算明细与DRG入组','市医保经办中心','库表直连','日','ok',98],['月结算与清算','市医保经办中心','库表直连','月','ok',97],['基金收支与预算','市医保局基金科','文件上传','月','ok',95],['电子病案','市卫健委 · 三医协同平台','接口推送','日','ok',91],['异地就医','省医保平台回流','省平台交换','月','late',93],['双通道及外购药','定点药店 · 省平台','接口推送','月','ok',88],['审核与申诉','智能审核系统','库表直连','日','ok',96],['卫健编办财政数据','卫健委 · 编办 · 财政局','文件上传','年','ok',90],['患者满意度','第三方测评机构','文件上传','季','part',76],['目录与政策字典','国家医保信息平台','标准下发','按需','ok',100]];
+const DEP={'结算明细与DRG入组':['次均总费用','CMI值','医保外费用占比'],'月结算与清算':['例均基金差额','费用消耗指数'],'基金收支与预算':['基金当期结余率','预算执行率'],'电子病案':['时间消耗指数','14天再住院率','术前平均住院日'],'异地就医':['异地就医基金支出占比','外流病种结构','异地就医人次'],'双通道及外购药':['外购药费用占比'],'审核与申诉':['结算清单质控率','审核扣款率'],'卫健编办财政数据':['床位使用率','财政补助占比'],'患者满意度':['住院患者满意度'],'目录与政策字典':['分组与目录映射(全部指标)']};
+const QC=[['示例市第一人民医院',78,98.1],['示例市第二人民医院',74,97.4],['示例市中医院',69,96.2],['甲县人民医院',63,95.4],['乙县人民医院',58,93.8],['丙区第2医院',55,92.1],['乙县中医院',61,94.6],['某肛肠专科医院',41,82.0]];
+const LIN={'例均基金差额':['v2.1','B20260905-03','dm_drg_case_fee','settle_detail_202608 · drg_pay_std_2026','月结算与清算'],'时间消耗指数':['v1.0','B20260906-01','dm_drg_los','emr_home_page_202608','电子病案'],'异地就医基金支出占比':['v1.0','B20260910-01','dm_offsite_fund','offsite_settle_202608','异地就医'],'结算清单质控率':['v1.3','B20260904-02','dm_qc_list','audit_result_202608 · settle_list_202608','审核与申诉']};
+const TPL=[['分位条','单指标同级位置','例均基金差额、次均费用','三档通用'],['趋势线','连续期次变化','CMI、例均差额月度','三档通用'],['结构堆叠条','费用构成','药品/耗材/检查占比','三档通用'],['分组柱','分组间比较','五档同级均值','匿名分位 · 匿名编号'],['排行条','名次比较','结算清单质控率','仅具名PK与排行'],['气泡全景','三变量全景','病例数 × 差额 × 费用','三档通用'],['散点','两指标关系','CMI × 费用消耗指数','匿名编号 · 具名'],['归因瀑布','差异拆解','患者差异 / 行为差异','三档通用'],['流向图','去向与占比','异地就医流向','汇总层'],['对比表','分组对照','标杆组 vs 偏离组','匿名编号 · 具名']];
+const TPLUSE=[18,14,9,7,3,4,5,2,2,6];
+const BLOCKS=[['封面与摘要',40],['基金运行总览',60],['例均基金差额 · 分位条',36],['CMI 趋势线',60],['费用结构堆叠条',40],['重点病组排行',70],['病组气泡全景',90],['异常预警清单',56],['异地就医流向',80],['解读文字',30],['常见问答',40],['方法卡',30]];
+const PRESETS={'月度运行报告':[0,1,2,3,6,7,9,10,11],'病种专题':[0,4,7,9,11],'机构体检报告':[0,2,3,4,7,9],'异地就医分析':[0,8,9,11],'医共体季度报告':[0,1,3,5,9]};
+const SECS=['整体描述','费用结构','关键行为','差异归因','标杆对比','优化空间','医保侧与医院侧建议'];
+const DRAFT=['本季度 BR25 全市收治 4,262 例,次均总费用 14,200 元,同比上升 8.4%。例均基金差额 +1,860 元,为本期逆差总额最大的病组。病例集中在市三级机构,占 52%。','偏离组药品与耗材合计占比 44%,高于标杆组 13 个百分点;治疗及护理类占比偏低,提示费用结构以检查与药品驱动为主。','五项行为中,“转入ICU”费用倍率最高(×2.38),但发生率仅 6.3%;“使用辅助用药”发生率最高(34.1%),对总费用影响最大。','偏离组与全市均值相差 4,860 元,其中患者差异约 1,850 元,行为差异约 3,010 元。行为差异主要来自重复检查与辅助用药。','标杆组 4 家机构例均费用 11,860 元,偏离组 5 家为 16,720 元;偏离组重复检查发生率是标杆组的 2.7 倍。','按行为差异占比测算,理论优化空间年化约 1,286 万元。该数值为理论测算,不作为控费指标下达。','建议医保侧复核分组边界并完善审核规则;医院侧推进检查结果互认与辅助用药管理。'];
+const BEH=[['入院72小时内重复检查','27.4%','15,680','12,140','1.29'],['使用辅助用药','34.1%','15,020','12,310','1.22'],['使用高值耗材','18.2%','19,860','12,450','1.60'],['转入ICU','6.3%','31,240','13,150','2.38'],['康复治疗介入','15.0%','16,920','13,040','1.30']];
+const BENCH=[['例均费用','11,860 元','16,720 元','+4,860 元'],['平均住院日','9.2 天','12.6 天','+3.4 天'],['药品占比','24%','33%','+9 pt'],['重复检查发生率','14%','38%','×2.7'],['例均基金差额','−420 元','+3,180 元','+3,600 元'],['合并症编码率','81%','72%','−9 pt']];
+const WF=[[0,8920,'#7A8594','8,920'],[8920,1850,'#9DB0C8','+1,850'],[10770,3010,'#D9822B','+3,010'],[0,13780,'#C8372D','13,780']];
+const NODES=[['计划选题','行政管理组','单人',3,'组长'],['归集校验','行政管理组','单人',5,'组长'],['分析成稿','行政管理组 · 委托分析团队','或签',7,'组长'],['专家组审核','专家组(3 人)+ 机构同步核对','会签',5,'召集人'],['召集人审批','召集人','单人',2,'局长办公会'],['定向发布','行政管理组','单人',1,'组长'],['签收查阅','定点医疗机构','—',5,'行政管理组催办'],['意见申诉','定点医疗机构','—',10,'—'],['答复整改','承办人','或签',10,'组长'],['归档复盘','行政管理组','单人',5,'—']];
+const FTPL=['月告知 v2.3','季公布 v1.4','年通报 v1.0','病种专题 v1.1','预警提醒函 v1.0','更正与撤回 v1.2'];
+const TK=[['YJ-0912-031','示例市第一人民医院','8月月度报告 §3.2 BR25 例均基金差额','核对期异议','周婷','剩 1 天','wait','本院 BR25 8 月有 12 例为特例单议,已批复,不应计入例均差额。附批复文号。'],['YJ-0911-027','甲县人民医院','指标:14天再住院率','数据异议','周婷','剩 4 天','wait','再住院病例中有 7 例为计划性化疗返院,建议从分子中剔除。'],['YJ-0910-022','某肛肠专科医院','GG19 次均费用预警提醒函','申诉','王倩','剩 6 天','doing','本院为专科医院,收治结构与综合医院不同,建议单独分组比较。'],['YJ-0909-018','示例市中医院','指标:中医优势病种例均费用','分组规则','周婷','剩 8 天','wait','中医优势病种目录 8 月更新后,部分病例未按新规则入组。'],['YJ-0905-011','乙县第3社区卫生服务中心','8月月度报告 §2.1 匿名分位说明','咨询','王倩','—','done','分位条中 P50 的含义是什么?本院位于 P35 是好还是差?'],['YJ-0903-007','示例市第二人民医院','7月月度报告更正说明','核对期异议','周婷','超期 2 天','wait','更正后的 BR25 病例数与本院台账仍差 3 例。']];
+const TKST={wait:['待答复','#FDF0E2','#9A520F'],doing:['处理中','#E8F0FB','#1F5FBF'],done:['已答复','#EEF7F1','#1E6B45']};
+const RULES=[['次均费用超同级同类10%','全市 · 病组级','> 同级同类均值 ×1.10,连续 2 期','月',6],['14天再住院率','二级及以上','> 同级 P90','月',2],['临界区聚集','DRG 付费机构','临界上沿病例占比 > 35%','月',3],['疑似误入组','DRG 付费机构','主诊断与主手术不匹配 ≥ 10 例','月',1],['医保外费用占比','三级机构','> 8% 且环比上升','季',0]];
+const TRIG=[['09-08','某肛肠专科医院','GG19 肛门及肛周手术','次均费用超同级同类10%','+23.6%,连续 2 期','gen'],['09-08','甲县人民医院','ES35 呼吸系统感染/炎症','14天再住院率','8.7%(P90 5.2%)','sent'],['09-08','示例市第三人民医院','BR25 脑缺血性疾患','临界区聚集','临界上沿 41%','rcpt'],['08-07','乙县中医院','IU29 骨病及其他关节病','疑似误入组','17 例','fix'],['08-07','丙区第2医院','KS15 糖尿病,伴并发症','次均费用超同级同类10%','+12.4%','closed']];
+const TRST={gen:['待生成提醒函','#F1F3F6','#5B6676'],sent:['已发函 · 待回执','#FDF0E2','#9A520F'],rcpt:['已回执','#E8F0FB','#1F5FBF'],fix:['整改中','#E8F0FB','#1F5FBF'],closed:['已销号','#EEF7F1','#1E6B45']};
+const ORG=[['省医保局',0,''],['示例市医保局',1,''],['市医保经办中心',2,''],['甲县医保局',2,''],['乙县医保局',2,''],['丙区医保局',2,''],['市区医保分局',2,''],['定点医疗机构(52)',2,''],['示例市第一人民医院',3,''],['医保办',4,''],['心内科',4,''],['甲县人民医院',3,''],['甲县医共体',2,'虚拟组织'],['乙县医共体',2,'虚拟组织']];
+const RCOLS=['统筹区汇总','机构级数据','他院数据','病例明细','导出','配置与审批'];
+const RROWS=[['召集人',['✓','✓','✓','✓','审批人','审批']],['行政管理组',['✓','✓','✓','申请','申请','配置']],['县区医保部门',['✓','本县区','汇总','—','申请','—']],['专家组成员',['✓','脱敏','匿名','—','—','提建议']],['委托分析团队',['✓','受控环境','匿名','受控环境','审核后聚合','—']],['定点医疗机构',['分位','本院','—','—','申请','提意见']],['省级 / 其他统筹区',['✓','—','—','—','—','—']],['外部监督',['发布材料','—','—','—','—','—']]];
+const DIMS={0:[['功能','全息图、审批、意见、预警'],['数据范围','示例市全域'],['指标字段','全部,含仅内部'],['粒度','诊疗行为'],['操作','查阅、审批、导出审批']],1:[['功能','归集、配置、推荐、报告、排程'],['数据范围','示例市全域'],['指标字段','全部,病例明细需申请'],['粒度','病例(申请)'],['操作','配置、提交、导出申请']],2:[['功能','县区视图、意见'],['数据范围','本县区具名,其他县区汇总'],['指标字段','不含仅内部'],['粒度','病组'],['操作','查阅、导出申请']],3:[['功能','专题审阅、指标建议'],['数据范围','审阅中的专题'],['指标字段','脱敏字段'],['粒度','病组'],['操作','批注、建议']],4:[['功能','受控分析环境'],['数据范围','授权专题'],['指标字段','脱敏病例级'],['粒度','病例(受控)'],['操作','仅导出审核后聚合结果']],5:[['功能','机构门户'],['数据范围','本院具名 + 同级匿名分位'],['指标字段','已发布指标'],['粒度','病组'],['操作','签收、意见、导出申请']],6:[['功能','汇总视图'],['数据范围','各统筹区汇总层'],['指标字段','汇总指标'],['粒度','统筹区'],['操作','查阅']],7:[['功能','只读席位'],['数据范围','发布会材料'],['指标字段','公开材料'],['粒度','统筹区'],['操作','限时查阅']]};
+const ACCT=[['刘洋','示例市第一人民医院 · 医保办','定点医疗机构','开户待审','机构推荐名单 2026-09','#FDF0E2','#9A520F'],['钱丽','甲县医保局','县区医保部门','已授权','下次复核 2026-12-31','#EEF7F1','#1E6B45'],['刘教授','某医科大学','专家组成员','季度复核中','待召集人确认','#E8F0FB','#1F5FBF'],['张悦','某高校卫生经济研究所','委托分析团队','临时授权','10-31 到期自动失效','#FFF4E5','#A35A12'],['吴军','原乙县医保局','县区医保部门','变更回收','岗位调动 · 权限已冻结','#F1F3F6','#5B6676']];
+const QUAD=[['区域内用户 × 区域内数据','最细 · 可至病组与诊疗行为','#EEF7F1','#1E6B45',['本统筹区医保局、县区医保、定点机构','诊疗行为(医保局)/ 病组(机构)','本院具名;他院按指标档位','同级 < 5 家或病例 < 30 例不出分位']],['区域内用户 × 区域外数据','按地区、等级、病种汇总;就医地机构排名仅医保局可见','#E8F0FB','#1F5FBF',['本统筹区医保局、县区医保、定点机构','地区 × 等级 × 病种','就医地机构不具名;机构排名仅医保局','人次 < 20 不展示']],['区域外用户 × 区域内数据','仅汇总和经授权的对标值','#FFF4E5','#A35A12',['省医保局、其他统筹区','统筹区汇总','不具名;对标值需授权','统筹区内同级 < 10 家不出分位']],['区域外用户 × 区域外数据','不提供','#F0F2F5','#7A8594',['—','不提供','—','—']]];
+const TIERIND=[['例均基金差额',0],['次均总费用',0],['CMI值',1],['费用消耗指数',0],['结算清单质控率',2],['14天再住院率',0]];
+const TNAMES=['匿名分位','匿名编号','具名PK与排行'];
+const LOGS=[['10-03 09:12','陈志远','示例市医保局','登录','数字证书登录','10.86.12.47','—','成功'],['10-03 09:15','陈志远','示例市医保局','查阅','A2 全息图 · BR25 诊疗行为级','10.86.12.47','—','成功'],['10-03 09:40','李敏','示例市第一人民医院','导出','本院全息图 2026年8月','10.86.31.08','WM-20261003-4471','审批通过'],['10-03 10:02','李敏','示例市第一人民医院','越权尝试','访问他院 BR25 病例明细','10.86.31.08','—','已拦截'],['10-03 10:18','钱丽','甲县医保局','查阅','C1 县区视图 · 医共体指标','10.86.44.15','—','成功'],['10-03 10:31','王磊','省医保局','打印','C2 汇总表','10.80.2.33','WM-20261003-5208','成功'],['10-03 11:05','赵强','示例市医保局','授权','张悦 临时授权至 10-31','10.86.12.20','—','成功'],['10-03 11:20','张悦','某高校卫生经济研究所','导出','BR25 专题聚合结果','10.86.90.4','WM-20261003-6113','待审批'],['10-03 13:47','未知','—','登录','连续 5 次密码错误','10.86.55.71','—','已锁定'],['10-03 14:02','甲县人民医院 用户','甲县人民医院','越权尝试','修改 URL 访问县区视图','10.86.44.62','—','已拦截']];
+const LTYPE=['全部','登录','查阅','导出','打印','授权','越权尝试'];
+class Component extends DCLogic {
+  state={page:'A1',notesOpen:true,toast:'',exportOpen:false,exportDone:false,exPurpose:'内部会议材料',exDays:'3天',exTimes:'1次',
+    a1step:'login',a1m:'ca',a1r:0,
+    srcSel:4,arrived:false,qcDone:false,lin:'例均基金差额',
+    a5tab:'asm',tplSel:5,preset:'月度运行报告',canvas:PRESETS['月度运行报告'],
+    sec:0,secOk:{},
+    ftpl:0,node:4,modes:{},days:{},
+    tkTab:'全部',tkSel:0,tkSt:{},tkOwner:{},typical:{},reply:'',
+    ruleOn:[true,true,true,true,false],trSel:0,trSt:{},
+    org:'示例市医保局',a12tab:'matrix',role:0,
+    quad:0,tiers:{},pending:{},appr:null,
+    ltype:'全部',wmq:'WM-20261003-4471',traced:false};
+  componentDidMount(){this._h=()=>{const h=decodeURIComponent(location.hash.slice(1));if(META[h])this.setState({page:h});};this._h();window.addEventListener('hashchange',this._h);}
+  componentWillUnmount(){window.removeEventListener('hashchange',this._h);}
+  say(m){this.setState({toast:m});clearTimeout(this._t);this._t=setTimeout(()=>this.setState({toast:''}),2400);}
+  go(id){this.setState({page:id,notesOpen:true});history.replaceState(null,'','#'+id);window.scrollTo(0,0);}
+  renderVals(){
+    const s=this.state,P=this.props,page=s.page;
+    const nav=NAV.map(g=>({t:g.t,items:g.items.map(([id,code,name,f])=>{const on=f===THIS&&id===page;return {code,name,bg:on?'#E8F0FB':'transparent',fg:on?'#1F5FBF':'#1D2633',codeFg:on?'#1F5FBF':'#7A8594',fw:on?600:400,onClick:()=>f===THIS?this.go(id):goFile(f,id)};})}));
+    let who=WHO[page];if(page==='A1'&&s.a1step==='login')who=['访客','未登录','—','登录后显示'];
+    const z=ZONE[page],m=META[page],now=new Date(),pad=n=>String(n).padStart(2,'0');
+    const v={nav,whoName:who[0],whoRole:who[1],whoOrg:who[2],whoScope:who[3],whoInitial:who[0][0],hasZone:!!z,zoneName:z?z[0]:'',zoneBg:z?z[1]:'',zoneFg:z?z[2]:'',
+      crumb:m[0],title:m[1],note:m[2],showNotes:P.showNotes!==false&&s.notesOpen,notesClosed:P.showNotes!==false&&!s.notesOpen,hideNotes:()=>this.setState({notesOpen:false}),showNotesFn:()=>this.setState({notesOpen:true}),
+      canExport:['A7','A14'].includes(page),openExport:()=>this.setState({exportOpen:true,exportDone:false}),
+      wm:Array.from({length:48},(_,i)=>i),wmText:`${who[0]} ${who[2]} ${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`,wmOp:P.watermark==='浅'?0.05:0.085,
+      toast:s.toast,hasToast:!!s.toast};
+    ['A1','A3','A5','A7','A9','A10','A11','A12','A13','A14'].forEach(k=>v['is'+k]=page===k);
+    Object.assign(v,this.a1(s),this.a3(s),this.a5(s),this.a7(s),this.a9(s),this.a10(s),this.a11(s),this.a12(s),this.a13(s),this.a14(s),this.modal(s,page));
+    return v;
+  }
+  a1(s){
+    const tabs=[['ca','数字证书(UKey)'],['pwd','账号 + 短信验证码']].map(([id,l])=>({...tab(id===s.a1m),label:l,onClick:()=>this.setState({a1m:id})}));
+    const R=[['召集人 · 分管领导','示例市医疗保障局 · 医保数据工作组','示例市全域 · 可下钻至诊疗行为','首页:A2 全息图'],['专家组成员(列席)','示例市医保数据工作组 · 专家组','审阅中的专题报告 · 脱敏','首页:专题审阅']];
+    const roles=R.map((r,i)=>{const c=soft(i===s.a1r);return {role:r[0],org:r[1],scope:r[2],home:r[3],bg:c.bg,bd:c.bd,onClick:()=>this.setState({a1r:i})};});
+    return {a1Login:s.a1step==='login',a1Role:s.a1step==='role',a1tabs:tabs,a1Ca:s.a1m==='ca',a1Pwd:s.a1m==='pwd',a1roles:roles,
+      a1Next:()=>this.setState({a1step:'role'}),a1Back:()=>this.setState({a1step:'login'}),
+      a1Enter:()=>{if(s.a1r===0)goFile(1,'A2');else this.say('专家组身份首页(专题审阅)为只读视图,本原型以召集人身份演示');}};
+  }
+  a3(s){
+    const ST={ok:['已到数','#EEF7F1','#1E6B45'],late:['未按时到达','#FBE9E7','#A62B22'],part:['部分到数 3/5','#FDF0E2','#9A520F']};
+    const stOf=i=>i===4&&s.arrived?'ok':SRC[i][4];
+    const srcs=SRC.map((r,i)=>{const st=stOf(i),x=ST[st],late=st==='late';return {name:r[0],prov:r[1],mode:r[2],freq:r[3],st:x[0],stBg:x[1],stFg:x[2],score:late?'—':r[5],scFg:r[5]<80?'#C66A12':'#1D2633',bd:i===s.srcSel?'#1F5FBF':'#E3E7EE',onClick:()=>this.setState({srcSel:i})};});
+    const sel=SRC[s.srcSel],selLate=stOf(s.srcSel)==='late';
+    const deps=DEP[sel[0]].map(n=>({n,st:selLate?'本期暂缓':'可计算',bg:selLate?'#FDF0E2':'#EEF7F1',fg:selLate?'#9A520F':'#1E6B45'}));
+    const P=['接入','标准化','主数据对齐','质量校验','主题库','指标集市'];
+    const nIn=s.arrived?10:9;
+    const pst=i=>{if(i<3)return 'done';if(i===3)return s.qcDone?'done':'run';return s.qcDone?'done':'wait';};
+    const PS={done:['完成','#F4F9F6','#CFE6D8','#1E6B45'],run:['进行中','#F2F6FC','#9DB6DD','#1F5FBF'],wait:['等待','#FAFBFC','#E3E7EE','#8A94A3']};
+    const cnt=[`${nIn}/10 数据源`,`${nIn}/${nIn} 已标准化`,'机构 52 · 医师 4,180',s.qcDone?'规则 214 条 · 通过':'规则 214 条 · 校验中','主题域 9 个',s.arrived?'46/46 指标可计算':'43/46 指标可计算 · 3 项暂缓'];
+    const pipe=P.map((n,i)=>{const x=PS[pst(i)];return {n:'0'+(i+1),name:n,st:x[0],bg:x[1],bd:x[2],fg:x[3],cnt:cnt[i]};});
+    const qc=QC.map(q=>({n:q[0],a:q[1]+'%',b:q[2].toFixed(1)+'%',aFg:q[1]<60?'#C66A12':'#1D2633',bFg:q[2]<95?'#C66A12':'#1D2633'}));
+    const lineChips=Object.keys(LIN).map(k=>({...soft(k===s.lin),label:k,onClick:()=>this.setState({lin:k})}));
+    const L=LIN[s.lin],linLate=s.lin==='异地就医基金支出占比'&&!s.arrived;
+    const K=['指标卡版本','取数批次','主题库表','源表','数据源'];
+    const lineage=K.map((k,i)=>({k,v:i===1&&linLate?'本期未生成(数据源未到达)':i===0?s.lin+' '+L[0]:L[i],c:i===0?'#1F5FBF':i===1&&linLate?'#D9822B':'#9DB0C8',fg:i===1&&linLate?'#9A520F':'#1D2633',line:i<4?1:0}));
+    return {pipe,srcs,a3sel:{name:sel[0],deps,late:selLate},qc,a3time:s.arrived?'100%':'90%',a3timeFg:s.arrived?'#1D2633':'#C66A12',lineChips,lineage,
+      a3Late:!s.arrived,a3CanQc:s.arrived&&!s.qcDone,a3Done:s.qcDone,
+      a3Arrive:()=>{this.setState({arrived:true,srcSel:4});this.say('异地就医数据已到达,3 项指标恢复计算');},
+      a3Qc:()=>{this.setState({qcDone:true});this.say('质量校验通过,指标集市已更新');},goA5:()=>this.go('A5')};
+  }
+  a5(s){
+    const a5tabs=[['lib','图表模板库'],['asm','报告拼装器']].map(([id,l])=>({...tab(id===s.a5tab),label:l,onClick:()=>this.setState({a5tab:id})}));
+    const tpls=TPL.map((t,i)=>{const c=soft(i===s.tplSel);return {name:t[0],use:t[1],uses:TPLUSE[i],bg:c.bg,bd:c.bd,onClick:()=>this.setState({tplSel:i})};});
+    const T=TPL[s.tplSel];
+    const add=i=>this.setState(st=>({canvas:[...st.canvas,i]}));
+    const blocks=BLOCKS.map((b,i)=>({name:b[0],add:e=>{e.stopPropagation();add(i);},onDrag:e=>{this._drag=i;try{e.dataTransfer.setData('text/plain',String(i));}catch(_){}}}));
+    const canvas=s.canvas.map((bi,k)=>({no:k+1,name:BLOCKS[bi][0],h:BLOCKS[bi][1]+'px',
+      up:()=>{if(!k)return;const c=[...s.canvas];[c[k-1],c[k]]=[c[k],c[k-1]];this.setState({canvas:c});},
+      del:()=>this.setState({canvas:s.canvas.filter((_,j)=>j!==k)})}));
+    const presets=Object.keys(PRESETS).map(p=>({...soft(p===s.preset),label:p,onClick:()=>this.setState({preset:p,canvas:PRESETS[p]})}));
+    return {a5tabs,a5Lib:s.a5tab==='lib',a5Asm:s.a5tab==='asm',tpls,tplSel:{name:T[0],use:T[1],ex:T[2],tier:T[3]},blocks,canvas,presets,a5preset:s.preset,canvasN:s.canvas.length,canvasPages:Math.max(1,Math.round(s.canvas.reduce((a,b)=>a+BLOCKS[b][1],0)/90)),
+      a5Over:e=>e.preventDefault(),a5Drop:e=>{e.preventDefault();if(this._drag!=null)add(this._drag);this._drag=null;},
+      a5Gen:()=>{this.say('已生成「'+s.preset+'」草稿,进入发布工作流第 3 步');setTimeout(()=>goFile(1,'A8'),900);}};
+  }
+  a7(s){
+    const secs=SECS.map((n,i)=>{const on=i===s.sec;return {n:i+1,name:n,ok:s.secOk[i]?'✓':'',bg:on?'#E8F0FB':'transparent',fg:on?'#1F5FBF':'#1D2633',fw:on?600:400,onClick:()=>this.setState({sec:i})};});
+    const v={secs,secTitle:(s.sec+1)+'. '+SECS[s.sec],draft:DRAFT[s.sec],secOk:!!s.secOk[s.sec],secPending:!s.secOk[s.sec],a7done:Object.keys(s.secOk).length,
+      beh:BEH.map(b=>({n:b[0],r:b[1],a:b[2],b:b[3],m:b[4],fg:+b[4]>=1.5?'#C8372D':'#C66A12'})),
+      benchT:BENCH.map(b=>({n:b[0],a:b[1],b:b[2],g:b[3]})),
+      wf:WF.map(w=>({b:(w[0]/15000*100).toFixed(1),h:(w[1]/15000*100).toFixed(1),c:w[2],v:w[3]})),
+      a7Approve:()=>{this.setState({secOk:{...s.secOk,[s.sec]:true}});this.say('第 '+(s.sec+1)+' 段已审定');},
+      a7Regen:()=>this.say('已按最新数据重新生成初稿(保留历史版本)'),
+      a7Submit:()=>{const n=Object.keys(s.secOk).length;if(n<7)this.say('还有 '+(7-n)+' 段未审定,不能提交');else this.say('已提交:机构核对(收治 BR25 的 18 家)与专家组审核同步进行');}};
+    for(let i=0;i<7;i++)v['s'+i]=s.sec===i;
+    return v;
+  }
+  a9(s){
+    const ftpls=FTPL.map((t,i)=>({...soft(i===s.ftpl),label:t,onClick:()=>this.setState({ftpl:i})}));
+    const modeOf=i=>s.modes[i]||NODES[i][2],daysOf=i=>s.days[i]??NODES[i][3];
+    const nodes=NODES.map((n,i)=>{const on=i===s.node,gate=i===4;return {n:i+1,name:n[0],who:n[1],mode:modeOf(i),days:daysOf(i)+' 个工作日',bd:on?'#1F5FBF':gate?'#E7A9A3':'#D5DBE3',bg:on?'#F2F6FC':gate?'#FDF5F4':'#fff',gate,line:i<9?1:0,onClick:()=>this.setState({node:i})};});
+    const N=NODES[s.node];
+    const modes=['单人','会签','或签'].map(m=>({...soft(modeOf(s.node)===m),label:m,onClick:()=>this.setState({modes:{...s.modes,[s.node]:m}})}));
+    return {ftpls,nodes,nd:{name:N[0],who:N[1],days:daysOf(s.node),esc:N[4],gate:s.node===4,ext:s.node===6||s.node===7},ndGate:s.node===4,ndNormal:s.node!==4,ndModes:modes,
+      dDown:()=>this.setState({days:{...s.days,[s.node]:Math.max(1,daysOf(s.node)-1)}}),dUp:()=>this.setState({days:{...s.days,[s.node]:daysOf(s.node)+1}}),
+      ftplName:FTPL[s.ftpl],a9Pub:()=>this.say('已保存为「'+FTPL[s.ftpl].split(' ')[0]+' v'+(s.ftpl===0?'2.4':'新版')+'」草稿,发布需召集人确认;进行中的流程沿用旧版本'),a9Del:()=>this.say('必经节点不可删除')};
+  }
+  a10(s){
+    const stOf=i=>s.tkSt[i]||TK[i][6];
+    const tabs=['全部','核对期异议','待答复','已答复'].map(t=>{const n=TK.filter((r,i)=>t==='全部'||(t==='核对期异议'?r[3]===t:t==='待答复'?stOf(i)!=='done':stOf(i)==='done')).length;return {...tab(t===s.tkTab),label:t+' '+n,onClick:()=>this.setState({tkTab:t})};});
+    const rows=TK.map((r,i)=>({r,i})).filter(({r,i})=>s.tkTab==='全部'||(s.tkTab==='核对期异议'?r[3]==='核对期异议':s.tkTab==='待答复'?stOf(i)!=='done':stOf(i)==='done')).map(({r,i})=>{const x=TKST[stOf(i)],on=i===s.tkSel;return {no:r[0],org:r[1],ref:r[2],cat:r[3],catBg:r[3]==='核对期异议'?'#F1ECF9':'#F1F3F6',catFg:r[3]==='核对期异议'?'#5B3A99':'#4A5566',owner:s.tkOwner[i]||r[4],left:stOf(i)==='done'?'—':r[5],leftFg:r[5].includes('超期')?'#C8372D':r[5].includes('1 天')?'#C66A12':'#5B6676',st:x[0],stBg:x[1],stFg:x[2],bg:on?'#F2F6FC':'#fff',onClick:()=>this.setState({tkSel:i,reply:''})};});
+    const T=TK[s.tkSel],done=stOf(s.tkSel)==='done';
+    return {tkTabs:tabs,tkRows:rows,tk:{no:T[0],org:T[1],ref:T[2],cat:T[3],text:T[7],owner:s.tkOwner[s.tkSel]||T[4],typ:!!s.typical[s.tkSel],isCheck:T[3]==='核对期异议'},tkDone:done,tkOpen:!done,tkEvalOld:done&&s.tkSel===4,tkEvalNew:done&&s.tkSel!==4,
+      tkReplyText:s.tkSel===4?'P50 为同级机构的中位数。贵中心位于 P35,表示次均费用低于同级约 65% 的机构,属于正常偏低水平,无需特别处理。':'已核实,'+T[7].slice(0,12)+'…的情况属实,将在更正版本中调整。',
+      reply:s.reply,onReply:e=>this.setState({reply:e.target.value}),
+      tkAnswer:()=>{this.setState({tkSt:{...s.tkSt,[s.tkSel]:'done'}});this.say('已答复,机构将收到通知并可评价');},
+      tkTransfer:()=>{this.setState({tkOwner:{...s.tkOwner,[s.tkSel]:'基金监管科 · 刘伟'}});this.say('已转办至基金监管科');},
+      tkTypical:()=>{this.setState({typical:{...s.typical,[s.tkSel]:!s.typical[s.tkSel]}});this.say(s.typical[s.tkSel]?'已取消典型问答':'已设为典型问答,将进入下期发布包“常见问答”');}};
+  }
+  a11(s){
+    const stOf=i=>s.trSt[i]||TRIG[i][5];
+    const rules=RULES.map((r,i)=>{const on=s.ruleOn[i];return {n:r[0],scope:r[1],th:r[2],freq:r[3],hits:r[4],swBg:on?'#1F5FBF':'#C9CFD8',swX:on?'18px':'2px',op:on?1:0.55,onClick:()=>{const a=[...s.ruleOn];a[i]=!a[i];this.setState({ruleOn:a});}};});
+    const trig=TRIG.map((t,i)=>{const x=TRST[stOf(i)];return {t:t[0],org:t[1],grp:t[2],rule:t[3],val:t[4],st:x[0],stBg:x[1],stFg:x[2],bg:i===s.trSel?'#F2F6FC':'#fff',onClick:()=>this.setState({trSel:i})};});
+    const T=TRIG[s.trSel],st=stOf(s.trSel),order=['gen','sent','rcpt','fix','closed'],k=order.indexOf(st);
+    const track=[['生成提醒函','系统按规则生成,行政管理组核定'],['发出提醒函','经定向发布通道送达,机构签收'],['机构回执','10 个工作日内提交原因说明'],['整改跟踪','连续 2 期监测'],['销号','指标回落至阈值内']].map((r,i)=>({n:r[0],d:r[1],c:i<=k?'#1E8E5A':'#D5DBE3',fg:i<=k?'#1D2633':'#8A94A3'}));
+    return {rules,trig,letter:{org:T[1],grp:T[2],rule:T[3],val:T[4],no:'示医保提〔2026〕'+(17+s.trSel)+'号'},track,trGen:st==='gen',trSent:st==='sent',trRcpt:st==='rcpt'||st==='fix'||st==='closed',
+      trSend:()=>{this.setState({trSt:{...s.trSt,[s.trSel]:'sent'}});this.say('提醒函已发出,机构门户与移动端同步提醒');},
+      trRecv:()=>{this.setState({trSt:{...s.trSt,[s.trSel]:'rcpt'}});this.say('已收到 '+T[1]+' 的回执');}};
+  }
+  a12(s){
+    const org=ORG.map(o=>{const on=o[0]===s.org;return {n:o[0],pad:(o[1]*14+8)+'px',tag:o[2],bg:on?'#E8F0FB':'transparent',fg:on?'#1F5FBF':'#1D2633',onClick:()=>this.setState({org:o[0]})};});
+    const tabs=[['matrix','角色权限矩阵'],['dims','五维配置'],['life','账号生命周期']].map(([id,l])=>({...tab(id===s.a12tab),label:l,onClick:()=>this.setState({a12tab:id})}));
+    const cell=c=>c==='✓'?['#1E6B45','#EEF7F1']:c==='—'?['#B3BAC5','transparent']:['#1F5FBF','#F2F6FC'];
+    const mrows=RROWS.map(([r,cs],i)=>({r,bg:i===s.role?'#F7F9FC':'#fff',onClick:()=>this.setState({role:i,a12tab:'dims'}),cells:cs.map(c=>({c,fg:cell(c)[0],bg:cell(c)[1]}))}));
+    const roleChips=RROWS.map(([r],i)=>({...soft(i===s.role),label:r,onClick:()=>this.setState({role:i})}));
+    return {orgs:org,a12tabs:tabs,t12m:s.a12tab==='matrix',t12d:s.a12tab==='dims',t12l:s.a12tab==='life',rcols:RCOLS,mrows,roleChips,roleName:RROWS[s.role][0],dims:DIMS[s.role].map(d=>({k:d[0],v:d[1]})),
+      accts:ACCT.map(a=>({n:a[0],org:a[1],role:a[2],st:a[3],note:a[4],bg:a[5],fg:a[6]})),selOrg:s.org,
+      a12Act:()=>this.say('已发起操作,需第二名管理员复核')};
+  }
+  a13(s){
+    const quads=QUAD.map((q,i)=>({t:q[0],d:q[1],bg:q[2],fg:q[3],bd:i===s.quad?q[3]:'transparent',onClick:()=>this.setState({quad:i})}));
+    const Q=QUAD[s.quad];
+    const tierRows=TIERIND.map(([n,t])=>{const cur=s.tiers[n]??t,pend=s.pending[n];return {n,pend:pend!=null,pendTxt:pend!=null?'审批中:→ '+TNAMES[pend]:'',opts:TNAMES.map((tn,j)=>{const on=j===cur;return {label:tn,bg:on?'#1F5FBF':'#fff',fg:on?'#fff':'#3A4556',onClick:()=>{if(j!==cur&&pend==null)this.setState({appr:{n,from:cur,to:j}});}};})};});
+    const A=s.appr;
+    return {quads,qT:Q[0],qParams:['受众范围','粒度上限','具名规则','抑制阈值'].map((k,i)=>({k,v:Q[4][i]})),qNone:s.quad===3,qSome:s.quad!==3,tierRows,
+      hasAppr:!!A,apprN:A?A.n:'',apprFrom:A?TNAMES[A.from]:'',apprTo:A?TNAMES[A.to]:'',apprNamed:!!A&&A.to===2,
+      apprClose:()=>this.setState({appr:null}),apprSubmit:()=>{this.setState({pending:{...s.pending,[A.n]:A.to},appr:null});this.say('已提交召集人审批,审批前保持原档位');}};
+  }
+  a14(s){
+    const ltypes=LTYPE.map(t=>({...soft(t===s.ltype),label:t,onClick:()=>this.setState({ltype:t})}));
+    const TC={'越权尝试':['#FBE9E7','#A62B22'],'导出':['#FDF0E2','#9A520F'],'打印':['#FDF0E2','#9A520F'],'授权':['#F1ECF9','#5B3A99']};
+    const logs=LOGS.filter(l=>s.ltype==='全部'||l[3]===s.ltype).map(l=>{const c=TC[l[3]]||['#F1F3F6','#4A5566'];return {t:l[0],u:l[1],org:l[2],ty:l[3],tyBg:c[0],tyFg:c[1],obj:l[4],ip:l[5],wm:l[6],res:l[7],resFg:l[7]==='已拦截'||l[7]==='已锁定'?'#C8372D':'#1D2633',bg:l[3]==='越权尝试'?'#FFF7F6':'#fff'};});
+    const hit=LOGS.find(l=>l[6]===s.wmq.trim());
+    return {ltypes,logs,wmq:s.wmq,onWmq:e=>this.setState({wmq:e.target.value,traced:false}),trace:()=>this.setState({traced:true}),traced:s.traced&&!!hit,traceMiss:s.traced&&!hit,
+      tr:hit?{u:hit[1],org:hit[2],t:'2026-'+hit[0],obj:hit[4],ip:hit[5],ty:hit[3]}:{}};
+  }
+  modal(s,page){
+    const mk=(k,opts)=>opts.map(p=>({...soft(p===s[k]),label:p,onClick:()=>this.setState({[k]:p})}));
+    return {exportOpen:s.exportOpen,exportForm:!s.exportDone,exportDone:s.exportDone,exPurp:mk('exPurpose',['内部会议材料','工作组专题分析','上报省医保局']),exDays:mk('exDays',['24小时','3天','7天']),exTimes:mk('exTimes',['1次','3次']),
+      exWhat:{A7:'BR25 专题聚合结果(不含病例级数据)',A14:'审计日志筛选结果'}[page]||'',closeExport:()=>this.setState({exportOpen:false}),submitExport:()=>this.setState({exportDone:true}),wmNo:'WM-20261003-'+(6000+page.length*137)};
+  }
+}
+</script>
+</body>
+</html>

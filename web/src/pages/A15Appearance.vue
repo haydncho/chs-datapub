@@ -188,8 +188,8 @@ function logoUpload() {
           v-for="s in SECTIONS"
           :key="s.id"
           type="button"
-          class="flex cursor-pointer items-center gap-2 rounded-lg border-l-2 px-2.5 py-2 text-left text-[13px]"
-          :class="active === s.id ? 'border-brand bg-brand-soft font-semibold text-brand' : 'border-transparent text-ink-3 hover:bg-surface-3'"
+          class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px]"
+          :class="active === s.id ? 'bg-brand-soft font-semibold text-brand' : 'text-ink-3 hover:bg-surface-3'"
           :aria-current="active === s.id ? 'true' : undefined"
           @click="go(s.id)"
         >

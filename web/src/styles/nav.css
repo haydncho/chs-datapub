@@ -59,13 +59,13 @@
 .yb-l2-group svg { width: 14px; height: 14px; }
 .yb-l2-group .yb-num { opacity: .75; }
 .yb-l2-tab {
-  display: flex; height: 46px; cursor: pointer; align-items: center; gap: 6px; padding: 0 12px; white-space: nowrap;
-  border-bottom: 2px solid transparent; color: var(--ink-4); font-size: 14px;
+  display: flex; height: 30px; cursor: pointer; align-items: center; gap: 6px; padding: 0 12px; white-space: nowrap;
+  border-radius: 8px; color: var(--ink-4); font-size: 14px; transition: background-color .12s, color .12s;
 }
 .yb-l2-tab svg { width: 15px; height: 15px; flex: none; color: var(--ink-5); }
-.yb-l2-tab:hover { color: var(--ink-2); }
-.yb-l2-tab:focus-visible { outline: 2px solid var(--brand); outline-offset: -3px; border-radius: 6px; }
-.yb-l2-tab[aria-current="page"] { border-bottom-color: var(--brand); color: var(--ink-1); font-weight: 600; }
+.yb-l2-tab:hover { background: var(--surface-3); color: var(--ink-2); }
+.yb-l2-tab:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.yb-l2-tab[aria-current="page"] { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
 .yb-l2-tab[aria-current="page"] svg { color: var(--brand); }
 
 /* ---- 面包屑 ---- */

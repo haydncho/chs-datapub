@@ -60,7 +60,7 @@
 .yb-l2-group .yb-num { opacity: .75; }
 .yb-l2-tab {
   display: flex; height: 30px; cursor: pointer; align-items: center; gap: 6px; padding: 0 12px; white-space: nowrap;
-  border-radius: 8px; color: var(--ink-4); font-size: 14px; transition: background-color .12s, color .12s;
+  border-radius: 8px; color: var(--ink-4); font-size: 12px; /* 与左侧一级菜单名称(.yb-l2-group)同字号 */ transition: background-color .12s, color .12s;
 }
 .yb-l2-tab svg { width: 15px; height: 15px; flex: none; color: var(--ink-5); }
 .yb-l2-tab:hover { background: var(--surface-3); color: var(--ink-2); }
@@ -89,7 +89,7 @@
 
 /* 外观配置 → 菜单风格「紧凑」(html[data-menu="1"]):缩小一级 / 二级菜单的内边距与字号,默认外观不变 */
 html[data-menu="1"] .yb-l1-btn { padding: 0 6px; gap: 4px; font-size: 13px; }
-html[data-menu="1"] .yb-l2-tab { padding: 0 9px; gap: 4px; font-size: 13px; }
+html[data-menu="1"] .yb-l2-tab { padding: 0 9px; gap: 4px; }
 
 /* ======================================================================
    Pad 适配(< 1280):顶栏菜单图标化、二级标签行横向滚动、抽屉、触屏尺寸
@@ -123,11 +123,9 @@ html[data-menu="1"] .yb-l2-tab { padding: 0 9px; gap: 4px; font-size: 13px; }
 .yb-dr-group:focus-visible, .yb-dr-item:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
 
 @media (max-width: 1279px) {
-  /* 一级菜单:只显示图标;当前分组显示名称。不会折行,也不会横向溢出 */
-  .yb-l1-btn { height: 40px; padding: 0 8px; gap: 5px; touch-action: manipulation; }
-  .yb-l1-no, .yb-l1-caret { display: none; }
-  .yb-l1:not([data-active]) .yb-l1-name { display: none; }
-  .yb-l1-ico { width: 18px; height: 18px; }
+  /* 顶栏一级菜单与桌面完全一致(序号、名称、箭头都显示);这里只补触屏需要的点按行为,
+     并在 1024–1279 这一档把内边距收紧一点,保证医保局端 7 个分组 + 用户区放得下 */
+  .yb-l1-btn { padding: 0 6px; gap: 5px; touch-action: manipulation; }
   .yb-l1-item { height: 44px; font-size: 14px; touch-action: manipulation; }
   .yb-l1-card { min-width: 220px; max-width: calc(100vw - 16px); }
 
@@ -142,6 +140,12 @@ html[data-menu="1"] .yb-l2-tab { padding: 0 9px; gap: 4px; font-size: 13px; }
   /* 用户区 */
   .yb-user-btn { min-height: 44px; padding: 0 6px 0 2px; }
   .yb-user-av { width: 36px; height: 36px; }
+}
+@media (min-width: 1024px) and (max-width: 1099px) {
+  /* 1024 档再收紧一点点内边距(不隐藏任何元素) */
+  .yb-l1-btn { padding: 0 3px; gap: 4px; }
+  .yb-l1-no { min-width: 16px; }
+  header .yb-user-scope { max-width: 72px; }
 }
 @media (max-width: 1023px) {
   .yb-hamburger { display: inline-flex; }

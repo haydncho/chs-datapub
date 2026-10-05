@@ -102,7 +102,7 @@ watch(code, (next, prev) => {
       </div>
 
       <!-- header: 端徽标 › 一级菜单(分组) -->
-      <header class="sticky top-0 z-40 flex h-[60px] items-center gap-4 border-b border-line-1 bg-white px-5 text-ink-1 max-xl:gap-3 max-lg:px-3">
+      <header class="sticky top-0 z-40 flex h-[60px] items-center gap-4 border-b border-line-1 bg-white px-5 text-ink-1 max-xl:gap-2.5 max-lg:gap-3 max-lg:px-3 min-[1024px]:max-[1099px]:gap-1.5 min-[1024px]:max-[1099px]:px-3">
         <button
           type="button"
           class="yb-hamburger"
@@ -121,7 +121,7 @@ watch(code, (next, prev) => {
           <component :is="SideIcon" class="size-3.5" aria-hidden="true" />{{ SIDE_NAME[side] }}
         </span>
         <span class="h-5 w-px shrink-0 bg-line-1 max-lg:hidden" />
-        <nav class="flex min-w-0 flex-1 items-center justify-center gap-0.5 max-lg:hidden" aria-label="一级菜单">
+        <nav class="flex min-w-0 flex-1 items-center justify-center gap-0.5 max-lg:hidden min-[1024px]:max-[1099px]:gap-0" aria-label="一级菜单">
           <template v-for="g in groups" :key="g.id">
             <span v-if="g.n && g.n === '01'" class="mx-1.5 h-5 w-px bg-line-1 max-xl:mx-0.5" />
             <span v-if="g.id === 'gov' && side === 'bureau'" class="mx-1.5 h-5 w-px bg-line-1 max-xl:mx-0.5" />
@@ -133,7 +133,7 @@ watch(code, (next, prev) => {
               :query="query"
               @go="go"
             />
-            <span v-if="g.n && g.n !== '05'" class="text-xs text-ink-6 max-xl:hidden" aria-hidden="true">›</span>
+            <span v-if="g.n && g.n !== '05'" class="text-xs text-ink-6" aria-hidden="true">›</span>
           </template>
         </nav>
         <div class="flex-1 lg:hidden" />

@@ -16,7 +16,7 @@ const initial = computed(() => props.viewer.name[0] ?? '')
       <div class="text-[13px] font-medium whitespace-nowrap">
         {{ viewer.name }} <span class="font-normal text-ink-4">· {{ viewer.role }}</span>
       </div>
-      <div class="max-w-[200px] truncate text-[11px] text-ink-4 max-xl:hidden" :title="viewer.scope">{{ viewer.scope }}</div>
+      <div class="yb-user-scope max-w-[200px] truncate text-[11px] text-ink-4 max-xl:max-w-[120px]" :title="viewer.scope">{{ viewer.scope }}</div>
     </div>
     <DropdownMenu v-if="loggedIn">
       <DropdownMenuTrigger as-child>

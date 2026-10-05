@@ -28,11 +28,6 @@
 .yb-l1[data-active] .yb-l1-ico { color: var(--brand); }
 .yb-l1[data-active] .yb-l1-no { background: var(--brand); color: #fff; }
 .yb-l1[data-active] .yb-l1-caret { color: var(--brand); }
-/* 选中分组:在顶栏底边画同色下划线,与下方二级行呼应 */
-.yb-l1[data-active]::after {
-  content: ''; position: absolute; left: 8px; right: 8px; bottom: -13px; height: 3px;
-  border-radius: 3px 3px 0 0; background: var(--brand); pointer-events: none;
-}
 
 /* ---- 下拉 ---- */
 .yb-l1-panel { position: absolute; left: 0; top: 100%; z-index: 50; padding-top: 12px; }

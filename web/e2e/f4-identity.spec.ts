@@ -3,51 +3,50 @@ import { expect, test } from './fixtures'
 import { openPage } from './support'
 
 /**
- * F4 身份切换: 全息图 查看身份 市医保局 ↔ 定点医药机构, kept in the URL (`?who=`).
- * The header identity block (AppShell, owned by auth) is matched loosely by name.
+ * F4 全息图按登录身份展示:医保局端身份看「市医保局」视角,医院身份看「本院」视角;
+ * 不再提供视角切换,地址里的 ?who= 只会被规范成自己的视角。
  */
 const header = (page: Page) => page.locator('header').first()
-const idTab = (page: Page, label: string) => page.locator('[data-screen-label="01 全息图"]').getByText(label, { exact: true })
+const identity = (page: Page) => page.getByTestId('cockpit-identity')
 
-test.describe('F4 身份切换', () => {
-  test('市医保局 → 定点医药机构 → 市医保局, URL ?who= follows', async ({ page }) => {
+async function loginAs(page: Page, side: 'bureau' | 'org') {
+  await page.addInitScript(() => sessionStorage.clear())
+  await page.goto('/#/A1')
+  await page.getByTestId(`side-${side}`).click()
+  await page.getByPlaceholder('证书 PIN 码').fill('123456')
+  await page.getByRole('button', { name: '登录', exact: true }).click()
+  await page.getByTestId('enter').click()
+}
+
+test.describe('F4 全息图按登录身份展示', () => {
+  test('医保局端(召集人):只有市医保局视角,没有切换入口,顶栏是登录的人', async ({ page }) => {
     await openPage(page, 'cockpit', 'who=conv')
-    await expect(page.getByText('查看身份')).toBeVisible()
-    await expect(header(page)).toContainText('陈志远')
+    await expect(page.getByText('当前视角')).toBeVisible()
+    await expect(identity(page)).toContainText('市医保局')
+    await expect(page.getByText('定点医药机构', { exact: true })).toHaveCount(0)
     await expect(page.getByText('医保数据全息图', { exact: true }).first()).toBeVisible()
-
-    // → 定点医药机构
-    await idTab(page, '定点医药机构').click()
-    await expect(page).toHaveURL(/[?&]who=hosp\b/)
-    await expect(header(page)).toContainText('李敏')
-    await expect(header(page)).toContainText('医保办主任')
-    await expect(page.getByText('本院医保数据全息图').first()).toBeVisible()
-
-    // → 市医保局
-    await idTab(page, '市医保局').click()
-    await expect(page).toHaveURL(/[?&]who=conv\b/)
     await expect(header(page)).toContainText('陈志远')
-    await expect(header(page)).not.toContainText('李敏')
+    await expect(header(page)).toContainText('召集人')
+    // 市医保局视角能看到全市机构的预警
+    await expect(page.getByText('某肛肠专科医院').first()).toBeVisible()
   })
 
-  test('deep link ?who=hosp opens the 机构 identity; query edits switch it, leaving the page drops it', async ({ page }) => {
+  test('医保局端:手改地址 ?who=hosp 也看不到机构视角,地址被规范回 conv', async ({ page }) => {
     await openPage(page, 'cockpit', 'who=hosp')
-    await expect(header(page)).toContainText('李敏')
+    await expect(page).toHaveURL(/[?&]who=conv\b/)
+    await expect(identity(page)).toContainText('市医保局')
+    await expect(page.getByText('本院医保数据全息图')).toHaveCount(0)
+  })
+
+  test('机构端(医院身份):只有本院视角,机构名取自所属医院,看不到他院预警', async ({ page }) => {
+    await loginAs(page, 'org')
+    await page.goto('/#/cockpit?who=conv') // 即使指定医保局视角,也只会得到本院视角
+    await expect(page.locator('[data-screen-label="01 全息图"]')).toBeVisible({ timeout: 15_000 })
+    await expect(page).toHaveURL(/[?&]who=hosp\b/)
+    await expect(identity(page)).toContainText('示例市第一人民医院')
     await expect(page.getByText('本院医保数据全息图').first()).toBeVisible()
-
-    // prototype alias ?who=org maps to the same identity
-    await page.goto('/#/cockpit?who=org')
-    await expect(header(page)).toContainText('李敏')
-
-    // changing the query by hand switches identity without a reload
-    await page.goto('/#/cockpit?who=conv')
-    await expect(header(page)).toContainText('陈志远')
-
-    // 离开全息图后身份覆盖被丢弃,顶栏回到登录会话的身份(陈志远 · 召集人)
-    await idTab(page, '定点医药机构').click()
-    await expect(header(page)).toContainText('李敏')
-    await openPage(page, 'A3')
-    await expect(header(page)).not.toContainText('李敏')
-    await expect(header(page)).toContainText('陈志远')
+    await expect(page.getByText('市医保局', { exact: true })).toHaveCount(0)
+    await expect(page.getByText('某肛肠专科医院')).toHaveCount(0)
+    await expect(page.getByText('甲县人民医院')).toHaveCount(0)
   })
 })

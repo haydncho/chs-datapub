@@ -2,10 +2,11 @@
 import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePageData, sendAction } from '@/api/client'
+import { session } from '@/app/session'
 import { setViewer, say } from '@/app/shell'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { COCKPIT_SEED } from '@/mock/cockpit'
+import { COCKPIT_SEED, type CockpitData } from '@/mock/cockpit'
 import AlarmOverlay from './cockpit/AlarmOverlay.vue'
 import CockpitCenter from './cockpit/CockpitCenter.vue'
 import CockpitLeft from './cockpit/CockpitLeft.vue'
@@ -17,7 +18,28 @@ import SubscribeDialog from './cockpit/SubscribeDialog.vue'
 import { COCKPIT_KEY, IDN_TO_WHO, SCR_BG, SCR_GLOW, WHO_TO_IDN, createCockpitStore } from './cockpit/store'
 import { vPress } from '@/lib/a11y'
 
-const data = usePageData('cockpit', COCKPIT_SEED)
+const raw = usePageData('cockpit', COCKPIT_SEED)
+
+/**
+ * 全息图展示什么,由登录身份决定:医院身份 → 本院视角(机构名取自该身份所属医院);
+ * 其余身份 → 市医保局视角。不再提供视角切换。无会话(仅开发回退)时保留两个视角可切换。
+ */
+const ownId = computed<'hosp' | 'conv' | null>(() => {
+  const role = session.current?.identity.role
+  return role ? (role === 'hospital' ? 'hosp' : 'conv') : null
+})
+const data = computed<CockpitData>(() => {
+  const d = raw.value
+  const own = ownId.value
+  if (!own) return d
+  let ids = d.identities.filter(x => x.id === own)
+  if (ids.length === 0) ids = d.identities.slice(0, 1) // 服务端已按身份裁剪过
+  if (own !== 'hosp') return { ...d, identities: ids }
+  const org = session.current?.identity.orgName
+  if (org) ids = ids.map(x => ({ ...x, org, orgShort: org }))
+  // 本院视角不含全市机构明细、异地流向与公开矩阵(服务端同样不下发)
+  return { ...d, identities: ids, institutions: [], flows: [], matrix: [] }
+})
 const store = createCockpitStore(data)
 provide(COCKPIT_KEY, store)
 const { s, I, rotN, scr, alarm, go2, replay } = store
@@ -26,6 +48,11 @@ const { s, I, rotN, scr, alarm, go2, replay } = store
 const route = useRoute()
 const router = useRouter()
 function syncFromQuery() {
+  if (ownId.value) { // 按登录身份固定视角:忽略 ?who=,并把地址规范成自己的视角
+    if (s.idn !== 0) go2({ idn: 0, sel: null })
+    if (route.query.who !== ownId.value) router.replace({ query: { ...route.query, who: ownId.value } })
+    return
+  }
   const w = route.query.who
   const idn = typeof w === 'string' ? WHO_TO_IDN[w] : undefined
   if (idn != null && idn !== s.idn) go2({ idn, sel: null })
@@ -40,16 +67,20 @@ const idTabs = computed(() =>
 )
 
 watch(
-  I,
-  v => setViewer({
-    name: v.name,
-    role: v.role,
-    scope: v.scope,
-    zone: { label: v.zone, tone: v.id === 'hosp' ? 'green' : 'blue' },
-    org: v.orgShort,
-  }),
+  [I, ownId],
+  ([v]) => {
+    if (ownId.value) { setViewer(null); return } // 顶栏显示真正登录的用户
+    setViewer({
+      name: v.name,
+      role: v.role,
+      scope: v.scope,
+      zone: { label: v.zone, tone: v.id === 'hosp' ? 'green' : 'blue' },
+      org: v.orgShort,
+    })
+  },
   { immediate: true },
 )
+watch(ownId, syncFromQuery)
 
 /* ---------- 竖屏提示(当次会话记住关闭) */
 const PORTRAIT_KEY = 'yb-cockpit-portrait-hint'
@@ -221,8 +252,12 @@ const tbOn = 'border-[#3AA0FF] bg-[rgba(58,160,255,.16)] text-[#CFE6FF]'
       <button type="button" class="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-base text-[#FFD9A0]" aria-label="关闭提示" @click="closePortrait">✕</button>
     </div>
     <div class="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2.5">
-      <span class="text-xs whitespace-nowrap text-[#6F84A6]">查看身份</span>
-      <div class="flex gap-0.5 rounded-[10px] bg-[#0E1A2E] p-[3px]">
+      <span class="text-xs whitespace-nowrap text-[#6F84A6]">{{ ownId ? '当前视角' : '查看身份' }}</span>
+      <div v-if="ownId" class="rounded-[10px] bg-[#0E1A2E] px-3.5 py-[5px] leading-[1.3] max-xl:flex max-xl:min-h-10 max-xl:flex-col max-xl:justify-center" data-testid="cockpit-identity">
+        <div class="text-[13px] font-semibold whitespace-nowrap text-[#DDE6F3]">{{ I.tab }}</div>
+        <div class="text-[10px] whitespace-nowrap text-[#6F84A6]">{{ I.orgShort }}</div>
+      </div>
+      <div v-else class="flex gap-0.5 rounded-[10px] bg-[#0E1A2E] p-[3px]">
         <div v-press
           v-for="t in idTabs"
           :key="t.i"

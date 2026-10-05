@@ -52,6 +52,12 @@ A12 展示系统里的真实数据:用户来自 `app_user`(含身份授权与最
 再推导出"角色 × 页面分组"访问矩阵。停用账号会立即作废其会话且不能再登录;不能停用自己或最后一名召集人;
 新增用户先进入待复核,复核通过才建账号。
 
+## 全息图按登录身份展示
+
+`cockpit` 的内容由登录身份决定,不再提供视角切换:医院身份只下发「本院」视角(机构名取自该身份所属医院,不含全市机构明细、
+异地流向、公开矩阵与他院预警);医保局端各身份只下发「市医保局」视角;县区医保部门在此基础上只保留本县机构及相关预警,
+并去掉公开矩阵。裁剪在服务端完成(`HospitalCockpitScope` / `BureauCockpitScope`),前端同样按身份固定视角、顶栏显示真正登录的人。
+
 ## Access control
 
 Every `/api/v1/**` call passes `security/AuthFilter`: bearer token → actor and role; page reads and

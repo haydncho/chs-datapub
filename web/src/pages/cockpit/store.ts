@@ -81,7 +81,7 @@ export const WHO_TO_IDN: Record<string, number> = { cockpit: 0, conv: 0, hosp: 1
 export const IDN_TO_WHO: IdentityId[] = ['conv', 'hosp']
 
 /* ------------------------------------------------------------------ store */
-export function createCockpitStore(data: Ref<CockpitData>) {
+export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
   const s = reactive({
     idn: 0,
     view: 'bub' as CockpitView,

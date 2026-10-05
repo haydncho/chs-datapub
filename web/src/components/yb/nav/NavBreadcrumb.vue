@@ -2,11 +2,11 @@
 import { ChevronRight } from '@lucide/vue'
 
 /** 面包屑:端 / 分组 / 页面。 */
-defineProps<{ crumb: { side: string; group: string; item: string }; dark?: boolean }>()
+defineProps<{ crumb: { side: string; group: string; item: string } }>()
 </script>
 
 <template>
-  <nav aria-label="面包屑" class="yb-crumb" :data-dark="dark || undefined">
+  <nav aria-label="面包屑" class="yb-crumb">
     <ol>
       <li>{{ crumb.side }}</li>
       <template v-if="crumb.group && crumb.group !== crumb.item">

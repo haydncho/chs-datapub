@@ -166,10 +166,6 @@ watch(code, (next, prev) => {
           :class="cn('shrink-0 rounded-full px-2.5 py-[3px] text-xs font-medium whitespace-nowrap', ZONE_STYLE[viewer.zone.tone])"
         >{{ viewer.zone.label }}</span>
       </div>
-      <!-- 全息图:无二级标签行,仅一条细面包屑 -->
-      <div v-else-if="layout === 'cockpit'" class="yb-crumb-bar">
-        <NavBreadcrumb :crumb="crumb" dark />
-      </div>
     </template>
 
     <NavDrawer

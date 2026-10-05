@@ -73,10 +73,6 @@
 .yb-crumb li { display: inline-flex; align-items: center; }
 .yb-crumb li svg { color: var(--ink-6); }
 .yb-crumb-cur { color: var(--ink-1); font-weight: 500; }
-.yb-crumb[data-dark] ol { color: #8FA2BF; }
-.yb-crumb[data-dark] li svg { color: #4A5B78; }
-.yb-crumb[data-dark] .yb-crumb-cur { color: #E6EDF8; }
-.yb-crumb-bar { display: flex; height: 30px; align-items: center; padding: 0 24px; background: #070F1D; border-bottom: 1px solid rgba(255, 255, 255, .06); }
 
 /* ---- 用户区 ---- */
 .yb-user-av {
@@ -135,8 +131,7 @@ html[data-menu="1"] .yb-l2-tab { padding: 0 9px; gap: 4px; }
   .yb-l2-scroll::-webkit-scrollbar { display: none; }
   .yb-l2-tab { height: 36px; touch-action: manipulation; }
   .yb-l2-group { height: 36px; }
-  .yb-crumb-bar { padding: 0 16px; }
-
+  
   /* 用户区 */
   .yb-user-btn { min-height: 44px; padding: 0 6px 0 2px; }
   .yb-user-av { width: 36px; height: 36px; }

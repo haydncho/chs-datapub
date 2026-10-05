@@ -42,7 +42,7 @@ const data = computed<CockpitData>(() => {
 })
 const store = createCockpitStore(data)
 provide(COCKPIT_KEY, store)
-const { s, I, rotN, scr, alarm, go2, replay } = store
+const { s, I, rotN, scr, alarm, go2, replay, restart } = store
 
 /* ---------- identity ⇄ ?who= */
 const route = useRoute()
@@ -204,6 +204,7 @@ let ro: ResizeObserver | null = null
 onMounted(() => {
   syncFromQuery()
   replay()
+  restart()
   checkAlarm()
   iv = setInterval(() => {
     if (s.rot) {

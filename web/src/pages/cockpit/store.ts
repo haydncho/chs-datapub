@@ -90,6 +90,10 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     period: '月' as Period,
     now: Date.now(),
     grow: false,
+    /** 递增即重播全部入场动画(数字滚动 / 走势描线 / 柱条生长) */
+    pulse: 0,
+    /** 面板入场(柱条生长 / 指针滑入),只在进入页面、切换身份、切换周期时重播 */
+    intro: false,
     rot: false,
     rotT: 0,
     dual: false,
@@ -117,9 +121,18 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
   /** state change that replays the enter animation (bubbles from the centre line etc.) */
   function go2(patch: Partial<typeof s>) {
     Object.assign(s, patch, { grow: false })
+    if ('idn' in patch) restart()
     replay()
   }
-  function dispose() { clearTimeout(growT) }
+  let introT: ReturnType<typeof setTimeout> | undefined
+  /** 重播面板入场动画与数字滚动 */
+  function restart() {
+    s.pulse++
+    s.intro = false
+    clearTimeout(introT)
+    introT = setTimeout(() => (s.intro = true), 60)
+  }
+  function dispose() { clearTimeout(growT); clearTimeout(introT) }
 
   /* ---------- bubble data */
   const bubble = computed(() => {
@@ -226,16 +239,17 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
   const ribbon = computed(() =>
     I.value.kpis.map((k, i) => {
       const good = k.goodDir === 0 ? null : (k.delta > 0) === (k.goodDir > 0)
-      const sp = Array.from({ length: 12 }, (_, j) => {
-        const h = 10 + (hsh(k.label + j) % 22) + j * 1.2
-        return { h: Math.min(34, h).toFixed(0) + 'px', c: j === 11 ? K.sky : 'rgba(58,160,255,.35)' }
-      })
+      const flat = good == null || k.delta === 0
+      const trend = k.trend && k.trend.length >= 2
+        ? k.trend
+        : Array.from({ length: 12 }, (_, j) => 10 + (hsh(k.label + j) % 22) + j * 1.2)
       return {
         k: k.label, v: k.value, u: k.unit,
         d: k.delta === 0 ? '持平' : (k.delta > 0 ? '▲ ' : '▼ ') + Math.abs(k.delta),
-        dc: good == null || k.delta === 0 ? K.ink3 : good ? K.green : K.red,
+        dc: flat ? K.ink3 : good ? K.green : K.red,
+        st: flat ? '' : good ? '向好' : '需关注',
         first: i === 0,
-        sp,
+        trend,
       }
     }),
   )
@@ -253,6 +267,7 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
       bOff: ((((PS ? PS[i]! : d.budgetLine) - b0) / (v - b0)) * 100).toFixed(1) + '%',
       bg: i === 11 ? K.sky : 'rgba(58,160,255,.38)',
       l: d.months[i] ?? '',
+      v: String(v),
     }))
   })
 
@@ -433,7 +448,8 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
   const bullets = computed(() =>
     I.value.eff.map(e => {
       const c = e.value > 1.05 ? K.amber : e.value < 0.95 ? K.green : K.sky
-      return { k: e.label, v: e.value.toFixed(2), c, p: (Math.max(0, Math.min(1, (e.value - 0.7) / 0.6)) * 100).toFixed(1) + '%' }
+      const st = e.value > 1.05 ? '偏高' : e.value < 0.95 ? '偏低' : '正常'
+      return { k: e.label, v: e.value.toFixed(2), c, st, p: (Math.max(0, Math.min(1, (e.value - 0.7) / 0.6)) * 100).toFixed(1) + '%' }
     }),
   )
   const alertsAll = computed(() => I.value.alerts.map(a => ({ ty: a.type, c: alertColor(a.type), txt: a.text, t: a.date })))
@@ -462,7 +478,7 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     time: clock.value.time,
   }))
 
-  return { s, data, I, view, lens, rotN, scr, motion, go2, replay, dispose, bubble, ribbon, months, torn, instCols, depts, peer, flows, matrix, det, bullets, alertsAll, pipe, clock, alarm }
+  return { s, data, I, view, lens, rotN, scr, motion, go2, replay, restart, dispose, bubble, ribbon, months, torn, instCols, depts, peer, flows, matrix, det, bullets, alertsAll, pipe, clock, alarm }
 }
 
 export type CockpitStore = ReturnType<typeof createCockpitStore>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import AnimatedNumber from './AnimatedNumber.vue'
 import { useCockpit } from './store'
 
-const { I, pipe } = useCockpit()
+const { s, I, pipe } = useCockpit()
 </script>
 
 <template>
@@ -16,10 +17,10 @@ const { I, pipe } = useCockpit()
       <div class="flex-1 rounded-lg border px-[18px] py-3.5" :style="{ background: p.bg, borderColor: p.bd }">
         <div class="flex items-baseline justify-between">
           <span class="text-base font-medium text-[#C9D6EA]">{{ p.n }}</span>
-          <span class="yb-num text-[34px] leading-none font-semibold" :style="{ color: p.c }">{{ p.v }}</span>
+          <AnimatedNumber :value="p.v" :replay="s.pulse" class="yb-num text-[34px] leading-none font-semibold" :style="{ color: p.c }" />
         </div>
         <div class="mt-2.5 mb-1.5 h-1 rounded-[2px] bg-[rgba(255,255,255,.06)]">
-          <div class="h-1 rounded-[2px]" :style="{ width: p.pct, background: p.c }" />
+          <div class="h-1 rounded-[2px] transition-[width] duration-[1100ms] ease-[cubic-bezier(.2,.8,.2,1)]" :style="{ width: s.intro ? p.pct : '0%', background: p.c, boxShadow: `0 0 8px ${p.c}88` }" />
         </div>
         <div class="truncate text-[13px] text-[#6F84A6]">{{ p.sub }}</div>
       </div>

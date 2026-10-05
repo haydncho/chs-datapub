@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { cn } from '@/lib/utils'
+import AnimatedNumber from './AnimatedNumber.vue'
+import Spark from './Spark.vue'
 import { useCockpit, type Period } from './store'
 
-const { s, I, ribbon, clock, data } = useCockpit()
+const { s, I, ribbon, clock, data, restart } = useCockpit()
 const PERIODS: Period[] = ['月', '季', '年']
 </script>
 
@@ -28,7 +30,7 @@ const PERIODS: Period[] = ['月', '季', '年']
             'cursor-pointer px-4 py-1 text-[15px] font-semibold',
             p === s.period ? 'bg-[#3AA0FF] text-[#04101F]' : 'text-[#9FB2D1]',
           )"
-          @click="s.period = p"
+          @click="s.period = p; restart()"
         >{{ p }}</button>
       </div>
       <div class="text-right leading-[1.2]">
@@ -38,30 +40,34 @@ const PERIODS: Period[] = ['月', '季', '年']
     </div>
   </div>
 
-  <!-- KPI ribbon -->
+  <!-- KPI ribbon:数字滚动 + 走势折线 + 状态色 -->
   <div
     class="absolute top-[84px] right-7 left-7 grid h-[116px] grid-cols-6 rounded-[10px] border border-[rgba(90,150,255,.18)] bg-[linear-gradient(180deg,rgba(18,40,82,.55),rgba(10,22,46,.35))]"
+    data-testid="cockpit-kpis"
   >
     <div
       v-for="k in ribbon"
       :key="k.k"
       :class="cn(
-        'flex flex-col justify-between border-l px-6 py-4',
+        'relative flex flex-col justify-between border-l px-5 py-3.5',
         k.first ? 'border-transparent' : 'border-[rgba(90,150,255,.14)]',
       )"
     >
-      <div class="flex items-center justify-between">
-        <span class="text-base text-[#9FB2D1]">{{ k.k }}</span>
-        <span class="yb-num text-[15px] font-semibold" :style="{ color: k.dc }">{{ k.d }}</span>
+      <span class="absolute inset-x-5 top-0 h-[3px] rounded-b-[2px] opacity-80" :style="{ background: k.dc }" />
+      <div class="flex items-center justify-between gap-2">
+        <span class="truncate text-base text-[#9FB2D1]">{{ k.k }}</span>
+        <span
+          class="yb-num shrink-0 rounded-md px-2 py-px text-sm font-semibold whitespace-nowrap"
+          :style="{ color: k.dc, background: k.dc + '22' }"
+          :title="k.st ? `较上期 ${k.d} · ${k.st}` : `较上期 ${k.d}`"
+        >{{ k.d }}</span>
       </div>
-      <div class="flex items-end justify-between gap-3">
-        <div class="flex items-baseline gap-1">
-          <span class="yb-num text-[46px] leading-none font-semibold text-[#F4F8FF]">{{ k.v }}</span>
+      <div class="flex items-end justify-between gap-2">
+        <div class="flex min-w-0 items-baseline gap-1">
+          <AnimatedNumber :value="k.v" :replay="s.pulse" class="yb-num text-[44px] leading-none font-semibold text-[#F4F8FF]" />
           <span class="text-[13px] text-[#9FB2D1]">{{ k.u }}</span>
         </div>
-        <div class="flex h-[34px] items-end gap-[3px]">
-          <span v-for="(b, j) in k.sp" :key="j" class="w-[5px] rounded-[1px]" :style="{ height: b.h, background: b.c }" />
-        </div>
+        <Spark :trend="k.trend" :color="k.dc" :replay="s.pulse" :w="104" :h="40" />
       </div>
     </div>
   </div>

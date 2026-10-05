@@ -49,4 +49,25 @@ test.describe('F4 全息图按登录身份展示', () => {
     await expect(page.getByText('某肛肠专科医院')).toHaveCount(0)
     await expect(page.getByText('甲县人民医院')).toHaveCount(0)
   })
+
+  for (const side of ['bureau', 'org'] as const) {
+    test(`实时提醒(${side === 'bureau' ? '医保局端' : '机构端'}):窗口内的每一条都完整可见(不被剪断);指标卡带走势折线`, async ({ page }) => {
+      await loginAs(page, side)
+      await page.goto('/#/cockpit')
+      await expect(page.locator('[data-screen-label="01 全息图"]')).toBeVisible({ timeout: 15_000 })
+      await page.waitForTimeout(800)
+      await expect(page.getByTestId('cockpit-kpis').locator('svg')).toHaveCount(6)
+      const box = await page.getByTestId('cockpit-alerts').boundingBox()
+      expect(box).not.toBeNull()
+      const rows = page.getByTestId('cockpit-alerts').locator('.border-t')
+      const first = await rows.first().boundingBox()
+      // 第一屏 4 行(或不足 4 条时全部)必须落在面板内部
+      const n = Math.min(4, await rows.count())
+      for (let i = 0; i < n; i++) {
+        const r = await rows.nth(i).boundingBox()
+        expect(r!.y + r!.height, `${side} 第 ${i + 1} 条被剪断`).toBeLessThanOrEqual(box!.y + box!.height - 2)
+      }
+      expect(first!.y).toBeGreaterThan(box!.y)
+    })
+  }
 })

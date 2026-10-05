@@ -46,6 +46,33 @@
     "等保三级",
     "全程留痕审计"
   ],
+  "sides": [
+    {
+      "id": "bureau",
+      "title": "医保局端",
+      "zone": "分析监测区",
+      "desc": "数据归集、指标配置、智能分析与发布审批,面向医保局内部人员。",
+      "roles": [
+        "召集人",
+        "行政管理组",
+        "委托分析团队",
+        "安全审计员"
+      ],
+      "enter": "进入分析监测区"
+    },
+    {
+      "id": "org",
+      "title": "机构端",
+      "zone": "发布区",
+      "desc": "查看本机构的定向发布内容,完成报告签收、意见核对与监督反馈。",
+      "roles": [
+        "定点医疗机构医保办",
+        "县区医保",
+        "外部监督"
+      ],
+      "enter": "进入发布区"
+    }
+  ],
   "loginTabs": [
     "数字证书",
     "账号 + 短信"
@@ -68,7 +95,8 @@
       "zone": "分析监测区",
       "tone": "brand",
       "target": "cockpit",
-      "who": "conv"
+      "who": "conv",
+      "side": "bureau"
     },
     {
       "initial": "管",
@@ -76,7 +104,8 @@
       "desc": "五环节作业 · 归集、配置、发布、答复",
       "zone": "分析监测区",
       "tone": "brand",
-      "target": "A3"
+      "target": "A3",
+      "side": "bureau"
     },
     {
       "initial": "院",
@@ -85,7 +114,8 @@
       "zone": "发布区",
       "tone": "ok",
       "target": "cockpit",
-      "who": "hosp"
+      "who": "hosp",
+      "side": "org"
     }
   ]
 }

@@ -1,0 +1,97 @@
+/* 壳层菜单:端徽标 › 一级菜单(分组,图标 + 序号)› 二级标签行 + 面包屑 */
+
+/* ---- 端徽标 ---- */
+.yb-side {
+  display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px;
+  border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+.yb-side[data-side="bureau"] { background: var(--brand-soft); color: var(--brand); }
+.yb-side[data-side="org"] { background: var(--ok-soft); color: var(--ok-ink); }
+
+/* ---- 一级菜单 ---- */
+.yb-l1 { position: relative; }
+.yb-l1-btn {
+  position: relative; display: flex; height: 36px; cursor: pointer; align-items: center; gap: 6px;
+  border-radius: 8px; padding: 0 9px; white-space: nowrap; font-size: 14px; font-weight: 500; color: var(--ink-2);
+  transition: background-color .12s, color .12s;
+}
+.yb-l1-btn:hover, .yb-l1:focus-within .yb-l1-btn { background: var(--surface-3); }
+.yb-l1-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.yb-l1-ico { width: 16px; height: 16px; flex: none; color: var(--ink-4); }
+.yb-l1-no {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 18px;
+  border-radius: 5px; background: var(--surface-3); color: var(--ink-4); font-size: 11px; font-weight: 600;
+}
+.yb-l1-caret { width: 12px; height: 12px; margin-left: -1px; color: var(--ink-5); transition: transform .15s; }
+.yb-l1-caret[data-open] { transform: rotate(180deg); }
+.yb-l1[data-active] .yb-l1-btn { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+.yb-l1[data-active] .yb-l1-ico { color: var(--brand); }
+.yb-l1[data-active] .yb-l1-no { background: var(--brand); color: #fff; }
+.yb-l1[data-active] .yb-l1-caret { color: var(--brand); }
+/* 选中分组:在顶栏底边画同色下划线,与下方二级行呼应 */
+.yb-l1[data-active]::after {
+  content: ''; position: absolute; left: 8px; right: 8px; bottom: -13px; height: 3px;
+  border-radius: 3px 3px 0 0; background: var(--brand); pointer-events: none;
+}
+
+/* ---- 下拉 ---- */
+.yb-l1-panel { position: absolute; left: 0; top: 100%; z-index: 50; padding-top: 12px; }
+.yb-l1-card {
+  min-width: 212px; padding: 6px; border: 1px solid var(--line-1); border-radius: 10px; background: #fff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, .14);
+  animation: yb-l1-in .12s ease-out;
+}
+@keyframes yb-l1-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.yb-l1-cap { padding: 4px 8px 6px; font-size: 11px; color: var(--ink-5); }
+.yb-l1-item {
+  display: flex; width: 100%; cursor: pointer; align-items: center; gap: 9px; height: 34px; padding: 0 8px;
+  border-radius: 7px; font-size: 13px; color: var(--ink-2); white-space: nowrap;
+}
+.yb-l1-item:hover, .yb-l1-item:focus-visible { background: var(--brand-tint); color: var(--ink-1); outline: none; }
+.yb-l1-item:focus-visible { box-shadow: inset 0 0 0 2px var(--brand-line); }
+.yb-l1-item-ico { width: 16px; height: 16px; flex: none; color: var(--ink-4); }
+.yb-l1-item:hover .yb-l1-item-ico, .yb-l1-item:focus-visible .yb-l1-item-ico { color: var(--brand); }
+.yb-l1-item[data-current] { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+.yb-l1-item[data-current] .yb-l1-item-ico { color: var(--brand); }
+.yb-l1-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--brand); }
+
+/* ---- 二级标签行 ---- */
+.yb-l2 { display: flex; height: 46px; align-items: center; gap: 4px; padding: 0 24px; border-bottom: 1px solid var(--line-1); background: #fff; }
+.yb-l2-group {
+  display: inline-flex; height: 28px; align-items: center; gap: 6px; margin-right: 10px; padding: 0 10px 0 8px;
+  border-radius: 7px; background: var(--brand-soft); color: var(--brand); font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+.yb-l2-group svg { width: 14px; height: 14px; }
+.yb-l2-group .yb-num { opacity: .75; }
+.yb-l2-tab {
+  display: flex; height: 46px; cursor: pointer; align-items: center; gap: 6px; padding: 0 12px; white-space: nowrap;
+  border-bottom: 2px solid transparent; color: var(--ink-4); font-size: 14px;
+}
+.yb-l2-tab svg { width: 15px; height: 15px; flex: none; color: var(--ink-5); }
+.yb-l2-tab:hover { color: var(--ink-2); }
+.yb-l2-tab:focus-visible { outline: 2px solid var(--brand); outline-offset: -3px; border-radius: 6px; }
+.yb-l2-tab[aria-current="page"] { border-bottom-color: var(--brand); color: var(--ink-1); font-weight: 600; }
+.yb-l2-tab[aria-current="page"] svg { color: var(--brand); }
+
+/* ---- 面包屑 ---- */
+.yb-crumb ol { display: flex; align-items: center; gap: 4px; margin: 0; padding: 0; list-style: none; font-size: 12px; color: var(--ink-4); white-space: nowrap; }
+.yb-crumb li { display: inline-flex; align-items: center; }
+.yb-crumb li svg { color: var(--ink-6); }
+.yb-crumb-cur { color: var(--ink-1); font-weight: 500; }
+.yb-crumb[data-dark] ol { color: #8FA2BF; }
+.yb-crumb[data-dark] li svg { color: #4A5B78; }
+.yb-crumb[data-dark] .yb-crumb-cur { color: #E6EDF8; }
+.yb-crumb-bar { display: flex; height: 30px; align-items: center; padding: 0 24px; background: #070F1D; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+
+/* ---- 用户区 ---- */
+.yb-user-av {
+  display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center;
+  border-radius: 999px; background: var(--brand-soft); color: var(--brand); font-weight: 600;
+}
+.yb-user-btn { display: inline-flex; cursor: pointer; align-items: center; gap: 2px; border-radius: 999px; padding: 0 4px 0 0; }
+.yb-user-btn:hover { background: var(--surface-3); }
+.yb-user-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* 外观配置 → 菜单风格「紧凑」(html[data-menu="1"]):缩小一级 / 二级菜单的内边距与字号,默认外观不变 */
+html[data-menu="1"] .yb-l1-btn { padding: 0 6px; gap: 4px; font-size: 13px; }
+html[data-menu="1"] .yb-l2-tab { padding: 0 9px; gap: 4px; font-size: 13px; }

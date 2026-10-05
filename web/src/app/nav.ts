@@ -1,6 +1,6 @@
 /**
- * Information architecture of the platform: a five-stage main line (归集 › 配置 ›
- * 洞察 › 发布 › 反馈) plus 全息图 / 设置 / 机构端.
+ * Information architecture of the platform: 端(医保局端 / 机构端) › 一级菜单(分组) › 二级菜单(页面)。
+ * 医保局端主线为 归集 › 配置 › 洞察 › 发布 › 反馈,另有 全息图 / 设置;机构端沿用同样的分类名。
  * Mirrors STG in the v3 prototypes.
  */
 export type PageCode =
@@ -8,6 +8,138 @@ export type PageCode =
   | 'A1' | 'A3' | 'A4' | 'A5' | 'A6' | 'A7' | 'A8' | 'A9' | 'A10' | 'A11' | 'A12' | 'A13' | 'A14' | 'A15'
   | 'B1' | 'B2' | 'B3' | 'B4' | 'B5' | 'B6' | 'B7' | 'C3' | 'D1'
 
+export type Side = 'bureau' | 'org'
+
+export const SIDE_NAME: Record<Side, string> = { bureau: '医保局端', org: '机构端' }
+/** 端徽标使用的图标名(见 lib/icons.ts) */
+export const SIDE_ICON: Record<Side, string> = { bureau: 'landmark', org: 'hospital' }
+
+export interface NavItem { code: PageCode; name: string; icon: string; query?: Record<string, string> }
+export interface NavGroup { id: string; n?: string; name: string; icon: string; items: NavItem[] }
+
+/** 医保局端菜单树(超集):全息图 › 01–05 主线 › 设置。登录页 A1 不在菜单中。 */
+const BUREAU_NAV: NavGroup[] = [
+  { id: 'cock', name: '全息图', icon: 'layout-dashboard', items: [{ code: 'cockpit', name: '全息图', icon: 'layout-dashboard', query: { who: 'conv' } }] },
+  { id: 's1', n: '01', name: '归集', icon: 'database', items: [{ code: 'A3', name: '数据归集中心', icon: 'database' }] },
+  {
+    id: 's2', n: '02', name: '配置', icon: 'sliders-horizontal',
+    items: [
+      { code: 'A4', name: '指标配置', icon: 'sliders-horizontal' },
+      { code: 'A5', name: '图表与报告模板', icon: 'layout-template' },
+      { code: 'A13', name: '展示策略', icon: 'eye' },
+    ],
+  },
+  {
+    id: 's3', n: '03', name: '洞察', icon: 'lightbulb',
+    items: [
+      { code: 'A6', name: '智能推荐', icon: 'sparkles' },
+      { code: 'A7', name: '病种专题', icon: 'stethoscope' },
+    ],
+  },
+  {
+    id: 's4', n: '04', name: '发布', icon: 'send',
+    items: [
+      { code: 'A8', name: '发布工作流', icon: 'rocket' },
+      { code: 'A9', name: '流程设计器', icon: 'workflow' },
+    ],
+  },
+  {
+    id: 's5', n: '05', name: '反馈', icon: 'message-square',
+    items: [
+      { code: 'A10', name: '意见与申诉', icon: 'message-square-warning' },
+      { code: 'A11', name: '预警提醒', icon: 'bell-ring' },
+    ],
+  },
+  {
+    id: 'gov', name: '设置', icon: 'settings',
+    items: [
+      { code: 'A12', name: '用户权限', icon: 'users' },
+      { code: 'A14', name: '审计日志', icon: 'scroll-text' },
+      { code: 'A15', name: '外观配置', icon: 'palette' },
+    ],
+  },
+]
+
+/** 机构端菜单树(超集):沿用医保局端的分类名,不加序号。 */
+const ORG_NAV: NavGroup[] = [
+  {
+    id: 'cock', name: '全息图', icon: 'layout-dashboard',
+    items: [
+      { code: 'cockpit', name: '机构全息图', icon: 'layout-dashboard', query: { who: 'hosp' } },
+      { code: 'B1', name: '本院全息', icon: 'hospital' },
+    ],
+  },
+  {
+    id: 's3', name: '洞察', icon: 'lightbulb',
+    items: [
+      { code: 'B2', name: '病组下钻', icon: 'layers' },
+      { code: 'B3', name: '对标PK', icon: 'swords' },
+      { code: 'B7', name: '区域外', icon: 'map-pinned' },
+      { code: 'C3', name: '外部监督', icon: 'shield-check' },
+    ],
+  },
+  { id: 's4', name: '发布', icon: 'send', items: [{ code: 'B4', name: '报告中心', icon: 'file-chart-column' }] },
+  {
+    id: 's5', name: '反馈', icon: 'message-square',
+    items: [
+      { code: 'B5', name: '意见核对', icon: 'clipboard-check' },
+      { code: 'A11', name: '预警提醒', icon: 'bell-ring' },
+      { code: 'D1', name: '移动端', icon: 'smartphone' },
+    ],
+  },
+  { id: 'gov', name: '设置', icon: 'settings', items: [{ code: 'B6', name: '政策培训', icon: 'graduation-cap' }] },
+]
+
+const TREES: Record<Side, NavGroup[]> = { bureau: BUREAU_NAV, org: ORG_NAV }
+
+/** 按端返回菜单树,只保留 `allowed` 允许访问的页面(null = 全部);空分组去掉。 */
+export function navFor(side: Side, allowed: readonly string[] | null): NavGroup[] {
+  const tree = TREES[side] ?? BUREAU_NAV
+  if (!allowed) return tree
+  return tree
+    .map(g => ({ ...g, items: g.items.filter(i => allowed.includes(i.code)) }))
+    .filter(g => g.items.length > 0)
+}
+
+/** 菜单项是否对应当前路由(全息图再按 query.who 区分两端)。 */
+export function isActiveItem(item: NavItem, code: string, query?: Record<string, unknown>): boolean {
+  if (item.code !== code) return false
+  if (code === 'cockpit' && item.query?.who) {
+    const w = query?.who
+    // 机构端的 county / prov 视角也归入机构全息图
+    const mine = item.query.who === 'conv' ? (w === undefined || w === 'conv') : (w !== undefined && w !== 'conv')
+    return mine
+  }
+  return true
+}
+
+/** 定位页面所在的端 / 分组 / 菜单项;preferSide 优先(同一页面可同时出现在两端,如 A11)。 */
+export function locate(code: string, query?: Record<string, unknown>, preferSide: Side = 'bureau'):
+  { side: Side; group: NavGroup; item: NavItem } | null {
+  const sides: Side[] = preferSide === 'bureau' ? ['bureau', 'org'] : ['org', 'bureau']
+  for (const side of sides) {
+    for (const group of TREES[side]) {
+      const item = group.items.find(i => isActiveItem(i, code, query))
+      if (item) return { side, group, item }
+    }
+  }
+  return null
+}
+
+export function breadcrumbOf(side: Side, code: string, query?: Record<string, unknown>): { side: string; group: string; item: string } {
+  const hit = locate(code, query, side)
+  const sideName = SIDE_NAME[side] ?? SIDE_NAME.bureau
+  if (!hit || hit.side !== side) {
+    // 该端菜单中没有此页(如登录页):只显示端
+    const t = PAGES_TITLE[code]
+    return { side: sideName, group: hit?.group.name ?? '', item: hit?.item.name ?? t ?? '' }
+  }
+  return { side: sideName, group: hit.group.name, item: hit.item.name }
+}
+
+const PAGES_TITLE: Record<string, string> = { A1: '登录与身份' }
+
+/* ---------- 兼容旧导出(旧版"五环节"结构,基于新菜单树生成) ---------- */
 export interface Stage {
   id: string
   n?: string
@@ -15,21 +147,17 @@ export interface Stage {
   pages: [PageCode, string][]
 }
 
+const toStage = (g: NavGroup): Stage => ({ id: g.id, n: g.n, name: g.name, pages: g.items.map(i => [i.code, i.name]) })
+
 export const STAGES: Stage[] = [
-  { id: 'cock', name: '全息图', pages: [['cockpit', '全息图']] },
-  { id: 's1', n: '01', name: '归集', pages: [['A3', '数据归集中心']] },
-  { id: 's2', n: '02', name: '配置', pages: [['A4', '指标配置'], ['A5', '图表与报告模板'], ['A13', '展示策略']] },
-  { id: 's3', n: '03', name: '洞察', pages: [['A6', '智能推荐'], ['A7', '病种专题']] },
-  { id: 's4', n: '04', name: '发布', pages: [['A8', '发布工作流'], ['A9', '流程设计器']] },
-  { id: 's5', n: '05', name: '反馈', pages: [['A10', '意见与申诉'], ['A11', '预警提醒']] },
-  { id: 'gov', name: '设置', pages: [['A12', '用户权限'], ['A14', '审计日志'], ['A1', '登录与身份'], ['A15', '外观配置']] },
-  { id: 'aud', name: '机构端', pages: [['B1', '本院全息'], ['B2', '病组下钻'], ['B3', '对标PK'], ['B4', '报告中心'], ['B5', '意见核对'], ['B6', '政策培训'], ['B7', '区域外'], ['C3', '外部监督'], ['D1', '移动端']] },
+  ...BUREAU_NAV.map(toStage),
+  { id: 'aud', name: '机构端', pages: ORG_NAV.flatMap(g => g.items).filter(i => i.code !== 'cockpit' && i.code !== 'A11').map(i => [i.code, i.name] as [PageCode, string]) },
 ]
 
 /** Legacy ids used by links inside the prototypes. */
 export const ALIAS: Record<string, PageCode> = { ID: 'cockpit', A2: 'cockpit' }
 
-export const ALL_PAGES: PageCode[] = STAGES.flatMap(s => s.pages.map(p => p[0]))
+export const ALL_PAGES: PageCode[] = [...new Set<PageCode>([...BUREAU_NAV, ...ORG_NAV].flatMap(g => g.items.map(i => i.code)).concat('A1'))]
 
 export function stageOf(page: PageCode): Stage {
   return STAGES.find(s => s.pages.some(p => p[0] === page)) ?? STAGES[0]!

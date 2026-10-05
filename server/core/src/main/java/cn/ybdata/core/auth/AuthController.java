@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
  * Unified login (A1).
  * <pre>
  * POST /api/v1/auth/sms-code {account}                             → {ok, cooldown, phone?}      (429 within 60s)
- * POST /api/v1/auth/login    {method:'cert', account, pin}         → session
- *                            {method:'sms',  account, code}
+ * POST /api/v1/auth/login    {method:'cert', account, pin, side?}  → session (identities limited to {@code side}:
+ *                            {method:'sms',  account, code, side?}    'bureau' 医保局端 | 'org' 机构端; 403 when none)
  * GET  /api/v1/auth/me                                             → session (user, identity, identities, viewer, pages)
- * POST /api/v1/auth/identity {identity: user_identity.id}          → session with a new token (old one revoked)
+ * POST /api/v1/auth/identity {identity: user_identity.id}          → session with a new token (old one revoked; 403 across sides)
  * POST /api/v1/auth/logout                                         → {ok}
  * </pre>
  * A session response is {@code me} plus {@code token} (send as {@code Authorization: Bearer <token>}).
@@ -52,7 +52,7 @@ public class AuthController {
     public Map<String, Object> login(@RequestBody(required = false) JsonNode body, HttpServletRequest req) {
         String method = text(body, "method");
         String secret = "cert".equals(method) ? text(body, "pin") : text(body, "code");
-        AuthService.Issued s = auth.login(method, text(body, "account"), secret, req.getRemoteAddr(), CurrentActor.terminal(req));
+        AuthService.Issued s = auth.login(method, text(body, "account"), secret, text(body, "side"), req.getRemoteAddr(), CurrentActor.terminal(req));
         return session(s);
     }
 

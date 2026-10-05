@@ -112,12 +112,17 @@ class AuthFlowIT {
         Map<String, Object> s = login("cert", "chenzy", "123456");
         String token = (String) s.get("token");
         List<Map<String, Object>> ids = (List<Map<String, Object>>) s.get("identities");
-        assertThat(ids).extracting(m -> m.get("role")).containsExactly("convener", "admin", "hospital");
+        // 不选端登录: 落在第一个身份所在的端,身份列表只含该端的身份,每个都带 side
+        assertThat(ids).extracting(m -> m.get("role")).containsExactly("convener", "admin");
+        assertThat(ids).extracting(m -> m.get("side")).containsOnly("bureau");
         assertThat((Map<String, Object>) s.get("viewer")).containsEntry("name", "陈志远").containsEntry("role", "召集人");
         assertThat(getText("/pages/cockpit", token).getBody()).contains("\"id\":\"conv\"");
         assertThat(getText("/pages/A10", token).getStatusCode().value()).isEqualTo(200);
 
-        Object hospId = ids.get(2).get("id");
+        // 换端需重新登录: 以机构端登录后再验证医院身份的数据范围
+        Map<String, Object> hs = loginSide("chenzy", "org");
+        Object hospId = ((List<Map<String, Object>>) hs.get("identities")).get(0).get("id");
+        token = (String) hs.get("token");
         var sw = call(HttpMethod.POST, "/auth/identity", token, Map.of("identity", hospId));
         assertThat(sw.getStatusCode().value()).isEqualTo(200);
         String hospToken = (String) sw.getBody().get("token");
@@ -130,6 +135,58 @@ class AuthFlowIT {
         var foreign = jdbc.sql("select i.id from user_identity i join app_user u on u.id = i.user_id where u.login = 'zhoumin'")
                 .query(Long.class).single();
         assertThat(call(HttpMethod.POST, "/auth/identity", hospToken, Map.of("identity", foreign)).getStatusCode().value()).isEqualTo(403);
+    }
+
+    private Map<String, Object> loginSide(String account, String side) {
+        var r = call(HttpMethod.POST, "/auth/login", null, Map.of("method", "cert", "account", account, "pin", "123456", "side", side));
+        assertThat(r.getStatusCode().value()).as(String.valueOf(r.getBody())).isEqualTo(200);
+        return r.getBody();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void loginFiltersIdentitiesBySide() {
+        Map<String, Object> bureau = loginSide("chenzy", "bureau");
+        assertThat((List<Map<String, Object>>) bureau.get("identities")).extracting(m -> m.get("role")).containsExactly("convener", "admin");
+        assertThat((Map<String, Object>) bureau.get("identity")).containsEntry("role", "convener").containsEntry("side", "bureau");
+
+        Map<String, Object> org = loginSide("chenzy", "org");
+        assertThat((List<Map<String, Object>>) org.get("identities")).extracting(m -> m.get("role")).containsExactly("hospital");
+        assertThat((Map<String, Object>) org.get("identity")).containsEntry("role", "hospital").containsEntry("side", "org");
+        assertThat((List<String>) org.get("pages")).contains("B1").doesNotContain("A3");
+        // GET /auth/me stays on the selected side
+        var me = call(HttpMethod.GET, "/auth/me", (String) org.get("token"), null).getBody();
+        assertThat((List<Map<String, Object>>) me.get("identities")).extracting(m -> m.get("side")).containsOnly("org");
+
+        // single-side users
+        assertThat((Map<String, Object>) loginSide("limin", "org").get("identity")).containsEntry("side", "org").containsEntry("target", "B1");
+        assertThat((Map<String, Object>) loginSide("zhaoan", "bureau").get("identity")).containsEntry("role", "auditor").containsEntry("side", "bureau");
+        assertThat((Map<String, Object>) loginSide("zhoumin", "org").get("identity")).containsEntry("role", "observer").containsEntry("side", "org");
+        // the wrong side has nothing to offer → 403, unknown side → 400
+        for (String[] c : new String[][] {{"limin", "bureau"}, {"zhaoan", "org"}, {"zhoumin", "bureau"}}) {
+            assertThat(call(HttpMethod.POST, "/auth/login", null, Map.of("method", "cert", "account", c[0], "pin", "123456", "side", c[1]))
+                    .getStatusCode().value()).as(c[0] + "/" + c[1]).isEqualTo(403);
+        }
+        assertThat(call(HttpMethod.POST, "/auth/login", null, Map.of("method", "cert", "account", "chenzy", "pin", "123456", "side", "x"))
+                .getStatusCode().value()).isEqualTo(400);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void identitySwitchAcrossSidesIsForbidden() {
+        Map<String, Object> bureau = loginSide("chenzy", "bureau");
+        String token = (String) bureau.get("token");
+        Object adminId = ((List<Map<String, Object>>) bureau.get("identities")).get(1).get("id");
+        Object hospId = jdbc.sql("select i.id from user_identity i join app_user u on u.id = i.user_id where u.login = 'chenzy' and i.role_code = 'hospital'")
+                .query(Long.class).single();
+        var cross = call(HttpMethod.POST, "/auth/identity", token, Map.of("identity", hospId));
+        assertThat(cross.getStatusCode().value()).isEqualTo(403);
+        assertThat(String.valueOf(cross.getBody().get("error"))).contains("机构端");
+        // the token survives the refused switch, and same-side switching still works
+        assertThat(call(HttpMethod.GET, "/auth/me", token, null).getStatusCode().value()).isEqualTo(200);
+        var ok = call(HttpMethod.POST, "/auth/identity", token, Map.of("identity", adminId));
+        assertThat(ok.getStatusCode().value()).isEqualTo(200);
+        assertThat((Map<String, Object>) ok.getBody().get("identity")).containsEntry("role", "admin").containsEntry("side", "bureau");
     }
 
     @Test

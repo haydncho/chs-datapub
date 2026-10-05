@@ -1,22 +1,37 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { cn } from '@/lib/utils'
 
-/** Bordered segmented control with dark selected segment (A15). */
-defineProps<{ options: string[] }>()
+/** 分段单选控件(radiogroup 语义,方向键切换,选中项深色)。 */
+defineProps<{ options: string[]; label: string }>()
 const model = defineModel<number>({ required: true })
+const root = ref<HTMLElement>()
+
+function move(e: KeyboardEvent, n: number) {
+  const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0
+  if (!d) return
+  e.preventDefault()
+  const i = (model.value + d + n) % n
+  model.value = i
+  root.value?.querySelectorAll<HTMLElement>('[role=radio]')[i]?.focus()
+}
 </script>
 
 <template>
-  <div class="flex w-max overflow-hidden rounded-lg border border-line-1">
+  <div ref="root" role="radiogroup" :aria-label="label" class="flex w-max overflow-hidden rounded-lg border border-line-1">
     <button
       v-for="(l, i) in options"
       :key="l"
       type="button"
+      role="radio"
+      :aria-checked="model === i"
+      :tabindex="model === i ? 0 : -1"
       :class="cn(
-        'cursor-pointer px-4 py-1.5 text-xs whitespace-nowrap',
+        'cursor-pointer px-3.5 py-1.5 text-xs whitespace-nowrap focus-visible:outline-offset-[-2px]',
         model === i ? 'bg-ink-1 text-white' : 'bg-white text-ink-3 hover:bg-surface-1',
       )"
       @click="model = i"
+      @keydown="move($event, options.length)"
     >{{ l }}</button>
   </div>
 </template>

@@ -53,7 +53,11 @@ public final class AccessPolicy {
     /** page/action pairs reserved for specific roles */
     private static final Map<String, Set<String>> ACTION_ROLES = Map.of(
             "A8/approvePublish", Set.of("convener"),
-            "A8/rejectPublish", Set.of("convener"));
+            "A8/rejectPublish", Set.of("convener"),
+            // 用户与权限(A12):停用 / 新增申请仅召集人;复核可由召集人或行政管理组完成(申请人不能复核自己,见 UserDomain)
+            "A12/setUserEnabled", Set.of("convener"),
+            "A12/requestAddUser", Set.of("convener"),
+            "A12/reviewAddUser", Set.of("convener", "admin"));
 
     private static final Set<String> AUDIT_ROLES = Set.of("convener", "admin", "auditor");
     private static final Set<String> ANALYTICS_ROLES = Set.of("convener", "admin", "analyst");

@@ -83,12 +83,21 @@
 
   /* card style (外观配置 卡片样式) */
   --card-shadow: 0 4px 14px rgba(15, 23, 42, .08);
+
+  /* 菜单风格 (外观配置 菜单风格) — 标准值;html[data-menu="1"] 为紧凑。壳层菜单可直接取用 */
+  --menu-py: 8px;        /* 菜单项上下内边距 */
+  --menu-px: 12px;       /* 菜单项左右内边距 */
+  --menu-gap: 4px;       /* 菜单项之间的间距 */
+  --menu-font: 13px;     /* 菜单项字号 */
+  --menu-icon: 16px;     /* 菜单小图标尺寸 */
+  /* 表格斑马纹 (外观配置 表格斑马纹) — html[data-zebra="1"] 时偶数行底色 */
+  --zebra-bg: transparent;
 }
 
-html[data-theme="teal"]   { --primary:#0E8A8A; --ring:#0E8A8A; --brand:#0E8A8A; --brand-hover:#0B6F6F; --brand-soft:#E3F4F4; --brand-line:#9ED6D6; --brand-tint:#F2FAFA; --accent:#E3F4F4; --accent-foreground:#0E8A8A; }
-html[data-theme="navy"]   { --primary:#16408F; --ring:#16408F; --brand:#16408F; --brand-hover:#103273; --brand-soft:#E8EEF9; --brand-line:#AFC0E4; --brand-tint:#F4F7FC; --accent:#E8EEF9; --accent-foreground:#16408F; }
-html[data-theme="red"]    { --primary:#C8372D; --ring:#C8372D; --brand:#C8372D; --brand-hover:#A62B23; --brand-soft:#FBECEA; --brand-line:#EDB9B4; --brand-tint:#FDF6F5; --accent:#FBECEA; --accent-foreground:#C8372D; }
-html[data-theme="green"]  { --primary:#2F7A4F; --ring:#2F7A4F; --brand:#2F7A4F; --brand-hover:#24603E; --brand-soft:#E8F3EC; --brand-line:#AFD3BD; --brand-tint:#F4FAF6; --accent:#E8F3EC; --accent-foreground:#2F7A4F; }
+html[data-theme="teal"]   { --primary:#0E8A8A; --ring:#0E8A8A; --brand:#0E8A8A; --brand-hover:#0B6F6F; --brand-soft:#E3F4F4; --brand-line:#9ED6D6; --brand-tint:#F2FAFA; --accent:#E3F4F4; --accent-foreground:#0E8A8A; --brand-mute:color-mix(in srgb, var(--brand) 45%, white); }
+html[data-theme="navy"]   { --primary:#16408F; --ring:#16408F; --brand:#16408F; --brand-hover:#103273; --brand-soft:#E8EEF9; --brand-line:#AFC0E4; --brand-tint:#F4F7FC; --accent:#E8EEF9; --accent-foreground:#16408F; --brand-mute:color-mix(in srgb, var(--brand) 45%, white); }
+html[data-theme="red"]    { --primary:#C8372D; --ring:#C8372D; --brand:#C8372D; --brand-hover:#A62B23; --brand-soft:#FBECEA; --brand-line:#EDB9B4; --brand-tint:#FDF6F5; --accent:#FBECEA; --accent-foreground:#C8372D; --brand-mute:color-mix(in srgb, var(--brand) 45%, white); }
+html[data-theme="green"]  { --primary:#2F7A4F; --ring:#2F7A4F; --brand:#2F7A4F; --brand-hover:#24603E; --brand-soft:#E8F3EC; --brand-line:#AFD3BD; --brand-tint:#F4FAF6; --accent:#E8F3EC; --accent-foreground:#2F7A4F; --brand-mute:color-mix(in srgb, var(--brand) 45%, white); }
 html[data-radius="0"] { --radius-card: 4px; --radius: 0.25rem; }
 html[data-radius="2"] { --radius-card: 18px; --radius: 0.625rem; }
 html[data-font="0"] #app { zoom: .94; }
@@ -97,6 +106,9 @@ html[data-wm="0"] { --wm-opacity: .04; }
 html[data-wm="2"] { --wm-opacity: .14; }
 html[data-dens="0"] { --card-px: 16px; --card-py: 14px; --card-py-sm: 12px; --page-gap: 12px; --row-py: 7px; }
 html[data-dens="2"] { --card-px: 24px; --card-py: 22px; --card-py-sm: 20px; --page-gap: 20px; --row-py: 14px; }
+html[data-menu="1"] { --menu-py: 5px; --menu-px: 9px; --menu-gap: 2px; --menu-font: 12px; --menu-icon: 14px; }
+html[data-zebra="1"] { --zebra-bg: var(--surface-1); }
+html[data-zebra="1"] tbody tr:nth-child(even):not(:hover), html[data-zebra="1"] .yb-zebra > :nth-child(even):not(:hover) { background-color: var(--zebra-bg); }
 html[data-motion="0"] *, html[data-motion="0"] *::before, html[data-motion="0"] *::after { animation: none !important; transition: none !important; }
 
 @theme inline {

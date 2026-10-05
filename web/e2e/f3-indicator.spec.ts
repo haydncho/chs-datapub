@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { openPage, toast, waitForAction } from './support'
 
 /** F3 指标上线: A4 + 新建指标 → 向导四步 (定义指标 · 设规则 · 绑呈现 · 预览提交) → 提交上线审批. */

@@ -1,163 +1,1094 @@
 {
   "scopes": [
-    "全市汇总",
-    "县区汇总",
-    "机构具名",
-    "机构匿名",
-    "病组",
-    "诊疗行为",
-    "病例级"
+    "全息图",
+    "归集",
+    "配置",
+    "洞察",
+    "发布",
+    "反馈",
+    "设置",
+    "机构端功能"
+  ],
+  "groups": [
+    {
+      "id": "cock",
+      "name": "全息图",
+      "pages": [
+        {
+          "code": "cockpit",
+          "name": "医保数据全息图"
+        }
+      ]
+    },
+    {
+      "id": "s1",
+      "name": "归集",
+      "pages": [
+        {
+          "code": "A3",
+          "name": "数据归集中心"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "name": "配置",
+      "pages": [
+        {
+          "code": "A4",
+          "name": "指标配置"
+        },
+        {
+          "code": "A5",
+          "name": "图表与报告模板"
+        },
+        {
+          "code": "A13",
+          "name": "展示策略"
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "name": "洞察",
+      "pages": [
+        {
+          "code": "A6",
+          "name": "智能推荐"
+        },
+        {
+          "code": "A7",
+          "name": "病种专题工作台"
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "name": "发布",
+      "pages": [
+        {
+          "code": "A8",
+          "name": "发布工作流"
+        },
+        {
+          "code": "A9",
+          "name": "流程设计器"
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "name": "反馈",
+      "pages": [
+        {
+          "code": "A10",
+          "name": "意见与申诉"
+        },
+        {
+          "code": "A11",
+          "name": "预警提醒"
+        }
+      ]
+    },
+    {
+      "id": "gov",
+      "name": "设置",
+      "pages": [
+        {
+          "code": "A12",
+          "name": "用户权限"
+        },
+        {
+          "code": "A14",
+          "name": "审计日志"
+        },
+        {
+          "code": "A15",
+          "name": "外观配置"
+        }
+      ]
+    },
+    {
+      "id": "org",
+      "name": "机构端功能",
+      "pages": [
+        {
+          "code": "B1",
+          "name": "本院全息"
+        },
+        {
+          "code": "B2",
+          "name": "病组下钻"
+        },
+        {
+          "code": "B3",
+          "name": "对标PK"
+        },
+        {
+          "code": "B4",
+          "name": "报告中心"
+        },
+        {
+          "code": "B5",
+          "name": "意见核对"
+        },
+        {
+          "code": "B6",
+          "name": "政策培训"
+        },
+        {
+          "code": "B7",
+          "name": "区域外患者"
+        },
+        {
+          "code": "C3",
+          "name": "外部监督"
+        },
+        {
+          "code": "D1",
+          "name": "移动端"
+        }
+      ]
+    }
   ],
   "roles": [
     {
+      "code": "convener",
       "name": "召集人",
-      "users": 2,
-      "grants": [
-        "全",
-        "全",
-        "全",
-        "全",
-        "全",
-        "全",
-        "脱敏"
-      ]
+      "users": 1,
+      "side": "bureau",
+      "dataScope": "全域",
+      "pages": [
+        "cockpit",
+        "A1",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14",
+        "A15",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "C3",
+        "D1"
+      ],
+      "readOnly": false,
+      "canApprove": true
     },
     {
+      "code": "admin",
       "name": "行政管理组",
-      "users": 6,
-      "grants": [
-        "全",
-        "全",
-        "全",
-        "全",
-        "全",
-        "全",
-        "脱敏"
-      ]
-    },
-    {
-      "name": "委托分析团队",
-      "users": 4,
-      "grants": [
-        "全",
-        "全",
-        "—",
-        "全",
-        "全",
-        "全",
-        "受控"
-      ]
-    },
-    {
-      "name": "专家组",
-      "users": 3,
-      "grants": [
-        "全",
-        "全",
-        "—",
-        "全",
-        "全",
-        "聚合",
-        "—"
-      ]
-    },
-    {
-      "name": "定点医疗机构",
-      "users": 52,
-      "grants": [
-        "汇总",
-        "—",
-        "本院",
-        "分位",
-        "本院",
-        "本院",
-        "—"
-      ]
-    },
-    {
-      "name": "县区医保",
-      "users": 4,
-      "grants": [
-        "汇总",
-        "本县",
-        "本县",
-        "分位",
-        "本县",
-        "—",
-        "—"
-      ]
-    },
-    {
-      "name": "省级",
       "users": 2,
-      "grants": [
-        "汇总",
-        "汇总",
-        "—",
-        "—",
-        "—",
-        "—",
-        "—"
+      "side": "bureau",
+      "dataScope": "全域",
+      "pages": [
+        "cockpit",
+        "A1",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "A7",
+        "A8",
+        "A9",
+        "A10",
+        "A11",
+        "A12",
+        "A13",
+        "A14",
+        "A15"
+      ],
+      "readOnly": false,
+      "canApprove": false
+    },
+    {
+      "code": "analyst",
+      "name": "委托分析团队",
+      "users": 1,
+      "side": "bureau",
+      "dataScope": "受控环境",
+      "pages": [
+        "A1",
+        "A6",
+        "A7"
+      ],
+      "readOnly": false,
+      "canApprove": false
+    },
+    {
+      "code": "hospital",
+      "name": "医保办主任",
+      "users": 1,
+      "side": "org",
+      "dataScope": "本院具名",
+      "pages": [
+        "cockpit",
+        "A1",
+        "B1",
+        "B2",
+        "B3",
+        "B4",
+        "B5",
+        "B6",
+        "B7",
+        "D1"
+      ],
+      "readOnly": false,
+      "canApprove": false
+    },
+    {
+      "code": "county",
+      "name": "县区医保部门",
+      "users": 0,
+      "side": "org",
+      "dataScope": "本县具名",
+      "pages": [
+        "cockpit",
+        "A1",
+        "A11",
+        "C3"
+      ],
+      "readOnly": false,
+      "canApprove": false
+    },
+    {
+      "code": "auditor",
+      "name": "安全审计员",
+      "users": 1,
+      "side": "bureau",
+      "dataScope": "只读审计",
+      "pages": [
+        "A1",
+        "A14"
+      ],
+      "readOnly": true,
+      "canApprove": false
+    },
+    {
+      "code": "observer",
+      "name": "社会监督员",
+      "users": 1,
+      "side": "org",
+      "dataScope": "公开层",
+      "pages": [
+        "A1",
+        "C3"
+      ],
+      "readOnly": false,
+      "canApprove": false
+    }
+  ],
+  "matrix": [
+    {
+      "role": "convener",
+      "name": "召集人",
+      "cells": [
+        {
+          "group": "cock",
+          "level": "access",
+          "pages": [
+            {
+              "code": "cockpit",
+              "name": "医保数据全息图"
+            }
+          ],
+          "total": 1
+        },
+        {
+          "group": "s1",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A3",
+              "name": "数据归集中心"
+            }
+          ],
+          "total": 1
+        },
+        {
+          "group": "s2",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A4",
+              "name": "指标配置"
+            },
+            {
+              "code": "A5",
+              "name": "图表与报告模板"
+            },
+            {
+              "code": "A13",
+              "name": "展示策略"
+            }
+          ],
+          "total": 3
+        },
+        {
+          "group": "s3",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A6",
+              "name": "智能推荐"
+            },
+            {
+              "code": "A7",
+              "name": "病种专题工作台"
+            }
+          ],
+          "total": 2
+        },
+        {
+          "group": "s4",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A8",
+              "name": "发布工作流"
+            },
+            {
+              "code": "A9",
+              "name": "流程设计器"
+            }
+          ],
+          "total": 2
+        },
+        {
+          "group": "s5",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A10",
+              "name": "意见与申诉"
+            },
+            {
+              "code": "A11",
+              "name": "预警提醒"
+            }
+          ],
+          "total": 2
+        },
+        {
+          "group": "gov",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A12",
+              "name": "用户权限"
+            },
+            {
+              "code": "A14",
+              "name": "审计日志"
+            },
+            {
+              "code": "A15",
+              "name": "外观配置"
+            }
+          ],
+          "total": 3
+        },
+        {
+          "group": "org",
+          "level": "access",
+          "pages": [
+            {
+              "code": "B1",
+              "name": "本院全息"
+            },
+            {
+              "code": "B2",
+              "name": "病组下钻"
+            },
+            {
+              "code": "B3",
+              "name": "对标PK"
+            },
+            {
+              "code": "B4",
+              "name": "报告中心"
+            },
+            {
+              "code": "B5",
+              "name": "意见核对"
+            },
+            {
+              "code": "B6",
+              "name": "政策培训"
+            },
+            {
+              "code": "B7",
+              "name": "区域外患者"
+            },
+            {
+              "code": "C3",
+              "name": "外部监督"
+            },
+            {
+              "code": "D1",
+              "name": "移动端"
+            }
+          ],
+          "total": 9
+        }
+      ]
+    },
+    {
+      "role": "admin",
+      "name": "行政管理组",
+      "cells": [
+        {
+          "group": "cock",
+          "level": "access",
+          "pages": [
+            {
+              "code": "cockpit",
+              "name": "医保数据全息图"
+            }
+          ],
+          "total": 1
+        },
+        {
+          "group": "s1",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A3",
+              "name": "数据归集中心"
+            }
+          ],
+          "total": 1
+        },
+        {
+          "group": "s2",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A4",
+              "name": "指标配置"
+            },
+            {
+              "code": "A5",
+              "name": "图表与报告模板"
+            },
+            {
+              "code": "A13",
+              "name": "展示策略"
+            }
+          ],
+          "total": 3
+        },
+        {
+          "group": "s3",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A6",
+              "name": "智能推荐"
+            },
+            {
+              "code": "A7",
+              "name": "病种专题工作台"
+            }
+          ],
+          "total": 2
+        },
+        {
+          "group": "s4",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A8",
+              "name": "发布工作流"
+            },
+            {
+              "code": "A9",
+              "name": "流程设计器"
+            }
+          ],
+          "total": 2
+        },
+        {
+          "group": "s5",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A10",
+              "name": "意见与申诉"
+            },
+            {
+              "code": "A11",
+              "name": "预警提醒"
+            }
+          ],
+          "total": 2
+        },
+        {
+          "group": "gov",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A12",
+              "name": "用户权限"
+            },
+            {
+              "code": "A14",
+              "name": "审计日志"
+            },
+            {
+              "code": "A15",
+              "name": "外观配置"
+            }
+          ],
+          "total": 3
+        },
+        {
+          "group": "org",
+          "level": "none",
+          "pages": [],
+          "total": 9
+        }
+      ]
+    },
+    {
+      "role": "analyst",
+      "name": "委托分析团队",
+      "cells": [
+        {
+          "group": "cock",
+          "level": "none",
+          "pages": [],
+          "total": 1
+        },
+        {
+          "group": "s1",
+          "level": "none",
+          "pages": [],
+          "total": 1
+        },
+        {
+          "group": "s2",
+          "level": "none",
+          "pages": [],
+          "total": 3
+        },
+        {
+          "group": "s3",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A6",
+              "name": "智能推荐"
+            },
+            {
+              "code": "A7",
+              "name": "病种专题工作台"
+            }
+          ],
+          "total": 2
+        },
+        {
+          "group": "s4",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "s5",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "gov",
+          "level": "none",
+          "pages": [],
+          "total": 3
+        },
+        {
+          "group": "org",
+          "level": "none",
+          "pages": [],
+          "total": 9
+        }
+      ]
+    },
+    {
+      "role": "hospital",
+      "name": "医保办主任",
+      "cells": [
+        {
+          "group": "cock",
+          "level": "access",
+          "pages": [
+            {
+              "code": "cockpit",
+              "name": "医保数据全息图"
+            }
+          ],
+          "total": 1
+        },
+        {
+          "group": "s1",
+          "level": "none",
+          "pages": [],
+          "total": 1
+        },
+        {
+          "group": "s2",
+          "level": "none",
+          "pages": [],
+          "total": 3
+        },
+        {
+          "group": "s3",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "s4",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "s5",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "gov",
+          "level": "none",
+          "pages": [],
+          "total": 3
+        },
+        {
+          "group": "org",
+          "level": "access",
+          "pages": [
+            {
+              "code": "B1",
+              "name": "本院全息"
+            },
+            {
+              "code": "B2",
+              "name": "病组下钻"
+            },
+            {
+              "code": "B3",
+              "name": "对标PK"
+            },
+            {
+              "code": "B4",
+              "name": "报告中心"
+            },
+            {
+              "code": "B5",
+              "name": "意见核对"
+            },
+            {
+              "code": "B6",
+              "name": "政策培训"
+            },
+            {
+              "code": "B7",
+              "name": "区域外患者"
+            },
+            {
+              "code": "D1",
+              "name": "移动端"
+            }
+          ],
+          "total": 9
+        }
+      ]
+    },
+    {
+      "role": "county",
+      "name": "县区医保部门",
+      "cells": [
+        {
+          "group": "cock",
+          "level": "access",
+          "pages": [
+            {
+              "code": "cockpit",
+              "name": "医保数据全息图"
+            }
+          ],
+          "total": 1
+        },
+        {
+          "group": "s1",
+          "level": "none",
+          "pages": [],
+          "total": 1
+        },
+        {
+          "group": "s2",
+          "level": "none",
+          "pages": [],
+          "total": 3
+        },
+        {
+          "group": "s3",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "s4",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "s5",
+          "level": "access",
+          "pages": [
+            {
+              "code": "A11",
+              "name": "预警提醒"
+            }
+          ],
+          "total": 2
+        },
+        {
+          "group": "gov",
+          "level": "none",
+          "pages": [],
+          "total": 3
+        },
+        {
+          "group": "org",
+          "level": "access",
+          "pages": [
+            {
+              "code": "C3",
+              "name": "外部监督"
+            }
+          ],
+          "total": 9
+        }
+      ]
+    },
+    {
+      "role": "auditor",
+      "name": "安全审计员",
+      "cells": [
+        {
+          "group": "cock",
+          "level": "none",
+          "pages": [],
+          "total": 1
+        },
+        {
+          "group": "s1",
+          "level": "none",
+          "pages": [],
+          "total": 1
+        },
+        {
+          "group": "s2",
+          "level": "none",
+          "pages": [],
+          "total": 3
+        },
+        {
+          "group": "s3",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "s4",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "s5",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "gov",
+          "level": "readonly",
+          "pages": [
+            {
+              "code": "A14",
+              "name": "审计日志"
+            }
+          ],
+          "total": 3
+        },
+        {
+          "group": "org",
+          "level": "none",
+          "pages": [],
+          "total": 9
+        }
+      ]
+    },
+    {
+      "role": "observer",
+      "name": "社会监督员",
+      "cells": [
+        {
+          "group": "cock",
+          "level": "none",
+          "pages": [],
+          "total": 1
+        },
+        {
+          "group": "s1",
+          "level": "none",
+          "pages": [],
+          "total": 1
+        },
+        {
+          "group": "s2",
+          "level": "none",
+          "pages": [],
+          "total": 3
+        },
+        {
+          "group": "s3",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "s4",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "s5",
+          "level": "none",
+          "pages": [],
+          "total": 2
+        },
+        {
+          "group": "gov",
+          "level": "none",
+          "pages": [],
+          "total": 3
+        },
+        {
+          "group": "org",
+          "level": "access",
+          "pages": [
+            {
+              "code": "C3",
+              "name": "外部监督"
+            }
+          ],
+          "total": 9
+        }
       ]
     }
   ],
   "users": [
     {
+      "login": "chenzy",
       "name": "陈志远",
-      "org": "示例市医保局",
       "role": "召集人",
-      "scope": "全域",
-      "lastLogin": "今天 09:02",
-      "status": "on"
-    },
-    {
-      "name": "李华",
+      "roleCode": "convener",
       "org": "示例市医保局",
-      "role": "行政管理组",
       "scope": "全域",
+      "side": "bureau",
+      "sides": [
+        "bureau",
+        "org"
+      ],
+      "identities": [
+        {
+          "roleCode": "convener",
+          "role": "召集人",
+          "org": "示例市医保局",
+          "side": "bureau"
+        },
+        {
+          "roleCode": "admin",
+          "role": "行政管理组",
+          "org": "示例市医保局",
+          "side": "bureau"
+        },
+        {
+          "roleCode": "hospital",
+          "role": "医保办主任",
+          "org": "示例市第一人民医院",
+          "side": "org"
+        }
+      ],
+      "lastLogin": "今天 09:02",
+      "status": "on",
+      "enabled": true
+    },
+    {
+      "login": "lihua",
+      "name": "李华",
+      "role": "行政管理组",
+      "roleCode": "admin",
+      "org": "示例市医保局",
+      "scope": "全域",
+      "side": "bureau",
+      "sides": [
+        "bureau"
+      ],
+      "identities": [
+        {
+          "roleCode": "admin",
+          "role": "行政管理组",
+          "org": "示例市医保局",
+          "side": "bureau"
+        }
+      ],
       "lastLogin": "今天 08:47",
-      "status": "on"
+      "status": "on",
+      "enabled": true
     },
     {
+      "login": "wangq",
+      "name": "王倩",
+      "role": "行政管理组",
+      "roleCode": "admin",
+      "title": "承办人",
+      "org": "示例市医保局",
+      "scope": "全域",
+      "side": "bureau",
+      "sides": [
+        "bureau"
+      ],
+      "identities": [
+        {
+          "roleCode": "admin",
+          "role": "行政管理组",
+          "org": "示例市医保局",
+          "side": "bureau"
+        }
+      ],
+      "lastLogin": "昨天 16:20",
+      "status": "on",
+      "enabled": true
+    },
+    {
+      "login": "zhangy",
       "name": "张悦",
-      "org": "受托高校团队",
       "role": "委托分析团队",
+      "roleCode": "analyst",
+      "org": "示例市医保局",
       "scope": "受控环境",
-      "lastLogin": "昨天",
-      "status": "on"
+      "side": "bureau",
+      "sides": [
+        "bureau"
+      ],
+      "identities": [
+        {
+          "roleCode": "analyst",
+          "role": "委托分析团队",
+          "org": "示例市医保局",
+          "side": "bureau"
+        }
+      ],
+      "lastLogin": "3 天前",
+      "status": "on",
+      "enabled": true
     },
     {
-      "name": "刘教授",
-      "org": "专家组",
-      "role": "专家组",
-      "scope": "聚合数据",
-      "lastLogin": "09-30",
-      "status": "on"
-    },
-    {
+      "login": "limin",
       "name": "李敏",
+      "role": "医保办主任",
+      "roleCode": "hospital",
       "org": "示例市第一人民医院",
-      "role": "定点医疗机构",
-      "scope": "本院",
-      "lastLogin": "今天 09:12",
-      "status": "on"
+      "scope": "本院具名",
+      "side": "org",
+      "sides": [
+        "org"
+      ],
+      "identities": [
+        {
+          "roleCode": "hospital",
+          "role": "医保办主任",
+          "org": "示例市第一人民医院",
+          "side": "org"
+        }
+      ],
+      "lastLogin": "今天 04:12",
+      "status": "on",
+      "enabled": true
     },
     {
-      "name": "钱丽",
-      "org": "甲县医保局",
-      "role": "县区医保",
-      "scope": "甲县",
-      "lastLogin": "10-02",
-      "status": "on"
+      "login": "zhaoan",
+      "name": "赵安",
+      "role": "安全审计员",
+      "roleCode": "auditor",
+      "org": "示例市医保局",
+      "scope": "只读审计",
+      "side": "bureau",
+      "sides": [
+        "bureau"
+      ],
+      "identities": [
+        {
+          "roleCode": "auditor",
+          "role": "安全审计员",
+          "org": "示例市医保局",
+          "side": "bureau"
+        }
+      ],
+      "lastLogin": "2 天前",
+      "status": "on",
+      "enabled": true
     },
     {
-      "name": "孙磊",
-      "org": "乙县社区3",
-      "role": "定点医疗机构",
-      "scope": "本院",
-      "lastLogin": "07-01",
-      "status": "off"
+      "login": "zhoumin",
+      "name": "周敏",
+      "role": "社会监督员",
+      "roleCode": "observer",
+      "org": "公开汇总层",
+      "scope": "公开层",
+      "side": "org",
+      "sides": [
+        "org"
+      ],
+      "identities": [
+        {
+          "roleCode": "observer",
+          "role": "社会监督员",
+          "org": "公开汇总层",
+          "side": "org"
+        }
+      ],
+      "lastLogin": "08-26",
+      "status": "expiring",
+      "enabled": true
     }
   ],
-  "userSummary": "共 86 人 · 近 90 天未登录 4 人将自动停用"
+  "summary": {
+    "total": 7,
+    "bureau": 5,
+    "org": 2,
+    "expiring": 1,
+    "disabled": 0,
+    "pending": 0
+  },
+  "userSummary": "共 7 人 · 医保局端 5 · 机构端 2 · 超过 30 天未登录 1 人即将停用"
 }

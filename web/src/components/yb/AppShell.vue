@@ -3,30 +3,49 @@ import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { Toaster } from 'vue-sonner'
 import 'vue-sonner/style.css'
+import '@/styles/nav.css'
 import { cn } from '@/lib/utils'
 import { stamp } from '@/lib/format'
-import { VIEWERS, ZONE_STYLE, stageOf, visibleStages, type PageCode } from '@/app/nav'
+import { iconOf } from '@/lib/icons'
+import {
+  SIDE_ICON, SIDE_NAME, VIEWERS, ZONE_STYLE, breadcrumbOf, isActiveItem, locate, navFor,
+  type NavItem, type PageCode, type Side,
+} from '@/app/nav'
 import { goPage } from '@/app/router'
 import { shell } from '@/app/shell'
 import { session, sessionViewer } from '@/app/session'
 import { logout } from '@/api/auth'
 import type { Layout } from '@/app/pages'
+import NavGroupMenu from './nav/NavGroupMenu.vue'
+import NavBreadcrumb from './nav/NavBreadcrumb.vue'
+import UserMenu from './nav/UserMenu.vue'
 
 const route = useRoute()
 const code = computed(() => (route.meta.code as PageCode | undefined) ?? 'cockpit')
 const layout = computed(() => (route.meta.layout as Layout | undefined) ?? 'workbench')
-const stage = computed(() => stageOf(code.value))
-// nav shows only what the logged-in identity may open (everything in demo mode)
-const stages = computed(() => visibleStages(session.current?.pages ?? null))
-const stagePages = computed(() => stages.value.find(g => g.id === stage.value.id)?.pages ?? stage.value.pages)
+const query = computed(() => route.query as Record<string, unknown>)
+// 当前端:会话身份的 side;无会话回退到医保局端。无会话的演示模式下,页面属于哪一端就显示哪一端的菜单。
+const sessionSide = computed<Side>(() => {
+  const s = (session.current?.identity as { side?: string } | undefined)?.side
+  return s === 'org' ? 'org' : 'bureau'
+})
+const side = computed<Side>(() => (session.current ? sessionSide.value : (locate(code.value, query.value, sessionSide.value)?.side ?? 'bureau')))
+// 菜单只显示当前身份可访问的页面(演示模式下为全部)
+const groups = computed(() => navFor(side.value, session.current?.pages ?? null))
+const activeGroup = computed(() => groups.value.find(g => g.items.some(i => isActiveItem(i, code.value, query.value))))
+const crumb = computed(() => breadcrumbOf(side.value, code.value, query.value))
+const GroupIcon = computed(() => iconOf(activeGroup.value?.icon ?? 'layout-dashboard'))
+const SideIcon = computed(() => iconOf(SIDE_ICON[side.value]))
 // identity: page override (全息图 身份切换) › logged-in session › per-page demo identity
 const viewer = computed(() => shell.viewerOverride ?? sessionViewer.value ?? VIEWERS[code.value])
 const canSwitch = computed(() => (session.current?.identities.length ?? 0) > 1)
+function go(item: NavItem) {
+  goPage(item.code, item.query)
+}
 async function signOut() {
   await logout()
   goPage('A1')
 }
-const stageLabel = computed(() => (stage.value.n ? `环节 ${stage.value.n} · ${stage.value.name}` : stage.value.name))
 
 // Watermark refreshes every minute so the timestamp stays current.
 const now = ref(new Date())
@@ -63,8 +82,8 @@ watch(code, (next, prev) => {
         <span>医保专网 · 政务云 · 10.86.12.47</span>
       </div>
 
-      <!-- header with the five-stage path -->
-      <header class="sticky top-0 z-40 flex h-[60px] items-center gap-5 border-b border-line-1 bg-white px-5 text-ink-1">
+      <!-- header: 端徽标 › 一级菜单(分组) -->
+      <header class="sticky top-0 z-40 flex h-[60px] items-center gap-4 border-b border-line-1 bg-white px-5 text-ink-1">
         <div class="flex shrink-0 items-center gap-2.5">
           <div class="flex size-[30px] items-center justify-center rounded-lg bg-brand text-[15px] font-bold text-white">医</div>
           <div class="leading-tight">
@@ -72,78 +91,56 @@ watch(code, (next, prev) => {
             <div class="text-[11px] text-ink-4">定向发布平台</div>
           </div>
         </div>
-        <nav class="flex min-w-0 flex-1 items-center [justify-content:safe_center] overflow-x-auto [scrollbar-width:none]">
-          <div v-for="g in stages" :key="g.id" class="flex items-center gap-0.5">
-            <span v-if="g.id === 's1' || g.id === 'gov'" class="mx-1.5 h-5 w-px bg-line-1" />
-            <button
-              type="button"
-              :class="cn(
-                'flex h-9 cursor-pointer items-center gap-[7px] rounded-lg px-[9px] whitespace-nowrap hover:bg-surface-3',
-                g.id === stage.id ? 'bg-brand-soft font-semibold text-brand' : 'font-medium text-ink-2',
-              )"
-              @click="goPage(g.pages[0]![0])"
-            >
-              <span
-                v-if="g.n"
-                :class="cn(
-                  'yb-num flex size-[22px] items-center justify-center rounded-md text-xs font-semibold',
-                  g.id === stage.id ? 'bg-brand text-white' : 'bg-surface-3 text-ink-4',
-                )"
-              >{{ g.n }}</span>
-              <span>{{ g.name }}</span>
-            </button>
-            <span v-if="g.n && g.id !== 's5'" class="text-xs text-ink-6">›</span>
-          </div>
-        </nav>
-        <div class="flex shrink-0 items-center gap-2.5">
-          <div class="text-right leading-[1.3]">
-            <div class="text-[13px] font-medium">
-              {{ viewer.name }} <span class="font-normal text-ink-4">· {{ viewer.role }}</span>
-            </div>
-            <div class="text-[11px] text-ink-4">{{ viewer.scope }}</div>
-          </div>
-          <div class="flex size-8 items-center justify-center rounded-full bg-brand-soft font-semibold text-brand">
-            {{ viewer.name[0] }}
-          </div>
-          <template v-if="session.current">
-            <span class="h-5 w-px bg-line-1" />
-            <div class="flex flex-col items-start leading-[1.3]">
-              <button
-                v-if="canSwitch"
-                type="button"
-                class="cursor-pointer text-[11px] whitespace-nowrap text-ink-4 hover:text-brand"
-                title="切换本次身份"
-                @click="goPage('A1')"
-              >切换身份</button>
-              <button
-                type="button"
-                class="cursor-pointer text-xs whitespace-nowrap text-ink-3 hover:text-bad"
-                data-testid="logout"
-                @click="signOut"
-              >退出</button>
-            </div>
+        <span class="yb-side shrink-0" :data-side="side" data-testid="side-badge" :title="`当前端:${SIDE_NAME[side]}`">
+          <component :is="SideIcon" class="size-3.5" aria-hidden="true" />{{ SIDE_NAME[side] }}
+        </span>
+        <span class="h-5 w-px shrink-0 bg-line-1" />
+        <nav class="flex min-w-0 flex-1 items-center justify-center gap-0.5" aria-label="一级菜单">
+          <template v-for="g in groups" :key="g.id">
+            <span v-if="g.n && g.n === '01'" class="mx-1.5 h-5 w-px bg-line-1" />
+            <span v-if="g.id === 'gov' && side === 'bureau'" class="mx-1.5 h-5 w-px bg-line-1" />
+            <NavGroupMenu
+              :group="g"
+              :uid="g.id"
+              :active="g.id === activeGroup?.id"
+              :code="code"
+              :query="query"
+              @go="go"
+            />
+            <span v-if="g.n && g.n !== '05'" class="text-xs text-ink-6" aria-hidden="true">›</span>
           </template>
-        </div>
+        </nav>
+        <UserMenu :viewer="viewer" :logged-in="!!session.current" :can-switch="canSwitch" @switch="goPage('A1')" @logout="signOut" />
       </header>
 
-      <!-- sub-tabs of the current stage -->
-      <div v-if="layout === 'workbench'" class="flex h-[46px] items-center gap-1 border-b border-line-1 bg-white px-6">
-        <span class="mr-2.5 text-xs text-ink-5">{{ stageLabel }}</span>
-        <button
-          v-for="[id, name] in stagePages"
-          :key="id"
-          type="button"
-          :class="cn(
-            'flex h-[46px] cursor-pointer items-center border-b-2 px-3 whitespace-nowrap',
-            id === code ? 'border-brand font-semibold text-ink-1' : 'border-transparent text-ink-4',
-          )"
-          @click="goPage(id)"
-        >{{ name }}</button>
+      <!-- 二级标签行:左端为所选分组(同色),其后是该分组的页面;右侧面包屑 + 分区标签 -->
+      <div v-if="layout === 'workbench'" class="yb-l2">
+        <span v-if="activeGroup" class="yb-l2-group" data-testid="l2-group">
+          <component :is="GroupIcon" aria-hidden="true" />
+          <span v-if="activeGroup.n" class="yb-num">{{ activeGroup.n }}</span>{{ activeGroup.name }}
+        </span>
+        <nav class="flex items-center gap-1" aria-label="二级菜单">
+          <button
+            v-for="it in activeGroup?.items ?? []"
+            :key="it.code + (it.query?.who ?? '')"
+            type="button"
+            class="yb-l2-tab"
+            :aria-current="isActiveItem(it, code, query) ? 'page' : undefined"
+            @click="go(it)"
+          >
+            <component :is="iconOf(it.icon)" aria-hidden="true" />{{ it.name }}
+          </button>
+        </nav>
         <div class="flex-1" />
+        <NavBreadcrumb :crumb="crumb" class="mr-4" />
         <span
           v-if="viewer.zone"
           :class="cn('rounded-full px-2.5 py-[3px] text-xs font-medium whitespace-nowrap', ZONE_STYLE[viewer.zone.tone])"
         >{{ viewer.zone.label }}</span>
+      </div>
+      <!-- 全息图:无二级标签行,仅一条细面包屑 -->
+      <div v-else-if="layout === 'cockpit'" class="yb-crumb-bar">
+        <NavBreadcrumb :crumb="crumb" dark />
       </div>
     </template>
 

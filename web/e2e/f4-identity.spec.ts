@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { openPage } from './support'
 
 /**
@@ -42,11 +43,11 @@ test.describe('F4 身份切换', () => {
     await page.goto('/#/cockpit?who=conv')
     await expect(header(page)).toContainText('陈志远')
 
-    // leaving the cockpit drops the identity override (A3 shows its own viewer)
+    // 离开全息图后身份覆盖被丢弃,顶栏回到登录会话的身份(陈志远 · 召集人)
     await idTab(page, '定点医药机构').click()
     await expect(header(page)).toContainText('李敏')
     await openPage(page, 'A3')
     await expect(header(page)).not.toContainText('李敏')
-    await expect(header(page)).toContainText('李华')
+    await expect(header(page)).toContainText('陈志远')
   })
 })

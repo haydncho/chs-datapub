@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import { type Page } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { backendUp, getPageModel, openPage, reloadPage, toast, waitForAction } from './support'
 
 /**

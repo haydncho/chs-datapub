@@ -36,6 +36,89 @@
     "标准",
     "深"
   ],
+  "menuStyle": [
+    "标准",
+    "紧凑"
+  ],
+  "zebra": [
+    "关闭",
+    "开启"
+  ],
+  "presets": [
+    {
+      "id": "gov-std",
+      "name": "政务蓝·标准",
+      "desc": "默认观感,均衡通用",
+      "patch": {
+        "c": 0,
+        "dens": 1,
+        "rad": 1,
+        "card": 1,
+        "scr": 0,
+        "menu": 0,
+        "zebra": 0
+      }
+    },
+    {
+      "id": "teal-compact",
+      "name": "医保青·紧凑",
+      "desc": "信息密度高,适合长表格",
+      "patch": {
+        "c": 1,
+        "dens": 0,
+        "rad": 0,
+        "card": 0,
+        "scr": 0,
+        "menu": 1,
+        "zebra": 1
+      }
+    },
+    {
+      "id": "navy-screen",
+      "name": "深海蓝·大屏优先",
+      "desc": "深色大屏、丰富动效",
+      "patch": {
+        "c": 2,
+        "dens": 1,
+        "rad": 1,
+        "card": 2,
+        "scr": 0,
+        "menu": 0,
+        "zebra": 0,
+        "mot": 2
+      }
+    },
+    {
+      "id": "red-solemn",
+      "name": "中国红·庄重",
+      "desc": "直角描边,水印加深",
+      "patch": {
+        "c": 3,
+        "dens": 1,
+        "rad": 0,
+        "card": 0,
+        "scr": 1,
+        "menu": 0,
+        "zebra": 0,
+        "wm": 2
+      }
+    },
+    {
+      "id": "green-relaxed",
+      "name": "墨绿·舒展",
+      "desc": "宽松留白,大字号",
+      "patch": {
+        "c": 4,
+        "dens": 2,
+        "rad": 2,
+        "card": 2,
+        "scr": 2,
+        "menu": 0,
+        "zebra": 0,
+        "font": 2
+      }
+    }
+  ],
   "palettes": [
     {
       "name": "深空蓝",

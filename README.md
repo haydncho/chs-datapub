@@ -4,7 +4,7 @@ Implementation of the Claude Design prototypes (v3) as a real application.
 
 | Dir | What |
 |---|---|
-| `web/` | frontend — Vue 3 + TypeScript + shadcn-vue + Tailwind CSS v4, all 24 screens (全息图, A1–A15, B1–B7, C3, D1) — see `web/README.md` |
+| `web/` | frontend — Vue 3 + TypeScript + shadcn-vue + Tailwind CSS v4, all 24 screens,首页即登录页(先选医保局端 / 机构端,再登录并选择身份;两端有各自分类一致的三层菜单)(全息图, A1–A15, B1–B7, C3, D1) — see `web/README.md` |
 | `server/core/` | Java 21 · Spring Boot 3 core API, Flyway schema, hash-chained audit trail — see `server/README.md` |
 | `server/analytics/` | Python · FastAPI DRG analytics (病组全景, 选题推荐) |
 | `docker-compose.yml` | PostgreSQL 16 + core + analytics + nginx-served web → `docker compose up --build`, open http://localhost:8000 |

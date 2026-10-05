@@ -17,6 +17,14 @@ export interface A15PreviewRow {
   tone: 'bad' | 'ok'
 }
 
+/** 一键应用的预设方案;`patch` 里的字段会写入草稿(对应 Appearance 的同名字段) */
+export interface A15Preset {
+  id: string
+  name: string
+  desc: string
+  patch: { c: number; dens: number; rad: number; card: number; scr: number; menu: number; zebra: number; font?: number; mot?: number; wm?: number }
+}
+
 export interface A15Data {
   /** names of the 5 theme colours (swatches come from THEME_COLORS) */
   themeNames: string[]
@@ -26,6 +34,9 @@ export interface A15Data {
   cardStyle: string[]
   motion: string[]
   watermark: string[]
+  menuStyle: string[]
+  zebra: string[]
+  presets: A15Preset[]
   /** cockpit palettes */
   palettes: A15Palette[]
   rotation: { min: number; max: number; step: number }
@@ -40,6 +51,15 @@ export const A15_SEED: A15Data = {
   cardStyle: ['描边', '渐变', '投影'],
   motion: ['关闭', '标准', '丰富'],
   watermark: ['浅', '标准', '深'],
+  menuStyle: ['标准', '紧凑'],
+  zebra: ['关闭', '开启'],
+  presets: [
+    { id: 'gov-std', name: '政务蓝·标准', desc: '默认观感,均衡通用', patch: { c: 0, dens: 1, rad: 1, card: 1, scr: 0, menu: 0, zebra: 0 } },
+    { id: 'teal-compact', name: '医保青·紧凑', desc: '信息密度高,适合长表格', patch: { c: 1, dens: 0, rad: 0, card: 0, scr: 0, menu: 1, zebra: 1 } },
+    { id: 'navy-screen', name: '深海蓝·大屏优先', desc: '深色大屏、丰富动效', patch: { c: 2, dens: 1, rad: 1, card: 2, scr: 0, menu: 0, zebra: 0, mot: 2 } },
+    { id: 'red-solemn', name: '中国红·庄重', desc: '直角描边,水印加深', patch: { c: 3, dens: 1, rad: 0, card: 0, scr: 1, menu: 0, zebra: 0, wm: 2 } },
+    { id: 'green-relaxed', name: '墨绿·舒展', desc: '宽松留白,大字号', patch: { c: 4, dens: 2, rad: 2, card: 2, scr: 2, menu: 0, zebra: 0, font: 2 } },
+  ],
   palettes: [
     { name: '深空蓝', bg: '#040A16', panel: 'rgba(30,91,216,.22)', accent: '#3AA0FF' },
     { name: '墨黑', bg: '#0A0B0D', panel: 'rgba(255,255,255,.07)', accent: '#F5B74E' },
@@ -55,6 +75,6 @@ export const A15_SEED: A15Data = {
 
 /**
  * ACTIONS:
- * publishAppearance(Appearance: { c, dens, rad, font, card, scr, mot, rot, wm, name }) — 保存并发布: saves the platform-wide appearance; applies to all users;
+ * publishAppearance(Appearance: { c, dens, rad, font, card, scr, mot, rot, wm, name, custom?, menu?, zebra? }) — 保存并发布: saves the platform-wide appearance; applies to all users (clients read it back via GET /api/v1/settings/appearance);
  * resetAppearance({}) — 恢复默认: restores the default appearance platform-wide.
  */

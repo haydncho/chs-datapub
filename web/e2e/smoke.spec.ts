@@ -1,4 +1,5 @@
-import { expect, test, type ConsoleMessage } from '@playwright/test'
+import { type ConsoleMessage } from '@playwright/test'
+import { expect, test } from './fixtures'
 import { ROUTES, openPage } from './support'
 
 /**

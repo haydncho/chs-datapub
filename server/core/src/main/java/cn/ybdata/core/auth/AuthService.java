@@ -33,7 +33,7 @@ public class AuthService {
     /** One identity a user holds (user_identity joined with role and org). */
     public record Identity(long id, String role, String roleName, String dataScope, String orgId, String orgName,
                            String label, String description, String zone, String tone, String initial,
-                           String target, String who, String scope) {}
+                           String target, String who, String scope, String side) {}
 
     private record User(long id, String login, String name, String phone, boolean enabled) {}
 
@@ -87,7 +87,21 @@ public class AuthService {
 
     // ── login ────────────────────────────────────────────────────────────────
 
-    public Issued login(String method, String rawAccount, String secret, String remote, String terminal) {
+    /** 端: 医保局端 / 机构端 (user_identity.side) */
+    public static final String BUREAU = "bureau";
+    public static final String ORG = "org";
+
+    /** {@code side} 请求值规范化: 空 → null(不过滤);只接受 bureau / org,否则 400。 */
+    public static String normalizeSide(String raw) {
+        if (raw == null || raw.isBlank()) return null;
+        String s = raw.trim();
+        if (!BUREAU.equals(s) && !ORG.equals(s)) throw new AuthException(HttpStatus.BAD_REQUEST, "不支持的端: " + s);
+        return s;
+    }
+
+    /** @param side 所选端(bureau / org),null 表示不限 */
+    public Issued login(String method, String rawAccount, String secret, String side, String remote, String terminal) {
+        String wantSide = normalizeSide(side);
         if (!"cert".equals(method) && !"sms".equals(method)) throw new AuthException(HttpStatus.BAD_REQUEST, "不支持的登录方式");
         String account = account(rawAccount);
         if (secret == null || secret.isBlank()) {
@@ -111,8 +125,11 @@ public class AuthService {
         User u = user.get();
         attempt(account, method, true, null, remote);
         jdbc.sql("update app_user set last_login = now() where id = :id").param("id", u.id()).update();
-        Identity id = identities(u.id()).stream().findFirst()
-                .orElseThrow(() -> new AuthException(HttpStatus.FORBIDDEN, "该账号未分配任何身份,请联系管理员"));
+        List<Identity> held = identities(u.id());
+        if (held.isEmpty()) throw new AuthException(HttpStatus.FORBIDDEN, "该账号未分配任何身份,请联系管理员");
+        Identity id = held.stream().filter(x -> wantSide == null || wantSide.equals(x.side())).findFirst()
+                .orElseThrow(() -> new AuthException(HttpStatus.FORBIDDEN,
+                        "该账号在" + sideName(wantSide) + "下没有可用身份,请改选另一端"));
         Issued issued = openSession(u, id, method, remote, null);
         audit.record(u.name(), "A1", "login", json.valueToTree(Map.of("method", method, "identity", id.label())), terminal);
         return issued;
@@ -121,8 +138,14 @@ public class AuthService {
     /** Switch the session to another identity the user holds; the old token is revoked. */
     public Issued switchIdentity(Actor actor, long identityId, String remote, String terminal) {
         requireSession(actor);
-        Identity id = identities(actor.userId()).stream().filter(x -> x.id() == identityId).findFirst()
+        List<Identity> held = identities(actor.userId());
+        Identity id = held.stream().filter(x -> x.id() == identityId).findFirst()
                 .orElseThrow(() -> new AuthException(HttpStatus.FORBIDDEN, "未持有该身份"));
+        // 身份切换只在登录时所选的端内进行;换端需重新登录并选择另一端
+        Identity current = held.stream().filter(x -> x.id() == actor.identityId()).findFirst().orElse(null);
+        if (current != null && !current.side().equals(id.side())) {
+            throw new AuthException(HttpStatus.FORBIDDEN, "该身份属于" + sideName(id.side()) + ",与当前所选端不符,请重新登录并选择该端");
+        }
         var cur = jdbc.sql("select method, expires_at from auth_session where id = :id")
                 .param("id", actor.sessionId())
                 .query((rs, i) -> Map.entry(rs.getString(1), rs.getObject(2, OffsetDateTime.class))).single();
@@ -181,8 +204,9 @@ public class AuthService {
     public Map<String, Object> me(Actor actor) {
         requireSession(actor);
         User u = findUserById(actor.userId());
-        List<Identity> ids = identities(u.id());
-        Identity cur = ids.stream().filter(x -> x.id() == actor.identityId()).findFirst().orElseThrow();
+        Identity cur = identities(u.id()).stream().filter(x -> x.id() == actor.identityId()).findFirst().orElseThrow();
+        // 身份列表只含当前身份所在端的身份
+        List<Identity> ids = identities(u.id()).stream().filter(x -> x.side().equals(cur.side())).toList();
         OffsetDateTime exp = jdbc.sql("select expires_at from auth_session where id = :id")
                 .param("id", actor.sessionId()).query(OffsetDateTime.class).single();
         Map<String, Object> out = new LinkedHashMap<>();
@@ -212,6 +236,7 @@ public class AuthService {
         if (i.orgId() != null) m.put("orgId", i.orgId());
         if (i.orgName() != null) m.put("orgName", i.orgName());
         m.put("scope", i.scope());
+        m.put("side", i.side());
         return m;
     }
 
@@ -225,7 +250,7 @@ public class AuthService {
     public List<Identity> identities(long userId) {
         return jdbc.sql("""
                 select i.id, i.role_code, r.name as role_name, r.data_scope, i.org_id, o.name as org_name, i.label,
-                       i.description, i.zone, i.tone, i.initial, i.target, i.who, i.scope
+                       i.description, i.zone, i.tone, i.initial, i.target, i.who, i.scope, i.side
                 from user_identity i
                 join app_role r on r.code = i.role_code
                 left join org o on o.id = i.org_id
@@ -234,7 +259,7 @@ public class AuthService {
                 .query((rs, n) -> new Identity(rs.getLong("id"), rs.getString("role_code"), rs.getString("role_name"),
                         rs.getString("data_scope"), rs.getString("org_id"), rs.getString("org_name"), rs.getString("label"),
                         rs.getString("description"), rs.getString("zone"), rs.getString("tone"), rs.getString("initial"),
-                        rs.getString("target"), rs.getString("who"), rs.getString("scope")))
+                        rs.getString("target"), rs.getString("who"), rs.getString("scope"), rs.getString("side")))
                 .list();
     }
 
@@ -322,6 +347,10 @@ public class AuthService {
         if (a.isEmpty()) throw new AuthException(HttpStatus.BAD_REQUEST, "请输入账号");
         if (a.length() > 64) throw new AuthException(HttpStatus.BAD_REQUEST, "账号过长");
         return a;
+    }
+
+    static String sideName(String side) {
+        return ORG.equals(side) ? "机构端" : "医保局端";
     }
 
     static String mask(String phone) {

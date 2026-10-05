@@ -135,3 +135,11 @@ locally and mention it in your final report.
 - `v-press` (`@/lib/a11y`) on clickable rows/cards that must stay `div`s (focusable, Enter/Space); everything else clickable is a `<button>`.
 - `authHeaders()` from `@/api/client` for raw `fetch` downloads.
 - Access: `session.current.pages` (logged-in identity) drives the route guard and nav.
+
+## 菜单与导航(壳层)
+
+- 层级:端(医保局端 / 机构端,头部徽标)› 一级菜单(分组,带图标;医保局端主线 01–05 带序号)› 二级菜单(页面,带图标)+ 面包屑(端 / 分组 / 页面)。
+- 数据:`src/app/nav.ts` 的 `navFor(side, allowed)` 返回按端、按权限过滤后的菜单树(空分组去掉);`breadcrumbOf(side, code, query)` 给面包屑;`isActiveItem` 判断选中(全息图按 `?who=` 区分两端)。
+- 端取自 `session.current.identity.side`(无会话为 `'bureau'`);`allowed` 取自 `session.current.pages`。新增页面时:在 `nav.ts` 对应端的菜单树加一项,图标名在 `src/lib/icons.ts` 登记。
+- 组件:`components/yb/nav/{NavGroupMenu,UserMenu,NavBreadcrumb}.vue`,样式 `src/styles/nav.css`(由 AppShell 引入)。一级菜单悬停/聚焦展开下拉,Tab / Enter / ↑↓ / Esc 可用。
+- 壳层高度不变:安全条 26 + 顶栏 60 + 二级行 46 = 132px(页面里的 `calc(100vh-132px)` 与加载骨架屏沿用);全息图多一条 30px 细面包屑栏。

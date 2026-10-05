@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { Palette, SlidersHorizontal, MonitorPlay, Stamp, Undo2, RotateCcw, Save, CircleDot, CircleCheck } from '@lucide/vue'
+import { Palette, SlidersHorizontal, MonitorPlay, Stamp, Undo2, RotateCcw, Save, CircleDot, CircleCheck, Eye } from '@lucide/vue'
 import { PageHeader, PageSection } from '@/components/yb'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -141,6 +142,8 @@ function rot(dir: 1 | -1) {
   const { min, max, step } = data.value.rotation
   draft.rot = Math.min(max, Math.max(min, draft.rot + dir * step))
 }
+/** 窄屏(< 1280)预览抽屉 */
+const previewOpen = ref(false)
 const STEP_BTN = 'flex size-7 max-xl:size-10 cursor-pointer items-center justify-center rounded-md border border-line-1 bg-white hover:bg-surface-1'
 
 const custom = computed({ get: () => draft.custom ?? '', set: v => { draft.custom = v } })
@@ -282,7 +285,7 @@ function logoUpload() {
       </div>
 
       <!-- 实时预览 -->
-      <aside class="flex flex-col gap-3 xl:sticky xl:top-[136px]" aria-label="实时预览">
+      <aside class="flex flex-col gap-3 max-xl:hidden xl:sticky xl:top-[136px]" aria-label="实时预览">
         <div class="flex items-center gap-2">
           <span class="text-xs font-semibold text-ink-4">实时预览</span>
           <span class="text-[11px] text-ink-5">· 随未保存的草稿变化</span>
@@ -296,6 +299,30 @@ function logoUpload() {
         <p v-if="tryLive" class="text-[11px] text-warn-ink">试用中:草稿已临时应用到整个平台,离开本页未保存将自动回滚。</p>
       </aside>
     </div>
+
+    <!-- 窄屏:悬浮「预览」按钮 + 底部抽屉(桌面保持右侧常驻预览) -->
+    <Button
+      class="fixed right-4 bottom-4 z-30 h-12 gap-2 rounded-full px-5 shadow-lg xl:hidden"
+      data-testid="preview-toggle"
+      aria-label="打开实时预览"
+      @click="previewOpen = true"
+    ><Eye class="size-4" />预览</Button>
+    <Sheet v-model:open="previewOpen">
+      <SheetContent side="bottom" class="max-h-[88vh] gap-0 overflow-y-auto rounded-t-2xl p-0 xl:hidden" data-testid="preview-sheet">
+        <SheetHeader class="border-b border-line-1 px-4 py-3 pr-12">
+          <SheetTitle class="text-[15px]">实时预览</SheetTitle>
+          <SheetDescription class="text-[11px]">随未保存的草稿变化</SheetDescription>
+        </SheetHeader>
+        <div class="flex flex-col gap-3 p-4">
+          <label class="flex min-h-10 cursor-pointer items-center justify-between gap-2 text-xs text-ink-3">
+            在真实页面上试用
+            <Switch v-model="tryLive" size="lg" aria-label="在真实页面上试用草稿" />
+          </label>
+          <AppearancePreview :draft="draft" :palettes="data.palettes" :rows="data.previewRows" />
+          <p v-if="tryLive" class="text-[11px] text-warn-ink">试用中:草稿已临时应用到整个平台,离开本页未保存将自动回滚。</p>
+        </div>
+      </SheetContent>
+    </Sheet>
 
     <AlertDialog v-model:open="confirmReset">
       <AlertDialogContent>

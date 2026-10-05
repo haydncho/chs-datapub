@@ -75,7 +75,7 @@ const SIDE_TABS = [['all', '全部'], ['bureau', '医保局端'], ['org', '机�
     <div class="max-xl:overflow-x-auto">
     <div class="max-xl:min-w-[1060px]">
     <div :class="[GRID, 'max-xl:static sticky top-(--sticky-top) z-[6] bg-surface-1 py-2.5 text-xs text-ink-4']">
-      <span /><span>姓名 / 登录名</span><span>角色 / 持有身份</span><span>所属机构</span><span>端</span><span>最近登录</span><span>状态</span><span class="text-right">操作</span>
+      <span /><span class="max-xl:sticky max-xl:left-0 max-xl:z-[1] max-xl:bg-surface-1">姓名 / 登录名</span><span>角色 / 持有身份</span><span>所属机构</span><span>端</span><span>最近登录</span><span>状态</span><span class="text-right">操作</span>
     </div>
 
     <div
@@ -85,7 +85,7 @@ const SIDE_TABS = [['all', '全部'], ['bureau', '医保局端'], ['org', '机�
       :class="[GRID, 'border-b border-line-3 py-row [&:nth-child(even)]:bg-(--zebra-bg)', u.status === 'off' ? 'text-ink-4' : '']"
     >
       <span :class="cn('flex size-[30px] items-center justify-center rounded-full font-semibold', u.status === 'off' ? 'bg-surface-3 text-ink-4' : 'bg-brand-soft text-brand')">{{ u.name[0] }}</span>
-      <div class="min-w-0">
+      <div class="min-w-0 max-xl:sticky max-xl:left-0 max-xl:z-[1] max-xl:bg-white">
         <div class="truncate font-medium">{{ u.name }}</div>
         <div class="yb-num truncate text-[11px] text-ink-5">{{ u.login }}</div>
       </div>

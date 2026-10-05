@@ -67,11 +67,11 @@ function has(c: A12Cell, code: string) {
     <div class="max-xl:overflow-x-auto">
     <div class="max-xl:min-w-[980px]">
       <div :class="[GRID, 'max-xl:static sticky top-(--sticky-top) z-[6] bg-surface-1 py-2.5 text-xs text-ink-4']">
-        <span>角色</span>
+        <span class="max-xl:sticky max-xl:left-0 max-xl:z-[1] max-xl:bg-surface-1">角色</span>
         <span v-for="g in data.groups" :key="g.id" class="text-center whitespace-nowrap">{{ g.name }}</span>
       </div>
       <div v-for="row in data.matrix" :key="row.role" :class="[GRID, 'border-b border-line-3 py-2.5 last:border-b-0']">
-        <div class="min-w-0">
+        <div class="min-w-0 max-xl:sticky max-xl:left-0 max-xl:z-[1] max-xl:bg-white">
           <div class="flex items-center gap-1.5">
             <span class="truncate font-semibold">{{ row.name }}</span>
             <Badge :variant="roleOf(row.role)?.side === 'bureau' ? 'brand' : 'ok'" class="px-1.5 py-0 font-normal">{{ SIDE_NAME[roleOf(row.role)?.side ?? 'bureau'] }}</Badge>

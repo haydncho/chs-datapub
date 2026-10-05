@@ -88,3 +88,44 @@ test.describe('触屏菜单(横屏)', () => {
     await expect(page.getByRole('menuitem', { name: /智能推荐/ })).toHaveCount(0)
   })
 })
+
+test.describe('Pad 专项', () => {
+  test.use({ viewport: { width: 768, height: 1024 }, hasTouch: true })
+
+  test('外观配置:窄屏用悬浮「预览」按钮 + 底部抽屉,桌面才常驻右侧预览', async ({ page }) => {
+    await page.goto('/#/A15')
+    await expect(page.getByTestId('preview-toggle')).toBeVisible({ timeout: 15_000 })
+    await expect(page.locator('aside[aria-label="实时预览"]')).toBeHidden()
+    await page.getByTestId('preview-toggle').tap()
+    await expect(page.getByTestId('preview-sheet')).toBeVisible()
+    await expect(page.getByTestId('preview-sheet').getByText('实时预览')).toBeVisible()
+  })
+
+  test('用户权限:表格横向滚动后第一列仍固定在左侧', async ({ page }) => {
+    await page.goto('/#/A12')
+    await expect(page.locator('[data-screen-label]').first()).toBeVisible({ timeout: 15_000 })
+    await page.waitForTimeout(600)
+    for (const label of ['角色', '姓名 / 登录名']) {
+      const offset = await page.evaluate(label => {
+        const sc = [...document.querySelectorAll('[class*="overflow-x-auto"]')]
+          .find(e => e.scrollWidth > e.clientWidth + 5 && (e.textContent ?? '').includes(label))
+        if (!sc) return null
+        sc.scrollLeft = 320
+        const first = sc.querySelector('[class*="sticky"][class*="left-0"]') as HTMLElement
+        return Math.round(first.getBoundingClientRect().left - sc.getBoundingClientRect().left)
+      }, label)
+      expect(offset, `「${label}」所在表格应可横向滚动`).not.toBeNull()
+      expect(offset).toBe(0)
+    }
+  })
+})
+
+test.describe('桌面不退化', () => {
+  test.use({ viewport: { width: 1440, height: 900 } })
+
+  test('外观配置:桌面常驻右侧预览,不出现悬浮预览按钮', async ({ page }) => {
+    await page.goto('/#/A15')
+    await expect(page.locator('aside[aria-label="实时预览"]')).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('preview-toggle')).toBeHidden()
+  })
+})

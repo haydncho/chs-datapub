@@ -59,7 +59,7 @@
 .yb-l2-group svg { width: 14px; height: 14px; }
 .yb-l2-group .yb-num { opacity: .75; }
 .yb-l2-tab {
-  display: flex; height: 30px; cursor: pointer; align-items: center; gap: 6px; padding: 0 12px; white-space: nowrap;
+  display: flex; height: 28px; cursor: pointer; align-items: center; gap: 6px; padding: 0 12px; white-space: nowrap;
   border-radius: 8px; color: var(--ink-4); font-size: 12px; /* 与左侧一级菜单名称(.yb-l2-group)同字号 */ transition: background-color .12s, color .12s;
 }
 .yb-l2-tab svg { width: 15px; height: 15px; flex: none; color: var(--ink-5); }
@@ -133,8 +133,8 @@ html[data-menu="1"] .yb-l2-tab { padding: 0 9px; gap: 4px; }
   .yb-l2 { padding: 0 16px; gap: 8px; }
   .yb-l2-scroll { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .yb-l2-scroll::-webkit-scrollbar { display: none; }
-  .yb-l2-tab { height: 40px; touch-action: manipulation; }
-  .yb-l2-group { height: 32px; }
+  .yb-l2-tab { height: 36px; touch-action: manipulation; }
+  .yb-l2-group { height: 36px; }
   .yb-crumb-bar { padding: 0 16px; }
 
   /* 用户区 */

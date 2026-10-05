@@ -32,7 +32,7 @@ const TONES: Record<StatTone, { g: string; bd: string; ic: string; ib: string }>
   bad: { g: '#FDECEA', bd: '#F5CFCB', ic: '#D2362B', ib: '#fff' },
   info: { g: 'var(--brand-soft)', bd: '#DCE6F8', ic: 'var(--brand)', ib: '#fff' },
 }
-const VALUE_SIZE: Record<StatSize, string> = { sm: 'text-[26px]', md: 'text-[30px]', lg: 'text-[32px]' }
+const VALUE_SIZE: Record<StatSize, string> = { sm: 'text-[26px]', md: 'text-[30px] max-xl:text-[26px]', lg: 'text-[32px] max-xl:text-[28px]' }
 const t = computed(() => TONES[props.tone])
 const parts = computed(() => (props.unit != null ? { vn: String(props.value), vu: props.unit } : splitUnit(props.value)))
 </script>

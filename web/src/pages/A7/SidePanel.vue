@@ -30,7 +30,7 @@ const TABS: A7Tab[] = ['批注', '数据核查', '版本']
 </script>
 
 <template>
-  <aside class="sticky top-[calc(var(--sticky-top)+136px)] flex flex-col gap-3 py-5 pr-6">
+  <aside class="sticky top-[calc(var(--sticky-top)+136px)] flex flex-col gap-3 py-5 pr-6 max-xl:static max-xl:px-4 max-xl:pt-0 max-xl:pb-10">
     <div class="yb-card rounded-xl">
       <div class="flex gap-5 border-b border-line-2 px-4" role="tablist">
         <button
@@ -40,17 +40,17 @@ const TABS: A7Tab[] = ['批注', '数据核查', '版本']
           role="tab"
           :aria-selected="t === tab"
           :class="cn(
-            'cursor-pointer border-b-2 py-[11px]',
+            'cursor-pointer border-b-2 py-[11px] max-xl:min-h-11',
             t === tab ? 'border-ink-1 font-semibold text-ink-1' : 'border-transparent font-normal text-ink-4',
           )"
           @click="tab = t"
         >{{ t }}</button>
       </div>
-      <div class="flex max-h-[calc(100vh-300px)] flex-col gap-2.5 overflow-y-auto px-4 py-3.5">
+      <div class="flex max-h-[calc(100vh-300px)] flex-col max-xl:max-h-none gap-2.5 overflow-y-auto px-4 py-3.5">
         <template v-if="tab === '批注'">
           <button
             type="button"
-            class="h-8 shrink-0 cursor-pointer rounded-lg border border-dashed border-brand-line bg-brand-tint text-xs font-medium whitespace-nowrap text-brand hover:brightness-[.98]"
+            class="h-8 shrink-0 cursor-pointer max-xl:h-11 rounded-lg border border-dashed border-brand-line bg-brand-tint text-xs font-medium whitespace-nowrap text-brand hover:brightness-[.98]"
             @click="$emit('export')"
           >导出为意见单 · {{ pending }} 条待处理</button>
           <div
@@ -76,7 +76,7 @@ const TABS: A7Tab[] = ['批注', '数据核查', '版本']
               v-else
               role="button"
               tabindex="0"
-              class="mt-1.5 inline-block cursor-pointer text-xs text-brand hover:underline"
+              class="mt-1.5 inline-block cursor-pointer text-xs text-brand hover:underline max-xl:-mb-1.5 max-xl:py-3"
               @click="$emit('resolve', c.k)"
               @keydown.enter="$emit('resolve', c.k)"
             >标记已处理</span>

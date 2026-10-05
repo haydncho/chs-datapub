@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
 import { PageHeader, PageSection } from '@/components/yb'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -48,6 +48,13 @@ const current = computed<A6Topic | undefined>(
 )
 const curStatus = computed(() => (current.value ? statusOf(current.value) : 'open'))
 
+const detailEl = ref<HTMLElement | null>(null)
+function pick(id: string) {
+  selId.value = id
+  // 窄屏下详情在列表下方,点选后滚动到详情
+  if (window.innerWidth < 1280) nextTick(() => detailEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+}
+
 let navT: ReturnType<typeof setTimeout> | undefined
 onBeforeUnmount(() => clearTimeout(navT))
 
@@ -78,7 +85,7 @@ function skip() {
           v-for="f in data.filters"
           :key="f"
           :class="cn(
-            'cursor-pointer rounded-full border px-3.5 py-1.5 text-xs whitespace-nowrap',
+            'cursor-pointer rounded-full border px-3.5 py-1.5 text-xs whitespace-nowrap max-xl:flex max-xl:min-h-10 max-xl:items-center',
             f === filter ? 'border-brand-line bg-brand-soft text-brand' : 'border-line-1 bg-white text-ink-3',
           )"
           @click="filter = f"
@@ -86,7 +93,7 @@ function skip() {
       </div>
     </PageHeader>
 
-    <div class="grid grid-cols-[minmax(0,1fr)_380px] items-start gap-4">
+    <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
       <!-- candidate list -->
       <div class="flex flex-col gap-2.5">
         <div
@@ -100,12 +107,12 @@ function skip() {
           v-for="t in topics"
           :key="t.id"
           :class="cn(
-            'grid cursor-pointer grid-cols-[64px_minmax(0,1fr)_260px_110px] items-center gap-5 rounded-xl border bg-white px-5 py-4 hover:border-brand-line',
+            'grid cursor-pointer grid-cols-[64px_minmax(0,1fr)_260px_110px] items-center gap-5 rounded-xl border bg-white px-5 py-4 hover:border-brand-line max-xl:grid-cols-[64px_minmax(0,1fr)_auto] max-xl:gap-x-4 max-xl:gap-y-3',
             t.id === current?.id ? 'border-brand shadow-[0_0_0_3px_var(--brand-soft)] hover:border-brand' : 'border-line-1',
           )"
-          @click="selId = t.id"
+          @click="pick(t.id)"
         >
-          <div class="text-center">
+          <div class="text-center max-xl:row-span-2">
             <div :class="cn('yb-num text-[32px] leading-none font-semibold', scoreCls(t.score))">{{ t.score }}</div>
             <div class="mt-0.5 text-[11px] text-ink-5">综合得分</div>
           </div>
@@ -117,7 +124,7 @@ function skip() {
             <div class="mt-1 text-[15px] font-semibold">{{ t.title }}</div>
             <div class="truncate text-xs text-ink-4">{{ t.why }}</div>
           </div>
-          <div class="flex flex-col gap-1">
+          <div class="flex flex-col gap-1 max-xl:col-span-2 max-xl:col-start-2 max-xl:row-start-2">
             <div
               v-for="(v, j) in t.dims"
               :key="j"
@@ -130,14 +137,14 @@ function skip() {
               <span class="yb-num text-right text-ink-3">{{ v }}</span>
             </div>
           </div>
-          <div class="text-right">
+          <div class="text-right max-xl:col-start-3 max-xl:row-start-1">
             <span :class="cn('rounded-full px-2.5 py-0.5 text-[11px] font-medium', STATUS[statusOf(t)].cls)">{{ STATUS[statusOf(t)].label }}</span>
           </div>
         </div>
       </div>
 
       <!-- detail -->
-      <div v-if="current" class="sticky top-(--sticky-panel) flex flex-col gap-3.5 rounded-xl border border-line-1 bg-white p-5">
+      <div v-if="current" ref="detailEl" class="scroll-mt-20 xl:sticky xl:top-(--sticky-panel) flex flex-col gap-3.5 rounded-xl border border-line-1 bg-white p-5">
         <div>
           <div class="text-xs text-ink-4">{{ current.kind }} · 得分 {{ current.score }}</div>
           <div class="mt-0.5 text-[17px] font-semibold">{{ current.title }}</div>
@@ -156,8 +163,8 @@ function skip() {
           </div>
         </div>
         <div v-if="curStatus === 'open'" class="flex gap-2">
-          <Button class="h-9 flex-1" @click="adopt">采纳 · 进入专题工作台</Button>
-          <Button variant="outline" class="h-9 px-3.5 font-normal text-ink-4" @click="skip">本期不做</Button>
+          <Button class="h-9 flex-1 max-xl:h-10" @click="adopt">采纳 · 进入专题工作台</Button>
+          <Button variant="outline" class="h-9 px-3.5 font-normal text-ink-4 max-xl:h-10" @click="skip">本期不做</Button>
         </div>
         <div v-else class="rounded-[10px] bg-ok-soft px-3 py-2.5 text-xs text-ok-ink">
           {{ curStatus === 'adopted' ? '✓ 已采纳 · 专题工作台进行中' : '本期不做 · 下期自动重新评估' }}

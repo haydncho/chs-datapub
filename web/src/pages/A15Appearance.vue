@@ -64,7 +64,7 @@ function onScroll() {
   let cur = SECTIONS[0]!.id
   for (const s of SECTIONS) {
     const el = document.getElementById(s.id)
-    if (el && el.getBoundingClientRect().top <= 150) cur = s.id
+    if (el && el.getBoundingClientRect().top <= (window.innerWidth < 1280 ? 230 : 150)) cur = s.id
   }
   active.value = cur
 }
@@ -141,7 +141,7 @@ function rot(dir: 1 | -1) {
   const { min, max, step } = data.value.rotation
   draft.rot = Math.min(max, Math.max(min, draft.rot + dir * step))
 }
-const STEP_BTN = 'flex size-7 cursor-pointer items-center justify-center rounded-md border border-line-1 bg-white hover:bg-surface-1'
+const STEP_BTN = 'flex size-7 max-xl:size-10 cursor-pointer items-center justify-center rounded-md border border-line-1 bg-white hover:bg-surface-1'
 
 const custom = computed({ get: () => draft.custom ?? '', set: v => { draft.custom = v } })
 const menu = computed({ get: () => draft.menu ?? 0, set: v => { draft.menu = v } })
@@ -158,7 +158,7 @@ function logoUpload() {
 
     <!-- 吸顶操作条 -->
     <div
-      class="sticky top-(--sticky-top) z-20 -mx-2 flex items-center gap-3 rounded-[10px] border border-line-1 bg-white/95 px-4 py-2.5 shadow-sm backdrop-blur"
+      class="sticky top-(--sticky-top) z-20 -mx-2 flex items-center gap-3 max-xl:mx-0 rounded-[10px] border border-line-1 bg-white/95 px-4 py-2.5 shadow-sm backdrop-blur"
       role="region"
       aria-label="外观操作条"
     >
@@ -176,19 +176,19 @@ function logoUpload() {
           <span class="truncate text-ink-4">已是当前发布的外观</span>
         </template>
       </div>
-      <Button variant="outline" class="gap-1.5 px-3.5 font-normal" @click="confirmReset = true"><RotateCcw class="size-3.5" />恢复默认</Button>
-      <Button variant="outline" class="gap-1.5 px-3.5 font-normal" :disabled="!dirty" @click="discard"><Undo2 class="size-3.5" />放弃更改</Button>
-      <Button class="gap-1.5" :disabled="!canSave" @click="save"><Save class="size-3.5" />保存并发布</Button>
+      <Button variant="outline" class="gap-1.5 px-3.5 font-normal whitespace-nowrap max-xl:h-10" @click="confirmReset = true"><RotateCcw class="size-3.5" />恢复默认</Button>
+      <Button variant="outline" class="gap-1.5 px-3.5 font-normal whitespace-nowrap max-xl:h-10" :disabled="!dirty" @click="discard"><Undo2 class="size-3.5" />放弃更改</Button>
+      <Button class="gap-1.5 whitespace-nowrap max-xl:h-10" :disabled="!canSave" @click="save"><Save class="size-3.5" />保存并发布</Button>
     </div>
 
-    <div class="grid grid-cols-[140px_minmax(0,1fr)_460px] items-start gap-5">
+    <div class="flex flex-col gap-4 xl:grid xl:grid-cols-[140px_minmax(0,1fr)_460px] xl:items-start xl:gap-5">
       <!-- 分区导航 -->
-      <nav aria-label="设置分区" class="sticky top-[136px] flex flex-col gap-0.5">
+      <nav aria-label="设置分区" class="sticky top-[136px] z-10 flex flex-col gap-0.5 max-xl:top-[calc(var(--sticky-top)+60px)] max-xl:-mx-2 max-xl:flex-row max-xl:gap-2 max-xl:overflow-x-auto max-xl:rounded-[10px] max-xl:border max-xl:border-line-1 max-xl:bg-white max-xl:p-1.5">
         <button
           v-for="s in SECTIONS"
           :key="s.id"
           type="button"
-          class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px]"
+          class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] max-xl:min-h-10 max-xl:shrink-0 max-xl:px-4 max-xl:whitespace-nowrap"
           :class="active === s.id ? 'bg-brand-soft font-semibold text-brand' : 'text-ink-3 hover:bg-surface-3'"
           :aria-current="active === s.id ? 'true' : undefined"
           @click="go(s.id)"
@@ -234,7 +234,7 @@ function logoUpload() {
 
         <SettingSection id="sec-screen" title="全息图大屏" desc="大屏的配色与自动轮播节奏。">
           <SettingRow title="大屏配色" stack>
-            <div class="grid grid-cols-3 gap-2.5" role="group" aria-label="大屏配色">
+            <div class="grid grid-cols-3 gap-2.5 max-md:grid-cols-1" role="group" aria-label="大屏配色">
               <button
                 v-for="(t, i) in data.palettes"
                 :key="t.name"
@@ -267,7 +267,7 @@ function logoUpload() {
 
         <SettingSection id="sec-brand" title="品牌与水印" desc="平台名称、机构标识与实名水印浓度。">
           <SettingRow title="平台名称" desc="显示在顶栏与浏览器标题旁">
-            <Input v-model="draft.name" maxlength="40" aria-label="平台名称" class="h-9 w-[240px] rounded-lg border-line-4 bg-white px-3 text-[13px] shadow-none md:text-[13px]" />
+            <Input v-model="draft.name" maxlength="40" aria-label="平台名称" class="h-9 w-[240px] max-xl:h-10 rounded-lg border-line-4 bg-white px-3 text-[13px] shadow-none md:text-[13px]" />
           </SettingRow>
           <SettingRow title="机构标识" desc="建议 128×128 的 SVG / PNG">
             <div class="flex items-center gap-3">
@@ -282,12 +282,12 @@ function logoUpload() {
       </div>
 
       <!-- 实时预览 -->
-      <aside class="sticky top-[136px] flex flex-col gap-3" aria-label="实时预览">
+      <aside class="flex flex-col gap-3 xl:sticky xl:top-[136px]" aria-label="实时预览">
         <div class="flex items-center gap-2">
           <span class="text-xs font-semibold text-ink-4">实时预览</span>
           <span class="text-[11px] text-ink-5">· 随未保存的草稿变化</span>
           <div class="flex-1" />
-          <label class="flex cursor-pointer items-center gap-2 text-xs text-ink-3">
+          <label class="flex cursor-pointer items-center gap-2 text-xs text-ink-3 max-xl:min-h-10">
             在真实页面上试用
             <Switch v-model="tryLive" size="lg" aria-label="在真实页面上试用草稿" />
           </label>

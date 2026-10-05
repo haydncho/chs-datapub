@@ -51,6 +51,20 @@ watch(
   { immediate: true },
 )
 
+/* ---------- 竖屏提示(当次会话记住关闭) */
+const PORTRAIT_KEY = 'yb-cockpit-portrait-hint'
+const portrait = ref(false)
+const portraitHidden = ref(false)
+try { portraitHidden.value = sessionStorage.getItem(PORTRAIT_KEY) === '1' } catch { /* 无存储 */ }
+const checkPortrait = () => { portrait.value = window.innerWidth < window.innerHeight }
+function closePortrait() {
+  portraitHidden.value = true
+  try { sessionStorage.setItem(PORTRAIT_KEY, '1') } catch { /* 仅本次有效 */ }
+}
+checkPortrait()
+window.addEventListener('resize', checkPortrait)
+onBeforeUnmount(() => window.removeEventListener('resize', checkPortrait))
+
 /* ---------- scale-to-fit 1920×1080 canvas */
 const box = ref<HTMLDivElement | null>(null)
 const fit = ref({ cs: 0.5, cx: 0, cy: 0, fs: false })
@@ -192,19 +206,27 @@ onBeforeUnmount(() => {
 })
 
 /* ---------- toolbar button states */
-const tb = 'h-8 px-3.5 text-xs font-normal transition-[filter] duration-150 hover:brightness-110'
+const tb = 'h-8 px-3.5 max-xl:h-10 max-xl:px-4 text-xs font-normal transition-[filter] duration-150 hover:brightness-110'
 const tbOn = 'border-[#3AA0FF] bg-[rgba(58,160,255,.16)] text-[#CFE6FF]'
 </script>
 
 <template>
   <section data-screen-label="01 全息图" class="flex-1 px-5 pt-3.5 pb-6">
+    <div
+      v-if="portrait && !portraitHidden"
+      role="status"
+      class="mb-3 flex items-center gap-3 rounded-lg border border-[rgba(255,184,77,.35)] bg-[rgba(255,184,77,.12)] px-3.5 py-2 text-xs text-[#FFD9A0]"
+    >
+      <span class="flex-1">竖屏下大屏被缩得很小,建议横屏查看</span>
+      <button type="button" class="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-md text-base text-[#FFD9A0]" aria-label="关闭提示" @click="closePortrait">✕</button>
+    </div>
     <div class="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2.5">
       <span class="text-xs whitespace-nowrap text-[#6F84A6]">查看身份</span>
       <div class="flex gap-0.5 rounded-[10px] bg-[#0E1A2E] p-[3px]">
         <div v-press
           v-for="t in idTabs"
           :key="t.i"
-          :class="cn('cursor-pointer rounded-lg px-3.5 py-[5px] leading-[1.3]', t.on ? 'bg-white' : 'bg-transparent')"
+          :class="cn('cursor-pointer rounded-lg px-3.5 py-[5px] leading-[1.3] max-xl:flex max-xl:min-h-10 max-xl:flex-col max-xl:justify-center', t.on ? 'bg-white' : 'bg-transparent')"
           @click="pickIdentity(t.i)"
         >
           <div :class="cn('text-[13px] font-semibold whitespace-nowrap', t.on ? 'text-ink-1' : 'text-[#AEBBD0]')">{{ t.label }}</div>
@@ -219,8 +241,8 @@ const tbOn = 'border-[#3AA0FF] bg-[rgba(58,160,255,.16)] text-[#CFE6FF]'
       <Button variant="dark" :class="tb" @click="s.subOn = true">订阅推送</Button>
       <Button variant="dark" :class="cn(tb, !s.snd && 'text-[#6F84A6]')" @click="s.snd = !s.snd">{{ s.snd ? '声音 开' : '声音 关' }}</Button>
       <Button variant="dark" :class="cn(tb, s.dual && tbOn)" @click="toggleDual">{{ s.dual ? '双屏 3840 · 开' : '双屏拼接' }}</Button>
-      <Button class="h-8 px-3.5 text-xs" @click="goCast">▶ 投屏模式</Button>
-      <Button variant="dark" class="h-8 px-3.5 text-xs font-normal hover:brightness-[.97]" @click="toggleFs">⤢ 全屏</Button>
+      <Button class="h-8 px-3.5 text-xs max-xl:h-10 max-xl:px-4" @click="goCast">▶ 投屏模式</Button>
+      <Button variant="dark" class="h-8 px-3.5 text-xs font-normal hover:brightness-[.97] max-xl:h-10 max-xl:px-4" @click="toggleFs">⤢ 全屏</Button>
     </div>
 
     <div ref="box" class="relative w-full overflow-hidden rounded-[10px]" :style="boxStyle">

@@ -23,8 +23,10 @@ const emit = defineEmits<{
 
 <template>
   <div class="yb-card overflow-clip">
+   <div class="max-xl:overflow-x-auto">
+    <div class="max-xl:w-max max-xl:min-w-full">
     <div
-      class="sticky top-(--sticky-top) z-[6] grid gap-2.5 border-b border-line-2 bg-surface-1 px-4 py-2.5 text-xs text-ink-4"
+      class="xl:sticky top-(--sticky-top) z-[6] grid gap-2.5 border-b border-line-2 bg-surface-1 px-4 py-2.5 text-xs text-ink-4"
       :style="{ gridTemplateColumns: gridTemplate }"
     >
       <span />
@@ -32,7 +34,7 @@ const emit = defineEmits<{
         <button type="button"
           v-if="!(ci > 0 && hidden[ci])"
           :class="cn(
-            'relative flex cursor-pointer items-center gap-[3px] whitespace-nowrap hover:text-ink-1',
+            'relative flex cursor-pointer items-center gap-[3px] whitespace-nowrap hover:text-ink-1 max-xl:min-h-10',
             sort.k === ci ? 'font-semibold text-ink-1' : 'font-normal text-ink-4',
           )"
           @click="emit('sort', ci)"
@@ -62,7 +64,7 @@ const emit = defineEmits<{
       v-for="r in rows"
       :key="r.i"
       :class="cn(
-        'grid cursor-pointer items-center gap-2.5 border-b border-line-3 px-4 hover:bg-surface-1',
+        'grid cursor-pointer items-center gap-2.5 border-b border-line-3 px-4 hover:bg-surface-1 max-xl:min-h-11',
         r.selected ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]' : 'bg-white',
       )"
       :style="{ gridTemplateColumns: gridTemplate, paddingTop: pad, paddingBottom: pad }"
@@ -71,7 +73,7 @@ const emit = defineEmits<{
       <Checkbox
         :model-value="r.checked"
         :class="cn(
-          'size-4 rounded-[4px] border-[1.5px] bg-white shadow-none data-[state=checked]:border-brand data-[state=checked]:bg-brand',
+          'size-4 rounded-[4px] border-[1.5px] bg-white shadow-none max-xl:relative max-xl:size-5 max-xl:after:absolute max-xl:after:-inset-2.5 data-[state=checked]:border-brand data-[state=checked]:bg-brand',
           r.intl ? 'cursor-not-allowed border-line-1' : 'cursor-pointer border-ink-6',
         )"
         :aria-label="'选择 ' + r.ind.name"
@@ -100,5 +102,7 @@ const emit = defineEmits<{
       <span v-if="!hidden[5]" class="block text-xs text-ink-3" :class="r.intl && 'opacity-50'">{{ r.ind.refs ? r.ind.refs + ' 份' : '—' }}</span>
       <Badge :variant="STATUS[r.ind.status].variant" class="w-full">{{ STATUS[r.ind.status].label }}</Badge>
     </div>
+    </div>
+   </div>
   </div>
 </template>

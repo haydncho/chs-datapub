@@ -30,7 +30,7 @@ const COLS = 'grid grid-cols-[52px_minmax(0,1fr)_64px_90px_90px] gap-2.5'
   <PageSection label="B7 区域外患者">
     <PageHeader title="区域外患者 · 本院收治" :subtitle="data.subtitle" />
 
-    <div class="grid grid-cols-4 gap-3">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
       <StatCard
         v-for="k in data.kpis"
         :key="k.label"
@@ -44,7 +44,7 @@ const COLS = 'grid grid-cols-[52px_minmax(0,1fr)_64px_90px_90px] gap-2.5'
       />
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
       <div class="yb-card px-card-x py-card-y">
         <div class="mb-3 text-[15px] font-semibold">来源地</div>
         <div v-for="r in sources" :key="r.name" class="grid grid-cols-[90px_1fr_56px_70px] items-center gap-2.5 py-[9px] text-[13px]">

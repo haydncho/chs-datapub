@@ -47,7 +47,7 @@ const limX = computed(() => (props.limit / scale.value).toFixed(4))
         关键路径 <b :class="['yb-num text-[15px]', over ? 'text-bad' : 'text-ok-ink']">{{ total }}</b> / {{ limit }} 个工作日
       </span>
     </div>
-    <div class="relative flex flex-col gap-1.5">
+    <div class="max-xl:overflow-x-auto"><div class="relative flex flex-col gap-1.5 max-xl:min-w-[560px]">
       <div
         class="absolute -top-1 bottom-[18px] z-[2] border-l-[1.5px] border-dashed border-bad"
         :style="{ left: `calc(132px + (100% - 132px) * ${limX})` }"
@@ -67,6 +67,7 @@ const limX = computed(() => (props.limit / scale.value).toFixed(4))
           <span v-for="t in ticks" :key="t">{{ t }}</span>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>

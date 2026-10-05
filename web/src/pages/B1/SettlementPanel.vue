@@ -41,7 +41,7 @@ const top = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start xl:flex xl:flex-col">
     <div class="yb-card px-card-x py-card-y">
       <div class="mb-3.5 text-[15px] font-semibold">医保记账 vs DRG 支付</div>
       <div class="flex flex-col gap-2.5">
@@ -73,7 +73,7 @@ const top = computed(() => {
       </div>
       <div v-press
         v-for="t in top" :key="t.k"
-        class="grid cursor-pointer grid-cols-[44px_minmax(0,1fr)_1fr_64px] items-center gap-2 py-1.5 text-[12px]"
+        class="grid cursor-pointer grid-cols-[44px_minmax(0,1fr)_1fr_64px] items-center gap-2 py-1.5 max-xl:min-h-10 text-[12px]"
         @click="selected = t.k"
       >
         <span class="yb-num font-semibold text-brand">{{ t.k }}</span>

@@ -27,8 +27,8 @@ const ready = computed(() => props.nOk === props.total)
 </script>
 
 <template>
-  <div class="sticky top-(--sticky-top) z-30 border-b border-line-1 bg-white px-8 pt-[18px] pb-3.5">
-    <div class="flex items-start gap-5">
+  <div class="sticky top-(--sticky-top) z-30 border-b border-line-1 bg-white px-8 pt-[18px] pb-3.5 max-xl:static max-xl:px-5">
+    <div class="flex items-start gap-5 max-xl:flex-wrap">
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-1.5 text-[11px]">
           <Badge variant="ok" class="px-2 py-0.5 text-[11px] font-medium">{{ topic.recommendTag }}</Badge>
@@ -39,7 +39,7 @@ const ready = computed(() => props.nOk === props.total)
           <span class="yb-num text-brand">{{ topic.code }}</span> {{ topic.name }}
         </div>
       </div>
-      <div class="flex shrink-0 items-center gap-4">
+      <div class="flex shrink-0 items-center gap-4 max-xl:flex-wrap">
         <div class="flex">
           <span
             v-for="(c, i) in collaborators"
@@ -68,13 +68,13 @@ const ready = computed(() => props.nOk === props.total)
           </div>
         </div>
         <Button
-          :class="cn('h-[38px] rounded-[10px] px-[18px] text-[13px]', !ready && 'bg-brand-mute')"
+          :class="cn('h-[38px] rounded-[10px] px-[18px] text-[13px] max-xl:h-11', !ready && 'bg-brand-mute')"
           @click="$emit('submit')"
         >提交核对与审核</Button>
       </div>
     </div>
-    <div class="mt-3.5 flex items-center gap-2.5">
-      <div v-for="(t, i) in track" :key="t.label" class="flex items-center gap-2.5">
+    <div class="mt-3.5 flex items-center gap-2.5 max-xl:overflow-x-auto max-xl:pb-1">
+      <div v-for="(t, i) in track" :key="t.label" class="flex shrink-0 items-center gap-2.5">
         <div class="flex items-center gap-2">
           <span :class="cn('size-2 rounded-full', DOT[t.state])" />
           <span

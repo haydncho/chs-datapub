@@ -7,7 +7,7 @@ const s = useA8()
 
 const BATCH: SegBatch[] = ['全部', '第一批', '第二批']
 const GRP: SegGroup[] = ['不限', '收治 BR25', '收治 GG19']
-const CHIP = 'cursor-pointer rounded-lg border px-3 py-[5px] font-medium whitespace-nowrap'
+const CHIP = 'cursor-pointer rounded-lg border px-3 py-[5px] font-medium whitespace-nowrap max-xl:min-h-10'
 
 const byTier = computed(() =>
   s.d.tiers.map((t, i) => {
@@ -24,7 +24,7 @@ const missTxt = computed(
 </script>
 
 <template>
-  <div class="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-6">
+  <div class="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-6 max-lg:grid-cols-1">
     <div class="grid grid-cols-[72px_1fr] items-center gap-x-2.5 gap-y-3 text-xs">
       <span class="text-ink-4">等级</span>
       <div class="flex flex-wrap gap-1.5">
@@ -55,7 +55,7 @@ const missTxt = computed(
       <template v-if="s.missTiers.length">
         <span />
         <div class="rounded-[10px] border border-[#F6DFB8] bg-[#FFFBF4] px-3 py-2.5 leading-[1.6] text-[#7A4510]">
-          可能遗漏:{{ missTxt }}<button type="button" class="ml-2 cursor-pointer font-semibold text-brand" @click="s.fixMiss()">一键纳入</button>
+          可能遗漏:{{ missTxt }}<button type="button" class="ml-2 cursor-pointer font-semibold text-brand max-xl:min-h-10 max-xl:px-2" @click="s.fixMiss()">一键纳入</button>
         </div>
       </template>
     </div>

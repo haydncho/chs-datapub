@@ -30,7 +30,7 @@ function ask() {
       <Badge variant="ok" class="px-3 py-1 text-xs">公开层</Badge>
     </PageHeader>
 
-    <div class="grid grid-cols-4 gap-3">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
       <StatCard
         v-for="k in data.kpis"
         :key="k.label"
@@ -43,7 +43,7 @@ function ask() {
       />
     </div>
 
-    <div class="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-4">
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
       <div class="yb-card flex flex-col px-card-x py-card-y">
         <div class="mb-3.5 text-[15px] font-semibold">数据公开日历 · {{ data.year }}</div>
         <div class="grid grid-cols-12 gap-1.5">
@@ -52,12 +52,12 @@ function ask() {
             <span
               v-for="(e, i) in m.events"
               :key="i"
-              :class="['flex h-[30px] w-full items-center justify-center rounded-[5px] text-[10px]', cellClass(e)]"
+              :class="['flex h-[30px] w-full max-xl:h-10 items-center justify-center rounded-[5px] text-[10px]', cellClass(e)]"
             >{{ e.label }}</span>
           </div>
         </div>
         <div class="flex-1" />
-        <div class="mt-4 flex gap-3.5 text-[11px] text-ink-4">
+        <div class="mt-4 flex flex-wrap gap-x-3.5 gap-y-1 text-[11px] text-ink-4">
           <span class="flex items-center gap-[5px]"><span class="size-2.5 rounded-[2px] bg-brand" />月告知</span>
           <span class="flex items-center gap-[5px]"><span class="size-2.5 rounded-[2px] bg-violet" />季度/专题</span>
           <span class="flex items-center gap-[5px]"><span class="size-2.5 rounded-[2px] bg-line-4" />计划中</span>
@@ -75,7 +75,7 @@ function ask() {
             <div class="h-1.5 rounded-[3px] bg-ok" :style="{ width: r.pct + '%' }" />
           </div>
         </div>
-        <Button variant="outline" class="mt-3.5 w-full font-normal" @click="ask">提交监督建议</Button>
+        <Button variant="outline" class="mt-3.5 w-full font-normal max-xl:h-11" @click="ask">提交监督建议</Button>
       </div>
     </div>
   </PageSection>

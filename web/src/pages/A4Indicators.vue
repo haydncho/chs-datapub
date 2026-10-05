@@ -144,7 +144,7 @@ function confirmOk() {
 </script>
 
 <template>
-  <section data-screen-label="A4 指标配置" class="grid min-h-[calc(100vh-132px)] grid-cols-[220px_minmax(0,1fr)_340px]">
+  <section data-screen-label="A4 指标配置" class="grid min-h-[calc(100vh-132px)] grid-cols-1 xl:grid-cols-[220px_minmax(0,1fr)_340px]">
     <Catalog
       :indicators="inds"
       :grp="grp"
@@ -154,7 +154,7 @@ function confirmOk() {
       @source="isrc = $event"
     />
 
-    <main class="flex min-w-0 flex-col gap-4 px-7 pt-6 pb-12">
+    <main class="flex min-w-0 flex-col gap-4 px-7 pt-6 pb-12 max-xl:px-5 max-xl:pb-8">
       <PageHeader title="指标配置">
         <template #subtitle>
           {{ scope }} · {{ rows.length }} 项 · 全库 {{ data.libraryTotal }} 项:国家底稿 {{ data.libraryNational }} · 地方增选 {{ data.libraryLocal }} · 仅内部 {{ data.libraryInternal }}
@@ -172,10 +172,10 @@ function confirmOk() {
             class="z-20 flex w-[240px] flex-col gap-2.5 rounded-xl border-line-1 p-3 shadow-[0_12px_32px_rgba(15,23,42,.12)]"
           >
             <div class="text-[11px] font-semibold text-ink-5">显示列</div>
-            <label v-for="[ci, l] in HIDEABLE" :key="ci" class="flex cursor-pointer items-center gap-2 text-[13px]">
+            <label v-for="[ci, l] in HIDEABLE" :key="ci" class="flex cursor-pointer items-center gap-2 text-[13px] max-xl:min-h-10 max-xl:gap-3">
               <Checkbox
                 :model-value="!hidden[ci]"
-                class="size-4 rounded-[4px] border-[1.5px] border-ink-6 bg-white shadow-none data-[state=checked]:border-brand data-[state=checked]:bg-brand"
+                class="size-4 rounded-[4px] border-[1.5px] border-ink-6 bg-white shadow-none max-xl:size-5 data-[state=checked]:border-brand data-[state=checked]:bg-brand"
                 @update:model-value="v => (hidden = { ...hidden, [ci]: !v })"
               >
                 <span class="text-[11px] leading-none text-white">✓</span>
@@ -189,13 +189,13 @@ function confirmOk() {
                 :key="l"
                 type="button"
                 :class="cn(
-                  'flex-1 cursor-pointer rounded-md py-1 text-center text-xs whitespace-nowrap',
+                  'flex-1 cursor-pointer rounded-md py-1 text-center text-xs whitespace-nowrap max-xl:py-2.5',
                   i === dens ? 'bg-white text-ink-1 shadow-[0_1px_2px_rgba(15,23,42,.1)]' : 'text-ink-4',
                 )"
                 @click="dens = i"
               >{{ l }}</button>
             </div>
-            <button type="button" class="cursor-pointer self-start text-xs text-brand" @click="resetCols">恢复默认列宽</button>
+            <button type="button" class="cursor-pointer self-start text-xs text-brand max-xl:min-h-10" @click="resetCols">恢复默认列宽</button>
           </PopoverContent>
         </Popover>
         <Button @click="wizOpen = true">+ 新建指标</Button>

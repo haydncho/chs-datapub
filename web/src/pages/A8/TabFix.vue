@@ -6,7 +6,7 @@ const s = useA8()
 </script>
 
 <template>
-  <div class="grid grid-cols-2 gap-3">
+  <div class="grid grid-cols-2 gap-3 max-md:grid-cols-1">
     <div class="rounded-xl border border-line-1 bg-surface-1 p-3.5">
       <div class="flex justify-between gap-2">
         <span class="font-semibold whitespace-nowrap text-ink-4">{{ s.d.correction.oldTitle }}</span>
@@ -26,7 +26,7 @@ const s = useA8()
     <b>更正说明</b> · {{ s.d.correction.note }}
   </div>
   <div class="mt-3 flex gap-2">
-    <Button variant="outline" class="h-[34px] px-4 font-normal" @click="s.fixAct('correction')">发起更正</Button>
-    <Button variant="outline" class="h-[34px] border-[#F3C5C0] px-4 font-normal text-bad" @click="s.fixAct('withdraw')">发起撤回</Button>
+    <Button variant="outline" class="h-[34px] px-4 font-normal max-xl:h-11" @click="s.fixAct('correction')">发起更正</Button>
+    <Button variant="outline" class="h-[34px] max-xl:h-11 border-[#F3C5C0] px-4 font-normal text-bad" @click="s.fixAct('withdraw')">发起撤回</Button>
   </div>
 </template>

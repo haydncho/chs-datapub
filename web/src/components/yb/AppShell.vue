@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { Menu } from '@lucide/vue'
 import { useRoute } from 'vue-router'
 import { Toaster } from 'vue-sonner'
 import 'vue-sonner/style.css'
@@ -19,6 +20,7 @@ import type { Layout } from '@/app/pages'
 import NavGroupMenu from './nav/NavGroupMenu.vue'
 import NavBreadcrumb from './nav/NavBreadcrumb.vue'
 import UserMenu from './nav/UserMenu.vue'
+import NavDrawer from './nav/NavDrawer.vue'
 
 const route = useRoute()
 const code = computed(() => (route.meta.code as PageCode | undefined) ?? 'cockpit')
@@ -47,6 +49,23 @@ async function signOut() {
   goPage('A1')
 }
 
+// 窄屏(< 1024)抽屉菜单;换页时自动关闭
+const drawer = ref(false)
+watch(code, () => (drawer.value = false))
+
+// 二级标签行:窄屏可横向滚动,选中项自动滚入视野
+const l2Scroll = ref<HTMLElement>()
+async function revealActiveTab() {
+  await nextTick()
+  const box = l2Scroll.value
+  const cur = box?.querySelector<HTMLElement>('[aria-current="page"]')
+  if (!box || !cur) return
+  const target = cur.offsetLeft - (box.clientWidth - cur.offsetWidth) / 2
+  box.scrollTo({ left: Math.max(0, target), behavior: 'auto' })
+}
+onMounted(revealActiveTab)
+watch([code, query, layout], revealActiveTab)
+
 // Watermark refreshes every minute so the timestamp stays current.
 const now = ref(new Date())
 const timer = setInterval(() => (now.value = new Date()), 60_000)
@@ -67,7 +86,7 @@ watch(code, (next, prev) => {
 <template>
   <div
     :class="cn(
-      'flex min-h-screen min-w-[1280px] flex-col',
+      'flex min-h-screen min-w-0 flex-col',
       layout === 'cockpit' ? 'overflow-x-hidden bg-[#03070F]' : 'bg-background',
     )"
   >
@@ -83,7 +102,14 @@ watch(code, (next, prev) => {
       </div>
 
       <!-- header: 端徽标 › 一级菜单(分组) -->
-      <header class="sticky top-0 z-40 flex h-[60px] items-center gap-4 border-b border-line-1 bg-white px-5 text-ink-1">
+      <header class="sticky top-0 z-40 flex h-[60px] items-center gap-4 border-b border-line-1 bg-white px-5 text-ink-1 max-xl:gap-3 max-lg:px-3">
+        <button
+          type="button"
+          class="yb-hamburger"
+          aria-label="打开菜单"
+          data-testid="nav-toggle"
+          @click="drawer = true"
+        ><Menu class="size-5" aria-hidden="true" /></button>
         <div class="flex shrink-0 items-center gap-2.5">
           <div class="flex size-[30px] items-center justify-center rounded-lg bg-brand text-[15px] font-bold text-white">医</div>
           <div class="leading-tight">
@@ -94,11 +120,11 @@ watch(code, (next, prev) => {
         <span class="yb-side shrink-0" :data-side="side" data-testid="side-badge" :title="`当前端:${SIDE_NAME[side]}`">
           <component :is="SideIcon" class="size-3.5" aria-hidden="true" />{{ SIDE_NAME[side] }}
         </span>
-        <span class="h-5 w-px shrink-0 bg-line-1" />
-        <nav class="flex min-w-0 flex-1 items-center justify-center gap-0.5" aria-label="一级菜单">
+        <span class="h-5 w-px shrink-0 bg-line-1 max-lg:hidden" />
+        <nav class="flex min-w-0 flex-1 items-center justify-center gap-0.5 max-lg:hidden" aria-label="一级菜单">
           <template v-for="g in groups" :key="g.id">
-            <span v-if="g.n && g.n === '01'" class="mx-1.5 h-5 w-px bg-line-1" />
-            <span v-if="g.id === 'gov' && side === 'bureau'" class="mx-1.5 h-5 w-px bg-line-1" />
+            <span v-if="g.n && g.n === '01'" class="mx-1.5 h-5 w-px bg-line-1 max-xl:mx-0.5" />
+            <span v-if="g.id === 'gov' && side === 'bureau'" class="mx-1.5 h-5 w-px bg-line-1 max-xl:mx-0.5" />
             <NavGroupMenu
               :group="g"
               :uid="g.id"
@@ -107,14 +133,16 @@ watch(code, (next, prev) => {
               :query="query"
               @go="go"
             />
-            <span v-if="g.n && g.n !== '05'" class="text-xs text-ink-6" aria-hidden="true">›</span>
+            <span v-if="g.n && g.n !== '05'" class="text-xs text-ink-6 max-xl:hidden" aria-hidden="true">›</span>
           </template>
         </nav>
+        <div class="flex-1 lg:hidden" />
         <UserMenu :viewer="viewer" :logged-in="!!session.current" :can-switch="canSwitch" @switch="goPage('A1')" @logout="signOut" />
       </header>
 
       <!-- 二级标签行:左端为所选分组(同色),其后是该分组的页面;右侧面包屑 + 分区标签 -->
       <div v-if="layout === 'workbench'" class="yb-l2">
+        <div ref="l2Scroll" class="yb-l2-scroll" data-testid="l2-scroll">
         <span v-if="activeGroup" class="yb-l2-group" data-testid="l2-group">
           <component :is="GroupIcon" aria-hidden="true" />
           <span v-if="activeGroup.n" class="yb-num">{{ activeGroup.n }}</span>{{ activeGroup.name }}
@@ -131,11 +159,11 @@ watch(code, (next, prev) => {
             <component :is="iconOf(it.icon)" aria-hidden="true" />{{ it.name }}
           </button>
         </nav>
-        <div class="flex-1" />
-        <NavBreadcrumb :crumb="crumb" class="mr-4" />
+        </div>
+        <NavBreadcrumb :crumb="crumb" class="mr-4 max-xl:hidden" />
         <span
           v-if="viewer.zone"
-          :class="cn('rounded-full px-2.5 py-[3px] text-xs font-medium whitespace-nowrap', ZONE_STYLE[viewer.zone.tone])"
+          :class="cn('shrink-0 rounded-full px-2.5 py-[3px] text-xs font-medium whitespace-nowrap', ZONE_STYLE[viewer.zone.tone])"
         >{{ viewer.zone.label }}</span>
       </div>
       <!-- 全息图:无二级标签行,仅一条细面包屑 -->
@@ -144,25 +172,36 @@ watch(code, (next, prev) => {
       </div>
     </template>
 
+    <NavDrawer
+      v-if="layout !== 'bare'"
+      v-model:open="drawer"
+      :side="side"
+      :groups="groups"
+      :active-id="activeGroup?.id"
+      :code="code"
+      :query="query"
+      @go="go"
+    />
+
     <slot />
 
     <!-- page-switch skeleton -->
     <div
       v-if="loading"
-      class="pointer-events-none fixed inset-x-0 top-[132px] bottom-0 z-[35] bg-background px-8 py-6"
+      class="pointer-events-none fixed inset-x-0 top-[132px] bottom-0 z-[35] overflow-hidden bg-background px-4 py-6 lg:px-6 xl:px-8"
     >
       <div class="mx-auto flex max-w-[1600px] flex-col gap-4">
         <div class="flex items-end justify-between">
           <div class="flex flex-col gap-2">
-            <div class="yb-skeleton h-[26px] w-[220px] rounded-xl" />
-            <div class="yb-skeleton h-3.5 w-[380px] rounded-xl" />
+            <div class="yb-skeleton h-[26px] w-[220px] max-w-full rounded-xl" />
+            <div class="yb-skeleton h-3.5 w-[380px] max-w-full rounded-xl" />
           </div>
           <div class="yb-skeleton h-9 w-[140px] rounded-xl" />
         </div>
-        <div class="grid grid-cols-4 gap-3">
+        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <div v-for="i in 4" :key="i" class="yb-skeleton h-24 rounded-xl" />
         </div>
-        <div class="grid grid-cols-[minmax(0,1fr)_360px] gap-4">
+        <div class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div class="yb-skeleton h-[420px] rounded-xl" />
           <div class="yb-skeleton h-[420px] rounded-xl" />
         </div>
@@ -173,7 +212,7 @@ watch(code, (next, prev) => {
     <div
       v-if="layout !== 'bare'"
       data-watermark
-      class="pointer-events-none fixed inset-0 z-[90] grid auto-rows-[150px] grid-cols-6 overflow-hidden"
+      class="pointer-events-none fixed inset-0 z-[90] grid auto-rows-[150px] grid-cols-3 overflow-hidden md:grid-cols-4 lg:grid-cols-6"
       :style="{ opacity: 'var(--wm-opacity)' }"
       aria-hidden="true"
     >
@@ -185,10 +224,10 @@ watch(code, (next, prev) => {
     <!-- one-line dark toast centred at the bottom; wide toaster so long messages don't wrap -->
     <Toaster
       position="bottom-center"
-      :style="{ '--width': '760px' }"
+      :style="{ '--width': 'min(760px, calc(100vw - 24px))' }"
       :toast-options="{
         unstyled: true,
-        class: '!inset-x-0 mx-auto !w-fit max-w-full whitespace-nowrap rounded-[10px] bg-chrome px-[18px] py-2.5 text-[13px] text-white shadow-[0_8px_24px_rgba(11,21,38,.25)]',
+        class: '!inset-x-0 mx-auto !w-fit max-w-[calc(100vw-24px)] whitespace-nowrap max-sm:whitespace-normal rounded-[10px] bg-chrome px-[18px] py-2.5 text-[13px] text-white shadow-[0_8px_24px_rgba(11,21,38,.25)]',
       }"
     />
   </div>

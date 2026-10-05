@@ -44,11 +44,11 @@ const chips = computed(() =>
 </script>
 
 <template>
-  <aside class="flex flex-col gap-0.5 border-r border-line-1 bg-surface-1 px-3 py-5">
-    <div class="px-2.5 pb-2 text-[11px] font-semibold tracking-[.5px] text-ink-5">指标目录 · 按监测维度</div>
+  <aside class="flex flex-col gap-0.5 border-r border-line-1 bg-surface-1 px-3 py-5 max-xl:grid max-xl:grid-cols-2 max-xl:items-start max-xl:gap-x-4 max-xl:border-r-0 max-xl:border-b max-xl:px-5 md:max-xl:grid-cols-4">
+    <div class="px-2.5 pb-2 text-[11px] font-semibold tracking-[.5px] text-ink-5 max-xl:col-span-full">指标目录 · 按监测维度</div>
     <div v-press
       :class="cn(
-        'flex cursor-pointer justify-between rounded-lg px-2.5 py-[7px]',
+        'flex cursor-pointer justify-between rounded-lg px-2.5 py-[7px] max-xl:col-span-full max-xl:min-h-10 max-xl:items-center',
         allOn ? 'bg-brand-soft font-semibold text-brand' : 'font-medium text-ink-2',
       )"
       @click="emit('filter', '全部', null)"
@@ -58,7 +58,7 @@ const chips = computed(() =>
     <div v-for="g in tree" :key="g.g" class="mt-1.5 flex flex-col gap-px">
       <div v-press
         :class="cn(
-          'flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-[7px] font-semibold',
+          'flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-[7px] font-semibold max-xl:min-h-10',
           g.on ? 'bg-brand-soft text-brand' : 'text-ink-1',
         )"
         @click="emit('filter', g.g, null)"
@@ -71,7 +71,7 @@ const chips = computed(() =>
         v-for="k in g.kids"
         :key="k.d"
         :class="cn(
-          'ml-3.5 flex cursor-pointer items-center justify-between rounded-r-md border-l-[1.5px] py-[5px] pr-2.5 pl-3 text-xs hover:bg-[#EEF2F7]',
+          'ml-3.5 flex cursor-pointer items-center justify-between rounded-r-md border-l-[1.5px] py-[5px] pr-2.5 pl-3 text-xs hover:bg-[#EEF2F7] max-xl:min-h-10',
           k.on ? 'bg-white font-semibold' : 'border-line-1 font-normal text-ink-3',
         )"
         :style="k.on ? { borderLeftColor: g.color, color: g.color } : undefined"
@@ -81,13 +81,13 @@ const chips = computed(() =>
         <span class="yb-num text-ink-5">{{ k.count }}</span>
       </div>
     </div>
-    <div class="mt-3.5 border-t border-line-1 px-2.5 pt-[18px] pb-2 text-[11px] font-semibold tracking-[.5px] text-ink-5">指标来源</div>
-    <div class="flex flex-wrap gap-1.5 px-1.5">
+    <div class="mt-3.5 border-t border-line-1 px-2.5 pt-[18px] pb-2 text-[11px] font-semibold tracking-[.5px] text-ink-5 max-xl:col-span-full">指标来源</div>
+    <div class="flex flex-wrap gap-1.5 px-1.5 max-xl:col-span-full">
       <button type="button"
         v-for="c in chips"
         :key="c.label"
         :class="cn(
-          'cursor-pointer rounded-full border px-2.5 py-[3px] text-xs whitespace-nowrap',
+          'cursor-pointer rounded-full border px-2.5 py-[3px] text-xs whitespace-nowrap max-xl:min-h-10',
           c.on ? 'border-brand-line bg-brand-soft text-brand' : 'border-line-1 bg-white text-ink-3',
         )"
         @click="emit('source', c.label)"

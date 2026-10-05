@@ -32,23 +32,23 @@ const KPI_ICONS = [
   <PageSection label="B1 本院全息">
     <PageHeader :title="data.hospital.name" :subtitle="data.hospital.subtitle">
       <button type="button"
-        class="flex h-[34px] cursor-pointer items-center gap-1.5 rounded-lg bg-brand-soft px-3 text-[12px] font-medium text-brand"
+        class="flex h-[34px] cursor-pointer items-center gap-1.5 rounded-lg max-xl:h-10 bg-brand-soft px-3 text-[12px] font-medium text-brand"
         @click="goPage('B4')"
       ><b class="yb-num text-[15px]">{{ data.todos.reportsToSign }}</b> 份报告待签收</button>
       <button type="button"
-        class="flex h-[34px] cursor-pointer items-center gap-1.5 rounded-lg bg-violet-soft px-3 text-[12px] font-medium text-violet"
+        class="flex h-[34px] cursor-pointer items-center gap-1.5 rounded-lg max-xl:h-10 bg-violet-soft px-3 text-[12px] font-medium text-violet"
         @click="goPage('B5')"
       ><b class="yb-num text-[15px]">{{ data.todos.verifyItems }}</b> 项核对 · 剩 {{ data.todos.verifyDaysLeft }} 天</button>
-      <span class="flex h-[34px] items-center gap-1.5 rounded-lg bg-warn-soft px-3 text-[12px] font-medium text-warn-ink">
+      <span class="flex h-[34px] items-center gap-1.5 rounded-lg max-xl:h-10 bg-warn-soft px-3 text-[12px] font-medium text-warn-ink">
         <b class="yb-num text-[15px]">{{ data.todos.watchItems }}</b> 项关注
       </span>
     </PageHeader>
 
-    <div class="grid grid-cols-6 gap-3">
+    <div class="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
       <KpiCard v-for="(k, i) in data.kpis" :key="k.name" :kpi="k" :icon="KPI_ICONS[i % KPI_ICONS.length]!" />
     </div>
 
-    <div class="grid grid-cols-[minmax(0,1fr)_380px] items-start gap-4">
+    <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
       <BubblePanorama v-model:selected="selected" :data="data" />
       <SettlementPanel v-model:selected="selected" :data="data" />
     </div>

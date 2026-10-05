@@ -41,7 +41,7 @@ const emit = defineEmits<{
           <button type="button"
             v-for="l in lanes"
             :key="l"
-            :class="cn('cursor-pointer rounded-lg border px-2.5 py-1 text-xs whitespace-nowrap', chipCls(l === node.lane))"
+            :class="cn('cursor-pointer rounded-lg border px-2.5 py-1 text-xs whitespace-nowrap max-xl:min-h-10', chipCls(l === node.lane))"
             @click="emit('lane', l)"
           >{{ l }}</button>
         </div>
@@ -52,9 +52,9 @@ const emit = defineEmits<{
           <div class="text-[11px] text-ink-5">工作日 · 0 为即时</div>
         </div>
         <div class="flex items-center overflow-hidden rounded-lg border border-line-1">
-          <button type="button" class="flex size-8 cursor-pointer items-center justify-center bg-surface-1 select-none" aria-label="减少时限天数" @click="emit('days', Math.max(0, node.days - 1))">−</button>
+          <button type="button" class="flex size-8 max-xl:size-11 cursor-pointer items-center justify-center bg-surface-1 select-none" aria-label="减少时限天数" @click="emit('days', Math.max(0, node.days - 1))">−</button>
           <span class="yb-num min-w-11 text-center text-[17px] font-semibold">{{ node.days }}</span>
-          <button type="button" class="flex size-8 cursor-pointer items-center justify-center bg-surface-1 select-none" aria-label="增加时限天数" @click="emit('days', node.days + 1)">+</button>
+          <button type="button" class="flex size-8 max-xl:size-11 cursor-pointer items-center justify-center bg-surface-1 select-none" aria-label="增加时限天数" @click="emit('days', node.days + 1)">+</button>
         </div>
       </div>
       <div>
@@ -63,7 +63,7 @@ const emit = defineEmits<{
           <button type="button"
             v-for="(l, i) in timeoutActions"
             :key="l"
-            :class="cn('cursor-pointer rounded-lg border px-2.5 py-[7px] text-center text-xs whitespace-nowrap', chipCls(i === timeout))"
+            :class="cn('cursor-pointer rounded-lg border px-2.5 py-[7px] text-center text-xs whitespace-nowrap max-xl:min-h-10', chipCls(i === timeout))"
             @click="emit('timeout', i)"
           >{{ l }}</button>
         </div>
@@ -74,7 +74,7 @@ const emit = defineEmits<{
           <button type="button"
             v-for="c in channels"
             :key="c"
-            :class="cn('cursor-pointer rounded-full border px-2.5 py-1 text-xs whitespace-nowrap', chipCls(!!channelOn[c]))"
+            :class="cn('cursor-pointer rounded-full border px-2.5 py-1 text-xs whitespace-nowrap max-xl:min-h-10', chipCls(!!channelOn[c]))"
             @click="emit('channel', c)"
           >{{ c }}</button>
         </div>

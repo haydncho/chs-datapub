@@ -22,7 +22,7 @@ const COLS = 'grid grid-cols-[minmax(0,1fr)_80px_120px_100px_90px] gap-3 px-3.5 
 </script>
 
 <template>
-  <div class="grid grid-cols-5 gap-2.5">
+  <div class="grid grid-cols-5 gap-2.5 max-lg:grid-cols-3 max-md:grid-cols-2">
     <div
       v-for="k in s.d.packageCards"
       :key="k.label"
@@ -38,7 +38,7 @@ const COLS = 'grid grid-cols-[minmax(0,1fr)_80px_120px_100px_90px] gap-3 px-3.5 
       <div :class="cn('truncate text-xs', k.tone === 'ok' ? 'text-ok-ink' : 'text-ink-3')" :title="k.sub">{{ k.sub }}</div>
     </div>
   </div>
-  <div class="mt-4 overflow-hidden rounded-[10px] border border-line-2">
+  <div class="mt-4 overflow-x-auto rounded-[10px] border border-line-2"><div class="min-w-[620px]">
     <div :class="cn(COLS, 'bg-surface-1 text-xs text-ink-4')">
       <span>发布指标</span><span>分组</span><span>对标档位</span><span>本期数据</span><span>状态</span>
     </div>
@@ -53,5 +53,5 @@ const COLS = 'grid grid-cols-[minmax(0,1fr)_80px_120px_100px_90px] gap-3 px-3.5 
       <span :class="cn('text-xs whitespace-nowrap', r.period === '数据待到' ? 'text-warn-ink' : 'text-ink-3')">{{ r.period }}</span>
       <span :class="cn('justify-self-start rounded-full px-2 py-0.5 text-[11px] whitespace-nowrap', ST[r.status][1])">{{ ST[r.status][0] }}</span>
     </div>
-  </div>
+  </div></div>
 </template>

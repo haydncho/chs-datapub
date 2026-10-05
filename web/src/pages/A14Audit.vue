@@ -68,19 +68,19 @@ async function onExport() {
 }
 
 const GRID = 'grid grid-cols-[120px_76px_150px_minmax(0,1fr)_110px] items-center gap-3 px-[18px] py-2.5'
-const DATE = 'h-8 rounded-md border border-line-1 bg-white px-2 font-mono text-xs text-ink-2 outline-none focus:border-brand-line'
+const DATE = 'h-8 max-xl:h-10 rounded-md border border-line-1 bg-white px-2 font-mono text-xs text-ink-2 outline-none focus:border-brand-line'
 </script>
 
 <template>
   <PageSection label="A14 审计日志">
-    <PageHeader title="审计日志" :subtitle="summary">
-      <div class="flex gap-1.5">
+    <PageHeader class="max-xl:flex-wrap" title="审计日志" :subtitle="summary">
+      <div class="flex max-w-full flex-wrap gap-1.5 max-xl:gap-2">
         <button
           v-for="c in chips"
           :key="c"
           type="button"
           :class="cn(
-            'cursor-pointer rounded-full border px-3 py-1.5 text-xs whitespace-nowrap',
+            'cursor-pointer rounded-full border px-3 py-1.5 text-xs whitespace-nowrap max-xl:min-h-10 max-xl:px-4',
             c === filters.type ? 'border-brand-line bg-brand-soft text-brand' : 'border-line-1 bg-white text-ink-3',
           )"
           @click="filters.type = c"
@@ -88,31 +88,33 @@ const DATE = 'h-8 rounded-md border border-line-1 bg-white px-2 font-mono text-x
       </div>
     </PageHeader>
 
-    <div class="grid grid-cols-[minmax(0,1fr)_380px] items-start gap-4">
+    <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
       <div class="yb-card overflow-clip">
         <div class="flex flex-wrap items-center gap-2.5 border-b border-line-3 px-[18px] py-2.5 text-xs">
-          <Input v-model="filters.actor" placeholder="操作人" aria-label="按操作人筛选" class="h-8 w-[132px] text-xs md:text-xs" />
+          <Input v-model="filters.actor" placeholder="操作人" aria-label="按操作人筛选" class="h-8 w-[132px] text-xs max-xl:h-10 md:text-xs" />
           <template v-if="live">
             <input v-model="filters.from" type="date" aria-label="起始日期" :class="DATE">
             <span class="text-ink-5">—</span>
             <input v-model="filters.to" type="date" aria-label="截止日期" :class="DATE">
           </template>
-          <label class="flex cursor-pointer items-center gap-1.5 text-ink-3">
+          <label class="flex cursor-pointer items-center gap-1.5 text-ink-3 max-xl:min-h-10">
             <Switch v-model="filters.offHours" aria-label="仅非工作时间" />
             仅非工作时间 <span class="text-ink-5">22:00–06:00</span>
           </label>
-          <div class="flex-1" />
+          <div class="flex-1 max-xl:hidden" />
           <button
             type="button"
-            :class="['cursor-pointer rounded-full border px-2.5 py-1 font-mono text-[11px] whitespace-nowrap', chainView.cls]"
+            :class="['cursor-pointer rounded-full border px-2.5 py-1 max-xl:min-h-10 font-mono text-[11px] whitespace-nowrap', chainView.cls]"
             title="重新校验整条哈希链"
             @click="verify()"
           >{{ chainView.text }}</button>
-          <Button variant="outline" size="sm" class="h-8 text-xs" :disabled="exporting" @click="onExport">
+          <Button variant="outline" size="sm" class="h-8 text-xs max-xl:h-10" :disabled="exporting" @click="onExport">
             {{ exporting ? '导出中…' : '导出 CSV' }}
           </Button>
         </div>
-        <div :class="[GRID, 'sticky top-(--sticky-top) z-[6] bg-surface-1 text-xs text-ink-4']">
+        <div class="max-xl:max-h-[480px] max-xl:overflow-auto">
+        <div class="max-xl:min-w-[640px]">
+        <div :class="[GRID, 'max-xl:top-0 sticky top-(--sticky-top) z-[6] bg-surface-1 text-xs text-ink-4']">
           <span>时间</span><span>类型</span><span>操作人</span><span>对象</span><span>IP</span>
         </div>
         <div v-if="logs.length === 0" class="flex flex-col items-center gap-1.5 px-5 py-11 text-ink-4">
@@ -124,7 +126,7 @@ const DATE = 'h-8 rounded-md border border-line-1 bg-white px-2 font-mono text-x
           :key="l.id"
           :class="cn(
             GRID,
-            'cursor-pointer border-b border-line-3 hover:bg-surface-1',
+            'cursor-pointer border-b border-line-3 hover:bg-surface-1 max-xl:min-h-11',
             l.id === sel?.id ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]'
             : !l.signatureOk ? 'bg-bad-soft/40 shadow-[inset_3px_0_0_var(--bad)]'
             : l.risk ? 'bg-[#FFFBF4] shadow-[inset_3px_0_0_var(--warn)]' : 'bg-white',
@@ -139,6 +141,8 @@ const DATE = 'h-8 rounded-md border border-line-1 bg-white px-2 font-mono text-x
           </div>
           <span class="truncate text-xs">{{ l.object }}</span>
           <span class="truncate font-mono text-[11px] text-ink-4">{{ l.ip }}</span>
+        </div>
+        </div>
         </div>
         <div v-if="live && nextCursor != null" class="flex justify-center px-[18px] py-2.5">
           <Button variant="ghost" size="sm" class="h-8 text-xs text-brand" :disabled="loading" @click="load(true)">

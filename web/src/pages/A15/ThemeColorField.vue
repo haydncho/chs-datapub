@@ -48,7 +48,7 @@ const usingCustom = computed(() => !!custom.value)
         v-for="(col, i) in THEME_COLORS"
         :key="col"
         type="button"
-        class="flex cursor-pointer flex-col items-center gap-1 rounded-lg p-0.5"
+        class="flex cursor-pointer flex-col items-center gap-1 rounded-lg p-0.5 max-xl:min-w-12 max-xl:p-1"
         :aria-pressed="!usingCustom && c === i"
         :aria-label="`主题色 ${props.names[i]}`"
         @click="pick(i)"
@@ -62,7 +62,7 @@ const usingCustom = computed(() => !!custom.value)
     </div>
     <div class="flex flex-wrap items-center gap-2.5 rounded-lg border border-line-1 bg-surface-1 px-3 py-2.5">
       <label
-        class="relative flex size-[34px] shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-[10px] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring"
+        class="relative flex size-[34px] max-xl:size-10 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-[10px] focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ring"
         :style="{
           background: parsed || 'conic-gradient(#E5484D, #F5A623, #46A758, #3E63DD, #8E4EC6, #E5484D)',
           boxShadow: usingCustom ? `0 0 0 2px #fff, 0 0 0 4px ${custom}` : 'none',
@@ -88,7 +88,7 @@ const usingCustom = computed(() => !!custom.value)
         spellcheck="false"
         aria-label="自定义主题色 · 色值"
         :aria-invalid="lowContrast || badFormat"
-        class="yb-num ml-auto h-8 w-[108px] rounded-lg border-line-4 bg-white px-2.5 text-[13px] uppercase shadow-none md:text-[13px]"
+        class="yb-num ml-auto h-8 max-xl:h-10 w-[108px] rounded-lg border-line-4 bg-white px-2.5 text-[13px] uppercase shadow-none md:text-[13px]"
         @update:model-value="onText"
       />
     </div>

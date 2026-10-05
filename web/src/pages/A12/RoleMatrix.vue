@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Check, Eye, Minus } from '@lucide/vue'
 import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { ref } from 'vue'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import type { A12Cell, A12Data, A12Group, A12Level, A12MatrixRow } from '@/mock/A12'
 import { SIDE_NAME } from './useUsers'
@@ -13,6 +14,24 @@ const LEVEL_CHIP: Record<A12Level, string> = {
   access: 'bg-ok-soft text-ok-ink',
   readonly: 'bg-warn-soft text-warn-ink',
   none: 'bg-surface-2 text-ink-6',
+}
+
+/** 单元格详情:鼠标悬停打开,触屏点按打开 */
+const openKey = ref<string | null>(null)
+function hover(k: string, on: boolean, e: PointerEvent) {
+  if (e.pointerType !== 'mouse') return
+  if (on) openKey.value = k
+  else if (openKey.value === k) openKey.value = null
+}
+let lastMouseDown = 0
+function down(e: PointerEvent) {
+  if (e.pointerType === 'mouse') lastMouseDown = Date.now()
+}
+function setOpen(k: string, v: boolean) {
+  // 鼠标点击悬停中的格子不应把详情关掉;触屏点按由 PopoverTrigger 切换
+  if (!v && Date.now() - lastMouseDown < 400) return
+  if (!v && openKey.value === k) openKey.value = null
+  else if (v) openKey.value = k
 }
 
 const GRID = 'grid grid-cols-[minmax(190px,1.3fr)_repeat(8,minmax(0,1fr))] items-center gap-1.5 px-card-x'
@@ -36,7 +55,7 @@ function has(c: A12Cell, code: string) {
     <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-line-2 px-card-x py-3.5">
       <div class="flex items-baseline gap-2.5">
         <span class="text-[15px] font-semibold">角色 × 页面分组 访问矩阵</span>
-        <span class="text-xs text-ink-4">取自系统访问策略 · 悬停格子查看具体页面</span>
+        <span class="text-xs text-ink-4">取自系统访问策略 · 悬停 / 点按格子查看具体页面</span>
       </div>
       <div class="flex items-center gap-3.5 text-xs text-ink-3">
         <span class="flex items-center gap-1.5"><span :class="cn('flex size-5 items-center justify-center rounded-md', LEVEL_CHIP.access)"><Check class="size-3.5" /></span>可访问</span>
@@ -45,8 +64,9 @@ function has(c: A12Cell, code: string) {
       </div>
     </div>
 
-    <TooltipProvider :delay-duration="80">
-      <div :class="[GRID, 'sticky top-(--sticky-top) z-[6] bg-surface-1 py-2.5 text-xs text-ink-4']">
+    <div class="max-xl:overflow-x-auto">
+    <div class="max-xl:min-w-[980px]">
+      <div :class="[GRID, 'max-xl:static sticky top-(--sticky-top) z-[6] bg-surface-1 py-2.5 text-xs text-ink-4']">
         <span>角色</span>
         <span v-for="g in data.groups" :key="g.id" class="text-center whitespace-nowrap">{{ g.name }}</span>
       </div>
@@ -64,13 +84,16 @@ function has(c: A12Cell, code: string) {
           </div>
         </div>
         <div v-for="g in data.groups" :key="g.id" class="flex justify-center">
-          <Tooltip>
-            <TooltipTrigger as-child>
+          <Popover :open="openKey === row.role + g.id" @update:open="(v: boolean) => setOpen(row.role + g.id, v)">
+            <PopoverTrigger as-child>
               <button
                 type="button"
                 :data-level="cellOf(row, g.id).level"
                 :aria-label="`${row.name} · ${g.name} · ${LEVEL_NAME[cellOf(row, g.id).level]}`"
-                :class="cn('flex h-8 w-[60px] cursor-default items-center justify-center gap-1 rounded-md px-2 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand', LEVEL_CHIP[cellOf(row, g.id).level])"
+                @pointerenter="hover(row.role + g.id, true, $event)"
+                @pointerleave="hover(row.role + g.id, false, $event)"
+                @pointerdown="down($event)"
+                :class="cn('flex h-8 max-xl:h-10 w-[60px] cursor-default items-center justify-center gap-1 rounded-md px-2 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand', LEVEL_CHIP[cellOf(row, g.id).level])"
               >
                 <Check v-if="cellOf(row, g.id).level === 'access'" class="size-4" />
                 <Eye v-else-if="cellOf(row, g.id).level === 'readonly'" class="size-4" />
@@ -80,8 +103,8 @@ function has(c: A12Cell, code: string) {
                   class="yb-num text-[11px] font-medium"
                 >{{ cellOf(row, g.id).pages.length }}/{{ cellOf(row, g.id).total }}</span>
               </button>
-            </TooltipTrigger>
-            <TooltipContent side="top" class="max-w-[260px] bg-ink-1 py-2 text-left">
+            </PopoverTrigger>
+            <PopoverContent side="top" class="w-auto max-w-[260px] border-0 bg-ink-1 px-3 py-2 text-left text-xs text-white" @open-auto-focus.prevent>
               <div class="mb-1 font-semibold">{{ row.name }} · {{ g.name }} · {{ LEVEL_NAME[cellOf(row, g.id).level] }}</div>
               <div v-for="p in groupOf(g.id).pages" :key="p.code" class="flex items-center gap-1.5 leading-[1.7]" :class="has(cellOf(row, g.id), p.code) ? '' : 'opacity-50'">
                 <Check v-if="has(cellOf(row, g.id), p.code)" class="size-3 shrink-0" />
@@ -89,10 +112,11 @@ function has(c: A12Cell, code: string) {
                 <span>{{ p.name }}</span>
                 <span class="yb-num text-[10px] opacity-60">{{ p.code }}</span>
               </div>
-            </TooltipContent>
-          </Tooltip>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
-    </TooltipProvider>
+    </div>
+    </div>
   </div>
 </template>

@@ -116,7 +116,7 @@ function publish() {
 </script>
 
 <template>
-  <section data-screen-label="A9 流程设计器" class="mx-auto flex w-full max-w-[1600px] flex-col gap-3.5 px-8 pt-6 pb-14">
+  <section data-screen-label="A9 流程设计器" class="mx-auto flex w-full max-w-[1600px] flex-col gap-3.5 px-8 pt-6 pb-14 max-xl:px-4">
     <PageHeader subtitle="按承办角色分泳道 · 同一列节点并行 · 点击节点编辑时限与超时动作">
       <template #title>
         <span class="tracking-[-0.2px]">流程设计器</span>
@@ -132,16 +132,16 @@ function publish() {
           type="button"
           :aria-pressed="f.name === flow.name"
           :class="cn(
-            'cursor-pointer rounded-lg px-4 py-1.5 text-[13px] font-medium whitespace-nowrap',
+            'cursor-pointer rounded-lg px-4 py-1.5 text-[13px] font-medium whitespace-nowrap max-xl:min-h-10',
             f.name === flow.name ? 'bg-white text-ink-1 shadow-[0_1px_3px_rgba(15,23,42,.1)]' : 'text-ink-4',
           )"
           @click="pickFlow(f.name)"
         >{{ f.name }}</button>
       </div>
-      <Button class="h-9" @click="publish">发布新版本</Button>
+      <Button class="h-9 max-xl:h-11" @click="publish">发布新版本</Button>
     </PageHeader>
 
-    <div class="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-4">
+    <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
       <div class="flex min-w-0 flex-col gap-3.5">
         <FlowCanvas
           :nodes="nodes"
@@ -153,7 +153,7 @@ function publish() {
         />
         <FlowGantt :nodes="nodes" :cols="cols" :total="total" :limit="limit" :selected="ni" />
       </div>
-      <div class="sticky top-(--sticky-panel) flex flex-col gap-3">
+      <div class="flex flex-col gap-3 max-xl:grid max-xl:grid-cols-2 max-xl:items-start max-md:grid-cols-1 xl:sticky xl:top-(--sticky-panel)">
         <NodePanel
           :node="node"
           :note="note"

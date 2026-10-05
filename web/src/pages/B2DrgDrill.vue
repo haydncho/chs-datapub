@@ -85,7 +85,7 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
 
 <template>
   <PageSection label="B2 病组下钻">
-    <div class="flex items-end justify-between gap-5">
+    <div class="flex flex-wrap items-end justify-between gap-x-5 gap-y-3">
       <div>
         <div class="text-xs text-ink-4">
           <button type="button" class="cursor-pointer text-brand" @click="goPage('B1')">本院全息</button> / 病组下钻
@@ -95,12 +95,12 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
         </div>
         <div class="text-[13px] text-ink-4">{{ data.header.meta }}</div>
       </div>
-      <div class="flex gap-1.5">
+      <div class="flex gap-1.5 max-xl:gap-2">
         <button type="button"
           v-for="x in data.groups"
           :key="x.code"
           :class="cn(
-            'yb-num cursor-pointer rounded-lg border px-3 py-1.5 text-xs font-semibold',
+            'yb-num cursor-pointer rounded-lg border px-3 py-1.5 text-xs font-semibold max-xl:min-h-10 max-xl:min-w-14',
             x.code === grp ? 'border-brand-line bg-brand-soft text-brand' : 'border-line-1 bg-white text-ink-3',
           )"
           @click="grp = x.code"
@@ -109,7 +109,7 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
     </div>
 
     <!-- KPI row -->
-    <div class="grid grid-cols-5 gap-3">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5 max-lg:[&>*:last-child]:col-span-2">
       <div
         v-for="k in kpis"
         :key="k.k"
@@ -133,15 +133,15 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
       </div>
     </div>
 
-    <div class="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-4">
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
       <!-- cost distribution -->
       <div class="yb-card px-card-x py-card-y">
-        <div class="flex justify-between">
+        <div class="flex flex-wrap justify-between gap-x-4 gap-y-1">
           <span class="flex items-center gap-2">
             <span class="text-[15px] font-semibold">病例费用分布</span>
             <span class="rounded-full bg-surface-3 px-2 py-px font-mono text-[11px] whitespace-nowrap text-ink-3">{{ data.basis }}</span>
           </span>
-          <span class="text-xs text-ink-4">{{ data.histNote }}</span>
+          <span class="text-xs whitespace-nowrap text-ink-4">{{ data.histNote }}</span>
         </div>
         <div class="relative mt-3.5 flex h-[220px] items-end gap-1 border-b border-line-4">
           <div
@@ -191,6 +191,8 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
         <span class="text-[15px] font-semibold">本院医疗组</span>
         <span class="text-xs text-ink-4">{{ data.teamsNote }}</span>
       </div>
+      <div class="max-xl:overflow-x-auto">
+      <div class="max-xl:min-w-[760px]">
       <div :class="cn(TEAM_COLS, 'bg-surface-1 py-[9px] text-xs text-ink-4')">
         <span>医疗组</span><span class="text-right">病例</span><span class="text-right">例均费用</span>
         <span class="text-right">例均差额</span><span class="text-right">住院日</span><span>重复检查发生率</span>
@@ -211,6 +213,8 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
           </div>
           <span class="yb-num w-10 text-right font-semibold">{{ t.repeatRate }}%</span>
         </div>
+      </div>
+      </div>
       </div>
     </div>
   </PageSection>

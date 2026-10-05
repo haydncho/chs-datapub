@@ -33,7 +33,7 @@ const vis = computed(() =>
 </script>
 
 <template>
-  <aside class="flex flex-col gap-[18px] border-l border-line-1 bg-white px-[22px] pt-[22px] pb-10">
+  <aside class="flex flex-col gap-[18px] border-l border-line-1 bg-white px-[22px] pt-[22px] pb-10 max-xl:border-t max-xl:border-l-0 max-xl:px-5 max-xl:pb-8">
     <div>
       <div class="flex items-center gap-1.5 text-[11px]">
         <span class="flex items-center gap-1 text-ink-3">
@@ -69,7 +69,7 @@ const vis = computed(() =>
             v-for="t in TIERS"
             :key="t"
             :class="cn(
-              'flex-1 cursor-pointer px-1 py-[7px] text-center text-xs font-medium',
+              'flex-1 cursor-pointer px-1 py-[7px] text-center text-xs font-medium max-xl:min-h-10',
               ind.tier === t ? 'bg-ink-1 text-white' : 'bg-white text-ink-3',
             )"
             @click="emit('pickTier', t)"
@@ -78,8 +78,8 @@ const vis = computed(() =>
         <div v-if="confirm" class="mt-2.5 rounded-[10px] border border-[#F6DFB8] bg-[#FFFBF4] p-3 text-xs">
           <div class="text-ink-2">{{ TIER_LABEL[ind.tier] }} → <b>{{ TIER_LABEL[confirm] }}</b>:提交后由召集人审批,通过前按原档位发布。</div>
           <div class="mt-2.5 flex gap-2">
-            <Button class="h-[30px] px-3 text-xs font-normal" @click="emit('confirmOk')">提交审批</Button>
-            <Button variant="outline" class="h-[30px] px-3 text-xs font-normal" @click="emit('confirmNo')">取消</Button>
+            <Button class="h-[30px] px-3 text-xs font-normal max-xl:h-10" @click="emit('confirmOk')">提交审批</Button>
+            <Button variant="outline" class="h-[30px] px-3 text-xs font-normal max-xl:h-10" @click="emit('confirmNo')">取消</Button>
           </div>
         </div>
         <div v-if="pending" class="mt-2 text-xs text-warn-ink">审批中:→ {{ TIER_LABEL[pending] }}</div>

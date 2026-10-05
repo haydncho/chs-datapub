@@ -30,7 +30,7 @@ const lines = computed(() => [
     <DialogContent
       overlay-class="z-[130] bg-[rgba(3,7,15,.6)]"
       :show-close="false"
-      class="z-[131] w-[min(860px,calc(100%-64px))] grid-cols-[minmax(0,1fr)_300px] gap-0 overflow-hidden rounded-2xl border-0 bg-white p-0 text-ink-1 shadow-[0_24px_64px_rgba(0,0,0,.4)]"
+      class="z-[131] max-h-[calc(100dvh-32px)] w-[min(860px,calc(100%-32px))] grid-cols-1 gap-0 overflow-y-auto md:grid-cols-[minmax(0,1fr)_300px] xl:w-[min(860px,calc(100%-64px))] rounded-2xl border-0 bg-white p-0 text-ink-1 shadow-[0_24px_64px_rgba(0,0,0,.4)]"
     >
       <div class="flex flex-col gap-[18px] px-[26px] py-6">
         <div>
@@ -45,7 +45,7 @@ const lines = computed(() => [
               :key="c.l"
               type="button"
               :class="cn(
-                'cursor-pointer rounded-lg border px-3 py-1.5 text-xs whitespace-nowrap',
+                'cursor-pointer rounded-lg border px-3 py-1.5 text-xs whitespace-nowrap max-xl:min-h-10 max-xl:px-3.5',
                 c.on ? 'border-brand-line bg-brand-soft text-brand' : 'border-line-1 bg-white text-ink-3',
               )"
               @click="c.click"
@@ -53,11 +53,11 @@ const lines = computed(() => [
           </div>
         </div>
         <div class="mt-1 flex justify-end gap-2">
-          <Button variant="outline" class="h-9 px-4 font-normal" @click="open = false">取消</Button>
-          <Button class="h-9 px-[18px]" @click="emit('save')">保存订阅</Button>
+          <Button variant="outline" class="h-9 px-4 font-normal max-xl:h-11" @click="open = false">取消</Button>
+          <Button class="h-9 px-[18px] max-xl:h-11" @click="emit('save')">保存订阅</Button>
         </div>
       </div>
-      <div class="flex flex-col gap-2.5 border-l border-line-1 bg-background p-5">
+      <div class="flex flex-col gap-2.5 border-t border-line-1 bg-background p-5 md:border-t-0 md:border-l">
         <div class="text-xs font-semibold text-ink-4">消息预览 · {{ sub.channels[s.sch] }}</div>
         <div class="overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(15,23,42,.08)]">
           <div class="flex items-center gap-2 border-b border-line-3 px-3 py-2.5">

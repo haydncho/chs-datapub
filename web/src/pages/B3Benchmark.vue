@@ -37,6 +37,7 @@ const rows = computed(() =>
         sh: me ? `0 0 0 3px ${BRAND_SOFT}` : 'none',
         z: me ? 5 : 1,
         show,
+        alt: !me && m.tier === 'named' && i % 2 === 1,
         l: me ? '本院' : m.tier === 'named' ? shortName(data.value.peers[i] ?? '') : 'ABCDEF'[i < own.value ? i : i - 1],
         lc: me ? BRAND : INK[3],
         lw: me ? 700 : 400,
@@ -62,14 +63,14 @@ const ranking = computed(() => {
     }))
 })
 
-const COLS = 'grid grid-cols-[200px_90px_minmax(0,1fr)_72px] gap-[18px]'
+const COLS = 'grid gap-[18px] max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:gap-x-3 max-lg:gap-y-1 lg:grid-cols-[200px_90px_minmax(0,1fr)_72px]'
 </script>
 
 <template>
   <PageSection label="B3 对标PK">
     <PageHeader title="对标 PK" :subtitle="data.subtitle">
-      <div class="flex gap-3.5 text-xs text-ink-3">
-        <span v-for="t in LEGEND" :key="t" class="flex items-center gap-[5px]">
+      <div class="flex flex-wrap gap-x-3.5 gap-y-1.5 text-xs text-ink-3">
+        <span v-for="t in LEGEND" :key="t" class="flex items-center gap-[5px] whitespace-nowrap">
           <span :class="cn('rounded px-[7px] py-px font-semibold', TIER[t].cls)">{{ TIER[t].label }}</span>{{ LEGEND_TXT[t] }}
         </span>
       </div>
@@ -77,14 +78,14 @@ const COLS = 'grid grid-cols-[200px_90px_minmax(0,1fr)_72px] gap-[18px]'
 
     <div class="yb-card px-6 pt-2 pb-card-y">
       <div :class="cn(COLS, 'border-b border-line-2 py-2.5 text-xs text-ink-4')">
-        <span>指标</span><span>档位</span>
-        <span class="flex justify-between"><span>← 较差</span><span>同级分布 · ● 本院</span><span>较好 →</span></span>
-        <span class="text-right">本院</span>
+        <span>指标</span><span class="max-lg:hidden">档位</span>
+        <span class="flex justify-between max-lg:order-last max-lg:col-span-full"><span>← 较差</span><span>同级分布 · ● 本院</span><span>较好 →</span></span>
+        <span class="text-right max-lg:hidden">本院</span>
       </div>
       <div v-for="r in rows" :key="r.name" :class="cn(COLS, 'items-center border-b border-line-3 py-3.5')">
         <span class="font-medium">{{ r.name }}</span>
         <span :class="cn('justify-self-start rounded px-2 py-px text-[11px] font-semibold', r.tier.cls)">{{ r.tier.label }}</span>
-        <div class="relative h-[34px]">
+        <div class="relative h-[34px] max-lg:order-last max-lg:col-span-full max-xl:mb-1" :class="r.dots.some(d => d.alt) && 'max-xl:h-[48px]'">
           <div class="absolute inset-x-0 top-4 h-0.5 bg-line-2" />
           <div class="absolute top-3 left-1/4 h-2.5 w-1/2 rounded-[2px] bg-[#EEF3FC]" />
           <template v-for="(d, i) in r.dots" :key="i">
@@ -94,7 +95,8 @@ const COLS = 'grid grid-cols-[200px_90px_minmax(0,1fr)_72px] gap-[18px]'
             />
             <span
               v-if="d.show"
-              class="absolute -top-1.5 -translate-x-1/2 text-[10px] whitespace-nowrap"
+              class="absolute -translate-x-1/2 text-[10px] whitespace-nowrap"
+              :class="d.alt ? 'max-xl:top-[30px] xl:-top-1.5' : '-top-1.5'"
               :style="{ left: d.x, color: d.lc, fontWeight: d.lw }"
             >{{ d.l }}</span>
           </template>

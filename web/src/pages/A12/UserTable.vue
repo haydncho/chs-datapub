@@ -47,19 +47,19 @@ const SIDE_TABS = [['all', '全部'], ['bureau', '医保局端'], ['org', '机�
             type="button"
             role="tab"
             :aria-selected="filters.side === k"
-            :class="cn('h-7 cursor-pointer rounded-md px-3 text-xs whitespace-nowrap transition-colors', filters.side === k ? 'bg-white font-semibold text-ink-1 shadow-xs' : 'text-ink-3 hover:text-ink-1')"
+            :class="cn('h-7 max-xl:h-10 cursor-pointer rounded-md px-3 max-xl:px-4 text-xs whitespace-nowrap transition-colors', filters.side === k ? 'bg-white font-semibold text-ink-1 shadow-xs' : 'text-ink-3 hover:text-ink-1')"
             @click="filters.side = k"
           >{{ label }}<span class="yb-num ml-1 text-ink-5">{{ sideCount[k] }}</span></button>
         </div>
         <Select v-model="filters.role">
-          <SelectTrigger size="sm" class="h-8 w-[132px] text-xs" data-testid="filter-role"><SelectValue placeholder="全部角色" /></SelectTrigger>
+          <SelectTrigger size="sm" class="h-8 w-[132px] text-xs max-xl:h-10" data-testid="filter-role"><SelectValue placeholder="全部角色" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">全部角色</SelectItem>
             <SelectItem v-for="r in roles" :key="r.code" :value="r.code">{{ r.name }}</SelectItem>
           </SelectContent>
         </Select>
         <Select v-model="filters.status">
-          <SelectTrigger size="sm" class="h-8 w-[118px] text-xs" data-testid="filter-status"><SelectValue placeholder="全部状态" /></SelectTrigger>
+          <SelectTrigger size="sm" class="h-8 w-[118px] text-xs max-xl:h-10" data-testid="filter-status"><SelectValue placeholder="全部状态" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">全部状态</SelectItem>
             <SelectItem v-for="(label, k) in STATUS_NAME" :key="k" :value="k">{{ label }}</SelectItem>
@@ -67,12 +67,14 @@ const SIDE_TABS = [['all', '全部'], ['bureau', '医保局端'], ['org', '机�
         </Select>
         <div class="relative">
           <Search class="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-ink-5" />
-          <Input v-model="filters.q" placeholder="搜索姓名 / 登录名 / 机构" class="h-8 w-[200px] pl-8 text-xs" data-testid="filter-q" />
+          <Input v-model="filters.q" placeholder="搜索姓名 / 登录名 / 机构" class="h-8 w-[200px] pl-8 text-xs max-xl:h-10" data-testid="filter-q" />
         </div>
       </div>
     </div>
 
-    <div :class="[GRID, 'sticky top-(--sticky-top) z-[6] bg-surface-1 py-2.5 text-xs text-ink-4']">
+    <div class="max-xl:overflow-x-auto">
+    <div class="max-xl:min-w-[1060px]">
+    <div :class="[GRID, 'max-xl:static sticky top-(--sticky-top) z-[6] bg-surface-1 py-2.5 text-xs text-ink-4']">
       <span /><span>姓名 / 登录名</span><span>角色 / 持有身份</span><span>所属机构</span><span>端</span><span>最近登录</span><span>状态</span><span class="text-right">操作</span>
     </div>
 
@@ -107,24 +109,26 @@ const SIDE_TABS = [['all', '全部'], ['bureau', '医保局端'], ['org', '机�
       <div class="flex justify-end gap-1.5">
         <template v-if="u.status === 'pending'">
           <template v-if="canReview && u.requestedBy !== meName">
-            <Button size="sm" class="h-7 px-2.5" :disabled="busy" @click="emit('review', u, true)">通过</Button>
-            <Button size="sm" variant="outline" class="h-7 px-2.5 font-normal" :disabled="busy" @click="emit('review', u, false)">驳回</Button>
+            <Button size="sm" class="h-7 px-2.5 max-xl:h-10" :disabled="busy" @click="emit('review', u, true)">通过</Button>
+            <Button size="sm" variant="outline" class="h-7 px-2.5 font-normal max-xl:h-10" :disabled="busy" @click="emit('review', u, false)">驳回</Button>
           </template>
           <span v-else class="text-[11px] text-ink-5">等待另一人复核</span>
         </template>
         <Button
           v-else-if="u.status === 'off'"
-          size="sm" variant="soft" class="h-7 px-3" :disabled="busy || !isConvener"
+          size="sm" variant="soft" class="h-7 px-3 max-xl:h-10" :disabled="busy || !isConvener"
           :title="isConvener ? '' : '仅召集人可操作'"
           @click="emit('enable', u)"
         >启用</Button>
         <Button
           v-else
-          size="sm" variant="outline" class="h-7 px-3 font-normal text-bad-ink!" :disabled="busy || !isConvener"
+          size="sm" variant="outline" class="h-7 px-3 font-normal text-bad-ink! max-xl:h-10" :disabled="busy || !isConvener"
           :title="isConvener ? '' : '仅召集人可操作'"
           @click="emit('disable', u)"
         >停用</Button>
       </div>
+    </div>
+    </div>
     </div>
 
     <div v-if="rows.length === 0" class="flex flex-col items-center gap-2 px-card-x py-10 text-[13px] text-ink-4">

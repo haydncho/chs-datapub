@@ -22,7 +22,9 @@ const rowsLabel = (w: number) => (w >= 1 ? w.toFixed(1) + ' 万' : '<1 万')
 
 <template>
   <div class="yb-card overflow-clip">
-    <div :class="cn(GRID, 'sticky top-(--sticky-top) z-[6] border-b border-line-2 bg-surface-1 py-2.5 text-xs text-ink-4')">
+   <div class="max-xl:overflow-x-auto">
+    <div class="max-xl:min-w-[860px]">
+    <div :class="cn(GRID, 'xl:sticky top-(--sticky-top) z-[6] border-b border-line-2 bg-surface-1 py-2.5 text-xs text-ink-4')">
       <span>数据源 · 提供方</span><span>接入</span><span>频次</span><span>应到</span><span>近 12 期到数</span><span>质量分</span><span>状态</span><span class="text-right">数据量</span>
     </div>
     <div v-press
@@ -30,7 +32,7 @@ const rowsLabel = (w: number) => (w >= 1 ? w.toFixed(1) + ' 万' : '<1 万')
       :key="r.src.name"
       :class="cn(
         GRID,
-        'cursor-pointer items-center border-b border-line-3 py-row hover:bg-surface-1',
+        'cursor-pointer items-center border-b border-line-3 py-row hover:bg-surface-1 max-xl:min-h-11',
         i === selected ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]' : 'bg-white',
       )"
       @click="emit('select', i)"
@@ -62,6 +64,8 @@ const rowsLabel = (w: number) => (w >= 1 ? w.toFixed(1) + ' 万' : '<1 万')
       <Badge :variant="statusPill(r).variant" :class="cn('w-full', statusPill(r).cls)">{{ statusPill(r).label }}</Badge>
       <span class="yb-num text-right text-ink-3">{{ rowsLabel(r.src.rowsWan) }}</span>
     </div>
+    </div>
+   </div>
     <div class="flex gap-4 px-[18px] py-2.5 text-[11px] text-ink-4">
       <span class="flex items-center gap-[5px]"><span class="size-[9px] rounded-[2px] bg-ok" />按时</span>
       <span class="flex items-center gap-[5px]"><span class="size-[9px] rounded-[2px] bg-warn" />延迟 / 部分</span>

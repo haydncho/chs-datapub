@@ -18,7 +18,7 @@ const kpis = computed(() => [
     <DialogContent
       overlay-class="z-[96] bg-[rgba(11,21,38,.4)]"
       :show-close="false"
-      class="z-[96] flex w-[min(520px,calc(100%-64px))] flex-col gap-4 rounded-2xl border-0 bg-white p-6 shadow-[0_24px_64px_rgba(11,21,38,.3)]"
+      class="z-[96] flex max-h-[calc(100dvh-32px)] w-[min(520px,calc(100%-32px))] flex-col overflow-y-auto gap-4 rounded-2xl border-0 bg-white p-6 shadow-[0_24px_64px_rgba(11,21,38,.3)]"
     >
       <div class="flex items-center gap-3">
         <span class="flex size-10 items-center justify-center rounded-xl bg-brand-soft">
@@ -37,8 +37,8 @@ const kpis = computed(() => [
       </div>
       <div class="rounded-[10px] border border-[#F6DFB8] bg-[#FFFBF4] px-3 py-2.5 text-xs leading-[1.7] text-ink-3">{{ s.covNames }}</div>
       <div class="flex justify-end gap-2">
-        <Button variant="outline" class="h-[38px] px-4 font-normal" @click="s.confirmOpen = false">返回检查</Button>
-        <Button class="h-[38px] px-5" @click="s.approve()">确认发布</Button>
+        <Button variant="outline" class="h-[38px] px-4 font-normal max-xl:h-11" @click="s.confirmOpen = false">返回检查</Button>
+        <Button class="h-[38px] px-5 max-xl:h-11" @click="s.approve()">确认发布</Button>
       </div>
     </DialogContent>
   </Dialog>

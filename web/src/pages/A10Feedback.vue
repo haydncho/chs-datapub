@@ -87,13 +87,13 @@ function setAssignee(id: string, name: string) {
 <template>
   <section data-screen-label="A10 意见与申诉" class="flex min-h-[calc(100vh-132px)] flex-col">
     <!-- title + SLA KPIs -->
-    <div class="flex items-center gap-7 border-b border-line-1 bg-white px-7 py-[18px]">
+    <div class="flex items-center gap-7 border-b border-line-1 bg-white px-7 py-[18px] max-xl:flex-col max-xl:items-stretch max-xl:gap-3">
       <div class="shrink-0 whitespace-nowrap">
         <div class="text-[22px] font-semibold">意见与申诉</div>
         <div class="text-xs text-ink-4">机构反馈统一受理 · 时限 5 个工作日 · 答复同步机构端</div>
       </div>
-      <div class="flex flex-1 justify-end">
-        <div v-for="k in kpis" :key="k.k" class="border-l border-line-2 px-5 whitespace-nowrap">
+      <div class="flex flex-1 justify-end max-xl:justify-start max-xl:overflow-x-auto max-xl:pb-1">
+        <div v-for="k in kpis" :key="k.k" class="border-l border-line-2 px-5 whitespace-nowrap max-xl:first:border-l-0 max-xl:first:pl-0">
           <div class="text-xs text-ink-4">{{ k.k }}</div>
           <div>
             <span class="yb-num text-2xl font-semibold" :style="{ color: k.c }">{{ k.v }}</span>
@@ -103,14 +103,14 @@ function setAssignee(id: string, name: string) {
       </div>
     </div>
 
-    <div class="grid flex-1 grid-cols-[180px_minmax(0,1fr)_minmax(380px,460px)]">
+    <div class="grid flex-1 grid-cols-1 content-start xl:grid-cols-[180px_minmax(0,1fr)_minmax(380px,460px)]">
       <!-- status queues -->
-      <aside class="flex flex-col gap-0.5 border-r border-line-1 bg-surface-1 px-2.5 py-4">
+      <aside class="flex flex-col gap-0.5 border-r border-line-1 bg-surface-1 px-2.5 py-4 max-xl:flex-row max-xl:gap-2 max-xl:overflow-x-auto max-xl:border-r-0 max-xl:border-b max-xl:px-4 max-xl:py-2.5">
         <div v-press
           v-for="x in queues"
           :key="x.id"
           :class="cn(
-            'flex cursor-pointer justify-between rounded-lg px-2.5 py-2',
+            'flex cursor-pointer justify-between rounded-lg px-2.5 py-2 max-xl:min-h-10 max-xl:shrink-0 max-xl:items-center max-xl:gap-2 max-xl:whitespace-nowrap',
             x.on ? 'bg-brand-soft font-semibold text-brand' : 'font-normal text-ink-2',
           )"
           @click="q = x.id"
@@ -121,13 +121,13 @@ function setAssignee(id: string, name: string) {
       </aside>
 
       <!-- item list -->
-      <div class="min-w-0 border-r border-line-1 bg-white">
+      <div class="min-w-0 border-r border-line-1 bg-white max-xl:max-h-[420px] max-xl:overflow-y-auto max-xl:border-r-0 max-xl:border-b">
         <div v-if="!rows.length" class="p-12 text-center text-ink-5">此队列暂无事项</div>
         <div v-press
           v-for="r in rows"
           :key="r.f.id"
           :class="cn(
-            'flex cursor-pointer flex-col gap-1.5 border-b border-line-3 px-5 py-3.5 hover:bg-surface-1',
+            'flex min-h-10 cursor-pointer flex-col gap-1.5 border-b border-line-3 px-5 py-3.5 hover:bg-surface-1',
             r.on ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]' : 'bg-white',
           )"
           @click="select(r.i)"

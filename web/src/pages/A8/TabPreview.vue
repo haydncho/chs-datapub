@@ -25,22 +25,22 @@ const side = computed(() => {
 </script>
 
 <template>
-  <div class="mb-3.5 flex items-center gap-2.5">
+  <div class="mb-3.5 flex flex-wrap items-center gap-2.5">
     <span class="text-xs whitespace-nowrap text-ink-4">以此身份查看</span>
     <div class="flex rounded-lg bg-line-2 p-[3px]">
       <button type="button"
         v-for="(p, i) in s.d.audiences"
         :key="p.name"
         :class="cn(
-          'cursor-pointer rounded-md px-3 py-[5px] text-xs whitespace-nowrap',
+          'cursor-pointer rounded-md px-3 py-[5px] text-xs whitespace-nowrap max-xl:min-h-10',
           i === s.pvi ? 'bg-white text-ink-1 shadow-[0_1px_2px_rgba(15,23,42,.1)]' : 'text-ink-4',
         )"
         @click="s.pvi = i"
       >{{ p.name }}</button>
     </div>
-    <span class="text-xs whitespace-nowrap text-ink-5">斜纹区域为该身份不渲染的内容</span>
+    <span class="text-xs text-ink-5">斜纹区域为该身份不渲染的内容</span>
   </div>
-  <div class="grid grid-cols-[minmax(0,1fr)_260px] gap-4">
+  <div class="grid grid-cols-[minmax(0,1fr)_260px] gap-4 max-lg:grid-cols-1">
     <div class="flex flex-col gap-3 rounded-[10px] border border-line-1 px-[26px] py-[22px] shadow-[0_2px_8px_rgba(15,23,42,.05)]">
       <div class="text-[11px] text-ink-5">{{ s.d.previewHead }} · {{ aud.name }}版</div>
       <div class="text-lg font-semibold">{{ s.cur.name }}</div>

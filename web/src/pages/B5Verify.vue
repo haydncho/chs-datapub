@@ -40,14 +40,14 @@ function submit() {
   say(nd.value ? '核对意见已提交 · 将进入意见与申诉受理' : '已确认全部数据一致')
 }
 
-const btn = 'h-[34px] px-4 font-medium text-ink-3 border-line-4 hover:brightness-[.92]'
+const btn = 'h-[34px] px-4 max-xl:h-10 max-xl:min-w-20 font-medium text-ink-3 border-line-4 hover:brightness-[.92]'
 </script>
 
 <template>
   <section data-screen-label="B5 意见核对" class="mx-auto flex w-full max-w-[1100px] flex-col gap-4 px-8 pt-6 pb-14">
     <!-- header -->
-    <div class="yb-card flex items-center gap-6 px-6 py-5">
-      <div class="min-w-0 flex-1">
+    <div class="yb-card flex flex-wrap items-center gap-x-6 gap-y-3 px-6 py-5">
+      <div class="min-w-0 flex-1 max-md:basis-full">
         <div class="text-xs font-medium text-violet">{{ data.draft }}</div>
         <div class="mt-1 text-[22px] font-semibold">{{ data.title }}</div>
         <div class="text-[13px] text-ink-4">{{ data.subtitle }}</div>
@@ -90,26 +90,26 @@ const btn = 'h-[34px] px-4 font-medium text-ink-3 border-line-4 hover:brightness
           </div>
         </div>
         <template v-if="ck[i] === 'diff'">
-          <div class="grid grid-cols-[160px_1fr] gap-2.5">
+          <div class="grid grid-cols-1 gap-2.5 md:grid-cols-[160px_1fr]">
             <Input
               v-model="own[i]"
               placeholder="本院数值"
-              class="h-9 rounded-lg border-line-4 px-3 text-[13px] shadow-none md:text-[13px]"
+              class="h-9 rounded-lg border-line-4 px-3 text-[13px] shadow-none max-xl:h-10 md:text-[13px]"
             />
             <Input
               v-model="reason[i]"
               placeholder="差异原因,例如:12 例特例单议未剔除"
-              class="h-9 rounded-lg border-line-4 px-3 text-[13px] shadow-none md:text-[13px]"
+              class="h-9 rounded-lg border-line-4 px-3 text-[13px] shadow-none max-xl:h-10 md:text-[13px]"
             />
           </div>
-          <span class="w-fit cursor-pointer text-xs text-brand">+ 上传佐证材料</span>
+          <span class="w-fit cursor-pointer text-xs text-brand max-xl:flex max-xl:min-h-10 max-xl:items-center">+ 上传佐证材料</span>
         </template>
       </div>
-      <div class="flex items-center gap-3 bg-surface-1 px-6 py-4">
+      <div class="flex flex-wrap items-center gap-3 bg-surface-1 px-6 py-4">
         <span class="flex-1 text-xs text-ink-4">{{ data.footnote }}</span>
         <Button
           v-if="!sent"
-          :class="cn('h-[38px] px-5', !done && 'bg-brand-mute')"
+          :class="cn('h-[38px] px-5 max-xl:h-11', !done && 'bg-brand-mute')"
           @click="submit"
         >提交核对结果</Button>
         <span v-else class="text-[13px] font-medium text-ok-ink">✓ 已提交 · 可在报告中心查看处理进度</span>

@@ -231,6 +231,41 @@ html[data-motion="0"] *, html[data-motion="0"] *::before, html[data-motion="0"] 
   }
 }
 
+
+/* ======================================================================
+   Pad / 触屏适配(仅新增,≥1280 的鼠标桌面不受影响)
+   ====================================================================== */
+@media (pointer: coarse) {
+  html { -webkit-tap-highlight-color: transparent; }
+  button, [role="button"], [role="tab"], [role="menuitem"], [role="option"], a, label, input, select, textarea, summary {
+    touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+  }
+}
+@media (max-width: 1279px), (pointer: coarse) {
+  /* 主要控件最小点按高度 40px(小徽章 / 行内微型按钮 h-5、h-6、size-5、size-6 除外) */
+  [data-slot="button"]:not([class*="h-5"]):not([class*="h-6"]):not([class*="size-5"]):not([class*="size-6"]),
+  [data-slot="input"]:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  [data-slot="select-trigger"] { min-height: 40px; }
+  [data-slot="select-item"], [data-slot="dropdown-menu-item"], [data-slot="dropdown-menu-checkbox-item"], [data-slot="dropdown-menu-radio-item"] { min-height: 40px; }
+  /* 浮层不超出视口,内容可滚动 */
+  [data-slot="select-content"], [data-slot="dropdown-menu-content"], [data-slot="popover-content"] {
+    max-width: calc(100vw - 16px); max-height: min(var(--reka-popper-available-height, 70dvh), 70dvh); overflow-y: auto;
+  }
+  [data-slot="dialog-content"], [data-slot="alert-dialog-content"] {
+    max-height: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain;
+  }
+  [data-slot="sheet-content"] { max-width: 100vw; overflow-y: auto; }
+  /* 关闭按钮:视觉不变,点按热区扩大到 44px */
+  [data-slot="dialog-close"], [data-slot="sheet-content"] > button:last-child { position: absolute; }
+  [data-slot="dialog-close"]::after, [data-slot="sheet-content"] > button:last-child::after {
+    content: ""; position: absolute; inset: -14px;
+  }
+}
+@media (max-width: 767px) {
+  /* Dialog 在小屏接近全屏宽度 */
+  [data-slot="dialog-content"], [data-slot="alert-dialog-content"] { width: calc(100vw - 16px) !important; max-width: calc(100vw - 16px) !important; }
+}
+
 @media print {
   @page { size: A4; margin: 12mm; }
   body * { visibility: hidden !important; }

@@ -6,7 +6,7 @@ defineProps<{ label: string; class?: string }>()
 </script>
 
 <template>
-  <section :data-screen-label="label" :class="cn('mx-auto flex w-full max-w-[1600px] flex-col gap-page px-8 pt-6 pb-14', $props.class)">
+  <section :data-screen-label="label" :class="cn('mx-auto flex w-full max-w-[1600px] flex-col gap-page px-4 pt-6 pb-14 lg:px-6 xl:px-8', $props.class)">
     <slot />
   </section>
 </template>

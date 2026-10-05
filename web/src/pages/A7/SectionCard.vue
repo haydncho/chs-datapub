@@ -21,15 +21,15 @@ defineEmits<{ focus: []; approve: []; regen: [] }>()
     )"
     @click="$emit('focus')"
   >
-    <div class="flex items-center gap-2.5">
+    <div class="flex flex-wrap items-center gap-2.5 max-xl:gap-y-2">
       <span class="yb-num text-[13px] font-semibold text-ink-5">{{ pad(index + 1) }}</span>
-      <span class="flex-1 text-lg font-semibold">{{ name }}</span>
+      <span class="min-w-0 flex-1 text-lg font-semibold">{{ name }}</span>
       <Badge v-if="ok" variant="ok" class="px-2 py-0.5 text-[11px] font-medium">✓ 已人工审定</Badge>
       <template v-else>
         <Badge variant="warn" class="px-2 py-0.5 text-[11px] font-medium">大模型初稿 · 待审定</Badge>
-        <Button variant="dark" class="h-7 rounded-lg border-0 bg-ink-1 px-3 text-xs font-normal text-white hover:brightness-[.92]" @click="$emit('approve')">审定本段</Button>
+        <Button variant="dark" class="h-7 max-xl:h-10 rounded-lg border-0 bg-ink-1 px-3 text-xs font-normal text-white hover:brightness-[.92]" @click="$emit('approve')">审定本段</Button>
       </template>
-      <Button variant="outline" class="h-7 rounded-lg px-2.5 text-xs font-normal text-ink-3" @click="$emit('regen')">重新生成</Button>
+      <Button variant="outline" class="h-7 max-xl:h-10 rounded-lg px-2.5 text-xs font-normal text-ink-3" @click="$emit('regen')">重新生成</Button>
     </div>
     <slot />
     <div class="text-sm leading-[1.9] text-pretty text-ink-2">

@@ -74,11 +74,13 @@ const GRID = 'grid grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_11
       <span class="text-[15px] font-semibold">重点病组明细</span>
       <span class="text-[12px] text-ink-4">按差额总额排序 · 病例 &lt; 30 并入其他</span>
     </div>
+    <div class="max-xl:overflow-x-auto">
+    <div class="max-xl:min-w-[1010px]">
     <div :class="cn(GRID, 'sticky top-(--sticky-top) z-[6] bg-surface-1 py-[9px] text-[12px] text-ink-4')">
       <button type="button"
         v-for="c in head" :key="c.k"
         :class="cn(
-          'flex cursor-pointer items-center gap-[3px] whitespace-nowrap',
+          'flex cursor-pointer items-center gap-[3px] whitespace-nowrap max-xl:min-h-10',
           c.jc === 'end' ? 'justify-end' : 'justify-start',
           c.on ? 'font-semibold text-ink-1' : 'font-normal text-ink-4',
         )"
@@ -110,7 +112,9 @@ const GRID = 'grid grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_11
       <div class="flex h-[22px] items-end gap-[3px]">
         <span v-for="(b, i) in r.tr" :key="i" class="w-2 rounded-[1px]" :style="{ height: b.h, background: b.c }" />
       </div>
-      <button type="button" class="text-right text-[12px] text-brand" @click.stop="goPage('B2')">下钻 →</button>
+      <button type="button" class="text-right text-[12px] text-brand max-xl:min-h-10" @click.stop="goPage('B2')">下钻 →</button>
+    </div>
+    </div>
     </div>
   </div>
 </template>

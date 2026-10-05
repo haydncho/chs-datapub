@@ -5,7 +5,7 @@ defineProps<{ data: A1Data }>()
 </script>
 
 <template>
-  <div class="relative flex flex-col overflow-hidden bg-[#071330] px-14 py-12 text-white">
+  <div class="relative flex flex-col overflow-hidden bg-[#071330] px-14 py-12 text-white max-lg:px-5 max-lg:py-4">
     <div
       class="absolute inset-0"
       style="background: radial-gradient(ellipse 70% 55% at 20% 0%, color-mix(in srgb, var(--brand) 55%, transparent), transparent 70%), radial-gradient(ellipse 50% 40% at 100% 100%, rgba(58,160,255,.25), transparent 70%)"
@@ -21,9 +21,11 @@ defineProps<{ data: A1Data }>()
         <div class="text-[17px] font-semibold">{{ data.org.name }}</div>
         <div class="text-xs text-[#9FB2D1]">{{ data.org.sub }}</div>
       </div>
+      <!-- 窄屏:品牌区缩成一条,标语同行 -->
+      <div class="ml-auto min-w-0 truncate text-sm font-medium text-[#C9D8F0] lg:hidden">{{ data.slogan[0] }}{{ data.slogan[1] }}</div>
     </div>
 
-    <div class="relative flex max-w-[560px] flex-1 flex-col justify-center gap-[26px] py-8">
+    <div class="relative flex max-w-[560px] flex-1 max-lg:hidden flex-col justify-center gap-[26px] py-8">
       <div class="text-[clamp(28px,2.6vw,40px)] leading-[1.3] font-semibold tracking-[.5px] text-pretty">
         {{ data.slogan[0] }}<br>{{ data.slogan[1] }}
       </div>
@@ -48,7 +50,7 @@ defineProps<{ data: A1Data }>()
       </div>
     </div>
 
-    <div class="relative flex gap-4 text-[11px] text-[#6F84A6]">
+    <div class="relative flex gap-4 text-[11px] text-[#6F84A6] max-lg:hidden">
       <span v-for="f in data.footer" :key="f">{{ f }}</span>
     </div>
   </div>

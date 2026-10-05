@@ -79,10 +79,13 @@ const setSecEl = (i: number) => (el: unknown) => {
 }
 /** sticky shell header (60) + topic header (136) + breathing room */
 const STICKY_OFFSET = 208
+/** 窄屏:专题头不吸顶,只有壳层 60 + 章节条约 64 */
+const STICKY_OFFSET_NARROW = 144
 function goSec(i: number) {
   act.value = i
   const el = secEls[i]
-  if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - STICKY_OFFSET, behavior: 'smooth' })
+  const off = window.innerWidth >= 1280 ? STICKY_OFFSET : STICKY_OFFSET_NARROW
+  if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - off, behavior: 'smooth' })
 }
 
 // ---- actions ------------------------------------------------------------
@@ -136,11 +139,11 @@ function pushComments() {
       @submit="submit"
     />
 
-    <div class="grid grid-cols-[240px_minmax(0,1fr)_340px] items-start">
+    <div class="grid grid-cols-1 items-start xl:grid-cols-[240px_minmax(0,1fr)_340px]">
       <SectionOutline :items="outline" :active="act" @go="goSec" />
 
-      <main class="flex min-w-0 justify-center px-6 pt-5 pb-20">
-        <div class="flex w-full max-w-[800px] flex-col gap-3 rounded-[14px] border border-line-1 bg-white px-11 pt-9 pb-12 shadow-[0_1px_3px_rgba(15,23,42,.04)]">
+      <main class="flex min-w-0 justify-center px-6 pt-5 pb-20 max-xl:px-4 max-xl:pb-6">
+        <div class="flex w-full max-w-[800px] flex-col gap-3 rounded-[14px] border border-line-1 bg-white px-11 pt-9 pb-12 max-xl:px-8 max-xl:pt-6 max-xl:pb-8 shadow-[0_1px_3px_rgba(15,23,42,.04)]">
           <div class="text-[11px] text-ink-5">{{ data.docMeta }}</div>
           <SectionCard
             v-for="(sec, i) in data.sections"

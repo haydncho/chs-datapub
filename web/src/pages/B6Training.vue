@@ -52,7 +52,7 @@ function start(c: B6Course) {
       </div>
     </PageHeader>
 
-    <div class="grid grid-cols-4 gap-3.5">
+    <div class="grid grid-cols-2 gap-3.5 xl:grid-cols-4">
       <div v-for="c in data.courses" :key="c.id" class="yb-card flex flex-col overflow-hidden">
         <div
           class="relative flex h-[110px] flex-col justify-between overflow-hidden p-3.5"
@@ -70,7 +70,7 @@ function start(c: B6Course) {
           <div class="font-semibold">{{ c.name }}</div>
           <div class="flex-1 text-xs text-ink-4">{{ c.desc }}</div>
           <span v-if="isDone(c)" class="text-xs font-medium text-ok-ink">✓ 已完成 · 测验 {{ c.score }} 分</span>
-          <Button v-else variant="soft" class="h-8 font-medium" @click="start(c)">开始学习</Button>
+          <Button v-else variant="soft" class="h-8 font-medium max-xl:h-10" @click="start(c)">开始学习</Button>
         </div>
       </div>
     </div>

@@ -86,7 +86,7 @@ const lin = computed(() => props.data.lineage)
 
 <template>
   <div class="yb-card px-card-x py-card-y">
-    <div class="flex items-baseline justify-between">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
       <span class="flex items-center gap-2">
         <span class="text-[15px] font-semibold">本院病组全景</span>
         <Popover>
@@ -106,7 +106,7 @@ const lin = computed(() => props.data.lineage)
           </PopoverContent>
         </Popover>
       </span>
-      <span class="text-[12px] text-ink-4">彩色 本院 · 灰色 全市同级同组均值 · 他院不渲染</span>
+      <span class="text-[12px] whitespace-nowrap text-ink-4">彩色 本院 · 灰色 全市同级同组均值 · 他院不渲染</span>
     </div>
 
     <div class="relative mt-2.5 h-[400px]">
@@ -133,7 +133,7 @@ const lin = computed(() => props.data.lineage)
         <div v-press
           v-for="b in own" :key="'o' + b.k"
           :title="b.tip"
-          class="absolute box-content cursor-pointer rounded-full"
+          class="absolute box-content cursor-pointer rounded-full max-xl:before:absolute max-xl:before:-inset-3 max-xl:before:content-['']"
           :style="{
             left: b.x + '%', top: b.y + '%', width: b.d + 'px', height: b.d + 'px',
             marginLeft: b.m + 'px', marginTop: b.m + 'px',
@@ -150,8 +150,8 @@ const lin = computed(() => props.data.lineage)
       <span class="absolute right-3 bottom-0 text-[11px] text-ink-5">本院病例数 →</span>
     </div>
 
-    <div class="mt-3 flex items-center gap-[22px] rounded-[10px] bg-surface-1 px-4 py-3">
-      <div class="min-w-0 flex-[1.4]">
+    <div class="mt-3 items-center gap-[22px] rounded-[10px] bg-surface-1 px-4 py-3 max-xl:grid max-xl:grid-cols-2 max-xl:gap-x-4 max-xl:gap-y-3 md:max-xl:grid-cols-4 xl:flex">
+      <div class="min-w-0 flex-[1.4] max-xl:col-span-full">
         <div class="yb-num font-semibold text-brand">{{ sel.k }}</div>
         <div class="truncate font-semibold" :title="sel.n">{{ sel.n }}</div>
       </div>
@@ -171,7 +171,7 @@ const lin = computed(() => props.data.lineage)
         <div class="text-[11px] text-ink-4">差额总额</div>
         <div class="yb-num text-[20px] font-semibold" :style="{ color: sel.totc }">{{ sel.tot }}</div>
       </div>
-      <Button variant="outline" class="h-[34px] px-3.5 font-normal" @click="goPage('B2')">病组下钻 →</Button>
+      <Button variant="outline" class="h-[34px] px-3.5 font-normal max-xl:col-span-full max-xl:h-10" @click="goPage('B2')">病组下钻 →</Button>
     </div>
   </div>
 </template>

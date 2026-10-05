@@ -40,11 +40,11 @@ const sm = computed(() => data.value.summary)
 
 <template>
   <PageSection label="A12 用户权限">
-    <PageHeader title="用户与权限" subtitle="以系统真实的用户、角色与访问矩阵为准 · 最小必要原则 · 新增用户需双人复核">
+    <PageHeader class="max-xl:flex-wrap" title="用户与权限" subtitle="以系统真实的用户、角色与访问矩阵为准 · 最小必要原则 · 新增用户需双人复核">
       <Button :disabled="!s.isConvener" :title="s.isConvener ? '' : '仅召集人可操作'" @click="addOpen = true">+ 新增用户申请</Button>
     </PageHeader>
 
-    <div class="grid grid-cols-5 gap-3.5" data-testid="a12-stats">
+    <div class="grid grid-cols-2 gap-3.5 md:grid-cols-3 xl:grid-cols-5" data-testid="a12-stats">
       <StatCard label="用户总数" :value="sm.total" unit="人" :sub="`含已停用 ${sm.disabled} 人`" tone="info" :icon="ICON.users" />
       <StatCard label="医保局端" :value="sm.bureau" unit="人" sub="召集人 · 行政 · 分析 · 审计" tone="info" :icon="ICON.bureau" />
       <StatCard label="机构端" :value="sm.org" unit="人" sub="医院 · 县区 · 社会监督" tone="ok" :icon="ICON.org" />

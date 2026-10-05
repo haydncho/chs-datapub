@@ -16,7 +16,7 @@ const segClass = (s: B4Seg) =>
 
 <template>
   <div class="flex w-full max-w-[980px] flex-col gap-3.5">
-    <div class="flex items-center gap-[18px] rounded-xl border border-line-1 bg-white px-[22px] py-[18px]">
+    <div class="flex flex-wrap items-center gap-x-[18px] gap-y-2 rounded-xl border border-line-1 bg-white px-[22px] py-[18px]">
       <div class="min-w-0 flex-1">
         <div class="text-xs text-ink-4">版本对比</div>
         <div class="text-lg font-semibold whitespace-nowrap">{{ name }}</div>
@@ -29,7 +29,8 @@ const segClass = (s: B4Seg) =>
       <span class="text-xs whitespace-nowrap text-ink-4">{{ diff.summary }}</span>
     </div>
 
-    <div class="overflow-hidden rounded-xl border border-line-1 bg-white">
+    <div class="overflow-x-auto rounded-xl border border-line-1 bg-white">
+    <div class="max-xl:min-w-[720px]">
       <div class="grid grid-cols-[110px_minmax(0,1fr)_100px_130px_100px] 2xl:grid-cols-[150px_minmax(0,1fr)_140px_140px_150px] gap-3.5 bg-surface-1 px-5 py-2.5 text-xs text-ink-4">
         <span>位置</span><span>内容</span><span class="text-right">v1</span><span class="text-right">v2</span><span>依据</span>
       </div>
@@ -45,8 +46,9 @@ const segClass = (s: B4Seg) =>
         <span class="text-xs whitespace-nowrap text-ink-4">{{ d.why }}</span>
       </div>
     </div>
+    </div>
 
-    <div class="grid grid-cols-2 gap-3.5">
+    <div class="grid grid-cols-1 gap-3.5 md:grid-cols-2">
       <div class="rounded-xl border border-bad-line bg-white px-[22px] py-[18px]">
         <div class="mb-2 text-xs font-semibold text-bad-ink">v1 · {{ diff.section }}</div>
         <div class="text-sm leading-[1.9] text-ink-2">

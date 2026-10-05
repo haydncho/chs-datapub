@@ -28,7 +28,7 @@ const logs = computed(() =>
 </script>
 
 <template>
-  <aside class="flex flex-col gap-[18px] border-l border-line-1 bg-white p-5">
+  <aside class="flex flex-col gap-[18px] border-l border-line-1 bg-white p-5 max-xl:border-t max-xl:border-l-0 max-xl:px-4">
     <div>
       <div class="mb-2.5 flex items-baseline justify-between">
         <span class="text-sm font-semibold">发布前检查</span>
@@ -38,7 +38,7 @@ const logs = computed(() =>
         <div v-press
           v-for="c in s.checks"
           :key="c.text"
-          class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-surface-2"
+          class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-surface-2 max-xl:min-h-11"
           @click="s.tab = c.tab"
         >
           <span
@@ -60,7 +60,7 @@ const logs = computed(() =>
           <button type="button"
             v-for="p in s.d.phrases"
             :key="p"
-            class="cursor-pointer rounded-full bg-surface-3 px-[9px] py-[3px] text-[11px] whitespace-nowrap text-ink-3 hover:bg-brand-soft hover:text-brand"
+            class="cursor-pointer rounded-full bg-surface-3 px-[9px] py-[3px] text-[11px] max-xl:min-h-10 max-xl:px-3.5 max-xl:text-xs whitespace-nowrap text-ink-3 hover:bg-brand-soft hover:text-brand"
             @click="s.addPhrase(p)"
           >{{ p }}</button>
         </div>
@@ -69,19 +69,19 @@ const logs = computed(() =>
           placeholder="审批意见(驳回时必填)"
           class="h-[84px] w-full resize-none rounded-[10px] border border-line-1 bg-surface-1 px-3 py-2.5 text-[13px] outline-none placeholder:text-ink-5 focus:border-brand-line"
         />
-        <Button class="mt-2.5 h-10 w-full rounded-[10px] text-sm" @click="s.confirmOpen = true">批准发布 · 推送 {{ s.covN }} 家</Button>
+        <Button class="mt-2.5 h-10 w-full rounded-[10px] text-sm max-xl:h-12" @click="s.confirmOpen = true">批准发布 · 推送 {{ s.covN }} 家</Button>
         <div class="mt-3 mb-1.5 text-xs text-ink-4">驳回至</div>
         <div class="grid grid-cols-2 gap-1.5">
           <button type="button"
             v-for="i in [1, 2, 3, 4]"
             :key="i"
-            :class="cn('cursor-pointer rounded-md border px-2 py-[3px] text-center text-[11px] whitespace-nowrap', softChip(i === s.rjTo))"
+            :class="cn('cursor-pointer rounded-md border px-2 py-[3px] text-center text-[11px] whitespace-nowrap max-xl:min-h-10 max-xl:text-xs', softChip(i === s.rjTo))"
             @click="s.rjTo = i"
           >{{ i }} {{ s.stepName(i) }}</button>
         </div>
         <Button
           variant="outline"
-          class="mt-2 h-9 w-full rounded-[10px] border-[#F3C5C0] font-normal text-bad"
+          class="mt-2 h-9 w-full rounded-[10px] border-[#F3C5C0] max-xl:h-11 font-normal text-bad"
           @click="s.reject()"
         >驳回至「{{ s.stepName(s.rjTo) }}」</Button>
       </template>

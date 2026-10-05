@@ -15,7 +15,7 @@ function short(h: string) {
 </script>
 
 <template>
-  <div class="yb-card sticky top-(--sticky-panel) flex flex-col gap-3 p-5">
+  <div class="yb-card xl:sticky xl:top-(--sticky-panel) flex flex-col gap-3 p-5">
     <div>
       <span :class="['rounded px-2 py-px text-[11px] font-semibold', kindClass[log.type]]">{{ log.type }}</span>
       <div class="mt-1.5 text-base font-semibold break-all">{{ log.object }}</div>

@@ -148,12 +148,12 @@ function restart() {
 <template>
   <section
     data-screen-label="A1 登录与身份"
-    class="grid min-h-screen min-w-[1280px] grid-cols-[minmax(0,1.15fr)_minmax(460px,1fr)] bg-white text-[13px] leading-normal text-ink-1"
+    class="grid min-h-screen min-w-0 grid-cols-1 max-lg:grid-rows-[auto_1fr] lg:grid-cols-[minmax(0,1.15fr)_minmax(460px,1fr)] bg-white text-[13px] leading-normal text-ink-1"
   >
     <BrandPanel :data="data" />
 
-    <div class="flex items-center justify-center bg-white p-10">
-      <div class="flex w-full max-w-[420px] flex-col gap-[22px]">
+    <div class="flex items-center justify-center bg-white p-10 max-lg:px-5 max-lg:py-8">
+      <div class="flex w-full max-w-[420px] flex-col gap-[22px] max-lg:max-w-[440px]">
         <!-- 三步指示 -->
         <ol class="flex items-center gap-2 text-xs" data-testid="login-steps">
           <template v-for="(l, i) in STEPS" :key="l">
@@ -218,7 +218,7 @@ function restart() {
               <div class="font-semibold">{{ sideCard.title }}</div>
               <div class="truncate text-xs text-ink-4">{{ sideCard.zone }} · {{ sideCard.roles.join('、') }}</div>
             </div>
-            <button type="button" class="flex shrink-0 cursor-pointer items-center gap-1 text-xs text-brand" data-testid="change-side" @click="step = 0">
+            <button type="button" class="flex shrink-0 cursor-pointer items-center gap-1 text-xs text-brand max-xl:min-h-11 max-xl:px-2" data-testid="change-side" @click="step = 0">
               <ArrowLeft :size="13" />更换
             </button>
           </div>
@@ -227,7 +227,7 @@ function restart() {
               v-for="(l, i) in data.loginTabs"
               :key="l"
               :class="cn(
-                'flex-1 cursor-pointer rounded-lg py-2 text-center font-medium whitespace-nowrap',
+                'flex-1 cursor-pointer rounded-lg py-2 text-center font-medium whitespace-nowrap max-xl:py-3',
                 i === tab ? 'bg-white text-ink-1 shadow-[0_1px_3px_rgba(15,23,42,.1)]' : 'text-ink-4',
               )"
               @click="tab = i"
@@ -276,7 +276,7 @@ function restart() {
               :key="r.id"
               data-testid="identity-card"
               :class="cn(
-                'flex cursor-pointer items-center gap-3.5 rounded-xl border-[1.5px] px-4 py-3.5',
+                'flex min-h-14 cursor-pointer items-center gap-3.5 rounded-xl border-[1.5px] px-4 py-3.5',
                 i === idSel ? 'border-brand bg-brand-tint' : 'border-line-1 bg-white',
               )"
               @click="idSel = i"
@@ -302,7 +302,7 @@ function restart() {
             </div>
           </div>
           <Button class="h-[46px] rounded-[10px] text-[15px]" :disabled="busy" data-testid="enter" @click="enter">进入平台</Button>
-          <span class="cursor-pointer text-center text-[13px] text-ink-4" data-testid="relogin" @click="restart">← 重新登录 / 改选端</span>
+          <span class="cursor-pointer py-1 text-center text-[13px] text-ink-4 max-xl:py-3" data-testid="relogin" @click="restart">← 重新登录 / 改选端</span>
         </template>
       </div>
     </div>

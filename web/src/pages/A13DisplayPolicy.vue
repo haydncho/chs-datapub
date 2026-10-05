@@ -30,7 +30,7 @@ const suppressed = computed(() => pv.value.peerCount < minOrg.value)
 </script>
 
 <template>
-  <PageSection label="A13 展示策略" class="grid! grid-cols-[minmax(0,1fr)_400px] items-start">
+  <PageSection label="A13 展示策略" class="grid! grid-cols-1 items-start xl:grid-cols-[minmax(0,1fr)_400px]">
     <div class="flex flex-col gap-4">
       <PageHeader title="展示策略" subtitle="全局规则 · 对所有发布物生效 · 修改需召集人审批" />
       <div v-for="r in data.rules" :key="r.key" class="yb-card flex items-center gap-5 px-card-x py-card-y-sm">
@@ -41,14 +41,14 @@ const suppressed = computed(() => pv.value.peerCount < minOrg.value)
         <div v-if="r.kind === 'number'" class="flex items-center gap-2">
           <button
             type="button"
-            class="flex size-7 cursor-pointer items-center justify-center rounded-md border border-line-1 bg-white hover:bg-surface-1"
+            class="flex size-7 max-xl:size-10 cursor-pointer items-center justify-center rounded-md border border-line-1 bg-white hover:bg-surface-1"
             :aria-label="'减少' + r.name"
             @click="bump(r, -1)"
           >−</button>
           <span class="yb-num min-w-9 text-center text-xl font-semibold">{{ num(r) }}</span>
           <button
             type="button"
-            class="flex size-7 cursor-pointer items-center justify-center rounded-md border border-line-1 bg-white hover:bg-surface-1"
+            class="flex size-7 max-xl:size-10 cursor-pointer items-center justify-center rounded-md border border-line-1 bg-white hover:bg-surface-1"
             :aria-label="'增加' + r.name"
             @click="bump(r, 1)"
           >+</button>
@@ -64,7 +64,7 @@ const suppressed = computed(() => pv.value.peerCount < minOrg.value)
       </div>
     </div>
 
-    <div class="yb-card sticky top-(--sticky-panel) flex flex-col gap-3 p-card-x">
+    <div class="yb-card xl:sticky xl:top-(--sticky-panel) flex flex-col gap-3 p-card-x">
       <div class="text-xs font-semibold text-ink-4">{{ pv.title }}</div>
       <div class="relative overflow-hidden rounded-[10px] border border-line-2 p-3.5">
         <div class="text-xs text-ink-4">{{ pv.metric }}</div>

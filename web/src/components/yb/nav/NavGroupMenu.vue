@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { ChevronDown } from '@lucide/vue'
 import { iconOf } from '@/lib/icons'
 import { isActiveItem, type NavGroup, type NavItem } from '@/app/nav'
@@ -20,16 +20,47 @@ const trigger = ref<HTMLButtonElement>()
 const hasMenu = computed(() => props.group.items.length > 1)
 const GroupIcon = computed(() => iconOf(props.group.icon))
 const menuId = computed(() => `yb-nav-menu-${props.uid}`)
+const panel = ref<HTMLElement>()
 let closeT: ReturnType<typeof setTimeout> | undefined
+// 最近一次输入方式:触屏(touch / pen)不依赖悬停,点按开关;键盘与鼠标行为不变
+let lastType: 'mouse' | 'touch' | 'key' = 'mouse'
+const isTouch = () => lastType === 'touch'
 
+function onPointerDown(e: PointerEvent) {
+  lastType = e.pointerType === 'mouse' ? 'mouse' : 'touch'
+}
 function show() {
   clearTimeout(closeT)
+  if (isTouch()) return
   if (hasMenu.value) open.value = true
 }
 function hideSoon() {
   clearTimeout(closeT)
+  if (isTouch()) return
   closeT = setTimeout(() => (open.value = false), 120)
 }
+function onTriggerClick() {
+  if (isTouch() && hasMenu.value) { open.value = !open.value; return }
+  pick(props.group.items.find(i => isActiveItem(i, props.code, props.query)) ?? props.group.items[0]!)
+}
+// 触屏:点空白处关闭;下拉靠近右边缘时向左收,避免撑出横向滚动
+function onDocDown(e: PointerEvent) {
+  if (!root.value?.contains(e.target as Node)) hideNow()
+}
+watch(open, async o => {
+  if (o) document.addEventListener('pointerdown', onDocDown, true)
+  else document.removeEventListener('pointerdown', onDocDown, true)
+  if (o) {
+    await nextTick()
+    const el = panel.value
+    if (!el) return
+    el.style.transform = ''
+    const r = el.getBoundingClientRect()
+    const over = r.right - (window.innerWidth - 8)
+    if (over > 0) el.style.transform = `translateX(${-over}px)`
+  }
+})
+onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocDown, true))
 function hideNow() {
   clearTimeout(closeT)
   open.value = false
@@ -48,6 +79,7 @@ async function focusItem(i: number) {
   list[(i + list.length) % list.length]?.focus()
 }
 function onTriggerKey(e: KeyboardEvent) {
+  lastType = 'key'
   if (e.key === 'ArrowDown' && hasMenu.value) { e.preventDefault(); focusItem(0) }
   else if (e.key === 'Escape') hideNow()
 }
@@ -74,6 +106,7 @@ function pick(item: NavItem) {
     ref="root"
     class="yb-l1"
     :data-active="active || undefined"
+    @pointerdown.capture="onPointerDown"
     @mouseenter="show"
     @mouseleave="hideSoon"
     @focusin="show"
@@ -87,15 +120,17 @@ function pick(item: NavItem) {
       :aria-expanded="hasMenu ? open : undefined"
       :aria-controls="hasMenu ? menuId : undefined"
       :aria-current="active ? 'true' : undefined"
-      @click="pick(group.items.find(i => isActiveItem(i, code, query)) ?? group.items[0]!)"
+      :aria-label="group.name"
+      :title="group.name"
+      @click="onTriggerClick"
       @keydown="onTriggerKey"
     >
       <span v-if="group.n" class="yb-l1-no yb-num">{{ group.n }}</span>
       <component :is="GroupIcon" class="yb-l1-ico" aria-hidden="true" />
-      <span>{{ group.name }}</span>
+      <span class="yb-l1-name">{{ group.name }}</span>
       <ChevronDown v-if="hasMenu" class="yb-l1-caret" :data-open="open || undefined" aria-hidden="true" />
     </button>
-    <div v-if="hasMenu && open" :id="menuId" class="yb-l1-panel" role="menu" :aria-label="`${group.name} 菜单`" @keydown="onItemKey">
+    <div v-if="hasMenu && open" ref="panel" :id="menuId" class="yb-l1-panel" role="menu" :aria-label="`${group.name} 菜单`" @keydown="onItemKey">
       <div class="yb-l1-card">
         <div class="yb-l1-cap">{{ group.n ? `环节 ${group.n} · ` : '' }}{{ group.name }}</div>
         <button

@@ -27,3 +27,13 @@ switches to `GET /api/v1/pages/{code}` when the core service answers.
 | `PORTING.md` | how the Claude Design prototypes were translated (conventions for new pages) |
 
 Fonts (Noto Sans SC, Barlow) are self-hosted via `@fontsource` — the platform runs on the 医保专网 without internet access.
+
+## 平板(Pad)适配
+
+宽度 < 1280 视为 Pad:横屏 1024 / 1180 / 1366、竖屏 768 / 820 均已适配,桌面(≥ 1280)外观保持不变。
+
+- 菜单:< 1024 一级菜单收进左侧抽屉(端 → 分组 → 页面,带图标);1024–1279 顶栏只显示图标 + 当前分组名;下拉菜单靠点按开关,不依赖悬停。
+- 布局:多栏在窄屏上下排列,宽表格 / 流程画布在卡片内部横向滚动,整页无横向滚动;全息图保持等比缩放,竖屏提示建议横屏。
+- 触屏:主要可点区域 ≥ 40px,取消双击缩放延迟。
+- 测试:`e2e/pad.spec.ts` 在 4 个 Pad 视口下逐页检查无整页横向滚动 / 无控制台错误,并覆盖抽屉与点按菜单。
+- 规则写法:窄屏专用样式用 `max-xl:` / `max-lg:` 前缀,详见 `PORTING.md`。

@@ -50,12 +50,12 @@ const edges = computed(() => {
 <template>
   <div class="overflow-hidden rounded-[var(--radius-card)] border border-line-1 bg-white">
     <!-- node palette -->
-    <div class="flex items-center gap-2 border-b border-line-2 bg-[#FAFBFD] px-3.5 py-2.5">
+    <div class="flex flex-wrap items-center gap-2 border-b border-line-2 bg-[#FAFBFD] px-3.5 py-2.5">
       <span class="mr-1 text-xs whitespace-nowrap text-ink-4">节点库</span>
       <button type="button"
         v-for="p in PALETTE"
         :key="p.kind"
-        class="flex cursor-grab items-center gap-1.5 rounded-lg border border-dashed border-[#C9D3E1] bg-white px-2.5 py-[5px] text-xs whitespace-nowrap hover:border-brand hover:text-brand"
+        class="flex cursor-grab items-center gap-1.5 rounded-lg border border-dashed border-[#C9D3E1] bg-white px-2.5 py-[5px] text-xs whitespace-nowrap hover:border-brand hover:text-brand max-xl:min-h-10"
         @click="say('拖动到画布中的泳道即可添加“' + p.kind + '”节点')"
       >
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" :style="{ stroke: KIND[p.kind].c }" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="KIND[p.kind].icon" /></svg>
@@ -65,7 +65,8 @@ const edges = computed(() => {
       <span class="text-xs whitespace-nowrap text-ink-5">拖入画布添加 · 100%</span>
     </div>
 
-    <div class="grid grid-cols-[132px_minmax(0,1fr)]">
+    <div class="max-xl:overflow-x-auto">
+    <div class="grid grid-cols-[132px_minmax(0,1fr)] max-xl:min-w-[1080px]">
       <div class="flex h-11 items-center border-r border-b border-line-2 bg-surface-1 px-3.5 text-[11px] font-semibold tracking-[.5px] text-ink-5">承办角色</div>
       <div class="grid h-11 border-b border-line-2" :style="{ gridTemplateColumns: `repeat(${COLS},1fr)` }">
         <div
@@ -135,6 +136,7 @@ const edges = computed(() => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>

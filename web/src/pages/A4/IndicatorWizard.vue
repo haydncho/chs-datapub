@@ -54,13 +54,13 @@ const chipCls = (on: boolean) =>
     <DialogContent
       overlay-class="z-[80] bg-[rgba(11,21,38,.4)]"
       :show-close="false"
-      class="z-[81] h-[min(720px,calc(100%-64px))] w-[min(1180px,calc(100%-64px))] grid-cols-[220px_minmax(0,1fr)_380px] gap-0 overflow-hidden rounded-2xl border-0 bg-white p-0 text-[13px] text-ink-1 shadow-[0_24px_64px_rgba(11,21,38,.3)]"
+      class="z-[81] h-[min(720px,calc(100%-64px))] w-[min(1180px,calc(100%-64px))] grid-cols-[220px_minmax(0,1fr)_380px] gap-0 overflow-hidden max-xl:h-[min(720px,calc(100%-32px))] max-xl:w-[calc(100%-32px)] max-xl:grid-cols-1 max-xl:content-start max-xl:overflow-y-auto rounded-2xl border-0 bg-white p-0 text-[13px] text-ink-1 shadow-[0_24px_64px_rgba(11,21,38,.3)]"
     >
       <!-- steps -->
-      <div class="flex flex-col gap-1 border-r border-line-1 bg-surface-1 px-[18px] py-[22px]">
-        <DialogTitle class="mb-1 text-[15px] font-semibold">新建指标</DialogTitle>
-        <DialogDescription class="mb-4 text-xs text-ink-4">{{ wizard.name }} · 草稿 {{ wizard.draftVersion }}</DialogDescription>
-        <div v-press v-for="st in steps" :key="st.n" class="flex cursor-pointer items-center gap-2.5 px-1.5 py-2" @click="step = st.n">
+      <div class="flex flex-col gap-1 border-r border-line-1 bg-surface-1 px-[18px] py-[22px] max-xl:grid max-xl:grid-cols-4 max-xl:gap-x-2 max-xl:border-r-0 max-xl:border-b">
+        <DialogTitle class="mb-1 max-xl:col-span-4 text-[15px] font-semibold">新建指标</DialogTitle>
+        <DialogDescription class="mb-4 max-xl:col-span-4 max-xl:mb-2 text-xs text-ink-4">{{ wizard.name }} · 草稿 {{ wizard.draftVersion }}</DialogDescription>
+        <div v-press v-for="st in steps" :key="st.n" class="flex cursor-pointer items-center gap-2.5 px-1.5 py-2 max-xl:min-h-11 max-xl:flex-col max-xl:justify-center max-xl:gap-1 max-xl:text-xs" @click="step = st.n">
           <span
             :class="cn(
               'yb-num flex size-6 items-center justify-center rounded-full border-[1.5px] text-xs font-semibold',
@@ -69,12 +69,12 @@ const chipCls = (on: boolean) =>
           >{{ st.done ? '✓' : st.n }}</span>
           <span :class="st.on ? 'font-semibold text-ink-1' : 'text-ink-4'">{{ st.l }}</span>
         </div>
-        <div class="flex-1" />
-        <button type="button" class="cursor-pointer text-xs text-ink-4" @click="open = false">关闭 · 草稿已自动保存</button>
+        <div class="flex-1 max-xl:hidden" />
+        <button type="button" class="cursor-pointer text-xs text-ink-4 max-xl:col-span-4 max-xl:min-h-11 max-xl:text-left" @click="open = false">关闭 · 草稿已自动保存</button>
       </div>
 
       <!-- step body -->
-      <div class="flex flex-col gap-[18px] overflow-y-auto px-7 py-6">
+      <div class="flex flex-col gap-[18px] overflow-y-auto px-7 py-6 max-xl:overflow-visible">
         <template v-if="step === 1">
           <div>
             <div class="mb-2 text-xs text-ink-4">分子 / 分母</div>
@@ -169,20 +169,20 @@ const chipCls = (on: boolean) =>
 
         <div class="flex-1" />
         <div class="flex justify-end gap-2">
-          <Button variant="outline" class="font-normal" @click="step = Math.max(1, step - 1)">上一步</Button>
-          <Button v-if="step < 4" class="px-[18px]" @click="step = Math.min(4, step + 1)">下一步</Button>
-          <Button v-else-if="!done" class="px-[18px]" @click="submit">提交上线审批</Button>
+          <Button variant="outline" class="font-normal max-xl:h-10" @click="step = Math.max(1, step - 1)">上一步</Button>
+          <Button v-if="step < 4" class="px-[18px] max-xl:h-10" @click="step = Math.min(4, step + 1)">下一步</Button>
+          <Button v-else-if="!done" class="px-[18px] max-xl:h-10" @click="submit">提交上线审批</Button>
         </div>
       </div>
 
       <!-- live preview -->
-      <div class="flex flex-col gap-3 border-l border-line-1 bg-surface-1 px-5 py-[22px]">
+      <div class="flex flex-col gap-3 border-l border-line-1 bg-surface-1 px-5 py-[22px] max-xl:border-t max-xl:border-l-0">
         <div class="text-xs font-semibold text-ink-4">实时预览 · 以某身份查看</div>
         <div class="flex flex-col gap-1.5">
           <button type="button"
             v-for="(o, i) in wizard.previewOrgs"
             :key="o"
-            :class="cn('cursor-pointer rounded-lg border px-2.5 py-1.5 text-xs whitespace-nowrap', chipCls(i === org))"
+            :class="cn('cursor-pointer rounded-lg border px-2.5 py-1.5 text-xs whitespace-nowrap max-xl:min-h-10', chipCls(i === org))"
             @click="org = i"
           >{{ o }}</button>
         </div>

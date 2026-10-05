@@ -157,7 +157,7 @@ function onGen() {
       <Button :class="cn(!qcDone && 'bg-brand-mute')" @click="onGen">生成月度报告 →</Button>
     </PageHeader>
 
-    <div class="grid grid-cols-4 gap-3">
+    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
       <StatCard
         v-for="k in kpis"
         :key="k.label"
@@ -176,7 +176,7 @@ function onGen() {
         <span class="text-sm font-semibold">数据管道</span>
         <span class="text-xs text-ink-4">接入 → 指标集市 · {{ data.stats.schedule }}</span>
       </div>
-      <div class="flex items-stretch gap-2">
+      <div class="grid grid-cols-3 gap-2 max-lg:gap-y-3 lg:grid-cols-6 xl:flex xl:items-stretch">
         <div v-for="(p, i) in pipe" :key="p.n" class="flex min-w-0 flex-1 items-center gap-2">
           <div :class="cn('min-w-0 flex-1 rounded-[10px] px-3.5 py-3', p.bg)">
             <div class="flex items-center justify-between">
@@ -186,28 +186,29 @@ function onGen() {
             <div class="yb-num mt-0.5 text-[22px] font-semibold text-ink-1">{{ p.v }}</div>
             <div class="truncate text-[11px] text-ink-4">{{ p.sub }}</div>
           </div>
-          <span v-if="i < pipe.length - 1" class="text-ink-6">→</span>
+          <span v-if="i < pipe.length - 1" class="text-ink-6 max-xl:hidden">→</span>
         </div>
       </div>
     </div>
 
-    <div class="grid grid-cols-[minmax(0,1fr)_minmax(300px,340px)] items-start gap-4">
+    <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(300px,340px)]">
       <SourceTable :rows="rows" :selected="sel" @select="sel = $event" />
       <div class="flex flex-col gap-4">
         <SourceDetail :row="selRow" :pull="pull" @pull="onPull" @notify="onNotify" />
       </div>
     </div>
 
-    <div class="grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-4">
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
       <!-- 机构编码质量 -->
       <div class="yb-card px-card-x py-card-y">
-        <div class="mb-3 flex justify-between">
+        <div class="mb-3 flex flex-wrap justify-between gap-x-4 gap-y-1">
           <span class="flex items-center gap-2">
             <span class="text-sm font-semibold">机构编码质量</span>
             <span class="rounded-full bg-surface-3 px-2 py-px font-mono text-[11px] whitespace-nowrap text-ink-3">口径 {{ qcSpec.version }} · {{ qcSpec.batch }}</span>
           </span>
           <span class="text-xs text-ink-4">门槛:合并症编码率 {{ qcSpec.comorbidityThreshold }}% · 清单质控率 {{ qcSpec.listQcThreshold }}%</span>
         </div>
+        <div class="overflow-x-auto"><div class="min-w-[460px]">
         <div class="grid grid-cols-[150px_1fr_1fr] gap-4 pb-1.5 text-[11px] text-ink-5">
           <span>机构</span><span>合并症编码率</span><span>结算清单质控率</span>
         </div>
@@ -228,6 +229,7 @@ function onGen() {
             <span class="yb-num w-9 text-right font-semibold">{{ q.b }}%</span>
           </div>
         </div>
+        </div></div>
       </div>
 
       <!-- 质量规则命中 -->

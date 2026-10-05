@@ -139,8 +139,8 @@ function ignore() {
       <template v-if="data.batch" #subtitle>
         {{ `${data.period} · 规则 ${data.ruleCount} 条 · ${data.scanTime}` }}<Badge variant="ok" class="ml-2 align-[1px]">实时计算 · 批次 {{ data.batch }}</Badge>
       </template>
-      <div class="flex rounded-[var(--radius-card)] border border-line-1 bg-white">
-        <div v-for="k in stats" :key="k.k" class="border-l border-line-2 px-[22px] py-2.5 whitespace-nowrap">
+      <div class="flex max-w-full overflow-x-auto rounded-[var(--radius-card)] border border-line-1 bg-white">
+        <div v-for="k in stats" :key="k.k" class="border-l border-line-2 px-[22px] py-2.5 whitespace-nowrap max-xl:px-4 max-xl:first:border-l-0">
           <div class="text-xs text-ink-4">{{ k.k }}</div>
           <div>
             <span :class="cn('yb-num text-[22px] font-semibold', k.c)">{{ k.v }}</span>
@@ -150,15 +150,15 @@ function ignore() {
       </div>
     </PageHeader>
 
-    <div class="grid grid-cols-[minmax(0,1fr)_minmax(400px,480px)] items-start gap-4">
+    <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(400px,480px)]">
       <!-- alert list -->
       <div class="yb-card overflow-hidden">
-        <div class="flex gap-1.5 border-b border-line-2 px-4 py-3">
+        <div class="flex flex-wrap gap-1.5 border-b border-line-2 px-4 py-3 max-xl:gap-2">
           <span
             v-for="c in chips"
             :key="c.id"
             :class="cn(
-              'cursor-pointer rounded-full border px-3 py-1 text-xs whitespace-nowrap',
+              'cursor-pointer rounded-full border px-3 py-1 text-xs whitespace-nowrap max-xl:inline-flex max-xl:min-h-10 max-xl:items-center max-xl:px-4',
               c.on ? 'border-brand-line bg-brand-soft text-brand' : 'border-line-1 bg-white text-ink-3',
             )"
             @click="filter = c.id"
@@ -168,7 +168,7 @@ function ignore() {
           v-for="r in list"
           :key="r.a.id"
           :class="cn(
-            'grid cursor-pointer grid-cols-[28px_minmax(0,1.2fr)_72px_90px_120px] items-center gap-3.5 border-b border-line-3 px-4 py-3.5',
+            'grid cursor-pointer grid-cols-[28px_minmax(0,1.2fr)_72px_90px_120px] items-center gap-3.5 border-b border-line-3 px-4 py-3.5 max-xl:min-h-14',
             r.on ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]' : 'bg-white hover:bg-surface-1',
           )"
           @click="sel = r.i"
@@ -227,9 +227,9 @@ function ignore() {
         <div class="rounded-[10px] bg-surface-1 px-3.5 py-3 text-xs leading-[1.7] text-ink-2">{{ data.attribution }}</div>
 
         <div v-if="curSt === 'unsent'" class="flex gap-2">
-          <Button class="h-9 flex-1" @click="send">发送提醒函</Button>
-          <Button variant="outline" class="h-9 px-3.5 font-normal" @click="toTopic">转专题选题</Button>
-          <Button variant="outline" class="h-9 px-3.5 font-normal text-ink-4" @click="ignore">忽略</Button>
+          <Button class="h-9 flex-1 max-xl:h-10" @click="send">发送提醒函</Button>
+          <Button variant="outline" class="h-9 px-3.5 font-normal max-xl:h-10" @click="toTopic">转专题选题</Button>
+          <Button variant="outline" class="h-9 px-3.5 font-normal text-ink-4 max-xl:h-10" @click="ignore">忽略</Button>
         </div>
         <div v-if="curSt === 'sent'" class="rounded-[10px] bg-brand-soft px-3.5 py-3 text-xs text-brand">{{ data.sentNote }}</div>
         <div v-if="curSt === 'ack'" class="rounded-[10px] bg-ok-soft px-3.5 py-3 text-xs leading-[1.7] text-ok-ink">{{ data.ackNote }}</div>

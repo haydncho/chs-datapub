@@ -8,23 +8,26 @@ defineEmits<{ go: [index: number] }>()
 </script>
 
 <template>
-  <aside class="sticky top-[calc(var(--sticky-top)+136px)] flex flex-col gap-1 py-5 pr-3 pl-6">
-    <div class="px-2.5 pb-1.5 text-[11px] font-semibold tracking-[.5px] text-ink-5">七段式结构</div>
+  <aside
+    class="sticky top-[calc(var(--sticky-top)+136px)] flex flex-col gap-1 py-5 pr-3 pl-6 max-xl:top-(--sticky-top) max-xl:z-20 max-xl:flex-row max-xl:gap-2 max-xl:overflow-x-auto max-xl:border-b max-xl:border-line-1 max-xl:bg-white max-xl:px-4 max-xl:py-2.5"
+    aria-label="七段式结构"
+  >
+    <div class="px-2.5 pb-1.5 max-xl:hidden text-[11px] font-semibold tracking-[.5px] text-ink-5">七段式结构</div>
     <div
       v-for="(o, i) in items"
       :key="o.name"
       role="button"
       tabindex="0"
       :class="cn(
-        'flex cursor-pointer items-center gap-2.5 rounded-[10px] border px-2.5 py-[9px] hover:bg-white',
-        i === active ? 'border-line-1 bg-white' : 'border-transparent bg-transparent',
+        'flex cursor-pointer items-center gap-2.5 rounded-[10px] border px-2.5 py-[9px] hover:bg-white max-xl:min-h-11 max-xl:shrink-0 max-xl:py-1.5 max-xl:pr-3',
+        i === active ? 'border-line-1 bg-white max-xl:border-brand-line max-xl:bg-brand-tint' : 'border-transparent bg-transparent',
       )"
       @click="$emit('go', i)"
       @keydown.enter="$emit('go', i)"
     >
       <span class="yb-num w-[18px] text-xs text-ink-5">{{ pad(i + 1) }}</span>
       <div class="min-w-0 flex-1">
-        <div :class="cn('text-[13px]', i === active ? 'font-semibold' : 'font-medium')">{{ o.name }}</div>
+        <div :class="cn('text-[13px] whitespace-nowrap', i === active ? 'font-semibold' : 'font-medium')">{{ o.name }}</div>
         <div :class="cn('flex items-center gap-1 text-[11px]', o.ok ? 'text-ok-ink' : 'text-warn-ink')">
           <span :class="cn('size-1.5 rounded-full', o.ok ? 'bg-ok' : 'bg-warn')" />{{ o.ok ? '已审定' : '待审定' }}
         </div>

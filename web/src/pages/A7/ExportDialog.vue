@@ -17,7 +17,7 @@ const COLS = 'grid grid-cols-[44px_150px_120px_minmax(0,1fr)_90px] gap-3 px-4'
     <DialogContent
       overlay-class="z-[96] bg-[rgba(11,21,38,.4)]"
       :show-close="false"
-      class="z-[96] flex w-[min(920px,calc(100%-64px))] flex-col gap-4 rounded-2xl border-0 bg-white px-[26px] py-6 shadow-[0_24px_64px_rgba(11,21,38,.3)]"
+      class="z-[96] flex max-h-[calc(100dvh-32px)] w-[min(920px,calc(100%-32px))] flex-col overflow-y-auto gap-4 rounded-2xl border-0 bg-white px-[26px] py-6 shadow-[0_24px_64px_rgba(11,21,38,.3)]"
     >
       <div class="flex items-start justify-between gap-4">
         <div>
@@ -26,7 +26,7 @@ const COLS = 'grid grid-cols-[44px_150px_120px_minmax(0,1fr)_90px] gap-3 px-4'
         </div>
         <span class="font-mono text-xs whitespace-nowrap text-ink-5">{{ docNo }}</span>
       </div>
-      <div class="overflow-hidden rounded-xl border border-line-1">
+      <div class="overflow-x-auto rounded-xl border border-line-1"><div class="min-w-[640px]">
         <div :class="[COLS, 'bg-surface-1 py-2.5 text-xs text-ink-4']">
           <span>序号</span><span>段落</span><span>提出人</span><span>意见内容</span><span>状态</span>
         </div>
@@ -37,12 +37,12 @@ const COLS = 'grid grid-cols-[44px_150px_120px_minmax(0,1fr)_90px] gap-3 px-4'
           <span class="leading-[1.6]">{{ r.text }}</span>
           <Badge :variant="r.resolved ? 'ok' : 'warn'" class="justify-self-start px-2 py-0.5 text-[11px] font-normal">{{ r.resolved ? '已处理' : '待处理' }}</Badge>
         </div>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="flex-1 text-xs text-ink-4">共 {{ rows.length }} 条 · 待处理 {{ pending }} 条 · {{ footNote }}</span>
-        <Button variant="outline" class="h-9 px-4 font-normal" @click="open = false">关闭</Button>
-        <Button variant="outline" class="h-9 px-4 font-normal" @click="$emit('excel')">下载 Excel</Button>
-        <Button class="h-9 px-[18px]" @click="$emit('push')">推送至意见与申诉</Button>
+      </div></div>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="min-w-full flex-1 text-xs text-ink-4 max-xl:min-w-0 max-xl:basis-full">共 {{ rows.length }} 条 · 待处理 {{ pending }} 条 · {{ footNote }}</span>
+        <Button variant="outline" class="h-9 px-4 font-normal max-xl:h-11" @click="open = false">关闭</Button>
+        <Button variant="outline" class="h-9 px-4 font-normal max-xl:h-11" @click="$emit('excel')">下载 Excel</Button>
+        <Button class="h-9 px-[18px] max-xl:h-11" @click="$emit('push')">推送至意见与申诉</Button>
       </div>
     </DialogContent>
   </Dialog>

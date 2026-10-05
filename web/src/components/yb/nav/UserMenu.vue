@@ -16,7 +16,7 @@ const initial = computed(() => props.viewer.name[0] ?? '')
       <div class="text-[13px] font-medium whitespace-nowrap">
         {{ viewer.name }} <span class="font-normal text-ink-4">· {{ viewer.role }}</span>
       </div>
-      <div class="max-w-[200px] truncate text-[11px] text-ink-4" :title="viewer.scope">{{ viewer.scope }}</div>
+      <div class="max-w-[200px] truncate text-[11px] text-ink-4 max-xl:hidden" :title="viewer.scope">{{ viewer.scope }}</div>
     </div>
     <DropdownMenu v-if="loggedIn">
       <DropdownMenuTrigger as-child>
@@ -25,16 +25,16 @@ const initial = computed(() => props.viewer.name[0] ?? '')
           <ChevronDown class="size-3.5 text-ink-4" aria-hidden="true" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" class="min-w-[200px]">
+      <DropdownMenuContent align="end" class="min-w-[200px] max-w-[calc(100vw-16px)]">
         <DropdownMenuLabel class="font-normal">
           <div class="text-[13px] font-medium text-ink-1">{{ viewer.name }}</div>
           <div class="text-xs text-ink-4">{{ viewer.role }}</div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem v-if="canSwitch" class="cursor-pointer" @select="emit('switch')">
+        <DropdownMenuItem v-if="canSwitch" class="cursor-pointer max-xl:min-h-11" @select="emit('switch')">
           <Repeat class="size-4" aria-hidden="true" />切换身份
         </DropdownMenuItem>
-        <DropdownMenuItem class="cursor-pointer text-bad focus:text-bad" data-testid="logout" @select="emit('logout')">
+        <DropdownMenuItem class="cursor-pointer text-bad focus:text-bad max-xl:min-h-11" data-testid="logout" @select="emit('logout')">
           <LogOut class="size-4" aria-hidden="true" />退出登录 / 改选端
         </DropdownMenuItem>
       </DropdownMenuContent>

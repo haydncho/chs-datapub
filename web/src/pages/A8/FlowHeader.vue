@@ -45,7 +45,7 @@ const stages = computed(() => {
 </script>
 
 <template>
-  <div class="flex items-end gap-5">
+  <div class="flex items-end gap-5 max-xl:flex-wrap">
     <div class="min-w-0 flex-1">
       <div class="flex flex-wrap items-center gap-2 text-xs">
         <span class="rounded-md bg-surface-3 px-2 py-0.5 whitespace-nowrap text-ink-3">{{ s.cur.group }}</span>
@@ -56,7 +56,7 @@ const stages = computed(() => {
       </div>
       <div class="mt-2 text-2xl font-semibold tracking-[-0.2px]">{{ s.cur.name }}</div>
     </div>
-    <div class="flex rounded-xl border border-line-1 bg-white">
+    <div class="flex rounded-xl border border-line-1 bg-white max-xl:w-full xl:w-auto">
       <div v-for="m in meta" :key="m.k" class="border-l border-line-2 px-[18px] py-2 whitespace-nowrap first:border-l-0">
         <div class="text-[11px] text-ink-4">{{ m.k }}</div>
         <div :class="cn('font-semibold', m.warn ? 'text-warn-ink' : 'text-ink-1')">{{ m.v }}</div>
@@ -64,7 +64,7 @@ const stages = computed(() => {
     </div>
   </div>
 
-  <div class="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)_minmax(0,2fr)_minmax(0,3fr)] gap-2.5">
+  <div class="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)_minmax(0,2fr)_minmax(0,3fr)] gap-2.5 max-lg:grid-cols-2">
     <div v-for="g in stages" :key="g.n" :class="cn('flex flex-col gap-2.5 rounded-xl border px-3.5 py-3', g.box)">
       <div class="flex items-center justify-between gap-2">
         <span :class="cn('text-xs font-semibold whitespace-nowrap', g.tc)">{{ g.n }}</span>

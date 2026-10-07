@@ -34,7 +34,7 @@ const lines = computed(() => [
     >
       <div class="flex flex-col gap-[18px] px-[26px] py-6">
         <div>
-          <DialogTitle class="text-xl font-semibold">订阅全息图推送</DialogTitle>
+          <DialogTitle class="text-xl font-semibold">订阅全景图推送</DialogTitle>
           <DialogDescription class="text-xs text-ink-4">按计划生成快照与摘要,推送给指定接收人 · 带水印</DialogDescription>
         </div>
         <div v-for="g in groups" :key="g.title">
@@ -62,7 +62,7 @@ const lines = computed(() => [
         <div class="overflow-hidden rounded-xl bg-white shadow-[0_1px_3px_rgba(15,23,42,.08)]">
           <div class="flex items-center gap-2 border-b border-line-3 px-3 py-2.5">
             <span class="flex size-[22px] items-center justify-center rounded-md bg-brand text-[11px] font-bold text-white">医</span>
-            <span class="text-xs font-semibold">医保数据全息图</span>
+            <span class="text-xs font-semibold">医保数据公开全景图</span>
             <span class="ml-auto text-[11px] whitespace-nowrap text-ink-5">{{ sub.whenLabels[s.sfq] }}</span>
           </div>
           <div v-if="s.sct[0]" class="relative h-24 overflow-hidden bg-[#040A16]">
@@ -77,7 +77,7 @@ const lines = computed(() => [
               <span :class="cn('yb-num font-semibold', l.c)">{{ l.v }}</span>
             </div>
           </div>
-          <div class="border-t border-line-3 px-3 py-2 text-xs text-brand">查看完整全息图 ›</div>
+          <div class="border-t border-line-3 px-3 py-2 text-xs text-brand">查看完整全景图 ›</div>
         </div>
         <div class="text-[11px] leading-[1.6] text-ink-5">接收人仅能查看其身份可见范围的数据;快照叠加接收人水印。</div>
       </div>

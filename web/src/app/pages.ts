@@ -17,7 +17,7 @@ export interface PageDef {
 }
 
 export const PAGES: Record<PageCode, PageDef> = {
-  cockpit: { title: '医保数据全息图', layout: 'cockpit', load: () => import('@/pages/Cockpit.vue') },
+  cockpit: { title: '医保数据公开全景图', layout: 'cockpit', load: () => import('@/pages/Cockpit.vue') },
   A1: { title: '登录与身份', layout: 'bare', load: () => import('@/pages/A1Login.vue') },
   A3: { title: '数据归集中心', layout: 'workbench', load: () => import('@/pages/A3DataHub.vue') },
   A4: { title: '指标配置', layout: 'workbench', load: () => import('@/pages/A4Indicators.vue') },
@@ -32,7 +32,7 @@ export const PAGES: Record<PageCode, PageDef> = {
   A13: { title: '展示策略', layout: 'workbench', load: () => import('@/pages/A13DisplayPolicy.vue') },
   A14: { title: '审计日志', layout: 'workbench', load: () => import('@/pages/A14Audit.vue') },
   A15: { title: '外观配置', layout: 'workbench', load: () => import('@/pages/A15Appearance.vue') },
-  B1: { title: '本院全息', layout: 'workbench', load: () => import('@/pages/B1Hospital.vue') },
+  B1: { title: '本院全景', layout: 'workbench', load: () => import('@/pages/B1Hospital.vue') },
   B2: { title: '病组下钻', layout: 'workbench', load: () => import('@/pages/B2DrgDrill.vue') },
   B3: { title: '对标PK', layout: 'workbench', load: () => import('@/pages/B3Benchmark.vue') },
   B4: { title: '报告中心', layout: 'workbench', load: () => import('@/pages/B4Reports.vue') },

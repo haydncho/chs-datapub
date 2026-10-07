@@ -9,7 +9,7 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 
 /**
- * 全息图 (cockpit) for every logged-in identity that is NOT a 定点医药机构 (that one is
+ * 全景图 (cockpit) for every logged-in identity that is NOT a 定点医药机构 (that one is
  * {@link HospitalCockpitScope}). The big screen shows what the identity is entitled to:
  * <ul>
  *   <li>{@code identities} → only the 市医保局 view ({@code conv}); the 医院 view is one specific

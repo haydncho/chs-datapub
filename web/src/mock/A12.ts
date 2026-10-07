@@ -79,14 +79,14 @@ export interface A12Data {
 }
 
 const GROUP_DEFS: { id: string; name: string; pages: [string, string][] }[] = [
-  { id: 'cock', name: '全息图', pages: [['cockpit', '医保数据全息图']] },
+  { id: 'cock', name: '全景图', pages: [['cockpit', '医保数据公开全景图']] },
   { id: 's1', name: '归集', pages: [['A3', '数据归集中心']] },
   { id: 's2', name: '配置', pages: [['A4', '指标配置'], ['A5', '图表与报告模板'], ['A13', '展示策略']] },
   { id: 's3', name: '洞察', pages: [['A6', '智能推荐'], ['A7', '病种专题工作台']] },
   { id: 's4', name: '发布', pages: [['A8', '发布工作流'], ['A9', '流程设计器']] },
   { id: 's5', name: '反馈', pages: [['A10', '意见与申诉'], ['A11', '预警提醒']] },
   { id: 'gov', name: '设置', pages: [['A12', '用户权限'], ['A14', '审计日志'], ['A15', '外观配置']] },
-  { id: 'org', name: '机构端功能', pages: [['B1', '本院全息'], ['B2', '病组下钻'], ['B3', '对标PK'], ['B4', '报告中心'], ['B5', '意见核对'], ['B6', '政策培训'], ['B7', '区域外患者'], ['C3', '外部监督'], ['D1', '移动端']] },
+  { id: 'org', name: '机构端功能', pages: [['B1', '本院全景'], ['B2', '病组下钻'], ['B3', '对标PK'], ['B4', '报告中心'], ['B5', '意见核对'], ['B6', '政策培训'], ['B7', '区域外患者'], ['C3', '外部监督'], ['D1', '移动端']] },
 ]
 
 const GROUPS: A12Group[] = GROUP_DEFS.map(g => ({ id: g.id, name: g.name, pages: g.pages.map(([code, name]) => ({ code, name })) }))

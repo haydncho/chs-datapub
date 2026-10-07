@@ -20,7 +20,7 @@ public final class UserMatrix {
     public record Cell(String group, String level, List<String> pages, int total) {}
 
     public static final List<Group> GROUPS = List.of(
-            new Group("cock", "全息图", List.of("cockpit")),
+            new Group("cock", "全景图", List.of("cockpit")),
             new Group("s1", "归集", List.of("A3")),
             new Group("s2", "配置", List.of("A4", "A5", "A13")),
             new Group("s3", "洞察", List.of("A6", "A7")),
@@ -30,11 +30,11 @@ public final class UserMatrix {
             new Group("org", "机构端功能", List.of("B1", "B2", "B3", "B4", "B5", "B6", "B7", "C3", "D1")));
 
     public static final Map<String, String> PAGE_NAMES = Map.ofEntries(
-            Map.entry("cockpit", "医保数据全息图"), Map.entry("A3", "数据归集中心"), Map.entry("A4", "指标配置"),
+            Map.entry("cockpit", "医保数据公开全景图"), Map.entry("A3", "数据归集中心"), Map.entry("A4", "指标配置"),
             Map.entry("A5", "图表与报告模板"), Map.entry("A6", "智能推荐"), Map.entry("A7", "病种专题工作台"),
             Map.entry("A8", "发布工作流"), Map.entry("A9", "流程设计器"), Map.entry("A10", "意见与申诉"),
             Map.entry("A11", "预警提醒"), Map.entry("A12", "用户权限"), Map.entry("A13", "展示策略"),
-            Map.entry("A14", "审计日志"), Map.entry("A15", "外观配置"), Map.entry("B1", "本院全息"),
+            Map.entry("A14", "审计日志"), Map.entry("A15", "外观配置"), Map.entry("B1", "本院全景"),
             Map.entry("B2", "病组下钻"), Map.entry("B3", "对标PK"), Map.entry("B4", "报告中心"),
             Map.entry("B5", "意见核对"), Map.entry("B6", "政策培训"), Map.entry("B7", "区域外患者"),
             Map.entry("C3", "外部监督"), Map.entry("D1", "移动端"));

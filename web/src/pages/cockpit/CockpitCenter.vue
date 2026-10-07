@@ -9,10 +9,10 @@ import PeerView from './PeerView.vue'
 import PubMatrix from './PubMatrix.vue'
 import { LENSES, VIEW_NAME, useCockpit } from './store'
 
-const { s, I, view, lens, rotN, det, go2 } = useCockpit()
+const { s, views, view, lens, rotN, det, go2 } = useCockpit()
 
 const tabs = computed(() =>
-  I.value.views.map(v => {
+  views.value.map(v => {
     const on = v === view.value
     return {
       v,

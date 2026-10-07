@@ -6,7 +6,7 @@
  * 其余一律丢弃,防止开放重定向。
  */
 
-/** 全息图 ?who= 允许的取值 */
+/** 全景图 ?who= 允许的取值 */
 const WHO = ['conv', 'hosp', 'county', 'prov']
 
 export interface Landing {

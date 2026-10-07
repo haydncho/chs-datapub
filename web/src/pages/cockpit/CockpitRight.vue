@@ -114,15 +114,3 @@ const anyOver = computed(() => months.value.some(m => m.over))
     </div>
   </div>
 </template>
-
-<style scoped>
-/* 2.5D 立方柱的侧面(压暗)与顶面(提亮) */
-.cube-side {
-  clip-path: polygon(0 4px, 100% 0, 100% calc(100% - 4px), 0 100%);
-  filter: brightness(.55);
-}
-.cube-top {
-  clip-path: polygon(0 100%, 5px 0, 100% 0, calc(100% - 5px) 100%);
-  filter: brightness(1.45);
-}
-</style>

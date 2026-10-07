@@ -131,9 +131,9 @@ const scr = computed(() => props.palettes[props.draft.scr] ?? props.palettes[0]!
             <span class="rounded-full bg-warn-soft px-2 py-0.5 text-[11px] font-semibold text-warn-ink">待复核</span>
           </div>
         </div>
-        <!-- 全息图大屏缩略 -->
+        <!-- 全景图大屏缩略 -->
         <div class="relative mx-3.5 mb-3.5 h-[128px] overflow-hidden" :style="{ background: scr.bg, borderRadius: 'var(--radius-card)' }">
-          <span class="absolute top-2.5 left-3.5 text-xs font-semibold tracking-[3px] text-[#F4F8FF]">医保数据全息图</span>
+          <span class="absolute top-2.5 left-3.5 text-xs font-semibold tracking-[3px] text-[#F4F8FF]">医保数据公开全景图</span>
           <span class="absolute top-8 right-3.5 left-3.5 h-[18px] rounded" :style="{ background: scr.panel }" />
           <span class="absolute top-[58px] bottom-3 left-3.5 w-[30%] rounded" :style="{ background: scr.panel }" />
           <span class="absolute top-[58px] right-3.5 bottom-3 left-[36%] rounded" :style="{ background: scr.panel }" />

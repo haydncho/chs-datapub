@@ -1,5 +1,5 @@
 /**
- * 全息图 (cockpit) — demo seed. Two viewer identities share the city-wide
+ * 全景图 (cockpit) — demo seed. Two viewer identities share the city-wide
  * reference tables (DRG groups, institutions, flows, publication matrix) and
  * each carry their own KPIs, panels and loop progress.
  * Backend: GET /api/v1/pages/cockpit returns the same `CockpitData` shape.
@@ -125,7 +125,7 @@ export const COCKPIT_SEED: CockpitData = {
       scope: '全域 · 可下钻至诊疗行为',
       org: '示例市医疗保障局',
       zone: '分析监测区',
-      title: '医保数据全息图',
+      title: '医保数据公开全景图',
       views: ['bub', 'inst', 'flow', 'pub'],
       money: {
         title: '钱 · 基金收支', unit: '亿元 · 近 12 月',
@@ -189,7 +189,7 @@ export const COCKPIT_SEED: CockpitData = {
       scope: '本院具名 · 同级匿名分位',
       org: '示例市第一人民医院',
       zone: '发布区',
-      title: '本院医保数据全息图',
+      title: '本院医保数据公开全景图',
       views: ['bub', 'dept', 'peer'],
       money: {
         title: '钱 · 本院医保结算', unit: '万元 · 近 12 月',

@@ -6,7 +6,7 @@ import { vPress } from '@/lib/a11y'
 
 /* 下排左、中:病组差异 · 实时提醒(见 AlertsPanel);闭环见 CockpitLoop,与右栏对齐 */
 const { s, I, torn } = useCockpit()
-const panel = 'absolute top-[780px] flex h-[276px] flex-col rounded-[10px] border border-[rgba(90,150,255,.16)] bg-[rgba(10,22,46,.66)] px-[22px] py-3.5'
+const panel = 'absolute top-[780px] flex h-[276px] flex-col rounded-[10px] border border-[rgb(var(--ck-line)/.16)] bg-[rgb(var(--ck-panel)/.66)] px-[22px] py-3.5'
 
 </script>
 
@@ -20,7 +20,7 @@ const panel = 'absolute top-[780px] flex h-[276px] flex-col rounded-[10px] borde
     <div v-press
       v-for="(t, j) in torn"
       :key="j"
-      class="grid min-h-0 flex-1 cursor-pointer grid-cols-[52px_64px_1fr_1fr_52px_64px] items-center gap-x-2 rounded-[4px] hover:bg-[rgba(90,150,255,.06)]"
+      class="grid min-h-0 flex-1 cursor-pointer grid-cols-[52px_64px_1fr_1fr_52px_64px] items-center gap-x-2 rounded-[4px] hover:bg-[rgb(var(--ck-line)/.06)]"
       @click="t.k && (s.sel = t.k)"
     >
       <span class="yb-num text-sm text-[#9FE3C7]">{{ t.lk }}</span>

@@ -16,7 +16,7 @@ import { K, useCockpit } from './store'
  */
 const { s, I, data, clock, bubble } = useCockpit()
 const hosp = computed(() => I.value.id === 'hosp')
-const panel = 'rounded-[10px] border border-[rgba(90,150,255,.16)] bg-[rgba(10,22,46,.66)] px-[22px] py-3.5'
+const panel = 'rounded-[10px] border border-[rgb(var(--ck-line)/.16)] bg-[rgb(var(--ck-panel)/.66)] px-[22px] py-3.5'
 const caption = computed(() => (hosp.value ? 'HOSPITAL OPERATION · BENCHMARK' : 'OPEN DATA · FEEDBACK MONITOR'))
 
 /* ---------- 公开矩阵统计(医保局) */
@@ -35,7 +35,7 @@ const pub = computed(() => {
     return {
       a, v,
       np: col.filter(c => c.status === 'np').length,
-      c: v >= 80 ? K.sky : v >= 60 ? 'rgba(58,160,255,.55)' : K.amber,
+      c: v >= 80 ? K.sky : v >= 60 ? 'rgb(var(--ck-acc)/.55)' : K.amber,
       vc: v >= 80 ? K.skyLite : v >= 60 ? K.ink2 : K.amber,
     }
   })
@@ -172,7 +172,7 @@ const LEGEND = [
   <ScreenTitle :title="I.screen2Title" :caption="caption" />
   <div class="absolute top-0 right-7 left-7 flex h-[72px] items-center">
     <div class="flex w-[600px] items-center gap-3.5">
-      <div class="flex h-9 items-center rounded-lg border border-[rgba(90,150,255,.35)] px-2.5 text-sm font-semibold text-[#7FC3FF]">副屏</div>
+      <div class="flex h-9 items-center rounded-lg border border-[rgb(var(--ck-line)/.35)] px-2.5 text-sm font-semibold text-[rgb(var(--ck-accl))]">副屏</div>
       <div class="leading-[1.3]">
         <div class="text-[17px] font-semibold">{{ I.org }}</div>
         <div class="text-sm text-[#6F84A6]">双屏拼接 · {{ I.zone }}</div>
@@ -186,11 +186,11 @@ const LEGEND = [
   </div>
 
   <!-- 专属指标卡 -->
-  <div class="absolute top-[84px] right-7 left-7 grid h-[100px] grid-cols-6 rounded-[10px] border border-[rgba(90,150,255,.18)] bg-[linear-gradient(180deg,rgba(18,40,82,.55),rgba(10,22,46,.35))]">
+  <div class="absolute top-[84px] right-7 left-7 grid h-[100px] grid-cols-6 rounded-[10px] border border-[rgb(var(--ck-line)/.18)] bg-[linear-gradient(180deg,rgba(18,40,82,.55),rgb(var(--ck-panel)/.35))]">
     <div
       v-for="(c, i) in cards"
       :key="c.k"
-      :class="['relative flex flex-col justify-between border-l px-5 py-3', i === 0 ? 'border-transparent' : 'border-[rgba(90,150,255,.14)]']"
+      :class="['relative flex flex-col justify-between border-l px-5 py-3', i === 0 ? 'border-transparent' : 'border-[rgb(var(--ck-line)/.14)]']"
     >
       <span class="truncate text-base text-[#9FB2D1]">{{ c.k }}</span>
       <div class="flex min-w-0 items-baseline gap-1">
@@ -224,7 +224,7 @@ const LEGEND = [
       <!-- 受众查阅率:各受众已公开指标的平均查阅率(2.5D 柱) -->
       <div :class="[panel, 'flex min-h-0 flex-1 flex-col']">
         <div class="flex items-center justify-between">
-          <PanelTitle title="受众查阅率" bar="#3AA0FF" />
+          <PanelTitle title="受众查阅率" bar="rgb(var(--ck-acc))" />
           <span class="text-sm text-[#6F84A6]">已公开指标平均 · 低于 60% 标橙</span>
         </div>
         <div class="mt-2 flex min-h-0 flex-1 items-end gap-5 px-2 pt-6">
@@ -254,7 +254,7 @@ const LEGEND = [
             <span class="w-[72px] shrink-0 truncate text-[15px] text-[#C9D6EA]">{{ f.name }}</span>
             <span class="w-[44px] shrink-0 rounded-[3px] border text-center text-sm leading-[20px]" :style="{ borderColor: f.c, color: f.c }">{{ f.scope }}</span>
             <div class="h-2.5 flex-1 rounded-[3px] bg-[rgba(255,255,255,.06)]">
-              <div class="h-2.5 rounded-[3px] transition-[width] duration-[1000ms] ease-[cubic-bezier(.2,.8,.2,1)]" :style="{ width: s.intro ? f.w : '0%', background: f.c, boxShadow: `0 0 8px ${f.c}66`, transitionDelay: i * 70 + 'ms' }" />
+              <div class="h-2.5 rounded-[3px] transition-[width] duration-[1000ms] ease-[cubic-bezier(.2,.8,.2,1)]" :style="{ width: s.intro ? f.w : '0%', background: f.c, boxShadow: `0 0 8px color-mix(in srgb,${f.c} 40%,transparent)`, transitionDelay: i * 70 + 'ms' }" />
             </div>
             <span class="yb-num w-[56px] shrink-0 text-right text-lg font-semibold" :style="{ color: f.c }">{{ f.share }}%</span>
             <span class="yb-num w-[72px] shrink-0 text-right text-sm text-[#9FB2D1]">{{ f.amount }}</span>
@@ -298,7 +298,7 @@ const LEGEND = [
         <span>区县</span><span class="text-right">机构</span><span>逆差机构占比</span><span>逆差最大的机构</span>
       </div>
       <div class="flex flex-1 flex-col justify-around">
-        <div v-for="(x, i) in districts" :key="x.d" class="grid grid-cols-[64px_64px_1fr_220px] items-center gap-x-3 border-t border-[rgba(90,150,255,.1)] pt-2">
+        <div v-for="(x, i) in districts" :key="x.d" class="grid grid-cols-[64px_64px_1fr_220px] items-center gap-x-3 border-t border-[rgb(var(--ck-line)/.1)] pt-2">
           <span class="text-[15px] font-medium text-[#C9D6EA]">{{ x.d }}</span>
           <span class="yb-num text-right text-[15px] text-[#C9D6EA]">{{ x.n }} 家</span>
           <span class="flex items-center gap-2.5">
@@ -320,9 +320,9 @@ const LEGEND = [
         <div v-for="(x, i) in sizes" :key="x.k" class="grid grid-cols-[88px_1fr_76px_88px] items-center gap-x-3">
           <span class="text-[15px] text-[#C9D6EA]">{{ x.k }}</span>
           <span class="h-3 rounded-[3px] bg-[rgba(255,255,255,.06)]">
-            <span class="block h-3 rounded-[3px] transition-[width] duration-[900ms] ease-[cubic-bezier(.2,.8,.2,1)]" :style="{ width: s.intro ? x.w : '0%', background: x.note ? '#4E5F7E' : '#3AA0FF', transitionDelay: i * 70 + 'ms' }" />
+            <span class="block h-3 rounded-[3px] transition-[width] duration-[900ms] ease-[cubic-bezier(.2,.8,.2,1)]" :style="{ width: s.intro ? x.w : '0%', background: x.note ? '#4E5F7E' : 'rgb(var(--ck-acc))', transitionDelay: i * 70 + 'ms' }" />
           </span>
-          <span class="yb-num text-right text-lg font-semibold text-[#7FC3FF]">{{ x.sh }}%</span>
+          <span class="yb-num text-right text-lg font-semibold text-[rgb(var(--ck-accl))]">{{ x.sh }}%</span>
           <span class="text-right text-sm text-[#9FB2D1]">{{ x.n }} 个病组</span>
           <span v-if="x.note" class="col-start-2 col-end-5 -mt-1 text-sm text-[#6F84A6]">{{ x.note }}</span>
         </div>
@@ -359,7 +359,7 @@ const LEGEND = [
         v-for="q in quads"
         :key="q.k"
         class="relative flex flex-col justify-center overflow-hidden rounded-md border px-4"
-        :style="{ borderColor: q.key ? q.c : 'rgba(90,150,255,.12)', background: q.key ? 'rgba(255,107,94,.1)' : 'rgba(255,255,255,.03)' }"
+        :style="{ borderColor: q.key ? q.c : 'rgb(var(--ck-line)/.12)', background: q.key ? 'rgba(255,107,94,.1)' : 'rgba(255,255,255,.03)' }"
       >
         <span class="absolute inset-y-0 left-0 w-[3px]" :style="{ background: q.c }" />
         <div class="flex items-baseline justify-between">

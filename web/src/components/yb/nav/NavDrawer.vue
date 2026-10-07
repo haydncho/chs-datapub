@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { ChevronDown } from '@lucide/vue'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
 import { iconOf } from '@/lib/icons'
+import { platformName } from '@/app/appearance'
 import { isActiveItem, SIDE_NAME, type NavGroup, type NavItem, type Side } from '@/app/nav'
 
 /** 窄屏(< 1024)左侧抽屉:端 → 分组(可折叠)→ 页面;每行 ≥ 44px,点页面后自动关闭。 */
@@ -40,8 +41,8 @@ function onGroup(g: NavGroup) {
       <div class="flex shrink-0 items-center gap-2.5 border-b border-line-1 px-4 py-3.5 pr-12">
         <div class="flex size-[30px] items-center justify-center rounded-lg bg-brand text-[15px] font-bold text-white">医</div>
         <div class="min-w-0 leading-tight">
-          <SheetTitle class="text-[15px]">医保数据公开</SheetTitle>
-          <SheetDescription class="text-[11px] text-ink-4">定向发布平台</SheetDescription>
+          <SheetTitle class="text-[15px]">{{ platformName.main }}</SheetTitle>
+          <SheetDescription class="text-[11px] text-ink-4">{{ platformName.sub }}</SheetDescription>
         </div>
       </div>
       <div class="px-4 pt-3 pb-1">

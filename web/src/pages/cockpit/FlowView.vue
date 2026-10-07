@@ -22,7 +22,7 @@ const { I, flows, data } = useCockpit()
       </template>
     </svg>
     <div
-      class="absolute top-[191px] left-[30px] flex h-[88px] w-[170px] flex-col items-center justify-center rounded-[10px] bg-brand shadow-[0_0_48px_rgba(58,160,255,.45)]"
+      class="absolute top-[191px] left-[30px] flex h-[88px] w-[170px] flex-col items-center justify-center rounded-[10px] bg-brand shadow-[0_0_48px_rgb(var(--ck-acc)/.45)]"
     >
       <span class="text-[22px] font-semibold">{{ data.flowOrigin.name }}</span>
       <span class="text-sm text-[#CFE0FF]">{{ data.flowOrigin.sub }}</span>

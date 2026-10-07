@@ -1,8 +1,10 @@
+import { watch } from 'vue'
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 import { ALIAS, type PageCode } from './nav'
 import { PAGES } from './pages'
 import { encodeRedirect } from './guard'
 import { landingOf, session } from './session'
+import { platformName } from './appearance'
 
 const routes: RouteRecordRaw[] = [
   { path: '/', redirect: '/A1' },
@@ -38,10 +40,13 @@ router.beforeEach(to => {
   return home.code === code ? true : { path: `/${home.code}`, query: home.query }
 })
 
-router.afterEach(to => {
-  const t = to.meta.title as string | undefined
-  document.title = t ? `${t} · 医保数据公开平台` : '医保数据公开平台'
-})
+/** 浏览器标题:页面名 · 平台名称(外观配置可改,改后即时刷新) */
+function setTitle() {
+  const t = router.currentRoute.value.meta.title as string | undefined
+  document.title = t ? `${t} · ${platformName.value.full}` : platformName.value.full
+}
+router.afterEach(setTitle)
+watch(() => platformName.value.full, setTitle)
 
 /** Navigate to a page by code (accepts prototype aliases). Optional query, e.g. { who: 'org' }. */
 export function goPage(code: string, query?: Record<string, string>) {

@@ -149,3 +149,11 @@ html[data-menu="1"] .yb-l2-tab { padding: 0 9px; gap: 4px; }
 @media (pointer: coarse) {
   .yb-l1-btn, .yb-l2-tab, .yb-l1-item, .yb-user-btn, .yb-hamburger { -webkit-tap-highlight-color: transparent; }
 }
+
+/* ---- 菜单风格 · 紧凑(外观配置 菜单风格 → html[data-menu="1"]);顶栏与标签行高度不变,避免影响吸顶偏移 ---- */
+html[data-menu="1"] .yb-l1-btn { height: 32px; gap: 4px; padding: 0 7px; font-size: 13px; }
+html[data-menu="1"] .yb-l1-ico { width: 14px; height: 14px; }
+html[data-menu="1"] .yb-l1-item { height: 30px; gap: 7px; padding: 0 7px; font-size: 12px; }
+html[data-menu="1"] .yb-l1-item-ico { width: 14px; height: 14px; }
+html[data-menu="1"] .yb-l2-tab { height: 26px; gap: 4px; padding: 0 9px; }
+html[data-menu="1"] .yb-l2-tab svg { width: 14px; height: 14px; }

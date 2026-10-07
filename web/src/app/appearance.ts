@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import { getJson } from '@/api/client'
 
 /**
@@ -177,6 +177,12 @@ function load(): Appearance {
 
 /** The published (saved) appearance. A15 edits a draft copy and calls `publishAppearance`. */
 export const appearance = reactive<Appearance>(load())
+
+/** 平台名称拆成顶栏两行:「主名 · 副名」→ 主名 / 副名;无分隔符时只有一行 */
+export const platformName = computed(() => {
+  const [main = '', ...rest] = appearance.name.split(/\s*·\s*/)
+  return { main, sub: rest.join(' · '), full: appearance.name }
+})
 
 export function applyAppearance(a: Appearance = appearance) {
   const el = document.documentElement

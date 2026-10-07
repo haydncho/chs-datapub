@@ -9,7 +9,7 @@ import { useCockpit } from './store'
  * 面板位置与宽度由使用方通过 class 传入(高度固定 276px,与下排其他面板对齐)。
  */
 const { I, alertsAll } = useCockpit()
-const panel = 'absolute top-[780px] flex h-[276px] flex-col rounded-[10px] border border-[rgba(90,150,255,.16)] bg-[rgba(10,22,46,.66)] px-[22px] py-3.5'
+const panel = 'absolute top-[780px] flex h-[276px] flex-col rounded-[10px] border border-[rgb(var(--ck-line)/.16)] bg-[rgb(var(--ck-panel)/.66)] px-[22px] py-3.5'
 
 /* ---------- 实时提醒:窗口恰好容纳 WIN 条完整提醒;超过时整条整条地向上滚动,任何一条都不会被剪断 */
 const ROW = 52
@@ -62,8 +62,8 @@ const pos = computed(() => (n.value > WIN ? `${(idx.value % n.value) + 1}–${Ma
         <div
           v-for="(a, i) in rows"
           :key="i"
-          class="relative flex items-center gap-3 border-t border-[rgba(90,150,255,.1)] py-1.5 pl-2"
-          :style="{ height: ROW + 'px', background: a.hi ? `linear-gradient(90deg, ${a.c}1F, transparent 70%)` : 'transparent' }"
+          class="relative flex items-center gap-3 border-t border-[rgb(var(--ck-line)/.1)] py-1.5 pl-2"
+          :style="{ height: ROW + 'px', background: a.hi ? `linear-gradient(90deg, color-mix(in srgb,${a.c} 12%,transparent), transparent 70%)` : 'transparent' }"
         >
           <span v-if="a.hi" class="absolute top-1.5 bottom-1.5 left-0 w-[3px] rounded-[2px]" :style="{ background: a.c, boxShadow: `0 0 8px ${a.c}` }" />
           <span

@@ -23,13 +23,13 @@ const hovLabel = computed(() => (hov.value ? labelOf(hov.value) : null))
     </div>
     <!-- median lines -->
     <div class="absolute inset-x-0 top-1/2 border-t-[1.5px] border-dashed border-[rgba(230,238,249,.5)]" />
-    <div class="absolute inset-y-0 border-l-[1.5px] border-dashed border-[rgba(127,195,255,.35)]" :style="{ left: bubble.med + '%' }" />
-    <span class="absolute bottom-1 ml-2 text-sm text-[#7FC3FF]" :style="{ left: bubble.med + '%' }">病例数中位</span>
+    <div class="absolute inset-y-0 border-l-[1.5px] border-dashed border-[rgb(var(--ck-accl)/.35)]" :style="{ left: bubble.med + '%' }" />
+    <span class="absolute bottom-1 ml-2 text-sm text-[rgb(var(--ck-accl))]" :style="{ left: bubble.med + '%' }">病例数中位</span>
     <!-- quadrant labels -->
-    <span class="absolute top-2 right-2.5 text-[15px] font-semibold text-[#FF8A7E] z-[90] rounded bg-[rgba(4,10,22,.72)] px-1.5">高量 · 逆差 — 关键少数</span>
-    <span class="absolute top-2 left-2.5 text-[15px] text-[#C9877F] z-[90] rounded bg-[rgba(4,10,22,.72)] px-1.5">低量 · 逆差</span>
-    <span class="absolute right-2.5 bottom-2 text-[15px] text-[#6FCDA8] z-[90] rounded bg-[rgba(4,10,22,.72)] px-1.5">高量 · 结余</span>
-    <span class="absolute bottom-2 left-2.5 text-[15px] text-[#5A9C84] z-[90] rounded bg-[rgba(4,10,22,.72)] px-1.5">低量 · 结余</span>
+    <span class="absolute top-2 right-2.5 text-[15px] font-semibold text-[#FF8A7E] z-[90] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">高量 · 逆差 — 关键少数</span>
+    <span class="absolute top-2 left-2.5 text-[15px] text-[#C9877F] z-[90] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">低量 · 逆差</span>
+    <span class="absolute right-2.5 bottom-2 text-[15px] text-[#6FCDA8] z-[90] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">高量 · 结余</span>
+    <span class="absolute bottom-2 left-2.5 text-[15px] text-[#5A9C84] z-[90] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">低量 · 结余</span>
     <!-- city reference (hospital view) -->
     <div
       v-for="(g, i) in bubble.grays"
@@ -51,7 +51,7 @@ const hovLabel = computed(() => (hov.value ? labelOf(hov.value) : null))
     <!-- effects: scanning band + pulse rings -->
     <template v-if="motion">
       <div
-        class="pointer-events-none absolute inset-y-0 z-[2] w-[14%] border-r-[1.5px] border-[rgba(127,195,255,.55)] bg-[linear-gradient(90deg,rgba(58,160,255,0),rgba(58,160,255,.07)_70%,rgba(58,160,255,.22))] [animation:cockScan_7s_linear_infinite]"
+        class="pointer-events-none absolute inset-y-0 z-[2] w-[14%] border-r-[1.5px] border-[rgb(var(--ck-accl)/.55)] bg-[linear-gradient(90deg,rgb(var(--ck-acc)/0),rgb(var(--ck-acc)/.07)_70%,rgb(var(--ck-acc)/.22))] [animation:cockScan_7s_linear_infinite]"
       />
       <div
         v-for="p in bubble.pulses"
@@ -64,12 +64,12 @@ const hovLabel = computed(() => (hov.value ? labelOf(hov.value) : null))
     <div
       v-for="l in bubble.labels"
       :key="'l' + l.k"
-      class="pointer-events-none absolute z-[80] rounded px-2 py-px text-[15px] font-semibold whitespace-nowrap text-[#F4F8FF] bg-[rgba(4,10,22,.8)]"
+      class="pointer-events-none absolute z-[80] rounded px-2 py-px text-[15px] font-semibold whitespace-nowrap text-[#F4F8FF] bg-[rgb(var(--ck-deep)/.8)]"
       :style="l.style"
     >{{ l.t }}</div>
     <div
       v-if="hovLabel"
-      class="pointer-events-none absolute z-[85] rounded border border-[rgba(127,195,255,.35)] px-2 py-px text-[15px] font-semibold whitespace-nowrap text-[#F4F8FF] bg-[rgba(4,10,22,.88)]"
+      class="pointer-events-none absolute z-[85] rounded border border-[rgb(var(--ck-accl)/.35)] px-2 py-px text-[15px] font-semibold whitespace-nowrap text-[#F4F8FF] bg-[rgb(var(--ck-deep)/.88)]"
       :style="hovLabel.style"
     >{{ hovLabel.t }}</div>
   </div>

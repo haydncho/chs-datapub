@@ -168,7 +168,7 @@ function ignore() {
           v-for="r in list"
           :key="r.a.id"
           :class="cn(
-            'grid cursor-pointer grid-cols-[28px_minmax(0,1.2fr)_72px_90px_120px] items-center gap-3.5 border-b border-line-3 px-4 py-3.5 max-xl:min-h-14',
+            'grid cursor-pointer grid-cols-[28px_minmax(0,1.2fr)_72px_90px_120px] items-center gap-3.5 yb-tr border-b border-line-3 px-4 py-3.5 max-xl:min-h-14',
             r.on ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]' : 'bg-white hover:bg-surface-1',
           )"
           @click="sel = r.i"

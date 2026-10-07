@@ -109,6 +109,8 @@ html[data-dens="2"] { --card-px: 24px; --card-py: 22px; --card-py-sm: 20px; --pa
 html[data-menu="1"] { --menu-py: 5px; --menu-px: 9px; --menu-gap: 2px; --menu-font: 12px; --menu-icon: 14px; }
 html[data-zebra="1"] { --zebra-bg: var(--surface-1); }
 html[data-zebra="1"] tbody tr:nth-child(even):not(:hover), html[data-zebra="1"] .yb-zebra > :nth-child(even):not(:hover) { background-color: var(--zebra-bg); }
+/* 列表式数据表格的行(.yb-tr):压过行上的 bg-white;悬停、选中 / 标记行(带左侧色条)、选中底色保持原样 */
+html[data-zebra="1"] .yb-tr:nth-child(even of .yb-tr):not(:hover):not(.bg-brand-tint):not([class*="shadow-[inset"]) { background-color: var(--zebra-bg); }
 html[data-motion="0"] *, html[data-motion="0"] *::before, html[data-motion="0"] *::after { animation: none !important; transition: none !important; }
 
 @theme inline {

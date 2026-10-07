@@ -126,7 +126,7 @@ const DATE = 'h-8 max-xl:h-10 rounded-md border border-line-1 bg-white px-2 font
           :key="l.id"
           :class="cn(
             GRID,
-            'cursor-pointer border-b border-line-3 hover:bg-surface-1 max-xl:min-h-11',
+            'cursor-pointer yb-tr border-b border-line-3 hover:bg-surface-1 max-xl:min-h-11',
             l.id === sel?.id ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]'
             : !l.signatureOk ? 'bg-bad-soft/40 shadow-[inset_3px_0_0_var(--bad)]'
             : l.risk ? 'bg-[#FFFBF4] shadow-[inset_3px_0_0_var(--warn)]' : 'bg-white',

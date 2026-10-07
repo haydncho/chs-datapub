@@ -26,7 +26,7 @@ const tabs = computed(() =>
 
 <template>
   <div
-    class="absolute top-[216px] left-[492px] flex h-[684px] w-[936px] flex-col rounded-[10px] border border-[rgba(90,150,255,.22)] bg-[rgba(10,22,46,.5)] px-5 py-4"
+    class="absolute top-[200px] left-7 flex h-[564px] w-[1208px] flex-col rounded-[10px] border border-[rgba(90,150,255,.22)] bg-[rgba(10,22,46,.5)] px-5 py-4"
   >
     <div class="flex items-center gap-1.5">
       <button type="button"
@@ -55,29 +55,32 @@ const tabs = computed(() =>
       </div>
     </div>
 
-    <div class="relative mt-3 flex-1">
-      <BubbleView v-if="view === 'bub'" />
-      <InstView v-else-if="view === 'inst'" />
-      <FlowView v-else-if="view === 'flow'" />
-      <DeptView v-else-if="view === 'dept'" />
-      <PeerView v-else-if="view === 'peer'" />
-      <PubMatrix v-else-if="view === 'pub'" />
-    </div>
-
-    <!-- selected object -->
-    <div class="mt-3 flex h-24 items-center gap-6 rounded-lg border border-[rgba(90,150,255,.2)] bg-[rgba(4,10,22,.7)] px-[18px] py-3">
-      <div class="w-[220px] min-w-0 shrink-0">
-        <div class="text-[13px] text-[#6F84A6]">选中对象</div>
-        <div class="truncate text-[19px] font-semibold" :title="det.t">{{ det.t }}</div>
-        <div class="text-[13px] text-[#9FB2D1]">{{ det.sub }}</div>
+    <!-- 主视图 + 右侧选中对象卡(气泡图在最左侧,选中对象竖排在其右) -->
+    <div class="mt-3 flex min-h-0 flex-1 gap-4">
+      <div class="relative min-w-0 flex-1">
+        <BubbleView v-if="view === 'bub'" />
+        <InstView v-else-if="view === 'inst'" />
+        <FlowView v-else-if="view === 'flow'" />
+        <DeptView v-else-if="view === 'dept'" />
+        <PeerView v-else-if="view === 'peer'" />
+        <PubMatrix v-else-if="view === 'pub'" />
       </div>
-      <div
-        v-for="r in det.rows"
-        :key="r.k"
-        class="min-w-0 flex-1 border-l border-[rgba(90,150,255,.16)] pl-[18px] whitespace-nowrap"
-      >
-        <div class="text-sm text-[#9FB2D1]">{{ r.k }}</div>
-        <div class="yb-num truncate text-2xl font-semibold" :style="{ color: r.c }">{{ r.v }}</div>
+
+      <!-- selected object -->
+      <div class="flex w-[236px] shrink-0 flex-col rounded-lg border border-[rgba(90,150,255,.2)] bg-[rgba(4,10,22,.7)] px-[18px] py-3.5">
+        <div class="text-sm text-[#6F84A6]">选中对象</div>
+        <div class="mt-0.5 line-clamp-2 text-[19px] leading-snug font-semibold" :title="det.t">{{ det.t }}</div>
+        <div class="truncate text-sm text-[#9FB2D1]" :title="det.sub">{{ det.sub }}</div>
+        <div class="mt-3 flex flex-1 flex-col justify-around">
+          <div
+            v-for="r in det.rows"
+            :key="r.k"
+            class="min-w-0 border-t border-[rgba(90,150,255,.16)] pt-2.5 whitespace-nowrap"
+          >
+            <div class="text-sm text-[#9FB2D1]">{{ r.k }}</div>
+            <div class="yb-num truncate text-2xl font-semibold" :style="{ color: r.c }" :title="r.v">{{ r.v }}</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,118 +1,128 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { appearance } from '@/app/appearance'
+import { computed } from 'vue'
 import AnimatedNumber from './AnimatedNumber.vue'
 import PanelTitle from './PanelTitle.vue'
-import { TONE_C, useCockpit } from './store'
+import { K, useCockpit } from './store'
 
-const { s, I, bullets, alertsAll } = useCockpit()
-const panel = 'rounded-[10px] border border-[rgba(90,150,255,.16)] bg-[rgba(10,22,46,.66)] px-[22px] py-4'
-
-/* ---------- 实时提醒:窗口恰好容纳 WIN 条完整提醒;超过时整条整条地向上滚动,任何一条都不会被剪断 */
-const ROW = 58
-const WIN = 4
-const n = computed(() => alertsAll.value.length)
-const rolling = computed(() => n.value > WIN && appearance.mot !== 0)
-const rows = computed(() => (rolling.value ? [...alertsAll.value, ...alertsAll.value.slice(0, WIN)] : alertsAll.value))
-const idx = ref(0)
-const smooth = ref(true)
-const paused = ref(false)
-let iv: ReturnType<typeof setInterval> | undefined
-onMounted(() => {
-  iv = setInterval(async () => {
-    if (!rolling.value || paused.value) return
-    idx.value++
-    if (idx.value >= n.value) { // 滚到复制出来的头部后,无动画跳回起点
-      await new Promise(r => setTimeout(r, 620))
-      smooth.value = false
-      idx.value = 0
-      await nextTick()
-      requestAnimationFrame(() => (smooth.value = true))
-    }
-  }, 3600)
-})
-onBeforeUnmount(() => clearInterval(iv))
-watch(() => I.value.id, () => { idx.value = 0 })
-const track = computed(() => ({
-  transform: `translateY(${-idx.value * ROW}px)`,
-  transition: smooth.value ? 'transform .6s cubic-bezier(.2,.8,.2,1)' : 'none',
-}))
-const winH = computed(() => Math.min(n.value, WIN) * ROW)
-const pos = computed(() => (n.value > WIN ? `${(idx.value % n.value) + 1}–${Math.min(n.value, (idx.value % n.value) + WIN)} / ${n.value}` : `${n.value} 条`))
+/* 气泡图右侧:钱 / 效 / 错 上下排列,三块等高,合计高度与气泡图区域一致 */
+const { s, I, months, bullets, errs } = useCockpit()
+const balC = computed(() => (I.value.money.balance.startsWith('−') ? K.red : K.green))
+const panel = 'flex min-h-0 flex-1 flex-col rounded-[10px] border border-[rgba(90,150,255,.16)] bg-[rgba(10,22,46,.66)] px-[22px] py-3.5'
+const moneyRows = computed(() => [
+  { l: I.value.money.m1, v: I.value.money.budget, c: '#7FC3FF' },
+  { l: I.value.money.m2, v: I.value.money.spend, c: '#E6EEF9' },
+  { l: I.value.money.m3, v: I.value.money.balance, c: balC.value },
+])
+const overLabel = computed(() => (I.value.id === 'hosp' ? '缺口高于均值' : '超预算'))
+const anyOver = computed(() => months.value.some(m => m.over))
 </script>
 
 <template>
-  <div class="absolute top-[216px] left-[1444px] flex h-[684px] w-[448px] flex-col gap-4">
-    <!-- 效 -->
-    <div :class="[panel, 'h-[204px] shrink-0']">
-      <div class="mb-2 flex items-center justify-between">
-        <PanelTitle :title="I.effTitle" bar="#5B8FD9" />
-        <span class="text-sm text-[#6F84A6]">目标带 0.95–1.05</span>
-      </div>
-      <div v-for="b in bullets" :key="b.k" class="mb-1.5 last:mb-0">
-        <div class="flex items-center justify-between gap-2">
-          <span class="truncate text-base text-[#C9D6EA]">{{ b.k }}</span>
-          <span class="flex shrink-0 items-center gap-2">
-            <span class="rounded px-1.5 py-px text-xs" :style="{ color: b.c, background: b.c + '22' }">{{ b.st }}</span>
-            <AnimatedNumber :value="b.v" :replay="s.pulse" class="yb-num w-[56px] text-right text-[22px] font-semibold" :style="{ color: b.c }" />
-          </span>
-        </div>
-        <div class="relative mt-1 h-2.5 rounded-[3px] bg-[rgba(255,255,255,.06)]">
-          <div class="absolute inset-y-0 left-[41.7%] w-[16.6%] bg-[rgba(63,209,160,.22)]" />
-          <div class="absolute -top-[3px] -bottom-[3px] left-1/2 border-l border-[rgba(230,238,249,.5)]" />
-          <div
-            class="absolute -top-[5px] -ml-0.5 h-[20px] w-[5px] rounded-[2px] transition-[left] duration-[1100ms] ease-[cubic-bezier(.2,.8,.2,1)]"
-            :style="{ left: s.intro ? b.p : '50%', background: b.c, boxShadow: `0 0 10px ${b.c}` }"
-          />
+  <div class="absolute top-[200px] left-[1252px] flex h-[564px] w-[640px] flex-col gap-4">
+    <!-- 钱:左侧三项读数,右侧近 12 月 2.5D 柱(常规月低饱和蓝,超支月对比色,当月高亮) -->
+    <div :class="panel">
+      <div class="flex items-center justify-between">
+        <PanelTitle :title="I.money.title" bar="#3AA0FF" />
+        <div class="flex items-center gap-3.5 text-sm text-[#9FB2D1]">
+          <span class="flex items-center gap-1.5"><span class="h-2 w-3 rounded-[2px] bg-[rgba(58,160,255,.55)]" />{{ I.money.legendBar }}</span>
+          <span v-if="anyOver" class="flex items-center gap-1.5"><span class="h-2 w-3 rounded-[2px] bg-[rgba(255,107,94,.75)]" />{{ overLabel }}</span>
+          <span class="flex items-center gap-1.5"><span class="w-3.5 border-t-2 border-dashed border-[#F5B74E]" />{{ I.money.legendLine }}</span>
+          <span class="text-[#6F84A6]">{{ I.money.unit }}</span>
         </div>
       </div>
-    </div>
-
-    <!-- 错 -->
-    <div :class="[panel, 'h-[140px] shrink-0']">
-      <div class="mb-2.5"><PanelTitle :title="I.errTitle" bar="#FF6B5E" /></div>
-      <div class="grid grid-cols-4 gap-2">
-        <div
-          v-for="e in I.errs"
-          :key="e.label"
-          class="relative overflow-hidden rounded-md border border-[rgba(90,150,255,.1)] bg-[rgba(255,255,255,.03)] px-2.5 pt-2 pb-1.5"
-        >
-          <span class="absolute inset-x-0 top-0 h-[2px]" :style="{ background: TONE_C[e.tone] }" />
-          <div class="truncate text-[13px] text-[#9FB2D1]">{{ e.label }}</div>
-          <div class="whitespace-nowrap">
-            <AnimatedNumber :value="e.value" :replay="s.pulse" class="yb-num text-[26px] leading-tight font-semibold" :style="{ color: TONE_C[e.tone] }" />
-            <span class="text-xs text-[#6F84A6]"> {{ e.unit }}</span>
+      <div class="mt-2 flex min-h-0 flex-1 gap-5">
+        <div class="flex w-[224px] shrink-0 flex-col justify-around border-r border-[rgba(90,150,255,.12)] pr-4">
+          <div v-for="r in moneyRows" :key="r.l" class="flex items-baseline justify-between gap-2">
+            <span class="min-w-0 truncate text-sm text-[#9FB2D1]" :title="r.l">{{ r.l }}</span>
+            <AnimatedNumber :value="r.v" :replay="s.pulse" class="yb-num shrink-0 text-[22px] leading-tight font-semibold whitespace-nowrap" :style="{ color: r.c }" />
+          </div>
+        </div>
+        <div class="relative flex min-w-0 flex-1 items-end gap-2 pt-5">
+          <div v-for="(m, i) in months" :key="i" class="relative flex h-full flex-1 flex-col items-center justify-end gap-1">
+            <!-- 跨年分隔 -->
+            <template v-if="m.yr">
+              <span class="absolute -top-5 bottom-[18px] -left-[5px] border-l border-dashed border-[rgba(127,195,255,.3)]" />
+              <span class="yb-num absolute -top-5 left-0.5 text-sm leading-none text-[#6F84A6]">{{ m.yr }}</span>
+            </template>
+            <div
+              class="relative w-full transition-[height] duration-[900ms] ease-[cubic-bezier(.2,.8,.2,1)]"
+              :style="{ height: s.intro ? m.h : '0%', transitionDelay: i * 45 + 'ms' }"
+            >
+              <span
+                v-if="m.cur"
+                class="yb-num absolute -top-6 left-1/2 -translate-x-1/2 text-sm font-semibold whitespace-nowrap"
+                :style="{ color: m.vc }"
+              >{{ m.v }}</span>
+              <!-- 2.5D 立方柱:正面 + 右侧面 + 顶面,柱高仍与数据一一对应 -->
+              <div class="absolute top-[4px] right-[5px] bottom-0 left-0" :style="{ background: m.bg }" />
+              <div class="cube-side absolute inset-y-0 right-0 w-[5px]" :style="{ background: m.bg }" />
+              <div class="cube-top absolute inset-x-0 top-0 h-[4px]" :style="{ background: m.bg }" />
+              <div v-if="m.cur" class="absolute top-[4px] right-[5px] bottom-0 left-0" :style="{ boxShadow: `0 0 14px ${m.vc}66` }" />
+              <div class="absolute -right-[2px] -left-[2px] z-[1] border-t-2 border-dashed border-[rgba(245,183,78,.8)]" :style="{ bottom: m.bOff }" />
+            </div>
+            <span :class="['text-sm leading-none', m.cur ? 'font-semibold text-[#C9D6EA]' : 'text-[#6F84A6]']">{{ m.l }}</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 实时提醒 -->
-    <div :class="[panel, 'flex min-h-0 flex-1 flex-col']" data-testid="cockpit-alerts" @mouseenter="paused = true" @mouseleave="paused = false">
-      <div class="mb-2 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <PanelTitle :title="I.alertTitle" bar="#F5B74E" />
-          <span class="relative flex size-2">
-            <span class="absolute inline-flex size-full rounded-full bg-[#3FD1A0] [animation:ybRing_1.8s_ease-out_infinite]" />
-            <span class="relative inline-flex size-2 rounded-full bg-[#3FD1A0]" />
-          </span>
-        </div>
-        <span class="yb-num text-[15px] text-[#F5B74E]">{{ pos }}</span>
+    <!-- 效:每项一行;正常时只靠颜色表达,偏高 / 偏低才出状态标签 -->
+    <div :class="panel">
+      <div class="flex items-center justify-between">
+        <PanelTitle :title="I.effTitle" bar="#5B8FD9" />
+        <span class="text-sm text-[#6F84A6]">目标带 0.95–1.05</span>
       </div>
-      <div class="relative" :class="appearance.mot === 0 && n > WIN ? 'overflow-y-auto' : 'overflow-hidden'" :style="{ height: winH + 'px' }">
-        <div :style="track">
-          <div
-            v-for="(a, i) in rows"
-            :key="i"
-            class="flex items-start gap-2.5 border-t border-[rgba(90,150,255,.1)] py-[7px]"
-            :style="{ height: ROW + 'px' }"
-          >
-            <span class="mt-0.5 rounded-[3px] border px-[7px] py-px text-xs whitespace-nowrap" :style="{ borderColor: a.c, color: a.c }">{{ a.ty }}</span>
-            <span class="line-clamp-2 flex-1 text-[15px] leading-[1.35] text-[#DDE6F3]" :title="a.txt">{{ a.txt }}</span>
-            <span class="yb-num text-sm text-[#6F84A6]">{{ a.t }}</span>
+      <div class="mt-1 flex flex-1 flex-col justify-around">
+        <div v-for="b in bullets" :key="b.k" class="flex items-center gap-4">
+          <span class="w-[132px] shrink-0 truncate text-[15px] text-[#C9D6EA]">{{ b.k }}</span>
+          <div class="relative h-2.5 flex-1 rounded-[3px] bg-[rgba(255,255,255,.06)]">
+            <div class="absolute inset-y-0 left-[41.7%] w-[16.6%] bg-[rgba(63,209,160,.22)]" />
+            <div class="absolute -top-[3px] -bottom-[3px] left-1/2 border-l border-[rgba(230,238,249,.5)]" />
+            <div
+              class="absolute -top-[5px] -ml-0.5 h-[20px] w-[5px] rounded-[2px] transition-[left] duration-[1100ms] ease-[cubic-bezier(.2,.8,.2,1)]"
+              :style="{ left: s.intro ? b.p : '50%', background: b.c, boxShadow: `0 0 10px ${b.c}` }"
+            />
+          </div>
+          <span class="w-[48px] shrink-0">
+            <span v-if="b.st !== '正常'" class="block rounded px-1.5 py-px text-center text-sm" :style="{ color: b.c, background: b.c + '22' }">{{ b.st }}</span>
+          </span>
+          <AnimatedNumber :value="b.v" :replay="s.pulse" class="yb-num w-[52px] shrink-0 text-right text-[22px] leading-tight font-semibold" :style="{ color: b.c }" />
+        </div>
+      </div>
+    </div>
+
+    <!-- 错:四项读数 + 较上期变化(按好坏着色) -->
+    <div :class="panel">
+      <PanelTitle :title="I.errTitle" bar="#FF6B5E" />
+      <div class="mt-2.5 grid flex-1 grid-cols-4 gap-2.5">
+        <div
+          v-for="e in errs"
+          :key="e.label"
+          class="relative flex flex-col justify-center overflow-hidden rounded-md border border-[rgba(90,150,255,.1)] bg-[rgba(255,255,255,.03)] px-3"
+        >
+          <span class="absolute inset-x-0 top-0 h-[2px]" :style="{ background: e.c }" />
+          <div class="truncate text-sm text-[#9FB2D1]">{{ e.label }}</div>
+          <div class="whitespace-nowrap">
+            <AnimatedNumber :value="e.value" :replay="s.pulse" class="yb-num text-[28px] leading-tight font-semibold" :style="{ color: e.c }" />
+            <span class="text-sm text-[#6F84A6]"> {{ e.unit }}</span>
+          </div>
+          <div v-if="e.d" class="yb-num text-sm whitespace-nowrap" :style="{ color: e.dc }" :title="e.st ? `较上期 ${e.d} · ${e.st}` : `较上期 ${e.d}`">
+            <span class="text-[#6F84A6]">较上期 </span>{{ e.d }}
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* 2.5D 立方柱的侧面(压暗)与顶面(提亮) */
+.cube-side {
+  clip-path: polygon(0 4px, 100% 0, 100% calc(100% - 4px), 0 100%);
+  filter: brightness(.55);
+}
+.cube-top {
+  clip-path: polygon(0 100%, 5px 0, 100% 0, calc(100% - 5px) 100%);
+  filter: brightness(1.45);
+}
+</style>

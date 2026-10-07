@@ -88,7 +88,7 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
     <div class="flex flex-wrap items-end justify-between gap-x-5 gap-y-3">
       <div>
         <div class="text-xs text-ink-4">
-          <button type="button" class="cursor-pointer text-brand" @click="goPage('B1')">本院全息</button> / 病组下钻
+          <button type="button" class="cursor-pointer text-brand" @click="goPage('B1')">本院全景</button> / 病组下钻
         </div>
         <div class="mt-0.5 text-2xl font-semibold">
           <span class="yb-num text-brand">{{ data.header.code }}</span> {{ data.header.name }}

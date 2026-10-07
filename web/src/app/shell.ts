@@ -4,7 +4,7 @@ import type { Viewer } from './nav'
 
 /**
  * Per-page shell state. Pages that change identity at runtime
- * (全息图 身份切换) call `setViewer`; everything else uses VIEWERS.
+ * (全景图 身份切换) call `setViewer`; everything else uses VIEWERS.
  */
 export const shell = reactive<{ viewerOverride: Viewer | null }>({ viewerOverride: null })
 

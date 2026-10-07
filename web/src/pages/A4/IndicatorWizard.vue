@@ -163,7 +163,7 @@ const chipCls = (on: boolean) =>
             <span class="text-ink-4">审批人</span><span>{{ wizard.approver }}</span>
           </div>
           <div v-if="done" class="rounded-[10px] bg-ok-soft px-3.5 py-3 text-xs text-ok-ink">
-            ✓ 已提交上线审批 {{ wizard.approvalNo }} · 批准后出现在全息图“效”与机构门户核心指标
+            ✓ 已提交上线审批 {{ wizard.approvalNo }} · 批准后出现在全景图“效”与机构门户核心指标
           </div>
         </template>
 

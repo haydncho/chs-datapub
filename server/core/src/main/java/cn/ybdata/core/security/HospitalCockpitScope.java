@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
 
 /**
- * 全息图 (cockpit) for a 定点医药机构 identity (本院具名 · 同级匿名分位). Removed from the payload:
+ * 全景图 (cockpit) for a 定点医药机构 identity (本院具名 · 同级匿名分位). Removed from the payload:
  * <ul>
  *   <li>{@code identities[id=conv]} — the 医保局 view, whose alerts name other institutions
  *       (某肛肠专科医院 · GG19 …) and whose KPIs are city-wide management figures;</li>

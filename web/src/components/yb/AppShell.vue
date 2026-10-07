@@ -38,7 +38,7 @@ const activeGroup = computed(() => groups.value.find(g => g.items.some(i => isAc
 const crumb = computed(() => breadcrumbOf(side.value, code.value, query.value))
 const GroupIcon = computed(() => iconOf(activeGroup.value?.icon ?? 'layout-dashboard'))
 const SideIcon = computed(() => iconOf(SIDE_ICON[side.value]))
-// identity: page override (全息图 身份切换) › logged-in session › per-page demo identity
+// identity: page override (全景图 身份切换) › logged-in session › per-page demo identity
 const viewer = computed(() => shell.viewerOverride ?? sessionViewer.value ?? VIEWERS[code.value])
 const canSwitch = computed(() => (session.current?.identities.length ?? 0) > 1)
 function go(item: NavItem) {

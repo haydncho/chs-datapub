@@ -69,7 +69,7 @@ export const A14_SEED: A14Data = {
     { id: 'L02', time: '09:02:18', type: '审批', who: '陈志远', role: '召集人', object: 'BR25 专题 → 机构核对', ip: '10.86.12.20', terminal: 'Chrome 128', watermark: 'WM-7F3A-12C2', signatureOk: true, diff: null, risk: false },
     { id: 'L03', time: '08:58:40', type: '配置', who: '李华', role: '行政管理组', object: '医保外费用占比 对标档位', ip: '10.86.12.47', terminal: 'Chrome 128', watermark: 'WM-7F3A-13C2', signatureOk: true, diff: { from: '匿名分位', to: '具名PK与排行' }, risk: false },
     { id: 'L04', time: '08:47:11', type: '导出', who: '王倩', role: '行政管理组', object: '意见汇总表 2026-09', ip: '10.86.12.51', terminal: 'Chrome 128', watermark: 'WM-7F3A-14C2', signatureOk: true, diff: null, risk: false },
-    { id: 'L05', time: '02:14:36', type: '查阅', who: '孙磊', role: '定点医疗机构', object: '本院全息 × 38 次', ip: '10.86.77.9', terminal: 'Chrome 128', watermark: 'WM-7F3A-15C2', signatureOk: true, diff: null, risk: true },
+    { id: 'L05', time: '02:14:36', type: '查阅', who: '孙磊', role: '定点医疗机构', object: '本院全景 × 38 次', ip: '10.86.77.9', terminal: 'Chrome 128', watermark: 'WM-7F3A-15C2', signatureOk: true, diff: null, risk: true },
     { id: 'L06', time: '昨天 17:40', type: '权限', who: '陈志远', role: '召集人', object: '张悦 · 数据范围', ip: '10.86.12.20', terminal: 'Chrome 128', watermark: 'WM-7F3A-16C2', signatureOk: true, diff: { from: '聚合数据', to: '受控环境' }, risk: false },
     { id: 'L07', time: '昨天 16:22', type: '发布', who: '系统', role: '—', object: '2026年8月 月告知 → 52 家', ip: '—', terminal: 'Chrome 128', watermark: 'WM-7F3A-17C2', signatureOk: true, diff: null, risk: false },
     { id: 'L08', time: '昨天 15:05', type: '登录', who: '钱丽', role: '县区医保', object: '政务微信扫码', ip: '10.86.90.4', terminal: 'Chrome 128', watermark: 'WM-7F3A-18C2', signatureOk: true, diff: null, risk: false },

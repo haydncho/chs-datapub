@@ -1,6 +1,6 @@
 /**
  * Information architecture of the platform: 端(医保局端 / 机构端) › 一级菜单(分组) › 二级菜单(页面)。
- * 医保局端主线为 归集 › 配置 › 洞察 › 发布 › 反馈,另有 全息图 / 设置;机构端沿用同样的分类名。
+ * 医保局端主线为 归集 › 配置 › 洞察 › 发布 › 反馈,另有 全景图 / 设置;机构端沿用同样的分类名。
  * Mirrors STG in the v3 prototypes.
  */
 export type PageCode =
@@ -17,9 +17,9 @@ export const SIDE_ICON: Record<Side, string> = { bureau: 'landmark', org: 'hospi
 export interface NavItem { code: PageCode; name: string; icon: string; query?: Record<string, string> }
 export interface NavGroup { id: string; n?: string; name: string; icon: string; items: NavItem[] }
 
-/** 医保局端菜单树(超集):全息图 › 01–05 主线 › 设置。登录页 A1 不在菜单中。 */
+/** 医保局端菜单树(超集):全景图 › 01–05 主线 › 设置。登录页 A1 不在菜单中。 */
 const BUREAU_NAV: NavGroup[] = [
-  { id: 'cock', name: '全息图', icon: 'layout-dashboard', items: [{ code: 'cockpit', name: '全息图', icon: 'layout-dashboard', query: { who: 'conv' } }] },
+  { id: 'cock', name: '全景图', icon: 'layout-dashboard', items: [{ code: 'cockpit', name: '全景图', icon: 'layout-dashboard', query: { who: 'conv' } }] },
   { id: 's1', n: '01', name: '归集', icon: 'database', items: [{ code: 'A3', name: '数据归集中心', icon: 'database' }] },
   {
     id: 's2', n: '02', name: '配置', icon: 'sliders-horizontal',
@@ -63,10 +63,10 @@ const BUREAU_NAV: NavGroup[] = [
 /** 机构端菜单树(超集):沿用医保局端的分类名,不加序号。 */
 const ORG_NAV: NavGroup[] = [
   {
-    id: 'cock', name: '全息图', icon: 'layout-dashboard',
+    id: 'cock', name: '全景图', icon: 'layout-dashboard',
     items: [
-      { code: 'cockpit', name: '机构全息图', icon: 'layout-dashboard', query: { who: 'hosp' } },
-      { code: 'B1', name: '本院全息', icon: 'hospital' },
+      { code: 'cockpit', name: '机构全景图', icon: 'layout-dashboard', query: { who: 'hosp' } },
+      { code: 'B1', name: '本院全景', icon: 'hospital' },
     ],
   },
   {
@@ -101,12 +101,12 @@ export function navFor(side: Side, allowed: readonly string[] | null): NavGroup[
     .filter(g => g.items.length > 0)
 }
 
-/** 菜单项是否对应当前路由(全息图再按 query.who 区分两端)。 */
+/** 菜单项是否对应当前路由(全景图再按 query.who 区分两端)。 */
 export function isActiveItem(item: NavItem, code: string, query?: Record<string, unknown>): boolean {
   if (item.code !== code) return false
   if (code === 'cockpit' && item.query?.who) {
     const w = query?.who
-    // 机构端的 county / prov 视角也归入机构全息图
+    // 机构端的 county / prov 视角也归入机构全景图
     const mine = item.query.who === 'conv' ? (w === undefined || w === 'conv') : (w !== undefined && w !== 'conv')
     return mine
   }

@@ -4,7 +4,7 @@ import { ROUTES } from './support'
 
 /**
  * Pad 适配:横屏 / 竖屏下每个页面都不能出现整页横向滚动,也不能有控制台错误;
- * 抽屉菜单、点按展开的一级菜单、竖屏全息图提示在触屏下可用。
+ * 抽屉菜单、点按展开的一级菜单、竖屏全景图提示在触屏下可用。
  * 登录为陈志远(召集人)——可打开全部页面,含机构端页面。
  */
 const PADS = [
@@ -64,7 +64,7 @@ test.describe('触屏菜单', () => {
     await expect(drawer).toBeHidden()
   })
 
-  test('竖屏全息图:出现「建议横屏」提示,关闭后同一会话内不再出现', async ({ page }) => {
+  test('竖屏全景图:出现「建议横屏」提示,关闭后同一会话内不再出现', async ({ page }) => {
     await page.goto('/#/cockpit')
     const tip = page.getByText('建议横屏查看')
     await expect(tip).toBeVisible({ timeout: 15_000 })

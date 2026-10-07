@@ -46,7 +46,7 @@ const canSave = computed(() => dirty.value && !colorInvalid.value)
 const SECTIONS = [
   { id: 'sec-theme', label: '平台主题', icon: Palette },
   { id: 'sec-ui', label: '界面与密度', icon: SlidersHorizontal },
-  { id: 'sec-screen', label: '全息图大屏', icon: MonitorPlay },
+  { id: 'sec-screen', label: '全景图大屏', icon: MonitorPlay },
   { id: 'sec-brand', label: '品牌与水印', icon: Stamp },
 ]
 const active = ref(SECTIONS[0]!.id)
@@ -157,7 +157,7 @@ function logoUpload() {
 
 <template>
   <PageSection label="A15 外观配置">
-    <PageHeader title="外观配置" subtitle="平台主题 · 界面密度 · 全息图大屏 · 品牌标识 · 保存并发布后对全部用户生效" />
+    <PageHeader title="外观配置" subtitle="平台主题 · 界面密度 · 全景图大屏 · 品牌标识 · 保存并发布后对全部用户生效" />
 
     <!-- 吸顶操作条 -->
     <div
@@ -235,7 +235,7 @@ function logoUpload() {
           </SettingRow>
         </SettingSection>
 
-        <SettingSection id="sec-screen" title="全息图大屏" desc="大屏的配色与自动轮播节奏。">
+        <SettingSection id="sec-screen" title="全景图大屏" desc="大屏的配色与自动轮播节奏。">
           <SettingRow title="大屏配色" stack>
             <div class="grid grid-cols-3 gap-2.5 max-md:grid-cols-1" role="group" aria-label="大屏配色">
               <button

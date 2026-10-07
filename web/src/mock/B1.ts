@@ -1,4 +1,4 @@
-/** B1 本院全息 — seed data (same JSON the backend serves at GET /api/v1/pages/B1). */
+/** B1 本院全景 — seed data (same JSON the backend serves at GET /api/v1/pages/B1). */
 
 export interface B1Kpi {
   name: string

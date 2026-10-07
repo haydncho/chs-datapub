@@ -29,7 +29,7 @@ const KPI_ICONS = [
 </script>
 
 <template>
-  <PageSection label="B1 本院全息">
+  <PageSection label="B1 本院全景">
     <PageHeader :title="data.hospital.name" :subtitle="data.hospital.subtitle">
       <button type="button"
         class="flex h-[34px] cursor-pointer items-center gap-1.5 rounded-lg max-xl:h-10 bg-brand-soft px-3 text-[12px] font-medium text-brand"

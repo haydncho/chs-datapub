@@ -21,7 +21,7 @@ import { vPress } from '@/lib/a11y'
 const raw = usePageData('cockpit', COCKPIT_SEED)
 
 /**
- * 全息图展示什么,由登录身份决定:医院身份 → 本院视角(机构名取自该身份所属医院);
+ * 全景图展示什么,由登录身份决定:医院身份 → 本院视角(机构名取自该身份所属医院);
  * 其余身份 → 市医保局视角。不再提供视角切换。无会话(仅开发回退)时保留两个视角可切换。
  */
 const ownId = computed<'hosp' | 'conv' | null>(() => {
@@ -42,7 +42,7 @@ const data = computed<CockpitData>(() => {
 })
 const store = createCockpitStore(data)
 provide(COCKPIT_KEY, store)
-const { s, I, rotN, scr, alarm, go2, replay, restart } = store
+const { s, I, views, rotN, scr, alarm, go2, replay, restart } = store
 
 /* ---------- identity ⇄ ?who= */
 const route = useRoute()
@@ -210,7 +210,7 @@ onMounted(() => {
     if (s.rot) {
       const n = s.rotT + 1
       if (n >= rotN.value) {
-        const vs = I.value.views
+        const vs = views.value
         const cur = vs.includes(s.view) ? s.view : 'bub'
         const nx = vs[(vs.indexOf(cur) + 1) % vs.length] ?? 'bub'
         go2({ view: nx, sel: null, rotT: 0, now: Date.now() })
@@ -243,7 +243,7 @@ const tbOn = 'border-[#3AA0FF] bg-[rgba(58,160,255,.16)] text-[#CFE6FF]'
 </script>
 
 <template>
-  <section data-screen-label="01 全息图" class="flex-1 px-5 pt-3.5 pb-6">
+  <section data-screen-label="01 全景图" class="flex-1 px-5 pt-3.5 pb-6">
     <div
       v-if="portrait && !portraitHidden"
       role="status"
@@ -322,6 +322,15 @@ const tbOn = 'border-[#3AA0FF] bg-[rgba(58,160,255,.16)] text-[#CFE6FF]'
 .cockpit-grid {
   background-image: linear-gradient(rgba(90, 150, 255, .03) 1px, transparent 1px), linear-gradient(90deg, rgba(90, 150, 255, .03) 1px, transparent 1px);
   background-size: 40px 40px;
+}
+/* 2.5D 立方柱(钱 · 月度柱、副屏 · 受众查阅率):侧面压暗、顶面提亮 */
+.cube-side {
+  clip-path: polygon(0 4px, 100% 0, 100% calc(100% - 4px), 0 100%);
+  filter: brightness(.55);
+}
+.cube-top {
+  clip-path: polygon(0 100%, 5px 0, 100% 0, calc(100% - 5px) 100%);
+  filter: brightness(1.45);
 }
 @keyframes ybAlarm { 0%, 100% { opacity: 1 } 50% { opacity: .2 } }
 @keyframes ybRing { 0% { transform: scale(1); opacity: .8 } 100% { transform: scale(2.2); opacity: 0 } }

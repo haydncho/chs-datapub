@@ -1,7 +1,7 @@
 """DRG analytics: pure functions over per-group rows, no I/O.
 
 Inputs are the city-wide groups from ``drg_group`` (cases, 例均基金差额,
-次均费用). Outputs feed the 全息图 病组全景 and the A6 选题推荐.
+次均费用). Outputs feed the 全景图 病组全景 and the A6 选题推荐.
 """
 
 from __future__ import annotations

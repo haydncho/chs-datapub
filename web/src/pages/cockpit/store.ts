@@ -69,6 +69,8 @@ const MCS: Record<MatrixStatus, [string, string, (v?: number) => string]> = {
 export const VIEW_NAME: Record<CockpitView, string> = {
   bub: '病组全景', inst: '机构矩阵', flow: '异地流向', pub: '公开矩阵', dept: '科室矩阵', peer: '同级对标',
 }
+/** 双屏副屏上已有的视图:医保局 → 公开矩阵、异地流向;本院 → 同级对标、科室矩阵 */
+export const SCREEN2_VIEWS: Partial<Record<IdentityId, CockpitView[]>> = { conv: ['pub', 'flow'], hosp: ['peer', 'dept'] }
 export type Lens = 'money' | 'eff' | 'err'
 export const LENSES: [Lens, string][] = [['money', '钱'], ['eff', '效 · 时间消耗'], ['err', '错 · 审核']]
 export type Period = '月' | '季' | '年'
@@ -120,7 +122,12 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
   })
 
   const I = computed<CockpitIdentity>(() => data.value.identities[s.idn] ?? data.value.identities[0]!)
-  const view = computed<CockpitView>(() => (I.value.views.includes(s.view) ? s.view : 'bub'))
+  /** 双屏时,副屏专门展示的视图从主屏的视图切换 / 轮播中移除,两块屏不重复 */
+  const views = computed<CockpitView[]>(() => {
+    const own = SCREEN2_VIEWS[I.value.id] ?? []
+    return s.dual ? I.value.views.filter(v => !own.includes(v)) : I.value.views
+  })
+  const view = computed<CockpitView>(() => (views.value.includes(s.view) ? s.view : 'bub'))
   const lens = computed(() => s.lens)
   const rotN = computed(() => Math.max(3, appearance.rot || 20))
   const scr = computed(() => Math.min(2, Math.max(0, appearance.scr | 0)))
@@ -527,7 +534,7 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     time: clock.value.time,
   }))
 
-  return { s, data, I, view, lens, rotN, scr, motion, go2, replay, restart, dispose, bubble, ribbon, months, torn, instCols, depts, peer, flows, matrix, det, bullets, alertsAll, pipe, errs, labelOf, clock, alarm }
+  return { s, data, I, views, view, lens, rotN, scr, motion, go2, replay, restart, dispose, bubble, ribbon, months, torn, instCols, depts, peer, flows, matrix, det, bullets, alertsAll, pipe, errs, labelOf, clock, alarm }
 }
 
 export type CockpitStore = ReturnType<typeof createCockpitStore>

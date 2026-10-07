@@ -64,7 +64,7 @@ const emit = defineEmits<{
       v-for="r in rows"
       :key="r.i"
       :class="cn(
-        'grid cursor-pointer items-center gap-2.5 border-b border-line-3 px-4 hover:bg-surface-1 max-xl:min-h-11',
+        'grid cursor-pointer items-center gap-2.5 yb-tr border-b border-line-3 px-4 hover:bg-surface-1 max-xl:min-h-11',
         r.selected ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]' : 'bg-white',
       )"
       :style="{ gridTemplateColumns: gridTemplate, paddingTop: pad, paddingBottom: pad }"

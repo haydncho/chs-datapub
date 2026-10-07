@@ -7,9 +7,9 @@ import { K, useCockpit } from './store'
 /* 气泡图右侧:钱 / 效 / 错 上下排列,三块等高,合计高度与气泡图区域一致 */
 const { s, I, months, bullets, errs } = useCockpit()
 const balC = computed(() => (I.value.money.balance.startsWith('−') ? K.red : K.green))
-const panel = 'flex min-h-0 flex-1 flex-col rounded-[10px] border border-[rgba(90,150,255,.16)] bg-[rgba(10,22,46,.66)] px-[22px] py-3.5'
+const panel = 'flex min-h-0 flex-1 flex-col rounded-[10px] border border-[rgb(var(--ck-line)/.16)] bg-[rgb(var(--ck-panel)/.66)] px-[22px] py-3.5'
 const moneyRows = computed(() => [
-  { l: I.value.money.m1, v: I.value.money.budget, c: '#7FC3FF' },
+  { l: I.value.money.m1, v: I.value.money.budget, c: 'rgb(var(--ck-accl))' },
   { l: I.value.money.m2, v: I.value.money.spend, c: '#E6EEF9' },
   { l: I.value.money.m3, v: I.value.money.balance, c: balC.value },
 ])
@@ -22,16 +22,16 @@ const anyOver = computed(() => months.value.some(m => m.over))
     <!-- 钱:左侧三项读数,右侧近 12 月 2.5D 柱(常规月低饱和蓝,超支月对比色,当月高亮) -->
     <div :class="panel">
       <div class="flex items-center justify-between">
-        <PanelTitle :title="I.money.title" bar="#3AA0FF" />
+        <PanelTitle :title="I.money.title" bar="rgb(var(--ck-acc))" />
         <div class="flex items-center gap-3.5 text-sm text-[#9FB2D1]">
-          <span class="flex items-center gap-1.5"><span class="h-2 w-3 rounded-[2px] bg-[rgba(58,160,255,.55)]" />{{ I.money.legendBar }}</span>
+          <span class="flex items-center gap-1.5"><span class="h-2 w-3 rounded-[2px] bg-[rgb(var(--ck-acc)/.55)]" />{{ I.money.legendBar }}</span>
           <span v-if="anyOver" class="flex items-center gap-1.5"><span class="h-2 w-3 rounded-[2px] bg-[rgba(255,107,94,.75)]" />{{ overLabel }}</span>
           <span class="flex items-center gap-1.5"><span class="w-3.5 border-t-2 border-dashed border-[#F5B74E]" />{{ I.money.legendLine }}</span>
           <span class="text-[#6F84A6]">{{ I.money.unit }}</span>
         </div>
       </div>
       <div class="mt-2 flex min-h-0 flex-1 gap-5">
-        <div class="flex w-[224px] shrink-0 flex-col justify-around border-r border-[rgba(90,150,255,.12)] pr-4">
+        <div class="flex w-[224px] shrink-0 flex-col justify-around border-r border-[rgb(var(--ck-line)/.12)] pr-4">
           <div v-for="r in moneyRows" :key="r.l" class="flex items-baseline justify-between gap-2">
             <span class="min-w-0 truncate text-sm text-[#9FB2D1]" :title="r.l">{{ r.l }}</span>
             <AnimatedNumber :value="r.v" :replay="s.pulse" class="yb-num shrink-0 text-[22px] leading-tight font-semibold whitespace-nowrap" :style="{ color: r.c }" />
@@ -41,7 +41,7 @@ const anyOver = computed(() => months.value.some(m => m.over))
           <div v-for="(m, i) in months" :key="i" class="relative flex h-full flex-1 flex-col items-center justify-end gap-1">
             <!-- 跨年分隔 -->
             <template v-if="m.yr">
-              <span class="absolute -top-5 bottom-[18px] -left-[5px] border-l border-dashed border-[rgba(127,195,255,.3)]" />
+              <span class="absolute -top-5 bottom-[18px] -left-[5px] border-l border-dashed border-[rgb(var(--ck-accl)/.3)]" />
               <span class="yb-num absolute -top-5 left-0.5 text-sm leading-none text-[#6F84A6]">{{ m.yr }}</span>
             </template>
             <div
@@ -57,7 +57,7 @@ const anyOver = computed(() => months.value.some(m => m.over))
               <div class="absolute top-[4px] right-[5px] bottom-0 left-0" :style="{ background: m.bg }" />
               <div class="cube-side absolute inset-y-0 right-0 w-[5px]" :style="{ background: m.bg }" />
               <div class="cube-top absolute inset-x-0 top-0 h-[4px]" :style="{ background: m.bg }" />
-              <div v-if="m.cur" class="absolute top-[4px] right-[5px] bottom-0 left-0" :style="{ boxShadow: `0 0 14px ${m.vc}66` }" />
+              <div v-if="m.cur" class="absolute top-[4px] right-[5px] bottom-0 left-0" :style="{ boxShadow: `0 0 14px color-mix(in srgb,${m.vc} 40%,transparent)` }" />
               <div class="absolute -right-[2px] -left-[2px] z-[1] border-t-2 border-dashed border-[rgba(245,183,78,.8)]" :style="{ bottom: m.bOff }" />
             </div>
             <span :class="['text-sm leading-none', m.cur ? 'font-semibold text-[#C9D6EA]' : 'text-[#6F84A6]']">{{ m.l }}</span>
@@ -84,7 +84,7 @@ const anyOver = computed(() => months.value.some(m => m.over))
             />
           </div>
           <span class="w-[48px] shrink-0">
-            <span v-if="b.st !== '正常'" class="block rounded px-1.5 py-px text-center text-sm" :style="{ color: b.c, background: b.c + '22' }">{{ b.st }}</span>
+            <span v-if="b.st !== '正常'" class="block rounded px-1.5 py-px text-center text-sm" :style="{ color: b.c, background: `color-mix(in srgb,${b.c} 13%,transparent)` }">{{ b.st }}</span>
           </span>
           <AnimatedNumber :value="b.v" :replay="s.pulse" class="yb-num w-[52px] shrink-0 text-right text-[22px] leading-tight font-semibold" :style="{ color: b.c }" />
         </div>
@@ -98,7 +98,7 @@ const anyOver = computed(() => months.value.some(m => m.over))
         <div
           v-for="e in errs"
           :key="e.label"
-          class="relative flex flex-col justify-center overflow-hidden rounded-md border border-[rgba(90,150,255,.1)] bg-[rgba(255,255,255,.03)] px-3"
+          class="relative flex flex-col justify-center overflow-hidden rounded-md border border-[rgb(var(--ck-line)/.1)] bg-[rgba(255,255,255,.03)] px-3"
         >
           <span class="absolute inset-x-0 top-0 h-[2px]" :style="{ background: e.c }" />
           <div class="truncate text-sm text-[#9FB2D1]">{{ e.label }}</div>

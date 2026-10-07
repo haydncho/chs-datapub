@@ -15,7 +15,7 @@ import CockpitRight from './cockpit/CockpitRight.vue'
 import CockpitTop from './cockpit/CockpitTop.vue'
 import SecondScreen from './cockpit/SecondScreen.vue'
 import SubscribeDialog from './cockpit/SubscribeDialog.vue'
-import { COCKPIT_KEY, IDN_TO_WHO, SCR_BG, SCR_GLOW, WHO_TO_IDN, createCockpitStore } from './cockpit/store'
+import { COCKPIT_KEY, IDN_TO_WHO, SCR_BG, SCR_GLOW, SCR_VARS, WHO_TO_IDN, createCockpitStore } from './cockpit/store'
 import { vPress } from '@/lib/a11y'
 
 const raw = usePageData('cockpit', COCKPIT_SEED)
@@ -117,6 +117,7 @@ const screenStyle = (x: number) => ({
   top: fit.value.cy.toFixed(1) + 'px',
   transform: `scale(${fit.value.cs.toFixed(4)})`,
   background: SCR_BG[scr.value],
+  ...SCR_VARS[scr.value],
 })
 const boxStyle = computed(() => ({
   height: fit.value.fs ? '100%' : Math.round(1080 * fit.value.cs) + 'px',
@@ -239,7 +240,7 @@ onBeforeUnmount(() => {
 
 /* ---------- toolbar button states */
 const tb = 'h-8 px-3.5 max-xl:h-10 max-xl:px-4 text-xs font-normal transition-[filter] duration-150 hover:brightness-110'
-const tbOn = 'border-[#3AA0FF] bg-[rgba(58,160,255,.16)] text-[#CFE6FF]'
+const tbOn = 'border-[rgb(var(--ck-acc))] bg-[rgb(var(--ck-acc)/.16)] text-[#CFE6FF]'
 </script>
 
 <template>
@@ -296,7 +297,7 @@ const tbOn = 'border-[#3AA0FF] bg-[rgba(58,160,255,.16)] text-[#CFE6FF]'
       <!-- secondary screen (双屏拼接 3840×1080) -->
       <div
         v-if="s.dual"
-        class="cockpit-screen border-l-2 border-[rgba(127,195,255,.18)]"
+        class="cockpit-screen border-l-2 border-[rgb(var(--ck-accl)/.18)]"
         :style="screenStyle(fit.cx + 1920 * fit.cs)"
       >
         <div class="absolute inset-0" :style="{ background: glow }" />
@@ -320,7 +321,7 @@ const tbOn = 'border-[#3AA0FF] bg-[rgba(58,160,255,.16)] text-[#CFE6FF]'
   font-family: 'Noto Sans SC', sans-serif;
 }
 .cockpit-grid {
-  background-image: linear-gradient(rgba(90, 150, 255, .03) 1px, transparent 1px), linear-gradient(90deg, rgba(90, 150, 255, .03) 1px, transparent 1px);
+  background-image: linear-gradient(rgb(var(--ck-line)/.03) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--ck-line)/.03) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 /* 2.5D 立方柱(钱 · 月度柱、副屏 · 受众查阅率):侧面压暗、顶面提亮 */

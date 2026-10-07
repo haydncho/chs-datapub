@@ -14,6 +14,7 @@ import {
 } from '@/app/nav'
 import { goPage } from '@/app/router'
 import { shell } from '@/app/shell'
+import { platformName } from '@/app/appearance'
 import { session, sessionViewer } from '@/app/session'
 import { logout } from '@/api/auth'
 import type { Layout } from '@/app/pages'
@@ -113,8 +114,8 @@ watch(code, (next, prev) => {
         <div class="flex shrink-0 items-center gap-2.5">
           <div class="flex size-[30px] items-center justify-center rounded-lg bg-brand text-[15px] font-bold text-white">医</div>
           <div class="leading-tight">
-            <div class="text-[15px] font-semibold">医保数据公开</div>
-            <div class="text-[11px] text-ink-4">定向发布平台</div>
+            <div class="text-[15px] font-semibold">{{ platformName.main }}</div>
+            <div v-if="platformName.sub" class="text-[11px] text-ink-4">{{ platformName.sub }}</div>
           </div>
         </div>
         <span class="yb-side shrink-0" :data-side="side" data-testid="side-badge" :title="`当前端:${SIDE_NAME[side]}`">

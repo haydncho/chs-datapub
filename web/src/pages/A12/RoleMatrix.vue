@@ -70,7 +70,7 @@ function has(c: A12Cell, code: string) {
         <span class="max-xl:sticky max-xl:left-0 max-xl:z-[1] max-xl:bg-surface-1">角色</span>
         <span v-for="g in data.groups" :key="g.id" class="text-center whitespace-nowrap">{{ g.name }}</span>
       </div>
-      <div v-for="row in data.matrix" :key="row.role" :class="[GRID, 'border-b border-line-3 py-2.5 last:border-b-0']">
+      <div v-for="row in data.matrix" :key="row.role" :class="[GRID, 'yb-tr border-b border-line-3 py-2.5 last:border-b-0']">
         <div class="min-w-0 max-xl:sticky max-xl:left-0 max-xl:z-[1] max-xl:bg-white">
           <div class="flex items-center gap-1.5">
             <span class="truncate font-semibold">{{ row.name }}</span>

@@ -13,8 +13,8 @@ const dotStyle = (d: { me: boolean; x: string; tr: string }) => ({
   width: d.me ? '18px' : '12px',
   height: d.me ? '18px' : '12px',
   marginLeft: d.me ? '-9px' : '-6px',
-  background: d.me ? '#3AA0FF' : 'rgba(159,178,209,.45)',
-  boxShadow: d.me ? '0 0 0 3px rgba(58,160,255,.25), 0 0 16px #3AA0FF' : 'none',
+  background: d.me ? 'rgb(var(--ck-acc))' : 'rgba(159,178,209,.45)',
+  boxShadow: d.me ? '0 0 0 3px rgb(var(--ck-acc)/.25), 0 0 16px rgb(var(--ck-acc))' : 'none',
   zIndex: d.me ? 5 : 1,
   transition: props.screen2 ? undefined : d.tr,
 })
@@ -43,14 +43,14 @@ const dotStyle = (d: { me: boolean; x: string; tr: string }) => ({
         <div :class="cn('absolute inset-x-0 h-0.5 bg-[rgba(255,255,255,.08)]', props.screen2 ? 'top-[17px]' : 'top-3.5')" />
         <div
           :class="cn(
-            'absolute left-1/4 w-1/2 rounded-[3px] bg-[rgba(58,160,255,.12)]',
+            'absolute left-1/4 w-1/2 rounded-[3px] bg-[rgb(var(--ck-acc)/.12)]',
             props.screen2 ? 'top-[11px] h-3.5' : 'top-[9px] h-3',
           )"
         />
         <span v-for="(d, i) in r.dots" :key="i" class="absolute rounded-full" :style="dotStyle(d)" />
       </div>
       <div class="text-right whitespace-nowrap">
-        <span :class="cn('yb-num font-semibold text-[#7FC3FF]', props.screen2 ? 'text-[26px]' : 'text-[22px]')">{{ r.v }}</span>
+        <span :class="cn('yb-num font-semibold text-[rgb(var(--ck-accl))]', props.screen2 ? 'text-[26px]' : 'text-[22px]')">{{ r.v }}</span>
         <span
           :class="cn('yb-num font-semibold', props.screen2 ? 'ml-3 text-[17px]' : 'ml-2.5 text-sm')"
           :style="{ color: r.pc }"

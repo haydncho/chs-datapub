@@ -92,7 +92,7 @@ const GRID = 'grid grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_11
       v-for="r in rows" :key="r.k"
       :class="cn(
         GRID,
-        'cursor-pointer items-center border-b border-line-3 py-[calc(var(--row-py)-1px)] text-[13px] hover:bg-surface-1',
+        'cursor-pointer items-center yb-tr border-b border-line-3 py-[calc(var(--row-py)-1px)] text-[13px] hover:bg-surface-1',
         r.k === selected ? 'bg-brand-tint' : 'bg-white',
       )"
       @click="selected = r.k"

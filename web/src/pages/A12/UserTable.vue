@@ -82,7 +82,7 @@ const SIDE_TABS = [['all', '全部'], ['bureau', '医保局端'], ['org', '机�
       v-for="u in rows"
       :key="u.login + u.status"
       :data-login="u.login"
-      :class="[GRID, 'border-b border-line-3 py-row [&:nth-child(even)]:bg-(--zebra-bg)', u.status === 'off' ? 'text-ink-4' : '']"
+      :class="[GRID, 'yb-tr border-b border-line-3 py-row', u.status === 'off' ? 'text-ink-4' : '']"
     >
       <span :class="cn('flex size-[30px] items-center justify-center rounded-full font-semibold', u.status === 'off' ? 'bg-surface-3 text-ink-4' : 'bg-brand-soft text-brand')">{{ u.name[0] }}</span>
       <div class="min-w-0 max-xl:sticky max-xl:left-0 max-xl:z-[1] max-xl:bg-white">

@@ -26,7 +26,7 @@ const tabs = computed(() =>
 
 <template>
   <div
-    class="absolute top-[200px] left-7 flex h-[564px] w-[1208px] flex-col rounded-[10px] border border-[rgba(90,150,255,.22)] bg-[rgba(10,22,46,.5)] px-5 py-4"
+    class="absolute top-[200px] left-7 flex h-[564px] w-[1208px] flex-col rounded-[10px] border border-[rgb(var(--ck-line)/.22)] bg-[rgb(var(--ck-panel)/.5)] px-5 py-4"
   >
     <div class="flex items-center gap-1.5">
       <button type="button"
@@ -34,11 +34,11 @@ const tabs = computed(() =>
         :key="t.v"
         :class="cn(
           'relative cursor-pointer overflow-hidden rounded-lg px-[18px] py-[7px] text-[17px] font-semibold',
-          t.on ? 'bg-[rgba(58,160,255,.2)] text-[#F4F8FF]' : 'text-[#9FB2D1]',
+          t.on ? 'bg-[rgb(var(--ck-acc)/.2)] text-[#F4F8FF]' : 'text-[#9FB2D1]',
         )"
         @click="go2({ view: t.v, sel: null, rotT: 0 })"
       >{{ t.label }}<span
-        class="absolute bottom-0 left-0 h-[3px] bg-[#3AA0FF] transition-[width] duration-1000 ease-linear"
+        class="absolute bottom-0 left-0 h-[3px] bg-[rgb(var(--ck-acc))] transition-[width] duration-1000 ease-linear"
         :style="{ width: t.pw }"
       /></button>
       <div class="flex-1" />
@@ -48,7 +48,7 @@ const tabs = computed(() =>
           :key="id"
           :class="cn(
             'cursor-pointer rounded-md px-3 py-1 text-sm font-medium',
-            id === lens ? 'bg-[#3AA0FF] text-[#04101F]' : 'text-[#9FB2D1]',
+            id === lens ? 'bg-[rgb(var(--ck-acc))] text-[#04101F]' : 'text-[#9FB2D1]',
           )"
           @click="go2({ lens: id })"
         >{{ l }}</button>
@@ -67,7 +67,7 @@ const tabs = computed(() =>
       </div>
 
       <!-- selected object -->
-      <div class="flex w-[236px] shrink-0 flex-col rounded-lg border border-[rgba(90,150,255,.2)] bg-[rgba(4,10,22,.7)] px-[18px] py-3.5">
+      <div class="flex w-[236px] shrink-0 flex-col rounded-lg border border-[rgb(var(--ck-line)/.2)] bg-[rgb(var(--ck-deep)/.7)] px-[18px] py-3.5">
         <div class="text-sm text-[#6F84A6]">选中对象</div>
         <div class="mt-0.5 line-clamp-2 text-[19px] leading-snug font-semibold" :title="det.t">{{ det.t }}</div>
         <div class="truncate text-sm text-[#9FB2D1]" :title="det.sub">{{ det.sub }}</div>
@@ -75,7 +75,7 @@ const tabs = computed(() =>
           <div
             v-for="r in det.rows"
             :key="r.k"
-            class="min-w-0 border-t border-[rgba(90,150,255,.16)] pt-2.5 whitespace-nowrap"
+            class="min-w-0 border-t border-[rgb(var(--ck-line)/.16)] pt-2.5 whitespace-nowrap"
           >
             <div class="text-sm text-[#9FB2D1]">{{ r.k }}</div>
             <div class="yb-num truncate text-2xl font-semibold" :style="{ color: r.c }" :title="r.v">{{ r.v }}</div>

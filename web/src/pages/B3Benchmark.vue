@@ -82,7 +82,7 @@ const COLS = 'grid gap-[18px] max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:
         <span class="flex justify-between max-lg:order-last max-lg:col-span-full"><span>← 较差</span><span>同级分布 · ● 本院</span><span>较好 →</span></span>
         <span class="text-right max-lg:hidden">本院</span>
       </div>
-      <div v-for="r in rows" :key="r.name" :class="cn(COLS, 'items-center border-b border-line-3 py-3.5')">
+      <div v-for="r in rows" :key="r.name" :class="cn(COLS, 'items-center yb-tr border-b border-line-3 py-3.5')">
         <span class="font-medium">{{ r.name }}</span>
         <span :class="cn('justify-self-start rounded px-2 py-px text-[11px] font-semibold', r.tier.cls)">{{ r.tier.label }}</span>
         <div class="relative h-[34px] max-lg:order-last max-lg:col-span-full max-xl:mb-1" :class="r.dots.some(d => d.alt) && 'max-xl:h-[48px]'">

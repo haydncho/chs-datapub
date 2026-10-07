@@ -8,7 +8,7 @@ const { s, instCols } = useCockpit()
 <template>
   <div class="grid h-full grid-cols-4 gap-3.5">
     <div v-for="col in instCols" :key="col.d" class="flex min-w-0 flex-col gap-2">
-      <div class="flex items-baseline justify-between border-b border-[rgba(90,150,255,.18)] pb-1.5">
+      <div class="flex items-baseline justify-between border-b border-[rgb(var(--ck-line)/.18)] pb-1.5">
         <span class="text-[17px] font-semibold" :style="{ color: col.hc }">{{ col.d }}</span>
         <span class="yb-num text-[15px]" :style="{ color: col.ac }">{{ col.avg }}</span>
       </div>

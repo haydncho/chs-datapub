@@ -17,8 +17,8 @@ export function deltaOf(delta: number, goodDir: number) {
 /* ------------------------------------------------------------------ palette */
 /** Literal cockpit palette (dark big-screen); brand blue stays on tokens. */
 export const K = {
-  sky: '#3AA0FF',
-  skyLite: '#7FC3FF',
+  sky: 'rgb(var(--ck-acc))',
+  skyLite: 'rgb(var(--ck-accl))',
   red: '#FF6B5E',
   redHot: '#FF5A4E',
   redSoft: '#FF8A7E',
@@ -42,6 +42,15 @@ export const SCR_GLOW = [
   'radial-gradient(ellipse 60% 40% at 50% 0%,rgba(245,183,78,.12),transparent 70%)',
   'radial-gradient(ellipse 70% 50% at 50% 0%,rgba(127,211,255,.22),transparent 70%)',
 ] as const
+/**
+ * 大屏配色(外观配置 · 大屏配色)落到 CSS 变量:强调色 / 浅强调色 / 描边 / 面板底 / 深底,均为 RGB 三元组,
+ * 组件里以 rgb(var(--ck-acc)/.2) 取用,切换配色时整屏面板与强调色一起变。
+ */
+export const SCR_VARS = [
+  { '--ck-acc': '58 160 255', '--ck-accl': '127 195 255', '--ck-line': '90 150 255', '--ck-panel': '10 22 46', '--ck-deep': '4 10 22' },
+  { '--ck-acc': '245 183 78', '--ck-accl': '255 214 150', '--ck-line': '170 170 180', '--ck-panel': '22 23 26', '--ck-deep': '6 6 8' },
+  { '--ck-acc': '127 211 255', '--ck-accl': '190 232 255', '--ck-line': '140 200 255', '--ck-panel': '14 50 118', '--ck-deep': '6 28 74' },
+] as const
 
 /** colour for a total fund difference (city view) */
 export const tcolD = (t: number) =>
@@ -50,7 +59,7 @@ export const tcolD = (t: number) =>
 export const dcolD = (v: number) => (v > 0 ? K.red : K.green)
 
 export const ALERT_C: Record<string, string> = {
-  提醒函: '#FF8A4C', 预警: '#FF6B5E', 关注: '#F5B74E', 逾期: '#FF8A4C', 意见: '#B9A2FF', 待签收: '#3AA0FF', 核对: '#B9A2FF', 答复: '#3FD1A0',
+  提醒函: '#FF8A4C', 预警: '#FF6B5E', 关注: '#F5B74E', 逾期: '#FF8A4C', 意见: '#B9A2FF', 待签收: 'rgb(var(--ck-acc))', 核对: '#B9A2FF', 答复: '#3FD1A0',
 }
 export const alertColor = (t: string) => ALERT_C[t] ?? '#7FB6FF'
 /** 实时提醒的级别:数字越小越靠前;0–1 为高级别(加强显示) */
@@ -207,7 +216,7 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
           left: p.x + '%', top: p.y + '%', width: dd + 'px', height: dd + 'px',
           marginLeft: -Math.round(dd / 2) + 'px', marginTop: -Math.round(dd / 2) + 'px',
           background: fill, opacity: g ? 0.9 : 0,
-          boxShadow: on ? `0 0 0 2px #fff, 0 0 28px ${fill}` : flag.includes(i.k) ? `0 0 0 3px #040A16, 0 0 0 5px ${rc}, 0 0 18px ${rc}` : `0 0 14px ${fill}55`,
+          boxShadow: on ? `0 0 0 2px #fff, 0 0 28px ${fill}` : flag.includes(i.k) ? `0 0 0 3px rgb(var(--ck-deep)), 0 0 0 5px ${rc}, 0 0 18px ${rc}` : `0 0 14px color-mix(in srgb,${fill} 33%,transparent)`,
           zIndex: on ? 60 : Math.round(40 - i.r / 4),
           transition: `left .9s ${EASE} ${dl},top 1.1s ${EASE} ${dl},width .8s ${EASE} ${dl},height .8s ${EASE} ${dl},margin .8s ${EASE} ${dl},opacity .5s ease ${dl},box-shadow .3s ease`,
         },
@@ -307,7 +316,7 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
       return {
         h: (((v - b0) / (mx - b0)) * 100).toFixed(1) + '%',
         bOff: (((line - b0) / (v - b0)) * 100).toFixed(1) + '%',
-        bg: cur ? (over ? K.red : K.sky) : over ? 'rgba(255,107,94,.55)' : 'rgba(58,160,255,.28)',
+        bg: cur ? (over ? K.red : K.sky) : over ? 'rgba(255,107,94,.55)' : 'rgb(var(--ck-acc)/.28)',
         vc: over ? K.redInk : K.skyLite,
         over, cur,
         l: d.months[i] ?? '',
@@ -509,8 +518,8 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     return L.map((p, i) => ({
       n: p.name, v: p.value, pct: p.pct + '%', sub: p.sub, c: LOOP_C[p.status], arrow: i < L.length - 1, act: p.status === 'act',
       lag: p.pct === minPct, overdue: /超期|逾期/.test(p.sub),
-      bg: p.status === 'act' ? 'rgba(58,160,255,.1)' : 'rgba(255,255,255,.025)',
-      bd: p.status === 'act' ? 'rgba(58,160,255,.5)' : 'rgba(90,150,255,.12)',
+      bg: p.status === 'act' ? 'rgb(var(--ck-acc)/.1)' : 'rgba(255,255,255,.025)',
+      bd: p.status === 'act' ? 'rgb(var(--ck-acc)/.5)' : 'rgb(var(--ck-line)/.12)',
     }))
   })
   const errs = computed(() =>

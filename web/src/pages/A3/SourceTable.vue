@@ -32,7 +32,7 @@ const rowsLabel = (w: number) => (w >= 1 ? w.toFixed(1) + ' 万' : '<1 万')
       :key="r.src.name"
       :class="cn(
         GRID,
-        'cursor-pointer items-center border-b border-line-3 py-row hover:bg-surface-1 max-xl:min-h-11',
+        'cursor-pointer items-center yb-tr border-b border-line-3 py-row hover:bg-surface-1 max-xl:min-h-11',
         i === selected ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]' : 'bg-white',
       )"
       @click="emit('select', i)"

@@ -23,13 +23,13 @@ const PERIODS: Period[] = ['月', '季', '年']
     </div>
     <div class="flex-1" />
     <div class="flex w-[600px] items-center justify-end gap-4">
-      <div class="flex overflow-hidden rounded-md border border-[rgba(90,150,255,.3)]">
+      <div class="flex overflow-hidden rounded-md border border-[rgb(var(--ck-line)/.3)]">
         <button type="button"
           v-for="p in PERIODS"
           :key="p"
           :class="cn(
             'cursor-pointer px-4 py-1 text-[15px] font-semibold',
-            p === s.period ? 'bg-[#3AA0FF] text-[#04101F]' : 'text-[#9FB2D1]',
+            p === s.period ? 'bg-[rgb(var(--ck-acc))] text-[#04101F]' : 'text-[#9FB2D1]',
           )"
           @click="s.period = p; restart()"
         >{{ p }}</button>
@@ -43,7 +43,7 @@ const PERIODS: Period[] = ['月', '季', '年']
 
   <!-- KPI ribbon:数字滚动 + 走势折线 + 状态色 -->
   <div
-    class="absolute top-[84px] right-7 left-7 grid h-[100px] grid-cols-6 rounded-[10px] border border-[rgba(90,150,255,.18)] bg-[linear-gradient(180deg,rgba(18,40,82,.55),rgba(10,22,46,.35))]"
+    class="absolute top-[84px] right-7 left-7 grid h-[100px] grid-cols-6 rounded-[10px] border border-[rgb(var(--ck-line)/.18)] bg-[linear-gradient(180deg,rgba(18,40,82,.55),rgb(var(--ck-panel)/.35))]"
     data-testid="cockpit-kpis"
   >
     <div
@@ -51,7 +51,7 @@ const PERIODS: Period[] = ['月', '季', '年']
       :key="k.k"
       :class="cn(
         'relative flex flex-col justify-between border-l px-5 py-3',
-        k.first ? 'border-transparent' : 'border-[rgba(90,150,255,.14)]',
+        k.first ? 'border-transparent' : 'border-[rgb(var(--ck-line)/.14)]',
       )"
     >
       <!-- 2.5D 底座光:卡片底部的透视光带 -->
@@ -60,7 +60,7 @@ const PERIODS: Period[] = ['月', '季', '年']
         <span class="truncate text-base text-[#9FB2D1]">{{ k.k }}</span>
         <span
           class="yb-num shrink-0 rounded-md px-2 py-px text-sm font-semibold whitespace-nowrap"
-          :style="{ color: k.dc, background: k.dc + '22' }"
+          :style="{ color: k.dc, background: `color-mix(in srgb,${k.dc} 13%,transparent)` }"
           :title="k.st ? `较上期 ${k.d} · ${k.st}` : `较上期 ${k.d}`"
         >{{ k.d }}</span>
       </div>

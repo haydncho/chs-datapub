@@ -200,7 +200,7 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
       <div
         v-for="t in teams"
         :key="t.name"
-        :class="cn(TEAM_COLS, 'items-center border-b border-line-3 py-row text-[13px]')"
+        :class="cn(TEAM_COLS, 'items-center yb-tr border-b border-line-3 py-row text-[13px]')"
       >
         <span class="font-medium">{{ t.name }}</span>
         <span class="yb-num text-right">{{ t.cases }}</span>

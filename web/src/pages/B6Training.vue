@@ -80,7 +80,7 @@ function start(c: B6Course) {
       <div
         v-for="d in data.docs"
         :key="d.name"
-        class="grid grid-cols-[90px_minmax(0,1fr)_140px_90px] items-center gap-3.5 border-b border-line-3 px-5 py-3"
+        class="grid grid-cols-[90px_minmax(0,1fr)_140px_90px] items-center gap-3.5 yb-tr border-b border-line-3 px-5 py-3"
       >
         <span :class="['justify-self-start rounded px-2 py-px text-[11px] font-semibold', DOC_CLASS[d.kind]]">{{ d.kind }}</span>
         <span class="font-medium">{{ d.name }}</span>

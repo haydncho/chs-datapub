@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useCockpit } from './store'
 import { vPress } from '@/lib/a11y'
 
-const { s, I, bubble, motion } = useCockpit()
+const { s, I, bubble, motion, labelOf } = useCockpit()
+/* 未常驻标注的气泡,悬停时临时显示名称 */
+const hov = ref<string | null>(null)
+const hovLabel = computed(() => (hov.value ? labelOf(hov.value) : null))
 </script>
 
 <template>
@@ -20,12 +24,12 @@ const { s, I, bubble, motion } = useCockpit()
     <!-- median lines -->
     <div class="absolute inset-x-0 top-1/2 border-t-[1.5px] border-dashed border-[rgba(230,238,249,.5)]" />
     <div class="absolute inset-y-0 border-l-[1.5px] border-dashed border-[rgba(127,195,255,.35)]" :style="{ left: bubble.med + '%' }" />
-    <span class="absolute bottom-1 ml-2 text-[13px] text-[#7FC3FF]" :style="{ left: bubble.med + '%' }">病例数中位</span>
+    <span class="absolute bottom-1 ml-2 text-sm text-[#7FC3FF]" :style="{ left: bubble.med + '%' }">病例数中位</span>
     <!-- quadrant labels -->
-    <span class="absolute top-2 right-2.5 text-[15px] font-semibold text-[#FF8A7E]">高量 · 逆差 — 关键少数</span>
-    <span class="absolute top-2 left-2.5 text-[15px] text-[#C9877F]">低量 · 逆差</span>
-    <span class="absolute right-2.5 bottom-2 text-[15px] text-[#6FCDA8]">高量 · 结余</span>
-    <span class="absolute bottom-2 left-2.5 text-[15px] text-[#5A9C84]">低量 · 结余</span>
+    <span class="absolute top-2 right-2.5 text-[15px] font-semibold text-[#FF8A7E] z-[90] rounded bg-[rgba(4,10,22,.72)] px-1.5">高量 · 逆差 — 关键少数</span>
+    <span class="absolute top-2 left-2.5 text-[15px] text-[#C9877F] z-[90] rounded bg-[rgba(4,10,22,.72)] px-1.5">低量 · 逆差</span>
+    <span class="absolute right-2.5 bottom-2 text-[15px] text-[#6FCDA8] z-[90] rounded bg-[rgba(4,10,22,.72)] px-1.5">高量 · 结余</span>
+    <span class="absolute bottom-2 left-2.5 text-[15px] text-[#5A9C84] z-[90] rounded bg-[rgba(4,10,22,.72)] px-1.5">低量 · 结余</span>
     <!-- city reference (hospital view) -->
     <div
       v-for="(g, i) in bubble.grays"
@@ -41,6 +45,8 @@ const { s, I, bubble, motion } = useCockpit()
       class="absolute cursor-pointer rounded-full"
       :style="b.style"
       @click="s.sel = b.k"
+      @mouseenter="hov = b.k"
+      @mouseleave="hov = null"
     />
     <!-- effects: scanning band + pulse rings -->
     <template v-if="motion">
@@ -61,7 +67,12 @@ const { s, I, bubble, motion } = useCockpit()
       class="pointer-events-none absolute z-[80] rounded px-2 py-px text-[15px] font-semibold whitespace-nowrap text-[#F4F8FF] bg-[rgba(4,10,22,.8)]"
       :style="l.style"
     >{{ l.t }}</div>
+    <div
+      v-if="hovLabel"
+      class="pointer-events-none absolute z-[85] rounded border border-[rgba(127,195,255,.35)] px-2 py-px text-[15px] font-semibold whitespace-nowrap text-[#F4F8FF] bg-[rgba(4,10,22,.88)]"
+      :style="hovLabel.style"
+    >{{ hovLabel.t }}</div>
   </div>
-  <span class="absolute right-3 bottom-0 text-sm text-[#6F84A6]">{{ I.xLabel }} →</span>
-  <span class="absolute top-0 left-0 text-[13px] text-[#6F84A6] [writing-mode:vertical-rl]">例均基金差额(元)</span>
+  <span class="absolute right-[56px] bottom-0 text-sm text-[#6F84A6]">{{ I.xLabel }} →</span>
+  <span class="absolute top-0 left-0 text-sm text-[#6F84A6] [writing-mode:vertical-rl]">例均基金差额(元)</span>
 </template>

@@ -3,6 +3,17 @@ import { fmt, hsh, pad, sign, wan } from '@/lib/format'
 import { appearance } from '@/app/appearance'
 import type { CockpitData, CockpitIdentity, CockpitView, IdentityId, LoopStatus, MatrixStatus, Tone } from '@/mock/cockpit'
 
+/** 较上期变化:箭头文字 + 好坏着色(绿向好 / 红需关注 / 灰持平) */
+export function deltaOf(delta: number, goodDir: number) {
+  const good = goodDir === 0 ? null : (delta > 0) === (goodDir > 0)
+  const flat = good == null || delta === 0
+  return {
+    d: delta === 0 ? '持平' : (delta > 0 ? '▲ ' : '▼ ') + Math.abs(delta),
+    dc: flat ? '#9FB2D1' : good ? '#3FD1A0' : '#FF6B5E',
+    st: flat ? '' : good ? '向好' : '需关注',
+  }
+}
+
 /* ------------------------------------------------------------------ palette */
 /** Literal cockpit palette (dark big-screen); brand blue stays on tokens. */
 export const K = {
@@ -42,6 +53,8 @@ export const ALERT_C: Record<string, string> = {
   提醒函: '#FF8A4C', 预警: '#FF6B5E', 关注: '#F5B74E', 逾期: '#FF8A4C', 意见: '#B9A2FF', 待签收: '#3AA0FF', 核对: '#B9A2FF', 答复: '#3FD1A0',
 }
 export const alertColor = (t: string) => ALERT_C[t] ?? '#7FB6FF'
+/** 实时提醒的级别:数字越小越靠前;0–1 为高级别(加强显示) */
+export const ALERT_RANK: Record<string, number> = { 预警: 0, 提醒函: 1, 逾期: 1, 关注: 2, 核对: 3, 待签收: 4, 意见: 5, 答复: 6 }
 export const TONE_C: Record<Tone, string> = { ok: K.green, warn: K.amber, bad: K.red }
 export const LOOP_C: Record<LoopStatus, string> = { ok: K.green, warn: K.amber, act: K.sky }
 const MCS: Record<MatrixStatus, [string, string, (v?: number) => string]> = {
@@ -208,7 +221,9 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
         },
       }
     })
-    const labels = items.filter(i => big.includes(i.k)).map(i => {
+    /* 标签只给「高量 · 逆差」象限差额最大的前 5 个病组(加上选中项);其余悬停时再显示 */
+    const hot = items.filter(i => i.x >= med && i.y > 0 && !i.small).sort((x, y) => y.tot - x.tot).slice(0, 5).map(i => i.k)
+    const labelFor = (i: BubbleItem, hover = false) => {
       const p = pos(i.x, i.y)
       const left = +p.x > 66
       const name = (i.t.split(' ')[1] ?? '').split(',')[0]
@@ -218,13 +233,25 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
         style: {
           left: p.x + '%', top: p.y + '%',
           marginLeft: (left ? -(i.r + 8) : i.r + 8) + 'px',
-          marginTop: (i.k === 'BR11' ? -30 : i.k === 'IC29' ? 6 : -12) + 'px',
+          marginTop: '-12px',
           transform: left ? 'translateX(-100%)' : 'none',
-          opacity: g ? 1 : 0,
-          transition: 'opacity .6s ease 1s',
+          opacity: g || hover ? 1 : 0,
+          transition: hover ? 'none' : 'opacity .6s ease 1s',
         },
       }
+    }
+    const labels = items
+      .filter(i => hot.includes(i.k) || i.k === sel)
+      .sort((a, b) => b.y - a.y)
+      .map(i => ({ i, l: labelFor(i) }))
+    labels.forEach((x, j) => {
+      const prev = labels.slice(0, j).filter(p => Math.abs(p.i.x / xMax - x.i.x / xMax) < 0.14 && Math.abs(p.i.y - x.i.y) / yMax < 0.08)
+      if (prev.length) x.l.style.marginTop = -12 + prev.length * 24 + 'px'
     })
+    const labelOf = (k: string) => {
+      const i = items.find(x => x.k === k)
+      return i && !hot.includes(k) && k !== sel ? labelFor(i, true) : null
+    }
     const grays = gray.map(q => {
       const p = pos(q.x, q.y)
       const dd = Math.round(q.r * 2)
@@ -232,27 +259,26 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     })
     const yT = [1, 0.5, 0, -0.5, -1].map(f => ({ p: (50 - f * 50).toFixed(1), label: f === 0 ? '0' : sign(Math.round(f * yMax)) }))
     const xT = [0, 1, 2, 3, 4].map(i => ({ p: i * 25, label: fmt((xMax / 4) * i) }))
-    return { xMax, yMax, items, main, pulses, labels, grays, yT, xT, med: ((med / xMax) * 100).toFixed(1) }
+    return { xMax, yMax, items, main, pulses, labels: labels.map(x => x.l), labelOf, grays, yT, xT, med: ((med / xMax) * 100).toFixed(1) }
   })
 
   /* ---------- KPI ribbon */
   const ribbon = computed(() =>
     I.value.kpis.map((k, i) => {
-      const good = k.goodDir === 0 ? null : (k.delta > 0) === (k.goodDir > 0)
-      const flat = good == null || k.delta === 0
+      const { d, dc, st } = deltaOf(k.delta, k.goodDir)
       const trend = k.trend && k.trend.length >= 2
         ? k.trend
         : Array.from({ length: 12 }, (_, j) => 10 + (hsh(k.label + j) % 22) + j * 1.2)
       return {
         k: k.label, v: k.value, u: k.unit,
-        d: k.delta === 0 ? '持平' : (k.delta > 0 ? '▲ ' : '▼ ') + Math.abs(k.delta),
-        dc: flat ? K.ink3 : good ? K.green : K.red,
-        st: flat ? '' : good ? '向好' : '需关注',
+        d, dc, st,
         first: i === 0,
         trend,
       }
     }),
   )
+
+  const labelOf = (k: string) => bubble.value.labelOf(k)
 
   /* ---------- money bars */
   const months = computed(() => {
@@ -262,13 +288,26 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     const PS = H ? d.hospPaid : null
     const mx = Math.max(...MS, ...(PS ?? [])) * 1.03
     const b0 = PS ? 400 : 0
-    return MS.map((v, i) => ({
-      h: (((v - b0) / (mx - b0)) * 100).toFixed(1) + '%',
-      bOff: ((((PS ? PS[i]! : d.budgetLine) - b0) / (v - b0)) * 100).toFixed(1) + '%',
-      bg: i === 11 ? K.sky : 'rgba(58,160,255,.38)',
-      l: d.months[i] ?? '',
-      v: String(v),
-    }))
+    const yearAt = d.months.findIndex((m, i) => i > 0 && m === '1')
+    const last = MS.length - 1
+    // 医保局:支出超过预算线的月份;本院:记账与 DRG 支付的缺口高于近 12 月平均的月份(本院每月都有缺口,全标红就没有重点了)
+    const gaps = PS ? MS.map((v, i) => (v - PS[i]!) / v) : []
+    const gapAvg = gaps.length ? gaps.reduce((a, x) => a + x, 0) / gaps.length : 0
+    return MS.map((v, i) => {
+      const line = PS ? PS[i]! : d.budgetLine
+      const over = PS ? gaps[i]! > gapAvg : v > line
+      const cur = i === last
+      return {
+        h: (((v - b0) / (mx - b0)) * 100).toFixed(1) + '%',
+        bOff: (((line - b0) / (v - b0)) * 100).toFixed(1) + '%',
+        bg: cur ? (over ? K.red : K.sky) : over ? 'rgba(255,107,94,.55)' : 'rgba(58,160,255,.28)',
+        vc: over ? K.redInk : K.skyLite,
+        over, cur,
+        l: d.months[i] ?? '',
+        yr: i === yearAt ? d.dataAsOf.slice(0, 4) : '',
+        v: String(v),
+      }
+    })
   })
 
   /* ---------- tornado */
@@ -281,10 +320,10 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
       const a = neg[j]
       const b = pos[j]
       return {
-        lt: a ? a.k + ' ' + wan(a.tot) : '',
-        rt: b ? b.k + ' ' + wan(b.tot) : '',
-        lw: a ? ((Math.abs(a.tot) / tm) * 55).toFixed(0) + '%' : '0',
-        rw: b ? ((Math.abs(b.tot) / tm) * 55).toFixed(0) + '%' : '0',
+        lk: a?.k ?? '', la: a ? wan(a.tot) : '',
+        rk: b?.k ?? '', ra: b ? wan(b.tot) : '',
+        lw: a ? ((Math.abs(a.tot) / tm) * 100).toFixed(0) + '%' : '0',
+        rw: b ? ((Math.abs(b.tot) / tm) * 100).toFixed(0) + '%' : '0',
         k: (b ?? a)?.k ?? null,
       }
     })
@@ -452,13 +491,23 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
       return { k: e.label, v: e.value.toFixed(2), c, st, p: (Math.max(0, Math.min(1, (e.value - 0.7) / 0.6)) * 100).toFixed(1) + '%' }
     }),
   )
-  const alertsAll = computed(() => I.value.alerts.map(a => ({ ty: a.type, c: alertColor(a.type), txt: a.text, t: a.date })))
-  const pipe = computed(() =>
-    I.value.loop.map((p, i) => ({
-      n: p.name, v: p.value, pct: p.pct + '%', sub: p.sub, c: LOOP_C[p.status], arrow: i < 4,
+  const alertsAll = computed(() =>
+    I.value.alerts
+      .map((a, i) => ({ ty: a.type, c: alertColor(a.type), txt: a.text, t: a.date, hi: ALERT_RANK[a.type] != null && ALERT_RANK[a.type]! <= 1, r: ALERT_RANK[a.type] ?? 9, i }))
+      .sort((x, y) => x.r - y.r || x.i - y.i),
+  )
+  const pipe = computed(() => {
+    const L = I.value.loop
+    const minPct = Math.min(...L.map(p => p.pct))
+    return L.map((p, i) => ({
+      n: p.name, v: p.value, pct: p.pct + '%', sub: p.sub, c: LOOP_C[p.status], arrow: i < L.length - 1, act: p.status === 'act',
+      lag: p.pct === minPct, overdue: /超期|逾期/.test(p.sub),
       bg: p.status === 'act' ? 'rgba(58,160,255,.1)' : 'rgba(255,255,255,.025)',
       bd: p.status === 'act' ? 'rgba(58,160,255,.5)' : 'rgba(90,150,255,.12)',
-    })),
+    }))
+  })
+  const errs = computed(() =>
+    I.value.errs.map(e => ({ ...e, c: TONE_C[e.tone], ...(e.delta != null ? deltaOf(e.delta, e.goodDir ?? -1) : { d: '', dc: '', st: '' }) })),
   )
 
   /* ---------- clock & alarm */
@@ -478,7 +527,7 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     time: clock.value.time,
   }))
 
-  return { s, data, I, view, lens, rotN, scr, motion, go2, replay, restart, dispose, bubble, ribbon, months, torn, instCols, depts, peer, flows, matrix, det, bullets, alertsAll, pipe, clock, alarm }
+  return { s, data, I, view, lens, rotN, scr, motion, go2, replay, restart, dispose, bubble, ribbon, months, torn, instCols, depts, peer, flows, matrix, det, bullets, alertsAll, pipe, errs, labelOf, clock, alarm }
 }
 
 export type CockpitStore = ReturnType<typeof createCockpitStore>

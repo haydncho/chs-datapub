@@ -179,25 +179,33 @@
           "label": "审核扣款",
           "value": "186.4",
           "unit": "万",
-          "tone": "warn"
+          "tone": "warn",
+          "delta": 12.6,
+          "goodDir": -1
         },
         {
           "label": "疑似高套",
           "value": "42",
           "unit": "例",
-          "tone": "bad"
+          "tone": "bad",
+          "delta": -6,
+          "goodDir": -1
         },
         {
           "label": "编码不达标",
           "value": "3",
           "unit": "家",
-          "tone": "warn"
+          "tone": "warn",
+          "delta": 1,
+          "goodDir": -1
         },
         {
           "label": "逾期统筹",
           "value": "0",
           "unit": "个",
-          "tone": "ok"
+          "tone": "ok",
+          "delta": 0,
+          "goodDir": -1
         }
       ],
       "alerts": [
@@ -456,25 +464,33 @@
           "label": "审核扣款",
           "value": "12.6",
           "unit": "万",
-          "tone": "warn"
+          "tone": "warn",
+          "delta": -2.4,
+          "goodDir": -1
         },
         {
           "label": "拒付病例",
           "value": "23",
           "unit": "例",
-          "tone": "bad"
+          "tone": "bad",
+          "delta": 4,
+          "goodDir": -1
         },
         {
           "label": "清单质控率",
           "value": "96.4",
           "unit": "%",
-          "tone": "ok"
+          "tone": "ok",
+          "delta": 0.8,
+          "goodDir": 1
         },
         {
           "label": "高倍率病例",
           "value": "7",
           "unit": "例",
-          "tone": "warn"
+          "tone": "warn",
+          "delta": -2,
+          "goodDir": -1
         }
       ],
       "alerts": [

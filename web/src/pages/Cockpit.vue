@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { COCKPIT_SEED, type CockpitData } from '@/mock/cockpit'
 import AlarmOverlay from './cockpit/AlarmOverlay.vue'
+import CockpitBottom from './cockpit/CockpitBottom.vue'
 import CockpitCenter from './cockpit/CockpitCenter.vue'
-import CockpitLeft from './cockpit/CockpitLeft.vue'
 import CockpitLoop from './cockpit/CockpitLoop.vue'
 import CockpitRight from './cockpit/CockpitRight.vue'
 import CockpitTop from './cockpit/CockpitTop.vue'
@@ -287,9 +287,9 @@ const tbOn = 'border-[#3AA0FF] bg-[rgba(58,160,255,.16)] text-[#CFE6FF]'
         <div class="absolute inset-0" :style="{ background: glow }" />
         <div class="cockpit-grid absolute inset-0" />
         <CockpitTop />
-        <CockpitLeft />
         <CockpitCenter />
         <CockpitRight />
+        <CockpitBottom />
         <CockpitLoop />
         <AlarmOverlay v-if="s.alOn" @ack="ackAlarm" />
       </div>

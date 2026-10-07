@@ -20,7 +20,11 @@ export interface CockpitKpi {
   trend?: number[]
 }
 export interface CockpitEff { label: string; value: number }
-export interface CockpitErr { label: string; value: string; unit: string; tone: Tone }
+export interface CockpitErr {
+  label: string; value: string; unit: string; tone: Tone
+  /** 较上期变化与"好"的方向(同指标卡);缺省时不显示环比 */
+  delta?: number; goodDir?: GoodDir
+}
 export interface CockpitAlert { type: string; text: string; date: string }
 export interface CockpitLoopStep { name: string; value: string; pct: number; sub: string; status: LoopStatus }
 
@@ -148,10 +152,10 @@ export const COCKPIT_SEED: CockpitData = {
         { label: '时间消耗指数', value: 1.03 },
       ],
       errs: [
-        { label: '审核扣款', value: '186.4', unit: '万', tone: 'warn' },
-        { label: '疑似高套', value: '42', unit: '例', tone: 'bad' },
-        { label: '编码不达标', value: '3', unit: '家', tone: 'warn' },
-        { label: '逾期统筹', value: '0', unit: '个', tone: 'ok' },
+        { label: '审核扣款', value: '186.4', unit: '万', tone: 'warn', delta: 12.6, goodDir: -1 },
+        { label: '疑似高套', value: '42', unit: '例', tone: 'bad', delta: -6, goodDir: -1 },
+        { label: '编码不达标', value: '3', unit: '家', tone: 'warn', delta: 1, goodDir: -1 },
+        { label: '逾期统筹', value: '0', unit: '个', tone: 'ok', delta: 0, goodDir: -1 },
       ],
       alerts: [
         { type: '预警', text: '某肛肠专科医院 · GG19 次均 +23.6%', date: '09-08' },
@@ -212,10 +216,10 @@ export const COCKPIT_SEED: CockpitData = {
         { label: '时间消耗指数', value: 0.97 },
       ],
       errs: [
-        { label: '审核扣款', value: '12.6', unit: '万', tone: 'warn' },
-        { label: '拒付病例', value: '23', unit: '例', tone: 'bad' },
-        { label: '清单质控率', value: '96.4', unit: '%', tone: 'ok' },
-        { label: '高倍率病例', value: '7', unit: '例', tone: 'warn' },
+        { label: '审核扣款', value: '12.6', unit: '万', tone: 'warn', delta: -2.4, goodDir: -1 },
+        { label: '拒付病例', value: '23', unit: '例', tone: 'bad', delta: 4, goodDir: -1 },
+        { label: '清单质控率', value: '96.4', unit: '%', tone: 'ok', delta: 0.8, goodDir: 1 },
+        { label: '高倍率病例', value: '7', unit: '例', tone: 'warn', delta: -2, goodDir: -1 },
       ],
       alerts: [
         { type: '待签收', text: '8月 DRG 月度运行报告', date: '09-12' },

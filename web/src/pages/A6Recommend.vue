@@ -84,8 +84,8 @@ const method = computed(() => {
 const detailEl = ref<HTMLElement | null>(null)
 function pick(id: string) {
   selId.value = id
-  // 窄屏下详情在列表下方,点选后滚动到详情
-  if (window.innerWidth < 1280) nextTick(() => detailEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+  // 竖屏(<1024)详情在列表下方,点选后滚动到详情;≥1024 详情并排吸顶,无需滚动
+  if (window.innerWidth < 1024) nextTick(() => detailEl.value?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
 }
 
 let navT: ReturnType<typeof setTimeout> | undefined
@@ -121,7 +121,8 @@ function openWorkbench() {
 
 <template>
   <PageSection label="A6 智能推荐">
-    <PageHeader title="智能推荐 · 选题池" :subtitle="subtitle">
+    <!-- 竖屏:筛选标签另起一行,副标题不被挤断 -->
+    <PageHeader title="智能推荐 · 选题池" :subtitle="subtitle" class="max-lg:flex-col max-lg:items-stretch max-lg:[&>div:first-child]:basis-auto">
       <template v-if="data.batch" #subtitle>
         {{ subtitle }}<Badge variant="ok" class="ml-2 align-[1px]">实时计算 · 批次 {{ data.batch }}</Badge>
       </template>
@@ -140,7 +141,8 @@ function openWorkbench() {
       </div>
     </PageHeader>
 
-    <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <!-- ≥1024 列表与详情左右并排(详情吸顶);竖屏上下排列,点选后滚动到详情 -->
+    <div class="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px]">
       <!-- candidate list -->
       <div class="flex flex-col gap-2.5">
         <div
@@ -164,23 +166,23 @@ function openWorkbench() {
         >
           <div class="text-center max-xl:row-span-2">
             <div :class="cn('yb-num text-[32px] leading-none font-semibold', scoreCls(t.score))">{{ t.score }}</div>
-            <div class="mt-0.5 text-[11px] text-ink-5">综合得分</div>
+            <div class="mt-0.5 text-[11px] whitespace-nowrap text-ink-5 max-xl:text-xs">综合得分</div>
           </div>
           <div class="min-w-0">
             <div class="flex items-center gap-1.5">
-              <span :class="cn('rounded px-[7px] py-px text-[11px] font-semibold', KIND_CLS[t.kind])">{{ t.kind }}</span>
-              <span class="text-[11px] text-ink-5">来源 {{ t.source }}</span>
+              <span :class="cn('rounded px-[7px] py-px text-[11px] font-semibold whitespace-nowrap max-xl:text-xs', KIND_CLS[t.kind])">{{ t.kind }}</span>
+              <span class="truncate text-[11px] text-ink-5 max-xl:text-xs">来源 {{ t.source }}</span>
             </div>
             <div class="mt-1 text-[15px] font-semibold">{{ t.title }}</div>
-            <div class="truncate text-xs text-ink-4">{{ t.why }}</div>
+            <div class="truncate text-xs text-ink-4 max-xl:line-clamp-2 max-xl:whitespace-normal">{{ t.why }}</div>
           </div>
-          <div class="flex flex-col gap-1 max-xl:col-span-2 max-xl:col-start-2 max-xl:row-start-2">
+          <div class="flex flex-col gap-1 max-xl:col-span-2 max-xl:col-start-2 max-xl:row-start-2 max-xl:grid max-xl:grid-cols-2 max-xl:gap-x-6 max-xl:gap-y-1.5">
             <div
               v-for="(v, j) in t.dims"
               :key="j"
-              class="grid grid-cols-[64px_1fr_22px] items-center gap-2 text-[11px]"
+              class="grid grid-cols-[64px_1fr_22px] items-center gap-2 text-[11px] max-xl:grid-cols-[52px_1fr_24px] max-xl:text-xs"
             >
-              <span class="text-ink-4">{{ data.dimLabels[j] }}</span>
+              <span class="whitespace-nowrap text-ink-4">{{ data.dimLabels[j] }}</span>
               <div class="h-[5px] rounded-[3px] bg-line-2">
                 <div class="h-[5px] rounded-[3px] bg-[#5B8FD9]" :style="{ width: v + '%' }" />
               </div>
@@ -188,28 +190,28 @@ function openWorkbench() {
             </div>
           </div>
           <div class="text-right max-xl:col-start-3 max-xl:row-start-1">
-            <span :class="cn('rounded-full px-2.5 py-0.5 text-[11px] font-medium', STATUS[statusOf(t)].cls)">{{ STATUS[statusOf(t)].label }}</span>
+            <span :class="cn('rounded-full px-2.5 py-0.5 text-[11px] font-medium whitespace-nowrap max-xl:text-xs', STATUS[statusOf(t)].cls)">{{ STATUS[statusOf(t)].label }}</span>
           </div>
         </div>
       </div>
 
       <!-- detail -->
-      <div v-if="current" ref="detailEl" class="scroll-mt-20 xl:sticky xl:top-(--sticky-panel) flex flex-col gap-3.5 rounded-xl border border-line-1 bg-white p-5">
+      <div v-if="current" ref="detailEl" class="scroll-mt-20 lg:sticky lg:top-(--sticky-panel) flex flex-col gap-3.5 rounded-xl border border-line-1 bg-white p-5">
         <div>
           <div class="text-xs text-ink-4">{{ current.kind }} · 得分 {{ current.score }}</div>
           <div class="mt-0.5 text-[17px] font-semibold">{{ current.title }}</div>
         </div>
         <div class="text-[13px] leading-[1.75] text-ink-2">{{ current.why }}</div>
-        <div class="grid grid-cols-2 gap-2">
-          <div v-for="f in current.facts" :key="f.k" class="rounded-[10px] bg-surface-1 px-3 py-2.5">
-            <div class="text-[11px] text-ink-4">{{ f.k }}</div>
-            <div class="yb-num text-[19px] font-semibold">{{ f.v }}</div>
+        <div class="grid grid-cols-2 gap-2 md:max-lg:grid-cols-4">
+          <div v-for="f in current.facts" :key="f.k" class="min-w-0 rounded-[10px] bg-surface-1 px-3 py-2.5">
+            <div class="text-[11px] text-ink-4 max-xl:text-xs">{{ f.k }}</div>
+            <div class="yb-num text-[19px] font-semibold whitespace-nowrap">{{ f.v }}</div>
           </div>
         </div>
         <div v-if="method" class="rounded-[10px] border border-line-2 px-3 py-2.5 text-xs">
           <div class="mb-1 font-medium text-ink-2">方法卡 · 得分如何算出</div>
           <div class="leading-[1.6] text-ink-3">{{ method.formula }}</div>
-          <div class="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] text-ink-4">
+          <div class="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] text-ink-4 max-xl:text-xs md:max-lg:grid-cols-4">
             <span v-for="[k, v] in method.inputs" :key="k">{{ k }} <b class="yb-num font-medium text-ink-2">{{ v }}</b></span>
           </div>
         </div>
@@ -220,9 +222,9 @@ function openWorkbench() {
           </div>
         </div>
         <template v-if="curStatus === 'open'">
-          <div class="flex gap-2">
-            <Button class="h-9 flex-1 max-xl:h-10" :disabled="!canDecide || busy" @click="decide('adoptTopic')">采纳 · 进入专题工作台</Button>
-            <Button variant="outline" class="h-9 px-3.5 font-normal text-ink-4 max-xl:h-10" :disabled="!canDecide || busy" @click="decide('skipTopic')">本期不做</Button>
+          <div class="flex gap-2 max-xl:flex-wrap">
+            <Button class="h-9 flex-1 whitespace-nowrap max-xl:h-11" :disabled="!canDecide || busy" @click="decide('adoptTopic')">采纳 · 进入专题工作台</Button>
+            <Button variant="outline" class="h-9 px-3.5 font-normal whitespace-nowrap text-ink-4 max-xl:h-11" :disabled="!canDecide || busy" @click="decide('skipTopic')">本期不做</Button>
           </div>
           <div v-if="!canDecide" class="text-xs text-ink-4">推荐仅供参考,由行政管理组采纳 · 当前身份仅可查看</div>
         </template>

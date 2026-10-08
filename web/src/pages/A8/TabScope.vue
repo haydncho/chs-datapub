@@ -27,7 +27,7 @@ const missTxt = computed(
   <div v-if="s.scopeLocked" class="mb-3.5 rounded-[10px] bg-surface-1 px-3.5 py-2.5 text-xs leading-[1.7] text-ink-3">
     {{ s.posted && s.cur.scope ? '已按以下范围批准定向发布 · 范围已锁定' : s.step === 5 ? '定向范围由召集人在审批时确定 · 当前身份只读' : '任务进入召集人审批后可调整定向范围' }}
   </div>
-  <div :class="cn('grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-6 max-lg:grid-cols-1', s.scopeLocked && '[&_button]:pointer-events-none [&_button]:opacity-70')">
+  <div :class="cn('grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-6 max-xl:gap-5 max-md:grid-cols-1', s.scopeLocked && '[&_button]:pointer-events-none [&_button]:opacity-70')">
     <div class="grid grid-cols-[72px_1fr] items-center gap-x-2.5 gap-y-3 text-xs">
       <span class="text-ink-4">等级</span>
       <div class="flex flex-wrap gap-1.5">

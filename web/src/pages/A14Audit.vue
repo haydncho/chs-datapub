@@ -71,7 +71,8 @@ async function onExport() {
   }
 }
 
-const GRID = 'grid grid-cols-[120px_76px_150px_minmax(0,1fr)_110px] items-center gap-3 px-[18px] py-2.5'
+/** Pad(< xl)列宽收紧:1024 横屏与详情卡并排、768 竖屏整宽,都不需要横滚 */
+const GRID = 'grid grid-cols-[120px_76px_150px_minmax(0,1fr)_110px] max-xl:grid-cols-[96px_56px_minmax(96px,120px)_minmax(0,1fr)_96px] items-center gap-3 max-xl:gap-2.5 px-[18px] py-2.5'
 const DATE = 'h-8 max-xl:h-10 rounded-md border border-line-1 bg-white px-2 font-mono text-xs text-ink-2 outline-none focus:border-brand-line'
 </script>
 
@@ -93,7 +94,7 @@ const DATE = 'h-8 max-xl:h-10 rounded-md border border-line-1 bg-white px-2 font
       </div>
     </PageHeader>
 
-    <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+    <div class="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_380px]">
       <div class="yb-card overflow-clip">
         <div class="flex flex-wrap items-center gap-2.5 border-b border-line-3 px-[18px] py-2.5 text-xs">
           <Input v-model="filters.actor" placeholder="操作人" aria-label="按操作人筛选" class="h-8 w-[132px] text-xs max-xl:h-10 md:text-xs" />
@@ -107,7 +108,7 @@ const DATE = 'h-8 max-xl:h-10 rounded-md border border-line-1 bg-white px-2 font
             <Switch v-model="filters.offHours" aria-label="仅非工作时间" />
             仅非工作时间 <span class="text-ink-5">22:00–06:00</span>
           </label>
-          <div class="flex-1 max-xl:hidden" />
+          <div class="ml-auto flex items-center gap-2.5">
           <button
             type="button"
             :class="['cursor-pointer rounded-full border px-2.5 py-1 max-xl:min-h-10 font-mono text-[11px] whitespace-nowrap', chainView.cls]"
@@ -117,9 +118,10 @@ const DATE = 'h-8 max-xl:h-10 rounded-md border border-line-1 bg-white px-2 font
           <Button variant="outline" size="sm" class="h-8 text-xs max-xl:h-10" :disabled="exporting" @click="onExport">
             {{ exporting ? '导出中…' : '导出 CSV' }}
           </Button>
+          </div>
         </div>
         <div class="max-xl:max-h-[480px] max-xl:overflow-auto">
-        <div class="max-xl:min-w-[640px]">
+        <div class="max-xl:min-w-[560px]">
         <div :class="[GRID, 'max-xl:top-0 sticky top-(--sticky-top) z-[6] bg-surface-1 text-xs text-ink-4']">
           <span>时间</span><span>类型</span><span>操作人</span><span>对象</span><span>IP</span>
         </div>
@@ -151,7 +153,7 @@ const DATE = 'h-8 max-xl:h-10 rounded-md border border-line-1 bg-white px-2 font
           @keydown.enter.prevent="selId = l.id"
           @keydown.space.prevent="selId = l.id"
         >
-          <span class="yb-num text-xs text-ink-3">{{ l.time }}</span>
+          <span class="yb-num text-xs whitespace-nowrap text-ink-3">{{ l.time }}</span>
           <span :class="['justify-self-start rounded px-2 py-px text-[11px] font-semibold', KIND_CLASS[l.type]]">{{ l.type }}</span>
           <div class="min-w-0">
             <div class="truncate text-xs font-medium">{{ l.who }}</div>

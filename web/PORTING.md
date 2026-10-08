@@ -142,11 +142,11 @@ locally and mention it in your final report.
 - 数据:`src/app/nav.ts` 的 `navFor(side, allowed)` 返回按端、按权限过滤后的菜单树(空分组去掉);`breadcrumbOf(side, code, query)` 给面包屑;`isActiveItem` 判断选中(全息图按 `?who=` 区分两端)。
 - 端取自 `session.current.identity.side`(无会话为 `'bureau'`);`allowed` 取自 `session.current.pages`。新增页面时:在 `nav.ts` 对应端的菜单树加一项,图标名在 `src/lib/icons.ts` 登记。
 - 组件:`components/yb/nav/{NavGroupMenu,UserMenu,NavBreadcrumb}.vue`,样式 `src/styles/nav.css`(由 AppShell 引入)。一级菜单悬停/聚焦展开下拉,Tab / Enter / ↑↓ / Esc 可用。
-- 壳层高度不变:安全条 26 + 顶栏 60 + 二级行 46 = 132px(页面里的 `calc(100vh-132px)` 与加载骨架屏沿用);全息图多一条 30px 细面包屑栏。
+- 壳层高度不变:安全条 26 + 顶栏 60 + 二级行 46 = 132px(页面里写 `calc(var(--app-vh)-132px)`,不要直接用 `100vh`:外观字号档位用 `#app { zoom }` 实现,`--app-vh` 是按档位换算回来的一屏高);全息图多一条 30px 细面包屑栏。
 - **Pad 适配(宽度 < 1280;`min-w-[1280px]` 已去掉,根容器 `min-w-0`)**:
-  - 断点:≥1280 桌面外观不变;1024–1279 顶栏保留一级菜单,但只显示图标,当前分组显示图标 + 名称(序号、下拉箭头、`›` 隐藏,用户区隐藏范围行);< 1024 一级菜单收进左侧**抽屉**(顶栏汉堡按钮 `data-testid="nav-toggle"`,`nav/NavDrawer.vue`,基于 Sheet):端 → 分组(可折叠,默认展开当前分组,单页分组直达)→ 页面,每行 ≥ 46px,点页面后自动关闭,换页也会关闭。
+  - 断点:≥1280 桌面外观不变;1180–1279 顶栏保留一级菜单(去掉分组间 `›` 和下拉箭头,点按仍展开下拉;用户区只显示姓名,角色与范围在账号菜单和悬停提示里);1024–1179 再隐藏环节序号(二级标签行和抽屉里仍显示);1280–1365 也去掉 `›` 并收紧内边距,≥1366 不变;< 1024 一级菜单收进左侧**抽屉**(顶栏汉堡按钮 `data-testid="nav-toggle"`,`nav/NavDrawer.vue`,基于 Sheet):端 → 分组(可折叠,默认展开当前分组,单页分组直达)→ 页面,每行 ≥ 46px,点页面后自动关闭,换页也会关闭。
   - 触屏不依赖悬停:`NavGroupMenu` 记录最近一次 `pointerdown` 的类型,触屏/笔下点按一级按钮切换下拉(再点或点空白关闭,忽略兼容鼠标事件和聚焦触发的展开);鼠标悬停、键盘(Tab / Enter / ↑↓ / Esc)行为不变。下拉靠近右缘时自动左移,不撑出横向滚动。窄屏下拉条目 44px、用户菜单条目 44px、一级按钮 40px。
-  - 二级标签行:< 1280 时标签区 `.yb-l2-scroll` 可横向滚动(隐藏滚动条),换页 / 挂载后选中项自动滚到中间;标签高 40px;面包屑 < 1280 隐藏,分区标签(zone)保留且不收缩。
-  - 页面容器:`PageSection` 内边距 `px-4 lg:px-6 xl:px-8`;`PageHeader` < 1280 可换行(按钮组落到标题下),`StatCard` 数字窄屏缩一档且不折行;骨架屏边距随宽度变化,水印网格 < 768 3 列、< 1024 4 列、≥1024 6 列;Toast 宽度 ≤ 视口 - 24px。
+  - 二级标签行:< 1280 时标签区 `.yb-l2-scroll` 可横向滚动(隐藏滚动条),换页 / 挂载后选中项自动滚到中间;标签高 40px;面包屑 < 1280 隐藏(召集人查看机构端页面、二级行为空时在左侧显示面包屑),分区标签(zone)保留且不收缩。
+  - 页面容器:`PageSection` 内边距 `px-4 lg:px-6 xl:px-8`;`PageHeader` 标题与操作区放得下就并排,放不下时操作区整体落到标题下方(`align` 参数控制右侧对齐,默认 `end`;副标题 `text-pretty`),`StatCard` 数字窄屏缩一档且不折行;骨架屏边距随宽度变化,水印网格 < 640 2 列、< 1024 3 列、< 1280 4 列、≥1280 6 列;Toast 宽度 ≤ 视口 - 24px。
   - 登录页 A1:< 1024 单栏,品牌区缩成顶部一条(logo + 标语一行,价值点 / 关键数字 / 页脚隐藏),表单宽度 `min(100%,440px)`,内容可滚动。
-  - 全局触屏规则在 `style.css` 末尾(`@media (max-width:1279px), (pointer: coarse)`):Button / Input / SelectTrigger 最小高度 40px(`h-5 h-6 size-5 size-6` 的微型控件除外)、`touch-action: manipulation`、去掉点按高亮、Dialog / AlertDialog 最大高度 `100dvh - 24px` 可滚动(< 768 接近全屏宽)、Select / Dropdown / Popover 不超视口、Dialog / Sheet 关闭按钮热区扩大到 44px。
+  - 全局触屏规则在 `style.css` 末尾(`@media (max-width:1279px), (pointer: coarse)`):Button / Input / SelectTrigger 最小高度 40px(`h-5 h-6 size-5 size-6` 的微型控件除外)、`touch-action: manipulation`、去掉点按高亮(需要手指拖拽的元素加 `data-drag`,改为 `touch-action: none`)、Dialog / AlertDialog 最大高度 `100dvh - 24px` 可滚动(< 768 接近全屏宽)、Select / Dropdown / Popover 不超视口、Dialog / Sheet 关闭按钮热区扩大到 44px。

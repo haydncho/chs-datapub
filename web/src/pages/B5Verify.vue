@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { PageSection } from '@/components/yb'
 import { getJson, usePageData, runAction } from '@/api/client'
 import { say } from '@/app/shell'
 import { cn } from '@/lib/utils'
@@ -112,20 +113,20 @@ const btn = 'h-[34px] px-4 max-xl:h-10 max-xl:min-w-20 font-medium text-ink-3 bo
 </script>
 
 <template>
-  <section data-screen-label="B5 意见核对" class="mx-auto flex w-full max-w-[1100px] flex-col gap-4 px-8 pt-6 pb-14 max-md:px-4">
+  <PageSection label="B5 意见核对" class="max-w-[1100px]">
     <!-- header -->
-    <div class="yb-card flex flex-wrap items-center gap-x-6 gap-y-3 px-6 py-5">
+    <div class="yb-card flex flex-wrap items-center gap-x-6 gap-y-3 px-6 py-5 max-xl:px-card-x">
       <div class="min-w-0 flex-1 max-md:basis-full">
         <div class="text-xs font-medium text-violet">{{ data.draft }}</div>
         <div class="mt-1 text-[22px] font-semibold">{{ data.title }}</div>
         <div class="text-[13px] text-ink-4">{{ data.subtitle }}</div>
       </div>
-      <div class="border-l border-line-2 px-5 text-center">
+      <div class="shrink-0 border-l border-line-2 px-5 text-center">
         <div class="text-xs text-ink-4">{{ closed ? '核对' : '剩余' }}</div>
         <div v-if="closed" class="text-[22px] font-semibold text-bad">已截止</div>
         <div v-else class="yb-num text-[30px] font-semibold text-warn-ink">{{ data.remainingDays }} 天</div>
       </div>
-      <div class="w-[180px]">
+      <div class="w-[180px] shrink-0">
         <div class="flex justify-between text-xs">
           <span class="text-ink-4">已确认</span>
           <span class="yb-num font-semibold">{{ n }}/{{ total }}</span>
@@ -142,12 +143,12 @@ const btn = 'h-[34px] px-4 max-xl:h-10 max-xl:min-w-20 font-medium text-ink-3 bo
 
     <!-- items -->
     <div class="yb-card overflow-hidden">
-      <div v-for="r in data.items" :key="r.id" class="flex flex-col gap-2.5 border-b border-line-3 px-6 py-4 max-md:px-4">
+      <div v-for="r in data.items" :key="r.id" class="flex flex-col gap-2.5 border-b border-line-3 px-6 py-4 max-xl:px-card-x">
         <div class="flex flex-wrap items-center gap-4">
           <div class="min-w-0 flex-1">
             <div class="text-xs text-ink-4">{{ r.label }}</div>
             <div class="yb-num text-2xl font-semibold">{{ r.value }}</div>
-            <div v-if="r.reference" class="text-[11px] text-ok-ink">✓ {{ r.reference }}</div>
+            <div v-if="r.reference" class="text-xs text-ok-ink">✓ {{ r.reference }}</div>
           </div>
           <div class="flex gap-1.5" role="group" :aria-label="`${r.label} 核对结果`">
             <Button
@@ -202,18 +203,18 @@ const btn = 'h-[34px] px-4 max-xl:h-10 max-xl:min-w-20 font-medium text-ink-3 bo
               + 上传佐证材料
               <input type="file" multiple class="sr-only" :disabled="locked" :aria-label="`${r.label} 上传佐证材料`" @change="pickFiles(r.id, $event)">
             </label>
-            <span class="text-[11px] text-ink-5">每项最多 {{ MAX_FILES }} 个、单个 ≤ 20MB;提交时登记文件名与大小,原件由本院留存备查</span>
+            <span class="text-xs text-ink-4">每项最多 {{ MAX_FILES }} 个、单个 ≤ 20MB;提交时登记文件名与大小,原件由本院留存备查</span>
           </div>
           <div v-if="files[r.id]?.length" class="flex flex-wrap gap-1.5">
-            <span v-for="f in files[r.id]" :key="f.name" class="inline-flex items-center gap-1 rounded-lg border border-line-1 px-2 py-1 text-xs text-ink-3">
-              📎 {{ f.name }} <span class="text-ink-5">{{ kb(f.size) }}</span>
-              <button type="button" class="ml-1 text-ink-5 hover:text-bad" :aria-label="`移除 ${f.name}`" @click="dropFile(r.id, f.name)">×</button>
+            <span v-for="f in files[r.id]" :key="f.name" class="inline-flex items-center gap-1 rounded-lg border border-line-1 px-2 py-1 text-xs text-ink-3 max-xl:py-0 max-xl:pr-0">
+              📎 {{ f.name }} <span class="text-ink-4">{{ kb(f.size) }}</span>
+              <button type="button" class="ml-1 inline-flex items-center justify-center text-ink-4 hover:text-bad max-xl:size-10 max-xl:text-base" :aria-label="`移除 ${f.name}`" @click="dropFile(r.id, f.name)">×</button>
             </span>
           </div>
         </template>
       </div>
-      <div class="flex flex-wrap items-center gap-3 bg-surface-1 px-6 py-4 max-md:px-4">
-        <span class="flex-1 text-xs text-ink-4">{{ data.footnote }}</span>
+      <div class="flex flex-wrap items-center gap-3 bg-surface-1 px-6 py-4 max-xl:px-card-x">
+        <span class="min-w-[220px] flex-1 text-xs text-ink-4">{{ data.footnote }}</span>
         <span v-if="submitted" class="text-[13px] font-medium text-ok-ink">
           ✓ 已提交 {{ submitted.submittedAt }} · {{ submitted.submittedBy }} · 处理进度见下方
         </span>
@@ -228,16 +229,16 @@ const btn = 'h-[34px] px-4 max-xl:h-10 max-xl:min-w-20 font-medium text-ink-3 bo
 
     <!-- 答复回流: this institution's feedback items with the 医保局 reply -->
     <div v-if="data.progress" class="yb-card overflow-hidden">
-      <div class="border-b border-line-2 px-6 py-3.5 max-md:px-4">
+      <div class="border-b border-line-2 px-6 py-3.5 max-xl:px-card-x">
         <div class="text-[15px] font-semibold">本院意见处理进度</div>
         <div class="text-xs text-ink-4">医保局在「意见与申诉」中的分派与答复同步显示于此</div>
       </div>
-      <div v-if="!data.progress.length" class="px-6 py-8 text-center text-sm text-ink-5">本院暂无提交的意见</div>
-      <div v-for="p in data.progress" :key="p.id" class="flex flex-col gap-1.5 border-b border-line-3 px-6 py-3.5 last:border-b-0 max-md:px-4">
+      <div v-if="!data.progress.length" class="px-6 py-8 text-center text-sm text-ink-4">本院暂无提交的意见</div>
+      <div v-for="p in data.progress" :key="p.id" class="flex flex-col gap-1.5 border-b border-line-3 px-6 py-3.5 last:border-b-0 max-xl:px-card-x">
         <div class="flex flex-wrap items-center gap-2">
-          <Badge :variant="FBS[p.status].variant" class="border-0 py-px">{{ FBS[p.status].label }}</Badge>
+          <Badge :variant="FBS[p.status].variant" class="border-0 py-px text-xs">{{ FBS[p.status].label }}</Badge>
           <span class="min-w-0 flex-1 text-sm font-semibold">{{ p.title }}</span>
-          <span class="font-mono text-[11px] text-ink-5">{{ p.id }}</span>
+          <span class="shrink-0 font-mono text-xs text-ink-4">{{ p.id }}</span>
         </div>
         <div class="text-xs text-ink-4">
           {{ p.report }} · 提交 {{ p.track?.submittedAt ?? '—' }}
@@ -250,5 +251,5 @@ const btn = 'h-[34px] px-4 max-xl:h-10 max-xl:min-w-20 font-medium text-ink-3 bo
         </div>
       </div>
     </div>
-  </section>
+  </PageSection>
 </template>

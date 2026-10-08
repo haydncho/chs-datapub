@@ -180,12 +180,12 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
     <DialogContent
       overlay-class="z-[80] bg-[rgba(11,21,38,.4)]"
       :show-close="false"
-      class="z-[81] h-[min(760px,calc(100%-64px))] w-[min(1180px,calc(100%-64px))] grid-cols-[220px_minmax(0,1fr)_380px] gap-0 overflow-hidden max-xl:h-[min(760px,calc(100%-32px))] max-xl:w-[calc(100%-32px)] max-xl:grid-cols-1 max-xl:content-start max-xl:overflow-y-auto rounded-2xl border-0 bg-white p-0 text-[13px] text-ink-1 shadow-[0_24px_64px_rgba(11,21,38,.3)]"
+      class="z-[81] h-[min(760px,calc(100%-64px))] w-[min(1180px,calc(100%-64px))] grid-cols-[220px_minmax(0,1fr)_380px] gap-0 overflow-hidden max-xl:h-[min(760px,calc(100%-32px))] max-xl:w-[calc(100%-32px)] max-xl:grid-cols-1 lg:max-xl:grid-cols-[minmax(0,1fr)_320px] max-xl:content-start max-xl:overflow-y-auto rounded-2xl border-0 bg-white p-0 text-[13px] text-ink-1 shadow-[0_24px_64px_rgba(11,21,38,.3)]"
     >
       <!-- steps -->
-      <div class="flex flex-col gap-1 border-r border-line-1 bg-surface-1 px-[18px] py-[22px] max-xl:grid max-xl:grid-cols-4 max-xl:gap-x-2 max-xl:border-r-0 max-xl:border-b">
-        <DialogTitle class="mb-1 max-xl:col-span-4 text-[15px] font-semibold">新建指标</DialogTitle>
-        <DialogDescription class="mb-4 max-xl:col-span-4 max-xl:mb-2 text-xs text-ink-4">{{ form.name.trim() || '未命名指标' }} · 草稿 {{ wizard.draftVersion }}</DialogDescription>
+      <div class="flex flex-col gap-1 border-r border-line-1 bg-surface-1 px-[18px] py-[22px] max-xl:col-span-full max-xl:grid max-xl:grid-cols-4 max-xl:gap-x-2 max-xl:border-r-0 max-xl:border-b max-xl:px-5 max-xl:pt-4 max-xl:pb-2">
+        <DialogTitle class="mb-1 max-xl:col-span-2 max-xl:row-start-1 max-xl:self-center text-[15px] font-semibold">新建指标</DialogTitle>
+        <DialogDescription class="mb-4 max-xl:col-span-4 max-xl:row-start-2 max-xl:mb-2 text-xs text-ink-4">{{ form.name.trim() || '未命名指标' }} · 草稿 {{ wizard.draftVersion }}</DialogDescription>
         <div
           v-for="st in steps"
           :key="st.n"
@@ -203,7 +203,7 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
           <span :class="st.on ? 'font-semibold text-ink-1' : 'text-ink-4'">{{ st.l }}</span>
         </div>
         <div class="flex-1 max-xl:hidden" />
-        <button type="button" class="cursor-pointer text-xs text-ink-4 max-xl:col-span-4 max-xl:min-h-11 max-xl:text-left" @click="open = false">{{ done ? '关闭' : '关闭 · 草稿保留至本页关闭' }}</button>
+        <button type="button" class="cursor-pointer text-xs text-ink-4 max-xl:col-start-3 max-xl:col-end-5 max-xl:row-start-1 max-xl:min-h-11 max-xl:justify-self-end max-xl:whitespace-nowrap max-xl:text-right" @click="open = false">{{ done ? '关闭' : '关闭 · 草稿保留至本页关闭' }}</button>
       </div>
 
       <!-- step body -->
@@ -213,12 +213,12 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
             <label class="flex flex-col gap-1.5">
               <span class="text-xs text-ink-4">指标名称 <span class="text-bad">*</span></span>
               <input v-model="form.name" :class="inputCls(showErr('name'))" :placeholder="'如:' + wizard.name" maxlength="40" aria-label="指标名称">
-              <span v-if="showErr('name')" class="text-[11px] text-bad-ink">{{ errors.name }}</span>
+              <span v-if="showErr('name')" class="text-[11px] max-xl:text-xs text-bad-ink">{{ errors.name }}</span>
             </label>
             <label class="flex flex-col gap-1.5">
               <span class="text-xs text-ink-4">监测子域 <span class="text-bad">*</span></span>
               <input v-model="form.domain" :class="inputCls(showErr('domain'))" placeholder="如:住院效率" maxlength="20" aria-label="监测子域">
-              <span v-if="showErr('domain')" class="text-[11px] text-bad-ink">{{ errors.domain }}</span>
+              <span v-if="showErr('domain')" class="text-[11px] max-xl:text-xs text-bad-ink">{{ errors.domain }}</span>
             </label>
           </div>
           <div class="flex flex-wrap gap-x-6 gap-y-3">
@@ -246,7 +246,7 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
               <span class="h-[1.5px] w-3/5 bg-ink-1" />
               <input v-model="form.denominator" :class="cn(inputCls(showErr('denominator')), 'max-w-[420px] text-center')" placeholder="分母,如:手术出院人次" maxlength="70" aria-label="分母">
             </div>
-            <div v-if="showErr('numerator') || showErr('denominator')" class="mt-1 text-[11px] text-bad-ink">{{ errors.numerator || errors.denominator }}</div>
+            <div v-if="showErr('numerator') || showErr('denominator')" class="mt-1 text-[11px] max-xl:text-xs text-bad-ink">{{ errors.numerator || errors.denominator }}</div>
           </div>
           <div>
             <div class="mb-2 text-xs text-ink-4">过滤条件(选填,最多 8 个)</div>
@@ -258,7 +258,7 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
               <input v-model="filterDraft" class="h-8 w-[180px] rounded-lg border border-dashed border-ink-6 px-2.5 text-xs outline-none focus:border-brand" placeholder="如:手术标志 = 1" maxlength="40" aria-label="新增过滤条件" @keydown.enter.prevent="addFilter">
               <button type="button" :disabled="!filterDraft.trim() || !!filterErr" class="h-8 cursor-pointer rounded-lg border border-line-1 px-2.5 text-xs text-brand disabled:cursor-not-allowed disabled:text-ink-5" @click="addFilter">+ 条件</button>
             </div>
-            <div v-if="filterErr" class="mt-1 text-[11px] text-bad-ink">{{ filterErr }}</div>
+            <div v-if="filterErr" class="mt-1 text-[11px] max-xl:text-xs text-bad-ink">{{ filterErr }}</div>
           </div>
           <div>
             <div class="mb-2 text-xs text-ink-4">维度 <span class="text-bad">*</span></div>
@@ -288,7 +288,7 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
                 )"
                 @click="!form.internalOnly && (form.tier = t.id)"
               >
-                <div class="flex justify-between"><span class="font-semibold">{{ t.name }}</span><span class="text-[11px] text-ink-4">{{ t.tag }}</span></div>
+                <div class="flex justify-between"><span class="font-semibold">{{ t.name }}</span><span class="text-[11px] max-xl:text-xs text-ink-4">{{ t.tag }}</span></div>
                 <div class="text-xs text-ink-3">{{ t.desc }}</div>
               </div>
             </div>
@@ -317,7 +317,7 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
           <label class="flex flex-col gap-1.5">
             <span class="text-xs text-ink-4">解读文字(选填,200 字以内)</span>
             <textarea v-model="form.note" rows="3" maxlength="220" :class="cn('rounded-[10px] border p-3 text-[13px] leading-[1.7] outline-none focus:border-brand', errors.note ? 'border-bad' : 'border-line-1')" placeholder="如:术前等待时间越短,床位周转与费用控制通常越好。本指标为同级比较,不作为考核指标。" aria-label="解读文字" />
-            <span class="flex justify-between text-[11px]"><span class="text-bad-ink">{{ errors.note ?? '' }}</span><span class="text-ink-5">{{ [...form.note].length }}/200</span></span>
+            <span class="flex justify-between text-[11px] max-xl:text-xs"><span class="text-bad-ink">{{ errors.note ?? '' }}</span><span class="text-ink-5">{{ [...form.note].length }}/200</span></span>
           </label>
           <div>
             <div class="mb-2 text-xs text-ink-4">粒度上限</div>
@@ -349,7 +349,8 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
         </template>
 
         <div class="flex-1" />
-        <div class="flex justify-end gap-2">
+        <!-- Pad:整窗滚动时上一步 / 下一步吸底,始终可点 -->
+        <div class="flex justify-end gap-2 max-xl:sticky max-xl:bottom-0 max-xl:z-[1] max-xl:-mx-5 max-xl:-mb-6 max-xl:border-t max-xl:border-line-2 max-xl:bg-white max-xl:px-5 max-xl:py-3">
           <Button variant="outline" class="font-normal max-xl:h-10" :disabled="step === 1" @click="step = Math.max(1, step - 1)">上一步</Button>
           <Button v-if="step < 4" class="px-[18px] max-xl:h-10" @click="next">下一步</Button>
           <Button v-else-if="!done" class="px-[18px] max-xl:h-10" :disabled="busy" @click="submit">提交上线审批</Button>
@@ -357,7 +358,7 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
       </div>
 
       <!-- live preview -->
-      <div class="flex flex-col gap-3 border-l border-line-1 bg-surface-1 px-5 py-[22px] max-xl:border-t max-xl:border-l-0">
+      <div class="flex flex-col gap-3 border-l border-line-1 bg-surface-1 px-5 py-[22px] max-lg:border-t max-lg:border-l-0">
         <div class="text-xs font-semibold text-ink-4">实时预览 · 以某身份查看 <span class="font-normal text-ink-5">(示例数据)</span></div>
         <div class="flex flex-col gap-1.5">
           <button type="button"
@@ -376,7 +377,7 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
               <div class="absolute -top-0.5 -bottom-0.5 left-1/2 border-l-[1.5px] border-ink-4" />
               <div class="absolute -top-1 left-[71%] -ml-0.5 h-5 w-1 rounded-[2px] bg-warn" />
             </div>
-            <div class="mt-1 flex justify-between text-[10px] text-ink-5"><span>P0</span><span>P25</span><span>P50</span><span>P75</span><span>P100</span></div>
+            <div class="mt-1 flex justify-between text-[10px] text-ink-5 max-xl:text-xs"><span>P0</span><span>P25</span><span>P50</span><span>P75</span><span>P100</span></div>
             <div class="mt-2 text-xs text-ink-3">{{ form.tier === 'named' ? '同级第 4 名 · 具名排行(审批通过后)' : form.tier === 'anon' ? '同级 P71 · 他院以匿名编号显示' : '同级 P71 · 不显示他院名称与数值' }}</div>
           </template>
           <template v-if="org === 1 && !form.internalOnly">

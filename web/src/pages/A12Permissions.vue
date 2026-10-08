@@ -44,12 +44,12 @@ const sm = computed(() => data.value.summary)
       <Button :disabled="!s.isConvener.value" :title="s.isConvener.value ? '' : '仅召集人可操作'" @click="addOpen = true">+ 新增用户申请</Button>
     </PageHeader>
 
-    <div class="grid grid-cols-2 gap-3.5 md:grid-cols-3 xl:grid-cols-5" data-testid="a12-stats">
-      <StatCard label="用户总数" :value="sm.total" unit="人" :sub="`含已停用 ${sm.disabled} 人`" tone="info" :icon="ICON.users" />
-      <StatCard label="医保局端" :value="sm.bureau" unit="人" sub="召集人 · 行政 · 分析 · 审计" tone="info" :icon="ICON.bureau" />
-      <StatCard label="机构端" :value="sm.org" unit="人" sub="医院 · 县区 · 社会监督" tone="ok" :icon="ICON.org" />
-      <StatCard label="即将停用" :value="sm.expiring" unit="人" sub="超过 30 天未登录" :tone="sm.expiring ? 'warn' : 'ok'" :icon="ICON.clock" />
-      <StatCard label="待复核" :value="sm.pending" unit="项" sub="新增用户申请" :tone="sm.pending ? 'bad' : 'ok'" :icon="ICON.review" />
+    <div class="grid grid-cols-2 gap-3.5 md:grid-cols-6 xl:grid-cols-5" data-testid="a12-stats">
+      <StatCard class="md:col-span-2 xl:col-span-1" label="用户总数" :value="sm.total" unit="人" :sub="`含已停用 ${sm.disabled} 人`" tone="info" :icon="ICON.users" />
+      <StatCard class="md:col-span-2 xl:col-span-1" label="医保局端" :value="sm.bureau" unit="人" sub="召集人 · 行政 · 分析 · 审计" tone="info" :icon="ICON.bureau" />
+      <StatCard class="md:col-span-2 xl:col-span-1" label="机构端" :value="sm.org" unit="人" sub="医院 · 县区 · 社会监督" tone="ok" :icon="ICON.org" />
+      <StatCard class="md:col-span-3 xl:col-span-1" label="即将停用" :value="sm.expiring" unit="人" sub="超过 30 天未登录" :tone="sm.expiring ? 'warn' : 'ok'" :icon="ICON.clock" />
+      <StatCard class="col-span-2 md:col-span-3 xl:col-span-1" label="待复核" :value="sm.pending" unit="项" sub="新增用户申请" :tone="sm.pending ? 'bad' : 'ok'" :icon="ICON.review" />
     </div>
 
     <RoleMatrix :data="data" />

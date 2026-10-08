@@ -134,36 +134,43 @@ async function submitFeedback() {
 </script>
 
 <template>
-  <section data-screen-label="B4 报告中心" class="grid min-h-[calc(100vh-132px)] grid-cols-1 xl:grid-cols-[320px_minmax(0,1fr)_320px]">
+  <section
+    data-screen-label="B4 报告中心"
+    :class="cn(
+      'grid min-h-[calc(var(--app-vh)-132px)] grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] lg:max-xl:grid-rows-[auto_1fr] xl:grid-cols-[320px_minmax(0,1fr)_320px]',
+      rp ? 'max-lg:grid-rows-[auto_auto_1fr]' : 'max-lg:grid-rows-[auto_1fr]',
+    )"
+  >
     <!-- report list -->
-    <aside class="flex min-w-0 flex-col gap-1.5 border-r border-line-1 bg-surface-1 px-3.5 py-5 max-xl:border-r-0 max-xl:border-b">
+    <aside class="flex min-w-0 flex-col gap-1.5 border-r border-line-1 bg-surface-1 px-3.5 py-5 max-xl:border-r-0 max-xl:border-b max-xl:pb-3.5 lg:max-xl:col-span-2">
       <div class="flex items-baseline justify-between px-2 pb-2">
         <span class="text-lg font-semibold">报告中心</span>
         <span v-if="pend > 0" class="text-xs font-medium text-warn-ink">{{ pend }} 份待签收</span>
       </div>
-      <div class="flex flex-col gap-1.5 max-xl:flex-row max-xl:gap-2.5 max-xl:overflow-x-auto max-xl:pb-1.5">
+      <!-- Pad: one horizontally scrolling strip; the faded right edge hints at more reports -->
+      <div class="flex flex-col gap-1.5 max-xl:snap-x max-xl:flex-row max-xl:gap-2.5 max-xl:overflow-x-auto max-xl:pr-10 max-xl:pb-1.5 max-xl:[mask-image:linear-gradient(to_right,#000_calc(100%-40px),transparent)]">
       <div v-press
         v-for="x in list"
         :key="x.r.name"
         :class="cn(
-          'flex cursor-pointer flex-col gap-1 rounded-[10px] border p-3 hover:bg-white max-xl:min-h-[88px] max-xl:w-[270px] max-xl:shrink-0 max-xl:bg-white',
+          'flex cursor-pointer flex-col gap-1 rounded-[10px] border p-3 hover:bg-white max-xl:min-h-[88px] max-xl:w-[270px] max-xl:shrink-0 max-xl:snap-start max-xl:bg-white',
           x.on ? 'border-brand-line bg-white shadow-[0_1px_3px_rgba(15,23,42,.06)]' : 'border-transparent bg-transparent',
         )"
         @click="select(x.i)"
       >
         <div class="flex items-center justify-between">
-          <span class="text-[11px] text-ink-4">{{ x.r.type }}</span>
+          <span class="text-[11px] text-ink-4 max-xl:text-[12px]">{{ x.r.type }}</span>
           <Badge :variant="RPS[x.st].variant" class="border-0 py-px">{{ RPS[x.st].label }}</Badge>
         </div>
         <div class="text-[13px] font-semibold">{{ x.r.name }}</div>
-        <div class="text-[11px] text-ink-5">{{ x.r.date }} 发布 · {{ x.r.pages }} · {{ x.r.version }}</div>
+        <div class="text-[11px] text-ink-5 max-xl:text-[12px]">{{ x.r.date }} 发布 · {{ x.r.pages }} · {{ x.r.version }}</div>
       </div>
       </div>
-      <div v-if="!list.length" class="px-2 py-8 text-center text-xs text-ink-5">{{ data.noOwnData ? '暂无本院数据' : '暂无已发布的报告' }}</div>
+      <div v-if="!list.length" class="px-2 py-8 text-center text-xs text-ink-5 max-xl:py-2 max-xl:text-left">{{ data.noOwnData ? '暂无本院数据' : '暂无已发布的报告' }}</div>
     </aside>
 
     <!-- preview (print area) -->
-    <main data-print-area class="flex min-w-0 justify-center bg-line-2 px-8 pt-6 pb-14 max-xl:px-4">
+    <main data-print-area :class="cn('flex min-w-0 justify-center bg-line-2 px-8 pt-6 pb-14 max-xl:px-4 max-lg:order-3', !rp && 'lg:max-xl:col-span-2')">
       <div v-if="data.noOwnData || !rp" class="mt-10 h-fit w-full max-w-[720px] rounded-md bg-white px-6 py-16 text-center shadow-[0_2px_10px_rgba(15,23,42,.08)]">
         <div class="text-base font-semibold text-ink-2">{{ data.noOwnData ? '暂无本院数据' : '暂无已发布的报告' }}</div>
         <div class="mt-1.5 text-xs text-ink-4">
@@ -179,8 +186,10 @@ async function submitFeedback() {
     </main>
 
     <!-- state-dependent panel -->
-    <aside v-if="rp" class="flex flex-col gap-4 border-l border-line-1 bg-white px-5 py-[22px] max-xl:mx-auto max-xl:w-full max-xl:max-w-[720px] max-xl:border-t max-xl:border-l-0 max-xl:px-6">
-      <div>
+    <aside v-if="rp" class="border-l border-line-1 bg-white px-5 py-[22px] max-lg:order-2 max-lg:border-b max-lg:border-l-0 max-lg:px-6 max-lg:py-5">
+      <!-- landscape Pad: panel sticks beside the preview; portrait: compact two-column block above the preview -->
+      <div class="flex flex-col gap-4 md:max-lg:grid md:max-lg:grid-cols-2 md:max-lg:items-start lg:max-xl:sticky lg:max-xl:top-[calc(var(--sticky-top)+16px)]">
+      <div class="md:max-lg:col-span-2">
         <div class="text-xs text-ink-4">{{ rp.type }} · {{ rp.version }}</div>
         <div class="mt-0.5 text-base font-semibold">{{ rp.name }}</div>
       </div>
@@ -219,8 +228,9 @@ async function submitFeedback() {
         <Button variant="outline" class="font-normal text-ink-3 max-xl:h-11" @click="doPrint">打印 / 导出 PDF · 带水印</Button>
       </div>
 
-      <div class="border-t border-line-2 pt-3.5 text-xs leading-[1.8] text-ink-4">
+      <div class="border-t border-line-2 pt-3.5 text-xs leading-[1.8] text-ink-4 md:max-lg:col-start-2 md:max-lg:border-t-0 md:max-lg:pt-0">
         查阅记录 · 本院 {{ data.readLog.count }} 人次<br>最近:{{ data.readLog.last }}
+      </div>
       </div>
     </aside>
 

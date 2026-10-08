@@ -40,15 +40,15 @@ const side = computed(() => {
     </div>
     <span class="text-xs text-ink-5">斜纹区域为该身份不渲染的内容</span>
   </div>
-  <div class="grid grid-cols-[minmax(0,1fr)_260px] gap-4 max-lg:grid-cols-1">
-    <div class="flex flex-col gap-3 rounded-[10px] border border-line-1 px-[26px] py-[22px] shadow-[0_2px_8px_rgba(15,23,42,.05)]">
+  <div class="grid grid-cols-[minmax(0,1fr)_260px] gap-4 max-xl:grid-cols-1">
+    <div class="flex flex-col gap-3 rounded-[10px] border border-line-1 px-[26px] py-[22px] shadow-[0_2px_8px_rgba(15,23,42,.05)] max-xl:px-5 max-xl:py-5">
       <div class="text-[11px] text-ink-5">{{ s.d.previewHead }} · {{ aud.name }}版</div>
       <div class="text-lg font-semibold">{{ s.cur.name }}</div>
       <div
         v-for="r in aud.rows"
         :key="r.label"
         :class="cn(
-          'grid grid-cols-[150px_minmax(0,1fr)_110px] items-center gap-3 rounded-lg px-2.5 py-2 text-[13px]',
+          'grid grid-cols-[150px_minmax(0,1fr)_110px] items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] max-sm:grid-cols-[minmax(0,1fr)_auto] max-sm:[&>:nth-child(2)]:hidden',
           r.hidden ? 'bg-[repeating-linear-gradient(135deg,#F4F6F9_0_6px,#FFFFFF_6px_12px)]' : 'bg-surface-1',
         )"
       >
@@ -57,7 +57,7 @@ const side = computed(() => {
         <span :class="cn('yb-num text-right font-semibold whitespace-nowrap', TONE[r.tone])">{{ r.value }}</span>
       </div>
     </div>
-    <div class="flex flex-col gap-2.5">
+    <div class="flex flex-col gap-2.5 max-xl:grid max-xl:grid-cols-3 max-sm:grid-cols-1">
       <div v-for="x in side" :key="x.k" class="rounded-[10px] bg-surface-1 px-3.5 py-3 text-xs">
         <div class="text-ink-4">{{ x.k }}</div>
         <div class="mt-0.5 font-semibold">{{ x.v }}</div>

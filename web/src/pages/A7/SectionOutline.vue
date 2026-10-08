@@ -9,7 +9,7 @@ defineEmits<{ go: [index: number] }>()
 
 <template>
   <aside
-    class="sticky top-[calc(var(--sticky-top)+136px)] flex flex-col gap-1 py-5 pr-3 pl-6 max-xl:top-(--sticky-top) max-xl:z-20 max-xl:flex-row max-xl:gap-2 max-xl:overflow-x-auto max-xl:border-b max-xl:border-line-1 max-xl:bg-white max-xl:px-4 max-xl:py-2.5"
+    class="sticky top-[calc(var(--sticky-top)+136px)] flex flex-col gap-1 py-5 pr-3 pl-6 max-xl:top-(--sticky-top) max-xl:z-20 max-xl:flex-row max-xl:gap-2 max-xl:overflow-x-auto max-xl:border-b max-xl:border-line-1 max-xl:bg-white max-xl:px-5 max-xl:py-2.5 max-lg:[mask-image:linear-gradient(to_right,#000_calc(100%-40px),transparent)] max-lg:pr-10 max-sm:px-4"
     aria-label="七段式结构"
   >
     <div class="px-2.5 pb-1.5 max-xl:hidden text-[11px] font-semibold tracking-[.5px] text-ink-5">七段式结构</div>

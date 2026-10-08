@@ -192,10 +192,10 @@ function ignore() {
 </script>
 
 <template>
-  <PageSection label="A11 预警提醒">
+  <PageSection label="A11 预警提醒" class="max-xl:[&_.text-\[10px\]]:text-[11px] max-xl:[&_.text-\[11px\]]:text-xs">
     <PageHeader title="预警提醒" :subtitle="`${data.period} · 规则 ${data.ruleCount} 条 · ${data.scanTime}`">
       <template v-if="data.batch" #subtitle>
-        {{ `${data.period} · 规则 ${data.ruleCount} 条 · ${data.scanTime}` }}<Badge variant="ok" class="ml-2 align-[1px]">实时计算 · 批次 {{ data.batch }}</Badge>
+        {{ `${data.period} · 规则 ${data.ruleCount} 条 · ${data.scanTime}` }}<Badge variant="ok" class="ml-2 align-[1px] max-lg:mt-1.5 max-lg:ml-0 max-lg:flex max-lg:w-fit">实时计算 · 批次 {{ data.batch }}</Badge>
       </template>
       <div class="flex max-w-full overflow-x-auto rounded-[var(--radius-card)] border border-line-1 bg-white">
         <div v-for="k in stats" :key="k.k" class="border-l border-line-2 px-[22px] py-2.5 whitespace-nowrap max-xl:px-4 max-xl:first:border-l-0">
@@ -208,7 +208,7 @@ function ignore() {
       </div>
     </PageHeader>
 
-    <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(400px,480px)]">
+    <div class="grid grid-cols-1 items-start gap-4 lg:max-xl:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_minmax(400px,480px)]">
       <!-- alert list -->
       <div class="yb-card min-w-0 overflow-hidden">
         <div class="flex flex-wrap gap-1.5 border-b border-line-2 px-4 py-3 max-xl:gap-2" role="group" aria-label="按等级筛选">
@@ -231,7 +231,7 @@ function ignore() {
           :aria-current="r.on ? 'true' : undefined"
           :aria-label="`${r.L.l}等级 · ${r.a.metric} · ${r.a.org} · ${r.S.l}`"
           :class="cn(
-            'grid cursor-pointer grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-x-3.5 gap-y-1 yb-tr border-b border-line-3 px-4 py-3.5 max-xl:min-h-14 sm:grid-cols-[28px_minmax(0,1.2fr)_72px_90px_120px]',
+            'grid cursor-pointer grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-x-3.5 gap-y-1 yb-tr border-b border-line-3 px-4 py-3.5 max-xl:min-h-14 sm:max-lg:grid-cols-[28px_minmax(0,1.2fr)_72px_90px_120px] xl:grid-cols-[28px_minmax(0,1.2fr)_72px_90px_120px]',
             r.on ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]' : 'bg-white hover:bg-surface-1',
           )"
           @click="selId = r.a.id"
@@ -244,11 +244,11 @@ function ignore() {
             <div class="truncate font-semibold">{{ r.a.metric }}</div>
             <div class="truncate text-xs text-ink-4">{{ r.a.org }} · 阈值 {{ r.a.threshold }}</div>
           </div>
-          <div class="flex h-6 items-end gap-0.5 max-sm:hidden" aria-hidden="true">
+          <div class="flex h-6 items-end gap-0.5 max-sm:hidden lg:max-xl:hidden" aria-hidden="true">
             <span v-for="(b, j) in r.sp" :key="j" class="w-1 rounded-[1px]" :style="{ height: b.h, background: b.c }" />
           </div>
           <span class="yb-num text-right text-lg font-semibold whitespace-nowrap" :style="{ color: r.L.c }">{{ r.a.value }}</span>
-          <span class="flex items-center gap-[5px] text-[11px] whitespace-nowrap max-sm:col-start-2 max-sm:col-end-4" :style="{ color: r.S.c }">
+          <span class="flex items-center gap-[5px] text-[11px] whitespace-nowrap max-sm:col-start-2 max-sm:col-end-4 lg:max-xl:col-start-2 lg:max-xl:col-end-4" :style="{ color: r.S.c }">
             <span class="size-1.5 shrink-0 rounded-full" :style="{ background: r.S.c }" />{{ r.S.l }}
           </span>
         </div>
@@ -256,7 +256,7 @@ function ignore() {
       </div>
 
       <!-- detail -->
-      <div class="yb-card flex min-w-0 flex-col gap-4 px-[22px] py-5 max-sm:px-4">
+      <div class="yb-card flex min-w-0 flex-col gap-4 px-[22px] py-5 max-xl:px-5 max-sm:px-4 lg:max-xl:sticky lg:max-xl:top-(--sticky-panel)">
         <div>
           <div class="flex items-center gap-2">
             <span class="rounded px-2 py-px text-[11px] font-semibold" :style="{ background: curL.b, color: curL.c }">{{ curL.l }}等级</span>
@@ -288,12 +288,12 @@ function ignore() {
           </div>
         </div>
 
-        <div class="rounded-[10px] bg-surface-1 px-3.5 py-3 text-xs leading-[1.7] text-ink-2">{{ attribution }}</div>
+        <div class="rounded-[10px] bg-surface-1 px-3.5 py-3 text-xs leading-[1.7] text-pretty text-ink-2">{{ attribution }}</div>
 
         <div v-if="curSt === 'unsent'" class="flex flex-wrap gap-2">
-          <Button class="h-9 flex-1 max-xl:h-10" :disabled="busy" @click="send">发送提醒函</Button>
-          <Button variant="outline" class="h-9 px-3.5 font-normal max-xl:h-10" @click="toTopic">转专题选题</Button>
-          <Button variant="outline" class="h-9 px-3.5 font-normal text-ink-4 max-xl:h-10" @click="ignore">忽略</Button>
+          <Button class="h-9 flex-1 max-xl:h-11" :disabled="busy" @click="send">发送提醒函</Button>
+          <Button variant="outline" class="h-9 px-3.5 font-normal max-xl:h-11" @click="toTopic">转专题选题</Button>
+          <Button variant="outline" class="h-9 px-3.5 font-normal text-ink-4 max-xl:h-11" @click="ignore">忽略</Button>
         </div>
         <div v-if="curSt === 'sent'" class="rounded-[10px] bg-brand-soft px-3.5 py-3 text-xs leading-[1.7] text-brand">{{ sentNote }}</div>
         <div v-if="curSt === 'ack'" class="rounded-[10px] bg-ok-soft px-3.5 py-3 text-xs leading-[1.7] text-ok-ink">{{ ackNote }}</div>

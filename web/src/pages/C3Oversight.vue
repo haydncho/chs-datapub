@@ -88,16 +88,16 @@ const cellClass = (e: C3CalendarEvent) =>
         <div class="mb-3.5 text-[15px] font-semibold">数据公开日历 · {{ data.year }}</div>
         <div class="grid grid-cols-12 gap-1.5">
           <div v-for="m in data.calendar" :key="m.month" class="flex flex-col items-center gap-1">
-            <span class="yb-num text-[11px] text-ink-5">{{ m.month }}</span>
+            <span class="yb-num text-xs text-ink-4">{{ m.month }}</span>
             <span
               v-for="(e, i) in m.events"
               :key="i"
-              :class="['flex h-[30px] w-full max-xl:h-10 items-center justify-center rounded-[5px] text-[10px]', cellClass(e)]"
+              :class="['flex h-[30px] w-full items-center justify-center rounded-[5px] text-xs whitespace-nowrap max-xl:h-10', cellClass(e)]"
             >{{ e.label }}</span>
           </div>
         </div>
         <div class="flex-1" />
-        <div class="mt-4 flex flex-wrap gap-x-3.5 gap-y-1 text-[11px] text-ink-4">
+        <div class="mt-4 flex flex-wrap gap-x-3.5 gap-y-1 text-xs text-ink-4">
           <span class="flex items-center gap-[5px]"><span class="size-2.5 rounded-[2px] bg-brand" />月告知</span>
           <span class="flex items-center gap-[5px]"><span class="size-2.5 rounded-[2px] bg-violet" />季度/专题</span>
           <span class="flex items-center gap-[5px]"><span class="size-2.5 rounded-[2px] bg-line-4" />计划中</span>
@@ -106,7 +106,8 @@ const cellClass = (e: C3CalendarEvent) =>
 
       <div class="yb-card px-card-x py-card-y">
         <div class="mb-3 text-[15px] font-semibold">反馈闭环</div>
-        <div v-for="r in data.feedback" :key="r.label" class="border-t border-line-3 py-2.5">
+        <div class="md:max-xl:grid md:max-xl:grid-cols-2 md:max-xl:gap-x-8">
+        <div v-for="r in data.feedback" :key="r.label" class="border-t border-line-3 py-2.5 max-xl:py-3">
           <div class="flex justify-between text-[13px]">
             <span>{{ r.label }}</span>
             <span class="yb-num font-semibold">{{ r.value }}</span>
@@ -114,6 +115,7 @@ const cellClass = (e: C3CalendarEvent) =>
           <div class="mt-1.5 h-1.5 rounded-[3px] bg-line-2">
             <div class="h-1.5 rounded-[3px] bg-ok" :style="{ width: r.pct + '%' }" />
           </div>
+        </div>
         </div>
         <Button v-if="!open" variant="outline" class="mt-3.5 w-full font-normal max-xl:h-11" @click="open = true">提交监督建议</Button>
         <form v-else class="mt-3.5 flex flex-col gap-2.5 rounded-xl border border-line-1 p-3.5" aria-label="提交监督建议" @submit.prevent="submit">
@@ -125,7 +127,7 @@ const cellClass = (e: C3CalendarEvent) =>
               type="button"
               role="radio"
               :aria-checked="topic === t"
-              :class="cn('rounded-lg border px-2.5 py-[5px] text-xs whitespace-nowrap max-xl:min-h-10',
+              :class="cn('rounded-lg border px-2.5 py-[5px] text-xs whitespace-nowrap max-xl:min-h-10 max-xl:px-3.5 max-xl:text-[13px]',
                          topic === t ? 'border-brand-line bg-brand-soft text-brand' : 'border-line-1 bg-white text-ink-3')"
               @click="topic = t"
             >{{ t }}</button>
@@ -139,13 +141,13 @@ const cellClass = (e: C3CalendarEvent) =>
             placeholder="请描述您对数据公开内容、时效或反馈闭环的建议(10–500 字)"
             class="min-h-24 rounded-lg border-line-4 text-[13px] shadow-none md:text-[13px]"
           />
-          <div class="flex justify-between text-[11px]">
+          <div class="flex justify-between text-xs">
             <span class="text-bad">{{ textErr }}</span>
-            <span class="text-ink-5">{{ len }} / {{ MAX_TEXT }}</span>
+            <span class="yb-num text-ink-4">{{ len }} / {{ MAX_TEXT }}</span>
           </div>
           <div class="flex gap-2">
             <Button type="submit" class="flex-1 max-xl:h-11" :disabled="busy">提交</Button>
-            <Button type="button" variant="outline" class="font-normal max-xl:h-11" :disabled="busy" @click="open = false">取消</Button>
+            <Button type="button" variant="outline" class="font-normal max-xl:h-11 max-xl:px-6" :disabled="busy" @click="open = false">取消</Button>
           </div>
         </form>
       </div>
@@ -156,9 +158,9 @@ const cellClass = (e: C3CalendarEvent) =>
       <div class="mb-2 text-xs text-ink-4">由医保局在意见与申诉中办理 · 15 个工作日内答复</div>
       <div v-for="m in mine" :key="m.id" class="flex flex-col gap-1.5 border-t border-line-3 py-3">
         <div class="flex flex-wrap items-center gap-2">
-          <Badge :variant="FBS[m.status].variant" class="border-0 py-px">{{ FBS[m.status].label }}</Badge>
+          <Badge :variant="FBS[m.status].variant" class="border-0 py-px text-xs">{{ FBS[m.status].label }}</Badge>
           <span class="text-xs text-ink-4">{{ m.report }} · 提交 {{ m.track?.submittedAt ?? '—' }}</span>
-          <span class="ml-auto font-mono text-[11px] text-ink-5">{{ m.id }}</span>
+          <span class="ml-auto font-mono text-xs text-ink-4">{{ m.id }}</span>
         </div>
         <div class="text-[13px] leading-[1.7] whitespace-pre-wrap text-ink-2">{{ m.text }}</div>
         <div v-if="m.track?.reply" class="rounded-lg bg-ok-soft px-3 py-2 text-[13px] leading-[1.7] text-ink-2">

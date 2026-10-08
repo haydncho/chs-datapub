@@ -18,24 +18,24 @@ const ST: Record<A8IndicatorStatus, [string, string]> = {
   hold: ['本期暂缓', 'bg-warn-soft text-warn-ink'],
   ex: ['仅内部 · 排除', 'bg-line-3 text-ink-4'],
 }
-const COLS = 'grid grid-cols-[minmax(0,1fr)_80px_120px_100px_90px] gap-3 px-3.5 py-[9px]'
+const COLS = 'grid grid-cols-[minmax(0,1fr)_80px_120px_100px_90px] gap-3 px-3.5 py-[9px] max-xl:grid-cols-[minmax(0,1fr)_56px_96px_84px_108px] max-xl:py-2.5'
 </script>
 
 <template>
-  <div class="grid grid-cols-5 gap-2.5 max-lg:grid-cols-3 max-md:grid-cols-2">
+  <div class="grid grid-cols-5 gap-2.5 max-md:grid-cols-3 max-sm:grid-cols-2">
     <div
       v-for="k in s.d.packageCards"
       :key="k.label"
-      class="relative overflow-hidden rounded-xl border border-[#DCE6F8] bg-[linear-gradient(135deg,var(--brand-soft)_0%,#fff_64%)] p-3.5"
+      class="relative overflow-hidden rounded-xl border border-[#DCE6F8] bg-[linear-gradient(135deg,var(--brand-soft)_0%,#fff_64%)] p-3.5 max-xl:p-3"
     >
       <div class="flex items-start justify-between gap-1.5">
         <span class="min-w-0 truncate text-xs text-ink-4" :title="k.label">{{ k.label }}</span>
-        <span class="flex size-[26px] shrink-0 items-center justify-center rounded-lg bg-white shadow-[0_0_0_1px_#DCE6F8]">
+        <span class="flex size-[26px] shrink-0 items-center justify-center rounded-lg bg-white shadow-[0_0_0_1px_#DCE6F8] sm:max-xl:hidden" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="IP[k.icon]" /></svg>
         </span>
       </div>
       <div class="yb-num text-[28px] font-semibold whitespace-nowrap">{{ k.value }}<span class="ml-[3px] text-[13px] text-ink-4">{{ k.unit }}</span></div>
-      <div :class="cn('truncate text-xs', k.tone === 'ok' ? 'text-ok-ink' : 'text-ink-3')" :title="k.sub">{{ k.sub }}</div>
+      <div :class="cn('truncate text-xs max-xl:line-clamp-2 max-xl:whitespace-normal', k.tone === 'ok' ? 'text-ok-ink' : 'text-ink-3')" :title="k.sub">{{ k.sub }}</div>
     </div>
   </div>
   <div class="mt-4 overflow-x-auto rounded-[10px] border border-line-2"><div class="min-w-[620px]">

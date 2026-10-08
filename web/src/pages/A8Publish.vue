@@ -31,15 +31,17 @@ const tabs = computed(() =>
 </script>
 
 <template>
-  <section data-screen-label="04 发布工作流" class="grid min-h-[calc(100vh-132px)] grid-cols-1 xl:max-[1439px]:grid-cols-[248px_minmax(0,1fr)_304px] min-[1440px]:grid-cols-[280px_minmax(0,1fr)_340px]">
-    <TaskQueue />
-    <main class="flex min-w-0 flex-col gap-4 px-7 pt-[22px] pb-12 max-[1439px]:px-6 max-xl:px-4 max-xl:pb-6">
+  <section data-screen-label="04 发布工作流" class="grid min-h-[calc(var(--app-vh)-132px)] grid-cols-1 lg:max-xl:grid-cols-[minmax(0,1fr)_300px] xl:max-[1439px]:grid-cols-[248px_minmax(0,1fr)_304px] min-[1440px]:grid-cols-[280px_minmax(0,1fr)_340px] max-xl:[&_.text-\[10px\]]:text-[11px] max-xl:[&_.text-\[11px\]]:text-xs">
+    <TaskQueue class="lg:max-xl:col-span-2" />
+    <main class="flex min-w-0 flex-col gap-4 px-7 pt-[22px] pb-12 max-[1439px]:px-6 max-xl:px-4 max-xl:pt-5 max-xl:pb-6 lg:max-xl:px-5">
       <FlowHeader />
       <div class="yb-card">
-        <div class="flex gap-[22px] overflow-x-auto border-b border-line-2 px-5">
+        <div class="flex gap-[22px] overflow-x-auto border-b border-line-2 px-5 max-xl:gap-5 max-xl:px-4" role="tablist">
           <div v-press
             v-for="t in tabs"
             :key="t.id"
+            role="tab"
+            :aria-selected="t.id === s.tab"
             :class="cn(
               'flex shrink-0 cursor-pointer items-center gap-1.5 border-b-2 py-[13px] whitespace-nowrap max-xl:min-h-12',
               t.id === s.tab ? 'border-ink-1 font-semibold text-ink-1' : 'border-transparent text-ink-4',

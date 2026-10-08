@@ -137,7 +137,8 @@ const teams = computed(() =>
   })),
 )
 
-const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minmax(160px,1.2fr)] gap-3.5 px-5'
+/** Pad: narrower numeric columns so the 医疗组 table fits 768px without a horizontal scroll */
+const TEAM_COLS = 'grid grid-cols-[minmax(96px,1fr)_56px_84px_84px_64px_minmax(140px,1.2fr)] gap-3 px-4 xl:grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minmax(160px,1.2fr)] xl:gap-3.5 xl:px-5'
 </script>
 
 <template>
@@ -145,7 +146,7 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
     <div class="flex flex-wrap items-end justify-between gap-x-5 gap-y-3">
       <div class="min-w-0">
         <div class="text-xs text-ink-4">
-          <button type="button" class="cursor-pointer text-brand" @click="goPage('B1')">本院全景</button> / 病组下钻
+          <button type="button" class="relative cursor-pointer text-brand max-xl:before:absolute max-xl:before:-inset-x-2 max-xl:before:-inset-y-3 max-xl:before:content-['']" @click="goPage('B1')">本院全景</button> / 病组下钻
         </div>
         <template v-if="g">
           <h1 class="mt-0.5 text-2xl font-semibold" data-testid="b2-title">
@@ -190,11 +191,12 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
 
     <template v-else>
       <!-- KPI row -->
-      <div class="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-5 max-lg:[&>*:last-child]:col-span-2">
+      <div class="grid grid-cols-2 gap-3 md:grid-cols-6 xl:grid-cols-5 max-md:[&>*:last-child]:col-span-2">
         <div
-          v-for="k in kpis"
+          v-for="(k, i) in kpis"
           :key="k.k"
-          class="yb-stat relative flex items-start gap-3 overflow-hidden rounded-xl border px-[18px] py-card-y-sm"
+          class="yb-stat relative flex items-start gap-3 overflow-hidden rounded-xl border px-[18px] py-card-y-sm xl:col-span-1"
+          :class="i < 3 ? 'md:col-span-2' : 'md:col-span-3'"
           :style="{ '--stat-g': k.bg, '--stat-bd': k.bd, '--stat-stop': '64%' }"
           :title="k.tip"
         >
@@ -216,17 +218,17 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
       </div>
       <p class="-mt-1 text-[12px] text-ink-4">差值红色 = 本院较全市不利,绿色 = 有利 · 同级分位按表现排位,越高越好</p>
 
-      <div class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <!-- cost distribution -->
         <div v-if="histo" class="yb-card px-card-x py-card-y">
           <div class="flex flex-wrap justify-between gap-x-4 gap-y-1">
             <span class="flex items-center gap-2">
               <span class="text-[15px] font-semibold">病例费用分布</span>
-              <span class="rounded-full bg-surface-3 px-2 py-px font-mono text-[11px] whitespace-nowrap text-ink-3">{{ data.basis }}</span>
+              <span class="rounded-full bg-surface-3 px-2 py-px font-mono text-[11px] whitespace-nowrap text-ink-3 max-xl:text-[12px]">{{ data.basis }}</span>
             </span>
             <span class="text-xs whitespace-nowrap text-ink-4" data-testid="b2-hist-note">{{ histo.note }}</span>
           </div>
-          <div class="relative mt-3.5 flex h-[220px] items-end gap-1 border-b border-line-4">
+          <div class="relative mt-3.5 flex h-[220px] items-end gap-1 border-b border-line-4 pt-5">
             <div
               v-for="(h, i) in histo.bars"
               :key="i"
@@ -234,11 +236,11 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
               :title="h.t"
               :style="{ height: h.h, background: h.c }"
             />
-            <div class="absolute -top-1.5 bottom-0 border-l-2 border-dashed border-ink-1" :style="{ left: histo.stdX }">
-              <span class="absolute top-0 left-1.5 text-[11px] font-semibold whitespace-nowrap">支付标准 {{ fmt(g.standard) }}</span>
+            <div class="absolute top-0 bottom-0 border-l-2 border-dashed border-ink-1" :style="{ left: histo.stdX }">
+              <span class="absolute top-0 left-1.5 text-[11px] font-semibold whitespace-nowrap max-xl:text-[12px]">支付标准 {{ fmt(g.standard) }}</span>
             </div>
           </div>
-          <div class="yb-num mt-1.5 flex justify-between text-[11px] text-ink-5">
+          <div class="yb-num mt-1.5 flex justify-between text-[11px] text-ink-5 max-xl:text-[12px]">
             <span v-for="a in histo.axis" :key="a">{{ a }}</span>
           </div>
           <div class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs whitespace-nowrap">
@@ -262,7 +264,7 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
             </div>
             <span :class="cn('yb-num text-right font-semibold', r.dc)">{{ r.d }}</span>
           </div>
-          <div class="mt-1.5 flex gap-3.5 text-[11px] text-ink-4">
+          <div class="mt-1.5 flex gap-3.5 text-[11px] text-ink-4 max-xl:text-[12px]">
             <span class="flex items-center gap-1"><span class="h-2 w-2.5 rounded-[2px] bg-brand" />本院</span>
             <span class="flex items-center gap-1"><span class="h-2 w-2.5 rounded-[2px] bg-[#C9D3E1]" />全市同组</span>
           </div>
@@ -275,8 +277,8 @@ const TEAM_COLS = 'grid grid-cols-[minmax(120px,1fr)_70px_100px_100px_90px_minma
           <span class="text-[15px] font-semibold">本院医疗组 · {{ g.code }}</span>
           <span class="text-xs text-ink-4">{{ data.teamsNote }}</span>
         </div>
-        <div class="max-xl:overflow-x-auto">
-        <div class="max-xl:min-w-[760px]" data-testid="b2-teams">
+        <div class="max-md:overflow-x-auto">
+        <div class="max-md:min-w-[640px]" data-testid="b2-teams">
         <div :class="cn(TEAM_COLS, 'bg-surface-1 py-[9px] text-xs text-ink-4')">
           <span>医疗组</span><span class="text-right">病例</span><span class="text-right">例均费用</span>
           <span class="text-right">例均差额</span><span class="text-right">住院日</span><span>重复检查发生率</span>

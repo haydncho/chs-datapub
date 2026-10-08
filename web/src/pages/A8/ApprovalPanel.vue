@@ -30,7 +30,7 @@ const logs = computed(() =>
 </script>
 
 <template>
-  <aside class="flex flex-col gap-[18px] border-l border-line-1 bg-white p-5 max-xl:border-t max-xl:border-l-0 max-xl:px-4">
+  <aside class="flex flex-col gap-[18px] border-l border-line-1 bg-white p-5 max-xl:px-4 max-lg:border-t max-lg:border-l-0 md:max-lg:grid md:max-lg:grid-cols-2 md:max-lg:items-start md:max-lg:gap-x-6 md:max-lg:pt-5" aria-label="发布检查与审批">
     <div>
       <div class="mb-2.5 flex items-baseline justify-between">
         <span class="text-sm font-semibold">发布前检查</span>
@@ -55,7 +55,7 @@ const logs = computed(() =>
       </div>
     </div>
 
-    <div class="border-t border-line-2 pt-[18px]">
+    <div class="border-t border-line-2 pt-[18px] md:max-lg:border-t-0 md:max-lg:border-l md:max-lg:pt-0 md:max-lg:pl-6">
       <div class="mb-2.5 text-sm font-semibold">召集人审批</div>
       <template v-if="s.step === 5 && s.isConvener">
         <div class="mb-2 flex flex-wrap gap-1.5">
@@ -108,7 +108,7 @@ const logs = computed(() =>
       </template>
     </div>
 
-    <div class="min-h-0 flex-1 border-t border-line-2 pt-[18px]">
+    <div class="min-h-0 flex-1 border-t border-line-2 pt-[18px] md:max-lg:col-span-2">
       <div class="mb-2.5 text-sm font-semibold">操作日志</div>
       <div v-for="(l, i) in logs" :key="i + l.time + l.what" class="flex gap-2.5">
         <div class="flex w-2.5 flex-col items-center">
@@ -121,7 +121,7 @@ const logs = computed(() =>
             <span class="text-ink-4">{{ l.tag }}</span>
             <span class="yb-num text-ink-5">{{ l.time }}</span>
           </div>
-          <div class="text-ink-3">{{ l.what }}</div>
+          <div class="text-pretty text-ink-3">{{ l.what }}</div>
         </div>
       </div>
     </div>

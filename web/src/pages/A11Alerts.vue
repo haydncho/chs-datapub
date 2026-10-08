@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { PageSection, PageHeader } from '@/components/yb'
+import { PageSection, PageHeader, KpiValue } from '@/components/yb'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { getJson, usePageData, sendAction, runAction } from '@/api/client'
@@ -201,8 +201,7 @@ function ignore() {
         <div v-for="k in stats" :key="k.k" class="border-l border-line-2 px-[22px] py-2.5 whitespace-nowrap max-xl:px-4 max-xl:first:border-l-0">
           <div class="text-xs text-ink-4">{{ k.k }}</div>
           <div>
-            <span :class="cn('yb-num text-[22px] font-semibold', k.c)">{{ k.v }}</span>
-            <span class="text-[11px] text-ink-4"> {{ k.u }}</span>
+            <KpiValue :value="k.v" :unit="k.u" size="md" :class="k.c" />
           </div>
         </div>
       </div>
@@ -264,7 +263,7 @@ function ignore() {
           </div>
           <div class="mt-1.5 text-lg font-semibold">{{ cur.metric }}</div>
           <div class="flex flex-wrap items-baseline gap-x-2.5">
-            <span class="yb-num text-[34px] font-semibold" :style="{ color: curL.c }">{{ cur.value }}</span>
+            <span class="yb-num text-[28px] font-semibold" :style="{ color: curL.c }">{{ cur.value }}</span>
             <span class="text-xs text-ink-4">触发条件 {{ cur.threshold }}</span>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { PageSection } from '@/components/yb'
+import { PageSection, KpiValue } from '@/components/yb'
 import { getJson, usePageData, runAction } from '@/api/client'
 import { say } from '@/app/shell'
 import { cn } from '@/lib/utils'
@@ -123,8 +123,8 @@ const btn = 'h-[34px] px-4 max-xl:h-10 max-xl:min-w-20 font-medium text-ink-3 bo
       </div>
       <div class="shrink-0 border-l border-line-2 px-5 text-center">
         <div class="text-xs text-ink-4">{{ closed ? '核对' : '剩余' }}</div>
-        <div v-if="closed" class="text-[22px] font-semibold text-bad">已截止</div>
-        <div v-else class="yb-num text-[30px] font-semibold text-warn-ink">{{ data.remainingDays }} 天</div>
+        <div v-if="closed" class="text-lg font-semibold text-bad">已截止</div>
+        <KpiValue v-else :value="data.remainingDays" unit="天" class="block text-warn-ink" />
       </div>
       <div class="w-[180px] shrink-0">
         <div class="flex justify-between text-xs">
@@ -147,7 +147,7 @@ const btn = 'h-[34px] px-4 max-xl:h-10 max-xl:min-w-20 font-medium text-ink-3 bo
         <div class="flex flex-wrap items-center gap-4">
           <div class="min-w-0 flex-1">
             <div class="text-xs text-ink-4">{{ r.label }}</div>
-            <div class="yb-num text-2xl font-semibold">{{ r.value }}</div>
+            <KpiValue :value="r.value" class="block" />
             <div v-if="r.reference" class="text-xs text-ok-ink">✓ {{ r.reference }}</div>
           </div>
           <div class="flex gap-1.5" role="group" :aria-label="`${r.label} 核对结果`">

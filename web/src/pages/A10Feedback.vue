@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { KpiValue } from '@/components/yb'
 import { computed, ref, watch } from 'vue'
 import { getJson, usePageData } from '@/api/client'
 import { cn } from '@/lib/utils'
@@ -95,8 +96,7 @@ function select(id: string) {
         <div v-for="k in kpis" :key="k.k" class="border-l border-line-2 px-5 whitespace-nowrap max-xl:first:border-l-0 max-xl:first:pl-0">
           <div class="text-xs text-ink-4">{{ k.k }}</div>
           <div>
-            <span class="yb-num text-2xl font-semibold" :style="{ color: k.c }">{{ k.v }}</span>
-            <span class="text-[11px] text-ink-4"> {{ k.u }}</span>
+            <KpiValue :value="k.v" :unit="k.u" :style="{ color: k.c }" />
           </div>
         </div>
       </div>

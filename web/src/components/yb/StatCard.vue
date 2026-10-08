@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
  * (渐变 by default; 描边 / 投影 render it flat — see `.yb-stat` in style.css).
  */
 export type StatTone = 'ok' | 'warn' | 'bad' | 'info'
-/** value size: sm 26px (B7), md 30px (default), lg 32px (C3) */
+/** value size: sm 20px (B7), md 24px (default, Pad 22), lg 26px (C3, Pad 24) — 与 KpiValue 同一档位 */
 export type StatSize = 'sm' | 'md' | 'lg'
 const props = withDefaults(defineProps<{
   label: string
@@ -32,7 +32,7 @@ const TONES: Record<StatTone, { g: string; bd: string; ic: string; ib: string }>
   bad: { g: '#FDECEA', bd: '#F5CFCB', ic: '#D2362B', ib: '#fff' },
   info: { g: 'var(--brand-soft)', bd: '#DCE6F8', ic: 'var(--brand)', ib: '#fff' },
 }
-const VALUE_SIZE: Record<StatSize, string> = { sm: 'text-[26px]', md: 'text-[30px] max-xl:text-[26px]', lg: 'text-[32px] max-xl:text-[28px]' }
+const VALUE_SIZE: Record<StatSize, string> = { sm: 'text-xl', md: 'text-2xl max-xl:text-[22px]', lg: 'text-[26px] max-xl:text-2xl' }
 const t = computed(() => TONES[props.tone])
 const parts = computed(() => (props.unit != null ? { vn: String(props.value), vu: props.unit } : splitUnit(props.value)))
 </script>

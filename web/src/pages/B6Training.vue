@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { PageHeader, PageSection } from '@/components/yb'
+import { PageHeader, PageSection, KpiValue } from '@/components/yb'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { usePageData, runAction } from '@/api/client'
@@ -123,7 +123,7 @@ function viewDoc(d: B6Doc) {
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" :stroke="TONE[c.tone].fg" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="ICON[c.icon]" /></svg>
             </span>{{ c.tag }}
           </span>
-          <span class="yb-num relative text-[30px] font-semibold" :style="{ color: TONE[c.tone].fg }">{{ c.minutes }}<span class="text-[13px]"> 分钟</span></span>
+          <KpiValue :value="c.minutes" unit="分钟" class="relative" :style="{ color: TONE[c.tone].fg }" />
         </div>
         <div class="flex flex-1 flex-col gap-2 p-3.5">
           <div class="font-semibold">{{ c.name }}</div>

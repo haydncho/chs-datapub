@@ -165,7 +165,7 @@ function openWorkbench() {
           @click="pick(t.id)"
         >
           <div class="text-center max-xl:row-span-2">
-            <div :class="cn('yb-num text-[32px] leading-none font-semibold', scoreCls(t.score))">{{ t.score }}</div>
+            <div :class="cn('yb-num text-[26px] leading-none font-semibold', scoreCls(t.score))">{{ t.score }}</div>
             <div class="mt-0.5 text-[11px] whitespace-nowrap text-ink-5 max-xl:text-xs">综合得分</div>
           </div>
           <div class="min-w-0">

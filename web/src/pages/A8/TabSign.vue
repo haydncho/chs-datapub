@@ -22,7 +22,7 @@ const dash = computed(() => (s.posted ? ((s.sigN / Math.max(1, s.covN)) * 97.4).
           <circle cx="18" cy="18" r="15.5" fill="none" :stroke="G" stroke-width="3.5" stroke-linecap="round" :stroke-dasharray="dash" />
         </svg>
         <div class="absolute inset-0 flex flex-col items-center justify-center">
-          <span class="yb-num text-[30px] font-semibold">{{ pct }}</span>
+          <span class="yb-num text-2xl font-semibold">{{ pct }}</span>
           <span class="text-[11px] text-ink-4">已签收</span>
         </div>
       </div>

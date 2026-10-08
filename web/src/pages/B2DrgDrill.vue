@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { PageSection } from '@/components/yb'
+import { PageSection, KpiValue } from '@/components/yb'
 import { cn } from '@/lib/utils'
 import { fmt, sign, splitUnit } from '@/lib/format'
 import { A, AS, BRAND, BRAND_SOFT, G, GS, GT, INK, R, RS } from '@/lib/palette'
@@ -202,9 +202,7 @@ const TEAM_COLS = 'grid grid-cols-[minmax(96px,1fr)_56px_84px_84px_64px_minmax(1
         >
           <div class="min-w-0 flex-1 whitespace-nowrap">
             <div class="text-xs text-ink-4">{{ k.k }}</div>
-            <div class="yb-num text-[26px] font-semibold" :style="{ color: k.c }">
-              {{ k.vn }}<span v-if="k.vu" class="ml-[3px] text-[13px] font-medium text-ink-4">{{ k.vu }}</span>
-            </div>
+            <KpiValue :value="k.vn" :unit="k.vu" class="block" :style="{ color: k.c }" />
             <div class="text-xs text-ink-4">{{ k.city }}<template v-if="k.d"> · <span class="font-semibold" :style="{ color: k.dc }" data-testid="b2-kpi-delta">{{ k.d }}</span></template></div>
           </div>
           <span

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { KpiValue } from '@/components/yb'
 import { computed } from 'vue'
 import { A, AS, G, GS, GT, R, BRAND, BRAND_SOFT } from '@/lib/palette'
 import type { B1Kpi } from '@/mock/B1'
@@ -46,8 +47,7 @@ const view = computed(() => {
     </div>
     <div class="flex items-end justify-between gap-3">
       <div class="min-w-0 flex-1 whitespace-nowrap">
-        <span class="yb-num text-[28px] leading-none font-semibold">{{ kpi.value }}</span>
-        <span class="text-[11px] text-ink-4 max-xl:text-[12px]"> {{ kpi.unit }}</span>
+        <KpiValue :value="kpi.value" :unit="kpi.unit" />
       </div>
       <div class="flex h-6 shrink-0 items-end gap-0.5">
         <span v-for="(b, i) in view.spark" :key="i" class="w-1 rounded-[1px]" :style="{ height: b.h, background: b.c }" />

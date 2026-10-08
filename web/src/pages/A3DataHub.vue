@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { PageHeader, PageSection, StatCard, type StatTone } from '@/components/yb'
+import { PageHeader, PageSection, StatCard, type StatTone, KpiValue } from '@/components/yb'
 import { Button } from '@/components/ui/button'
 import { getJson, runAction, usePageData } from '@/api/client'
 import { goPage } from '@/app/router'
@@ -208,7 +208,7 @@ async function onGen() {
               <span class="flex min-w-0 items-center gap-1.5 text-xs font-medium whitespace-nowrap text-ink-3"><span class="yb-num text-ink-5 xl:hidden">{{ i + 1 }}</span>{{ p.n }}</span>
               <span :class="cn('text-[11px] font-semibold whitespace-nowrap max-xl:text-xs', p.fg)">{{ p.label }}</span>
             </div>
-            <div class="yb-num mt-0.5 text-[22px] font-semibold whitespace-nowrap text-ink-1">{{ p.v }}</div>
+            <KpiValue :value="p.v" size="md" class="mt-0.5 block text-ink-1" />
             <!-- 窄卡时只在「 · 」处换行,不拆开数字 -->
             <div class="truncate text-[11px] text-ink-4 max-xl:text-xs lg:max-xl:line-clamp-2 lg:max-xl:whitespace-normal" :title="p.sub"><template v-for="(seg, k) in p.sub.split(' · ')" :key="k"><span class="whitespace-nowrap">{{ k ? '· ' : '' }}{{ seg }}</span>{{ ' ' }}</template></div>
           </div>

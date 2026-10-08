@@ -60,7 +60,7 @@ const top = computed(() => {
         <div class="flex items-baseline justify-between border-t border-line-2 pt-2.5">
           <span class="text-[12px] text-ink-3">偏离</span>
           <span>
-            <span class="yb-num text-[24px] font-semibold" :class="settle.neg ? 'text-bad' : 'text-ok'">{{ settle.dev }}</span>
+            <span class="yb-num text-xl font-semibold" :class="settle.neg ? 'text-bad' : 'text-ok'">{{ settle.dev }}</span>
             <span class="text-[12px]" :class="settle.neg ? 'text-bad-ink' : 'text-ok-ink'"> · {{ settle.devPct }}</span>
           </span>
         </div>

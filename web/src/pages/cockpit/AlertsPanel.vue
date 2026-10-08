@@ -41,7 +41,15 @@ const track = computed(() => ({
   transition: smooth.value ? 'transform .6s cubic-bezier(.2,.8,.2,1)' : 'none',
 }))
 const winH = computed(() => Math.min(n.value, WIN) * ROW)
-const pos = computed(() => (n.value > WIN ? `${(idx.value % n.value) + 1}–${Math.min(n.value, (idx.value % n.value) + WIN)} / ${n.value}` : `${n.value} 条`))
+/** 窗口里实际显示的是第 start 条起的 WIN 条(回绕到开头时如实写出,如 "3–5、1 / 5") */
+const pos = computed(() => {
+  const N = n.value
+  if (N <= WIN || !rolling.value) return `${N} 条`
+  const start = (idx.value % N) + 1
+  const end = ((idx.value + WIN - 1) % N) + 1
+  if (end >= start) return `${start}–${end} / ${N}`
+  return `${start === N ? N : `${start}–${N}`}、${end === 1 ? 1 : `1–${end}`} / ${N}`
+})
 </script>
 
 <template>

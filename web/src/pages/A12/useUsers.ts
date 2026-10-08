@@ -18,6 +18,7 @@ export function useUsers(data: Ref<A12Data>) {
   const isConvener = computed(() => !session.current || session.current.identity.role === 'convener')
   const canReview = computed(() => !session.current || ['convener', 'admin'].includes(session.current.identity.role))
   const meName = computed(() => session.current?.user.name ?? null)
+  const meLogin = computed(() => session.current?.user.login ?? null)
 
   const rows = computed(() => {
     const q = filters.q.trim().toLowerCase()
@@ -120,5 +121,5 @@ export function useUsers(data: Ref<A12Data>) {
     filters.q = ''
   }
 
-  return { filters, rows, sideCount, busy, isConvener, canReview, meName, setEnabled, requestAdd, review, resetFilters }
+  return { filters, rows, sideCount, busy, isConvener, canReview, meName, meLogin, setEnabled, requestAdd, review, resetFilters }
 }

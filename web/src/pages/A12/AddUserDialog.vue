@@ -18,6 +18,14 @@ const errors = computed(() => ({
   login: !/^[a-z][a-z0-9_]{2,31}$/.test(form.login) ? '3–32 位小写字母、数字或下划线,以字母开头' : '',
   role: !form.role ? '请选择角色' : '',
 }))
+/** 角色决定可选机构(服务端同样校验):局端 → 医保局;社会监督员 → 公开汇总层;医院 / 县区 → 定点医疗机构 */
+const orgHint = computed(() => {
+  const side = props.roles.find(r => r.code === form.role)?.side
+  if (form.role === 'observer') return '公开汇总层(默认)'
+  if (form.role === 'hospital') return '定点医疗机构名称或编码(默认第一人民医院)'
+  if (form.role === 'county') return '必填:所在县区的定点医疗机构'
+  return side === 'bureau' ? '示例市医保局(默认)' : '机构名称或编码,默认按角色'
+})
 const valid = computed(() => !errors.value.name && !errors.value.login && !errors.value.role)
 
 watch(open, o => {
@@ -66,8 +74,8 @@ async function go() {
           </Select>
           <span v-if="touched && errors.role" class="text-[11px] text-bad-ink">{{ errors.role }}</span>
         </div>
-        <label class="flex flex-col gap-1 text-xs text-ink-3">所属机构(可选)
-          <Input v-model="form.org" placeholder="机构名称或编码,默认按角色" class="h-9 text-[13px]" />
+        <label class="flex flex-col gap-1 text-xs text-ink-3">所属机构
+          <Input v-model="form.org" :placeholder="orgHint" class="h-9 text-[13px]" />
         </label>
       </div>
       <div class="flex justify-end gap-2">

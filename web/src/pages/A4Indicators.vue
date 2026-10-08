@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { PageHeader } from '@/components/yb'
-import { sendAction, usePageData } from '@/api/client'
+import { getJson, runAction, usePageData } from '@/api/client'
 import { say } from '@/app/shell'
 import { cn } from '@/lib/utils'
-import { A4_SEED, type A4Group, type A4Indicator, type A4Tier } from '@/mock/A4'
+import { A4_SEED, type A4Data, type A4Group, type A4Indicator, type A4Status, type A4Tier } from '@/mock/A4'
 import Catalog from './A4/Catalog.vue'
 import IndicatorTable from './A4/IndicatorTable.vue'
 import IndicatorDetail from './A4/IndicatorDetail.vue'
@@ -20,14 +20,22 @@ import {
 const data = usePageData('A4', A4_SEED)
 const inds = computed(() => data.value.indicators)
 
+/** re-read the read model after an accepted action (pending tiers, package, new indicators live on the server) */
+async function refresh() {
+  try {
+    const remote = await getJson<A4Data>('/pages/A4')
+    if (remote && typeof remote === 'object') data.value = { ...A4_SEED, ...remote }
+  } catch { /* keep the current view */ }
+}
+
 // ── state ──
 const grp = ref<A4Group | '全部'>('全部')
 const dom = ref<string | null>(null)
 const isrc = ref('全部')
 const isel = ref(0)
 const checked = ref<Record<number, boolean>>({})
-const pend = ref<Record<number, A4Tier>>({})
 const confirm = ref<A4Tier | null>(null)
+const busy = ref(false)
 const sort = ref<{ k: number; d: 1 | -1 }>({ k: -1, d: 1 })
 const widths = ref<Record<number, number>>({})
 const hidden = ref<Record<number, boolean>>({})
@@ -39,6 +47,17 @@ const wizOpen = ref(false)
 const srcKey = computed(() => SOURCE_FILTERS.find(f => f.label === isrc.value)?.source ?? null)
 const srcOk = (r: A4Indicator) => !srcKey.value || r.source === srcKey.value
 
+/** business order for the coded columns (not the alphabetical order of the internal keys) */
+const TIER_ORDER: Record<A4Tier, number> = { pct: 0, anon: 1, named: 2, none: 3 }
+const STATUS_ORDER: Record<A4Status, number> = { on: 0, review: 1, draft: 2, hold: 3 }
+function sortValue(ind: A4Indicator, key: keyof A4Indicator): string | number {
+  if (key === 'tier') return TIER_ORDER[ind.tier]
+  if (key === 'status') return STATUS_ORDER[ind.status]
+  if (key === 'version') return Number(ind.version.replace(/[^\d.]/g, '').split('.').map(x => x.padStart(3, '0')).join('')) || 0
+  const v = ind[key]
+  return typeof v === 'number' ? v : String(v ?? '')
+}
+
 const rows = computed<A4Row[]>(() => {
   const so = sort.value
   const key = so.k >= 0 ? COLUMNS[so.k]!.key : null
@@ -47,7 +66,7 @@ const rows = computed<A4Row[]>(() => {
     .filter(({ ind }) => (grp.value === '全部' || ind.group === grp.value) && (!dom.value || ind.domain === dom.value) && srcOk(ind))
     .sort((a, b) => {
       if (!key) return 0
-      const x = a.ind[key], y = b.ind[key]
+      const x = sortValue(a.ind, key), y = sortValue(b.ind, key)
       return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'zh')) * so.d
     })
     .map(({ ind, i }) => ({
@@ -56,14 +75,23 @@ const rows = computed<A4Row[]>(() => {
       intl: ind.source === 'internal',
       checked: !!checked.value[i],
       selected: i === isel.value,
-      pending: pend.value[i] ?? null,
+      pending: ind.pendingTier ?? null,
     }))
 })
 
 const scope = computed(
   () => (dom.value || (grp.value === '全部' ? '全部指标' : GROUP_NAME[grp.value])) + (isrc.value !== '全部' ? ' · ' + isrc.value : ''),
 )
-const nCk = computed(() => Object.values(checked.value).filter(Boolean).length)
+/** only rows visible under the current filter count (and get added) — hidden checks are dropped */
+const checkedRows = computed(() => rows.value.filter(r => r.checked))
+const nCk = computed(() => checkedRows.value.length)
+watch(rows, rs => {
+  const visible = new Set(rs.map(r => r.i))
+  const kept = Object.fromEntries(Object.entries(checked.value).filter(([k, v]) => v && visible.has(Number(k))))
+  if (Object.keys(kept).length !== Object.values(checked.value).filter(Boolean).length) checked.value = kept
+  // the selected indicator was filtered out: follow the filter to its first row
+  if (rs.length && !visible.has(isel.value)) select(rs[0]!.i, false)
+})
 
 // ── columns: widths, visibility, density ──
 const W = computed(() => ({ ...DEFAULT_WIDTHS, ...widths.value }))
@@ -101,9 +129,12 @@ function resetCols() {
 }
 
 // ── row interactions ──
-function select(i: number) {
+const detailEl = ref<{ $el?: HTMLElement } | null>(null)
+function select(i: number, scroll = true) {
   isel.value = i
   confirm.value = null
+  // 窄屏下详情在列表下方,点选后滚动到详情
+  if (scroll && window.innerWidth < 1280) nextTick(() => detailEl.value?.$el?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
 }
 function toggleCheck(r: A4Row) {
   if (r.intl) {
@@ -121,25 +152,41 @@ function clearFilters() {
   dom.value = null
   isrc.value = '全部'
 }
-function addPkg() {
-  const n = nCk.value
-  const names = Object.entries(checked.value).filter(([, v]) => v).map(([k]) => inds.value[Number(k)]?.name ?? '')
+async function addPkg() {
+  if (busy.value) return
+  const names = checkedRows.value.map(r => r.ind.name)
+  busy.value = true
+  const r = await runAction<{ result?: { added: string[] } }>('A4', 'addToPackage', { indicators: names, package: data.value.targetPackage })
+  busy.value = false
+  if (!r.ok) return say(r.error)
   checked.value = {}
-  sendAction('A4', 'addToPackage', { indicators: names, package: data.value.targetPackage })
-  say(`已将 ${n} 项指标加入 ${data.value.targetPackage}`)
+  await refresh()
+  const n = r.data?.result?.added.length ?? names.length
+  say(`已将 ${n} 项指标加入 ${data.value.targetPackage}` + (n < names.length ? `(${names.length - n} 项此前已在包内)` : ''))
 }
 
 // ── detail: tier change approval ──
 const ind = computed(() => inds.value[isel.value] ?? inds.value[0]!)
 function pickTier(t: A4Tier) {
-  if (ind.value.tier !== t && ind.value.source !== 'internal' && pend.value[isel.value] == null) confirm.value = t
+  if (ind.value.source === 'internal') return
+  if (ind.value.pendingTier) {
+    say('已有待审批的档位变更,请等待召集人审批')
+    return
+  }
+  if (ind.value.tier !== t) confirm.value = t
 }
-function confirmOk() {
-  if (!confirm.value) return
-  sendAction('A4', 'requestTierChange', { indicator: ind.value.name, from: ind.value.tier, to: confirm.value })
-  pend.value = { ...pend.value, [isel.value]: confirm.value }
+async function confirmOk() {
+  if (!confirm.value || busy.value) return
+  busy.value = true
+  const r = await runAction('A4', 'requestTierChange', { indicator: ind.value.name, from: ind.value.tier, to: confirm.value })
+  busy.value = false
+  if (!r.ok) return say(r.error)
   confirm.value = null
+  await refresh()
   say('已提交召集人审批 · 审批前按原档位发布')
+}
+async function onSubmitted() {
+  await refresh()
 }
 </script>
 
@@ -159,7 +206,7 @@ function confirmOk() {
         <template #subtitle>
           {{ scope }} · {{ rows.length }} 项 · 全库 {{ data.libraryTotal }} 项:国家底稿 {{ data.libraryNational }} · 地方增选 {{ data.libraryLocal }} · 仅内部 {{ data.libraryInternal }}
         </template>
-        <Button v-if="nCk > 0" variant="soft" class="px-3.5 font-medium" @click="addPkg">加入发布包 · {{ nCk }}</Button>
+        <Button v-if="nCk > 0" variant="soft" class="px-3.5 font-medium" :disabled="busy" @click="addPkg">加入发布包 · {{ nCk }}</Button>
         <Popover v-model:open="colOpen">
           <PopoverTrigger as-child>
             <Button variant="outline" class="gap-1.5 px-3 font-normal text-ink-2">
@@ -216,16 +263,19 @@ function confirmOk() {
     </main>
 
     <IndicatorDetail
+      ref="detailEl"
+      class="scroll-mt-20"
       :ind="ind"
       :audiences="data.audiences"
-      :history="data.versionHistory"
       :confirm="confirm"
-      :pending="pend[isel] ?? null"
+      :pending="ind.pendingTier ?? null"
+      :busy="busy"
+      :package-name="data.targetPackage"
       @pick-tier="pickTier"
       @confirm-ok="confirmOk"
       @confirm-no="confirm = null"
     />
 
-    <IndicatorWizard v-model:open="wizOpen" :wizard="data.wizard" />
+    <IndicatorWizard v-model:open="wizOpen" :wizard="data.wizard" :existing="inds.map(x => x.name)" @submitted="onSubmitted" />
   </section>
 </template>

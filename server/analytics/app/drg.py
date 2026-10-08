@@ -7,7 +7,7 @@ Inputs are the city-wide groups from ``drg_group`` (cases, 例均基金差额,
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import sqrt
+from math import floor, sqrt
 from statistics import median
 
 
@@ -82,6 +82,11 @@ def _ratio(v: float, hi: float) -> float:
     return 0.0 if hi <= 0 else max(0.0, min(100.0, sqrt(max(v, 0.0) / hi) * 100))
 
 
+def _round(v: float) -> int:
+    """Round half up (74.5 → 75), unlike Python's banker's ``round`` (74.5 → 74, 63.55 → 64 is inconsistent)."""
+    return int(floor(round(v, 6) + 0.5))
+
+
 def _wan(v: float) -> str:
     return f"{abs(v) / 10_000:,.1f} 万"
 
@@ -118,12 +123,12 @@ def recommend(groups: list[Group], quality: dict[str, float] | None = None, top:
     for g in cands:
         dev = abs(g.diff_per_case) / g.cost_per_case
         s = {
-            "impact": round(_ratio(abs(g.total_diff), max_imp)),
-            "deviation": round(_ratio(dev, max_dev)),
-            "actionable": round(min(100.0, g.cases / max_cases * 120)),
-            "ready": round(quality.get(g.code, DEFAULT_READY)),
+            "impact": _round(_ratio(abs(g.total_diff), max_imp)),
+            "deviation": _round(_ratio(dev, max_dev)),
+            "actionable": _round(min(100.0, g.cases / max_cases * 120)),
+            "ready": _round(quality.get(g.code, DEFAULT_READY)),
         }
-        score = round(sum(s[k] * w for k, w in WEIGHTS.items()))
+        score = _round(sum(s[k] * w for k, w in WEIGHTS.items()))
         deficit = g.diff_per_case > 0
         if not deficit:
             why = f"结余 {_signed(g.diff_per_case)} 元/例,疑似低码高编反向"

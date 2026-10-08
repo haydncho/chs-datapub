@@ -38,7 +38,7 @@ const kpis = computed(() => [
       <div class="rounded-[10px] border border-[#F6DFB8] bg-[#FFFBF4] px-3 py-2.5 text-xs leading-[1.7] text-ink-3">{{ s.covNames }}</div>
       <div class="flex justify-end gap-2">
         <Button variant="outline" class="h-[38px] px-4 font-normal max-xl:h-11" @click="s.confirmOpen = false">返回检查</Button>
-        <Button class="h-[38px] px-5 max-xl:h-11" @click="s.approve()">确认发布</Button>
+        <Button class="h-[38px] px-5 max-xl:h-11" :disabled="s.busy || s.blocked" @click="s.approve()">{{ s.busy ? '提交中…' : '确认发布' }}</Button>
       </div>
     </DialogContent>
   </Dialog>

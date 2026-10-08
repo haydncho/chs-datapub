@@ -12,6 +12,38 @@ export interface A8Task {
   due: string
   /** current step 1–10 (10 = 归档复盘 / archived) */
   step: number
+  /* ---- live state from the server overlay (absent in the offline seed) ---- */
+  /** open / approved / rejected / archived / withdrawn */
+  status?: string
+  /** days until the due date (negative = overdue); null when archived / no due date */
+  daysLeft?: number | null
+  /** 更正 / 撤回 task: the published task it revises */
+  origin?: string
+  /** report released by this task (B4 / D1) */
+  reportId?: string
+  /** date of 召集人批准 (YYYY-MM-DD) */
+  approvedAt?: string
+  /** 定向范围 as approved */
+  scope?: A8Scope
+  /** targeted institutions that signed the released report */
+  signed?: string[]
+  /** institutions already sent a 催办 */
+  urged?: string[]
+  /** 操作日志 of this task (approve / reject / submit / correction …) */
+  logs?: A8LogEntry[]
+}
+
+export interface A8ScopeFilters {
+  tiers: number[]
+  districts: string[]
+  batch: string
+  drg: string
+}
+
+export interface A8Scope {
+  coverage: number
+  institutions: string[]
+  filters?: A8ScopeFilters
 }
 
 export interface A8Tier {
@@ -75,6 +107,8 @@ export interface A8CheckItem {
   text: string
   ok: boolean
   tab: A8Tab
+  /** 'warn' = advisory: shown, but does not block 批准 (default: blocking) */
+  level?: 'warn'
 }
 
 export interface A8LogEntry {
@@ -115,14 +149,12 @@ export interface A8Data {
   indicators: A8Indicator[]
   audiences: A8PreviewAudience[]
   previewHead: string
-  /** static checklist items; the coverage item (5th) is derived in the page */
+  /** static checklist items (all blocking unless level 'warn'); the coverage item (5th) is derived in the page */
   checks: A8CheckItem[]
   phrases: string[]
   logs: A8LogEntry[]
   signPeriod: string
   signRemain: string
-  /** share of covered institutions that have signed once published */
-  signRate: number
   packageSize: string
   correction: A8Correction
 }
@@ -163,7 +195,7 @@ export const A8_SEED: A8Data = {
     { id: 'w8', group: '月告知', name: '2026年8月 运行预警汇总', due: '剩 4 天', step: 3 },
     { id: 'q3', group: '季公布', name: '2026年第三季度运行公布', due: '剩 18 天', step: 2 },
     { id: 'y25', group: '年通报', name: '2025年度支付方式改革通报', due: '已归档', step: 10 },
-    { id: 'br25', group: '专题', name: 'BR25 脑缺血性疾患专题', due: '核对剩 2 天', step: 4 },
+    { id: 'br25', group: '专题', name: 'BR25 脑缺血性疾患专题', due: '核对剩 2 天', step: 3 },
     { id: 'org', group: '专题', name: '2026年上半年机构体检报告', due: '剩 6 天', step: 3 },
     { id: 'gg19', group: '提醒函', name: 'GG19 次均费用预警提醒函', due: '回执剩 3 天', step: 7 },
     { id: 'c7', group: '更正', name: '2026年7月月度报告更正', due: '已归档', step: 10 },
@@ -201,7 +233,7 @@ export const A8_SEED: A8Data = {
       name: '第一人民医院',
       identity: '市三级 · 本院具名',
       rows: [
-        { label: '例均基金差额', method: '本院 · 同级匿名分位', value: '+486 · P62', tone: 'bad', hidden: false },
+        { label: '例均基金差额', method: '本院 · 同级匿名分位', value: '+723 · P45', tone: 'bad', hidden: false },
         { label: 'CMI', method: '本院 · 同级匿名分位', value: '1.12 · P68', tone: 'ink', hidden: false },
         { label: '清单质控率', method: '具名排行', value: '第 3 / 6', tone: 'ink', hidden: false },
         { label: '他院明细', method: '匿名机构不渲染', value: '—', tone: 'muted', hidden: true },
@@ -238,7 +270,7 @@ export const A8_SEED: A8Data = {
     { text: '仅内部指标已排除 · 2 项', ok: true, tab: 'pkg' },
     { text: '小样本抑制已应用 · 县三级', ok: true, tab: 'ver' },
     { text: '专家组审核 3/3 通过', ok: true, tab: 'pkg' },
-    { text: '机构核对 49/52 · 3 条异议转工单', ok: false, tab: 'sig' },
+    { text: '机构核对 49/52 · 3 条异议已转意见工单', ok: true, tab: 'pkg' },
   ],
   phrases: ['数据口径已复核', '同意按期发布', '请补充县区解读', '请核实异议工单'],
   logs: [
@@ -249,7 +281,6 @@ export const A8_SEED: A8Data = {
   ],
   signPeriod: '5 个工作日',
   signRemain: '剩 4 个工作日',
-  signRate: 0.79,
   packageSize: 'v3 · 37 项',
   correction: {
     oldTitle: '7月月度报告 v1',
@@ -264,15 +295,15 @@ export const A8_SEED: A8Data = {
 
 /**
  * ACTIONS:
- * approvePublish({ taskId: string, comment: string, coverage: number, institutions: string[],
- *   filters: { tiers: number[], districts: string[], batch: string, drg: string } })
- *   — 召集人批准发布包, task moves to step 6 定向发布, pushes to the covered institutions; appends 2 log entries.
- * rejectPublish({ taskId: string, toStep: number, comment: string })
- *   — 召集人驳回 (comment required), task returns to step `toStep` (1–4); appends a log entry.
- * urgeSign({ taskId: string, institution: string })
- *   — 向单家未签收机构发送催办(政务微信 + 短信).
- * urgeSignAll({ taskId: string, institutions: string[], count: number })
- *   — 一键催办 all unsigned institutions.
- * startCorrection({ taskId: string }) — 发起更正 (re-enters 专家组审核 + 召集人审批).
- * startWithdraw({ taskId: string }) — 发起撤回 (re-enters 专家组审核 + 召集人审批).
+ * All A8 actions are server state (PublishDomain); the page waits for the answer (runAction) and reloads.
+ * approvePublish({ taskId, comment, coverage, institutions: string[], filters: { tiers, districts, batch, drg } })
+ *   — 召集人 only. Refused when the task is not at step 5, the scope covers 0 institutions or a blocking
+ *     发布前检查 fails. Task → step 6 定向发布; the approved scope and 2 log entries are stored.
+ * rejectPublish({ taskId, toStep: 1–4, comment }) — 召集人 only, comment required; task returns to `toStep`.
+ * submitForApproval({ taskId, comment? }) — 召集人 / 行政管理组: a task at step 1–4 (rejected, or a new 更正 task)
+ *   enters 召集人审批 (step 5).
+ * urgeSign({ taskId, institution }) / urgeSignAll({ taskId }) — 催办 unsigned targeted institutions (stored once each).
+ * startCorrection({ taskId, reason? }) / startWithdraw({ taskId, reason? }) — only for a published task (step ≥ 6):
+ *   creates a 更正 task (GZ-… / CH-…) at 专家组审核 that goes through 召集人审批 again.
+ * resetDemo({ taskId }) — dev mode only, 召集人 only, only the demo seed task m8 (tests / e2e).
  */

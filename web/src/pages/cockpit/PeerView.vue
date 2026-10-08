@@ -28,7 +28,7 @@ const dotStyle = (d: { me: boolean; x: string; tr: string }) => ({
     >
       <span>指标</span>
       <span class="flex justify-between"><span>← 较差</span><span>同级 市三级 6 家 · 匿名 · 浅带为 P25–P75</span><span>较好 →</span></span>
-      <span class="text-right">本院 · 同级分位</span>
+      <span class="text-right" title="与 B1 同口径:同级分位按表现好坏排位,越高越好(P100 为同级最优)">同级分位 · 越高越好</span>
     </div>
     <div
       v-for="r in peer"
@@ -38,7 +38,9 @@ const dotStyle = (d: { me: boolean; x: string; tr: string }) => ({
         props.screen2 ? 'grid-cols-[200px_minmax(0,1fr)_170px] gap-7' : 'grid-cols-[180px_minmax(0,1fr)_150px] gap-6',
       )"
     >
-      <span :class="cn('whitespace-nowrap', props.screen2 ? 'text-[19px]' : 'text-base')">{{ r.n }}</span>
+      <span :class="cn('flex items-baseline gap-2 whitespace-nowrap', props.screen2 ? 'text-[19px]' : 'text-base')">
+        {{ r.n }}<span :class="cn('text-[#6F84A6]', props.screen2 ? 'text-sm' : 'text-xs')">{{ r.dir }}</span>
+      </span>
       <div :class="cn('relative', props.screen2 ? 'h-9' : 'h-[30px]')">
         <div :class="cn('absolute inset-x-0 h-0.5 bg-[rgba(255,255,255,.08)]', props.screen2 ? 'top-[17px]' : 'top-3.5')" />
         <div
@@ -54,6 +56,7 @@ const dotStyle = (d: { me: boolean; x: string; tr: string }) => ({
         <span
           :class="cn('yb-num font-semibold', props.screen2 ? 'ml-3 text-[17px]' : 'ml-2.5 text-sm')"
           :style="{ color: r.pc }"
+          :title="`${r.dir} · ${r.st}`"
         >{{ r.p }}</span>
       </div>
     </div>

@@ -82,8 +82,10 @@ public class AuditService {
                 .query(String.class).optional().orElse(GENESIS);
         // microsecond precision matches what PostgreSQL stores, so verify() recomputes the same hash
         OffsetDateTime at = OffsetDateTime.now().truncatedTo(ChronoUnit.MICROS);
-        String body = canonical(payload);
-        String hash = chainHash(prev, at, actor, page, action, body);
+        // hash exactly what verify() will read back: jsonb normalises numbers (1e2 → 100, 1.0E+2 …) and key
+        // order, so the payload is put through PostgreSQL first and the stored text is hashed
+        String body = jdbc.sql("select cast(:p as jsonb)::text").param("p", raw(payload)).query(String.class).single();
+        String hash = chainHash(prev, at, actor, page, action, canonical(parse(body)));
         long id = jdbc.sql("""
                 insert into audit_event (at, actor, page, action, payload, terminal, prev_hash, hash)
                 values (:at, :actor, :page, :action, cast(:payload as jsonb), :terminal, :prev, :hash)
@@ -91,7 +93,7 @@ public class AuditService {
                 .param("at", at).param("actor", actor).param("page", page).param("action", action)
                 .param("payload", body).param("terminal", terminal).param("prev", prev).param("hash", hash)
                 .query(Long.class).single();
-        return new AuditEvent(id, at, actor, page, action, payload, terminal, prev, hash);
+        return new AuditEvent(id, at, actor, page, action, parse(body), terminal, prev, hash);
     }
 
     // ── read ─────────────────────────────────────────────────────────────────
@@ -257,17 +259,22 @@ public class AuditService {
     }
 
     /** payload fields that name the object acted on, most specific first. */
-    private static final List<String> SUBJECT_KEYS = List.of("report", "name", "title", "taskId", "alertId", "alert",
+    private static final List<String> SUBJECT_KEYS = List.of("login", "request", "report", "name", "title", "taskId", "alertId", "alert",
             "indicator", "flow", "source", "docNo", "org", "institution", "message", "target", "id", "key");
 
     /** A14 对象 column, e.g. "签收报告 · 2026年8月 本院医保运行报告". */
     static String describe(String page, AuditTypes.Kind kind, JsonNode payload) {
         // actions outside the table carry their raw name as label: prefix the page title so the row still reads
         String head = kind.known() ? kind.label() : pageTitle(page) + " · " + kind.label();
+        if (payload != null && "A12".equals(page)) {
+            // 用户权限: say what happened to which account
+            if (payload.path("enabled").isBoolean()) head = payload.get("enabled").asBoolean() ? "启用账号" : "停用账号";
+            if (payload.path("approve").isBoolean()) head = payload.get("approve").asBoolean() ? "复核通过新增用户" : "驳回新增用户";
+        }
         String subject = null;
         if ("A13".equals(page) && payload.has("key")) {
             subject = SettingDiff.compute("A13", "setPolicyRule", payload, null).changes().get(0).label();
-        } else if (payload != null && !"A15".equals(page)) { // A15 payload is the whole appearance: its diff says it all
+        } else if (payload != null && (!"A15".equals(page) || payload.has("request"))) { // A15 payload is the whole appearance: its diff says it all
             for (String k : SUBJECT_KEYS) {
                 JsonNode v = payload.get(k);
                 if (v != null && v.isValueNode() && !v.asText().isBlank()) {
@@ -324,6 +331,15 @@ public class AuditService {
     JsonNode parse(String s) {
         try {
             return json.readTree(s == null ? "{}" : s);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /** The payload as JSON text, numbers exactly as given (BigDecimal stays plain). */
+    private String raw(JsonNode node) {
+        try {
+            return json.writeValueAsString(node == null ? json.createObjectNode() : node);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException(e);
         }

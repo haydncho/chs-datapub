@@ -18,6 +18,8 @@ defineProps<{
   isConvener: boolean
   canReview: boolean
   meName: string | null
+  /** 当前登录账号:自己那一行不提供停用 */
+  meLogin: string | null
 }>()
 const emit = defineEmits<{
   disable: [u: A12User]
@@ -40,7 +42,7 @@ const SIDE_TABS = [['all', '全部'], ['bureau', '医保局端'], ['org', '机�
         <span class="text-xs text-ink-4">{{ summary }}</span>
       </div>
       <div class="flex flex-wrap items-center gap-2">
-        <div class="flex rounded-lg bg-surface-2 p-0.5" role="tablist" aria-label="按端筛选">
+        <div class="flex rounded-lg bg-surface-2 p-0.5" role="tablist" aria-label="按端筛选" title="计数含待复核的新增申请">
           <button
             v-for="[k, label] in SIDE_TABS"
             :key="k"
@@ -114,6 +116,7 @@ const SIDE_TABS = [['all', '全部'], ['bureau', '医保局端'], ['org', '机�
           </template>
           <span v-else class="text-[11px] text-ink-5">等待另一人复核</span>
         </template>
+        <span v-else-if="meLogin && u.login === meLogin" class="text-[11px] text-ink-5">当前登录账号</span>
         <Button
           v-else-if="u.status === 'off'"
           size="sm" variant="soft" class="h-7 px-3 max-xl:h-10" :disabled="busy || !isConvener"

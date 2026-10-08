@@ -1,39 +1,25 @@
 {
-  "header": {
-    "code": "BR25",
-    "name": "脑缺血性疾患,伴并发症",
-    "meta": "权重 1.42 · 支付标准 12,340 元 · 2026年8月 · 本院 286 例"
-  },
+  "period": "2026年8月",
   "basis": "口径 v1.4 · B20260905-01",
-  "histNote": "本院 286 例 · 每格 2,000 元",
-  "standard": 12340,
-  "histMax": 28000,
-  "histAxis": [
-    "0",
-    "8k",
-    "16k",
-    "24k",
-    "28k+"
-  ],
-  "histSummary": {
-    "below": "38%",
-    "above": "62%",
-    "highMultiple": 7
-  },
+  "defaultGroup": "BR25",
   "groups": [
     {
       "code": "BR25",
+      "name": "脑缺血性疾患,伴并发症",
+      "weight": 1.42,
+      "standard": 12340,
       "cases": 286,
-      "cityCases": 4261,
+      "cityCases": 1420,
       "avgCost": 14820,
-      "cityAvgCost": 13080,
+      "cityAvgCost": 14200,
       "avgDiff": 2140,
-      "cityAvgDiff": 1862,
-      "peerPercentile": 71,
+      "cityAvgDiff": 1860,
+      "peerPercentile": 48,
       "los": 11.6,
       "cityLos": 10.4,
       "comorbidityRate": "74%",
       "cityComorbidityRate": "72%",
+      "bucket": 2000,
       "histogram": [
         2,
         5,
@@ -76,21 +62,67 @@
           "hospital": 1820,
           "city": 1530
         }
+      ],
+      "teams": [
+        {
+          "name": "神经内科一组",
+          "cases": 92,
+          "avgCost": 15960,
+          "avgDiff": 3020,
+          "los": 12.4,
+          "repeatRate": 38
+        },
+        {
+          "name": "神经内科二组",
+          "cases": 78,
+          "avgCost": 14210,
+          "avgDiff": 1480,
+          "los": 11.1,
+          "repeatRate": 24
+        },
+        {
+          "name": "神经内科三组",
+          "cases": 64,
+          "avgCost": 13980,
+          "avgDiff": 1260,
+          "los": 10.9,
+          "repeatRate": 21
+        },
+        {
+          "name": "老年医学科",
+          "cases": 31,
+          "avgCost": 16480,
+          "avgDiff": 3880,
+          "los": 13.6,
+          "repeatRate": 42
+        },
+        {
+          "name": "其他(合并)",
+          "cases": 21,
+          "avgCost": 13240,
+          "avgDiff": 820,
+          "los": 10.4,
+          "repeatRate": 18
+        }
       ]
     },
     {
       "code": "ES35",
+      "name": "呼吸系统感染/炎症,伴并发症",
+      "weight": 1.09,
+      "standard": 9460,
       "cases": 312,
-      "cityCases": 4649,
+      "cityCases": 1280,
       "avgCost": 9640,
-      "cityAvgCost": 9860,
+      "cityAvgCost": 9800,
       "avgDiff": 180,
-      "cityAvgDiff": 157,
-      "peerPercentile": 58,
+      "cityAvgDiff": 240,
+      "peerPercentile": 51,
       "los": 8.9,
       "cityLos": 7.7,
       "comorbidityRate": "81%",
       "cityComorbidityRate": "72%",
+      "bucket": 2000,
       "histogram": [
         4,
         12,
@@ -133,21 +165,454 @@
           "hospital": 1240,
           "city": 1150
         }
+      ],
+      "teams": [
+        {
+          "name": "呼吸内科一组",
+          "cases": 144,
+          "avgCost": 10220,
+          "avgDiff": 422,
+          "los": 9.4,
+          "repeatRate": 23
+        },
+        {
+          "name": "呼吸内科二组",
+          "cases": 100,
+          "avgCost": 9350,
+          "avgDiff": 59,
+          "los": 8.6,
+          "repeatRate": 18
+        },
+        {
+          "name": "老年医学科",
+          "cases": 68,
+          "avgCost": 9060,
+          "avgDiff": -62,
+          "los": 8.4,
+          "repeatRate": 16
+        }
+      ]
+    },
+    {
+      "code": "RE19",
+      "name": "恶性增生性疾患化学治疗",
+      "weight": 0.84,
+      "standard": 7320,
+      "cases": 250,
+      "cityCases": 1160,
+      "avgCost": 7630,
+      "cityAvgCost": 6900,
+      "avgDiff": 310,
+      "cityAvgDiff": -420,
+      "peerPercentile": 35,
+      "los": 7.5,
+      "cityLos": 6.9,
+      "comorbidityRate": "69%",
+      "cityComorbidityRate": "68%",
+      "bucket": 1500,
+      "histogram": [
+        0,
+        3,
+        26,
+        53,
+        57,
+        44,
+        29,
+        17,
+        10,
+        5,
+        3,
+        1,
+        1,
+        1
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 3970,
+          "city": 3590
+        },
+        {
+          "item": "耗材",
+          "hospital": 460,
+          "city": 410
+        },
+        {
+          "item": "检查检验",
+          "hospital": 1370,
+          "city": 1240
+        },
+        {
+          "item": "治疗",
+          "hospital": 1070,
+          "city": 970
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 760,
+          "city": 690
+        }
+      ],
+      "teams": [
+        {
+          "name": "肿瘤内科一组",
+          "cases": 145,
+          "avgCost": 8090,
+          "avgDiff": 512,
+          "los": 8,
+          "repeatRate": 23
+        },
+        {
+          "name": "肿瘤内科二组",
+          "cases": 105,
+          "avgCost": 7400,
+          "avgDiff": 209,
+          "los": 7.3,
+          "repeatRate": 18
+        }
+      ]
+    },
+    {
+      "code": "EX25",
+      "name": "慢性阻塞性肺病,伴并发症",
+      "weight": 1.31,
+      "standard": 11380,
+      "cases": 218,
+      "cityCases": 960,
+      "avgCost": 11800,
+      "cityAvgCost": 11200,
+      "avgDiff": 420,
+      "cityAvgDiff": -180,
+      "peerPercentile": 38,
+      "los": 8.6,
+      "cityLos": 7.9,
+      "comorbidityRate": "76%",
+      "cityComorbidityRate": "73%",
+      "bucket": 2000,
+      "histogram": [
+        0,
+        1,
+        11,
+        32,
+        44,
+        41,
+        32,
+        22,
+        14,
+        9,
+        5,
+        3,
+        2,
+        2
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 4480,
+          "city": 4260
+        },
+        {
+          "item": "耗材",
+          "hospital": 830,
+          "city": 780
+        },
+        {
+          "item": "检查检验",
+          "hospital": 3070,
+          "city": 2910
+        },
+        {
+          "item": "治疗",
+          "hospital": 2010,
+          "city": 1900
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 1420,
+          "city": 1340
+        }
+      ],
+      "teams": [
+        {
+          "name": "呼吸内科一组",
+          "cases": 100,
+          "avgCost": 12510,
+          "avgDiff": 728,
+          "los": 9.1,
+          "repeatRate": 23
+        },
+        {
+          "name": "呼吸内科二组",
+          "cases": 70,
+          "avgCost": 11450,
+          "avgDiff": 266,
+          "los": 8.3,
+          "repeatRate": 18
+        },
+        {
+          "name": "老年医学科",
+          "cases": 48,
+          "avgCost": 11090,
+          "avgDiff": 112,
+          "los": 8.1,
+          "repeatRate": 16
+        }
+      ]
+    },
+    {
+      "code": "FR45",
+      "name": "心绞痛",
+      "weight": 0.91,
+      "standard": 7920,
+      "cases": 318,
+      "cityCases": 880,
+      "avgCost": 8100,
+      "cityAvgCost": 7600,
+      "avgDiff": 180,
+      "cityAvgDiff": -320,
+      "peerPercentile": 40,
+      "los": 7.6,
+      "cityLos": 7,
+      "comorbidityRate": "83%",
+      "cityComorbidityRate": "78%",
+      "bucket": 1500,
+      "histogram": [
+        0,
+        2,
+        25,
+        59,
+        70,
+        59,
+        41,
+        26,
+        15,
+        9,
+        5,
+        3,
+        2,
+        2
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 1460,
+          "city": 1370
+        },
+        {
+          "item": "耗材",
+          "hospital": 3730,
+          "city": 3500
+        },
+        {
+          "item": "检查检验",
+          "hospital": 1130,
+          "city": 1060
+        },
+        {
+          "item": "治疗",
+          "hospital": 1130,
+          "city": 1060
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 650,
+          "city": 610
+        }
+      ],
+      "teams": [
+        {
+          "name": "心血管内科一组",
+          "cases": 184,
+          "avgCost": 8590,
+          "avgDiff": 385,
+          "los": 8.1,
+          "repeatRate": 23
+        },
+        {
+          "name": "心血管内科二组",
+          "cases": 134,
+          "avgCost": 7860,
+          "avgDiff": 77,
+          "los": 7.4,
+          "repeatRate": 18
+        }
+      ]
+    },
+    {
+      "code": "GG19",
+      "name": "肛门及肛周手术",
+      "weight": 0.74,
+      "standard": 6420,
+      "cases": 216,
+      "cityCases": 820,
+      "avgCost": 7900,
+      "cityAvgCost": 7400,
+      "avgDiff": 1480,
+      "cityAvgDiff": 980,
+      "peerPercentile": 44,
+      "los": 7.6,
+      "cityLos": 7,
+      "comorbidityRate": "60%",
+      "cityComorbidityRate": "61%",
+      "bucket": 1500,
+      "histogram": [
+        0,
+        2,
+        19,
+        43,
+        49,
+        39,
+        27,
+        16,
+        9,
+        5,
+        3,
+        2,
+        1,
+        1
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 1900,
+          "city": 1780
+        },
+        {
+          "item": "耗材",
+          "hospital": 1260,
+          "city": 1180
+        },
+        {
+          "item": "检查检验",
+          "hospital": 1740,
+          "city": 1630
+        },
+        {
+          "item": "治疗",
+          "hospital": 2050,
+          "city": 1920
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 950,
+          "city": 890
+        }
+      ],
+      "teams": [
+        {
+          "name": "普外科一组",
+          "cases": 125,
+          "avgCost": 8370,
+          "avgDiff": 1758,
+          "los": 8.1,
+          "repeatRate": 23
+        },
+        {
+          "name": "肛肠外科",
+          "cases": 91,
+          "avgCost": 7660,
+          "avgDiff": 1341,
+          "los": 7.4,
+          "repeatRate": 18
+        }
+      ]
+    },
+    {
+      "code": "OB29",
+      "name": "阴道分娩",
+      "weight": 0.51,
+      "standard": 4440,
+      "cases": 260,
+      "cityCases": 720,
+      "avgCost": 4240,
+      "cityAvgCost": 4300,
+      "avgDiff": -195,
+      "cityAvgDiff": -140,
+      "peerPercentile": 51,
+      "los": 6,
+      "cityLos": 5.5,
+      "comorbidityRate": "67%",
+      "cityComorbidityRate": "66%",
+      "bucket": 1000,
+      "histogram": [
+        0,
+        10,
+        52,
+        73,
+        57,
+        34,
+        18,
+        9,
+        4,
+        2,
+        1,
+        0,
+        0,
+        0
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 680,
+          "city": 690
+        },
+        {
+          "item": "耗材",
+          "hospital": 420,
+          "city": 430
+        },
+        {
+          "item": "检查检验",
+          "hospital": 850,
+          "city": 860
+        },
+        {
+          "item": "治疗",
+          "hospital": 1440,
+          "city": 1460
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 850,
+          "city": 860
+        }
+      ],
+      "teams": [
+        {
+          "name": "产科一组",
+          "cases": 151,
+          "avgCost": 4490,
+          "avgDiff": -105,
+          "los": 6.4,
+          "repeatRate": 23
+        },
+        {
+          "name": "产科二组",
+          "cases": 109,
+          "avgCost": 4110,
+          "avgDiff": -240,
+          "los": 5.8,
+          "repeatRate": 18
+        }
       ]
     },
     {
       "code": "IU29",
+      "name": "骨病及其他关节病",
+      "weight": 1.08,
+      "standard": 9380,
       "cases": 168,
-      "cityCases": 2503,
+      "cityCases": 690,
       "avgCost": 11020,
-      "cityAvgCost": 9780,
+      "cityAvgCost": 9600,
       "avgDiff": 1640,
-      "cityAvgDiff": 1427,
-      "peerPercentile": 58,
+      "cityAvgDiff": 1420,
+      "peerPercentile": 48,
       "los": 10.2,
       "cityLos": 9,
       "comorbidityRate": "69%",
       "cityComorbidityRate": "72%",
+      "bucket": 2000,
       "histogram": [
         1,
         3,
@@ -190,49 +655,831 @@
           "hospital": 930,
           "city": 880
         }
+      ],
+      "teams": [
+        {
+          "name": "骨科一组",
+          "cases": 77,
+          "avgCost": 11680,
+          "avgDiff": 2003,
+          "los": 10.8,
+          "repeatRate": 23
+        },
+        {
+          "name": "骨科二组",
+          "cases": 54,
+          "avgCost": 10690,
+          "avgDiff": 1459,
+          "los": 9.9,
+          "repeatRate": 18
+        },
+        {
+          "name": "关节外科",
+          "cases": 37,
+          "avgCost": 10360,
+          "avgDiff": 1277,
+          "los": 9.6,
+          "repeatRate": 16
+        }
       ]
-    }
-  ],
-  "teams": [
-    {
-      "name": "神经内科一组",
-      "cases": 92,
-      "avgCost": 15960,
-      "avgDiff": 3020,
-      "los": 12.4,
-      "repeatRate": 38
     },
     {
-      "name": "神经内科二组",
-      "cases": 78,
-      "avgCost": 14210,
-      "avgDiff": 1480,
-      "los": 11.1,
-      "repeatRate": 24
+      "code": "KS15",
+      "name": "糖尿病,伴并发症",
+      "weight": 0.93,
+      "standard": 8080,
+      "cases": 210,
+      "cityCases": 640,
+      "avgCost": 8540,
+      "cityAvgCost": 8200,
+      "avgDiff": 460,
+      "cityAvgDiff": 120,
+      "peerPercentile": 43,
+      "los": 7.8,
+      "cityLos": 7.2,
+      "comorbidityRate": "81%",
+      "cityComorbidityRate": "76%",
+      "bucket": 1500,
+      "histogram": [
+        0,
+        1,
+        13,
+        34,
+        44,
+        40,
+        29,
+        20,
+        12,
+        7,
+        4,
+        3,
+        1,
+        2
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 3070,
+          "city": 2950
+        },
+        {
+          "item": "耗材",
+          "hospital": 680,
+          "city": 660
+        },
+        {
+          "item": "检查检验",
+          "hospital": 2220,
+          "city": 2130
+        },
+        {
+          "item": "治疗",
+          "hospital": 1370,
+          "city": 1310
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 1200,
+          "city": 1150
+        }
+      ],
+      "teams": [
+        {
+          "name": "内分泌科",
+          "cases": 210,
+          "avgCost": 9050,
+          "avgDiff": 693,
+          "los": 8.3,
+          "repeatRate": 23
+        }
+      ]
     },
     {
-      "name": "神经内科三组",
-      "cases": 64,
-      "avgCost": 13980,
-      "avgDiff": 1260,
-      "los": 10.9,
-      "repeatRate": 21
+      "code": "OF19",
+      "name": "剖宫产",
+      "weight": 1.05,
+      "standard": 9160,
+      "cases": 152,
+      "cityCases": 610,
+      "avgCost": 9370,
+      "cityAvgCost": 8900,
+      "avgDiff": 210,
+      "cityAvgDiff": -260,
+      "peerPercentile": 41,
+      "los": 8,
+      "cityLos": 7.4,
+      "comorbidityRate": "58%",
+      "cityComorbidityRate": "59%",
+      "bucket": 1500,
+      "histogram": [
+        0,
+        0,
+        6,
+        19,
+        28,
+        28,
+        23,
+        17,
+        11,
+        7,
+        5,
+        3,
+        2,
+        3
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 1500,
+          "city": 1420
+        },
+        {
+          "item": "耗材",
+          "hospital": 940,
+          "city": 890
+        },
+        {
+          "item": "检查检验",
+          "hospital": 1870,
+          "city": 1780
+        },
+        {
+          "item": "治疗",
+          "hospital": 3190,
+          "city": 3030
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 1870,
+          "city": 1780
+        }
+      ],
+      "teams": [
+        {
+          "name": "产科一组",
+          "cases": 88,
+          "avgCost": 9930,
+          "avgDiff": 447,
+          "los": 8.5,
+          "repeatRate": 23
+        },
+        {
+          "name": "产科二组",
+          "cases": 64,
+          "avgCost": 9090,
+          "avgDiff": 91,
+          "los": 7.8,
+          "repeatRate": 18
+        }
+      ]
     },
     {
-      "name": "老年医学科",
-      "cases": 31,
-      "avgCost": 16480,
-      "avgDiff": 3880,
-      "los": 13.6,
-      "repeatRate": 42
+      "code": "FT35",
+      "name": "高血压",
+      "weight": 0.61,
+      "standard": 5290,
+      "cases": 171,
+      "cityCases": 610,
+      "avgCost": 5590,
+      "cityAvgCost": 5200,
+      "avgDiff": 300,
+      "cityAvgDiff": -90,
+      "peerPercentile": 42,
+      "los": 6.7,
+      "cityLos": 6.2,
+      "comorbidityRate": "65%",
+      "cityComorbidityRate": "64%",
+      "bucket": 1000,
+      "histogram": [
+        0,
+        1,
+        12,
+        29,
+        37,
+        32,
+        23,
+        15,
+        9,
+        6,
+        3,
+        2,
+        1,
+        1
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 1010,
+          "city": 940
+        },
+        {
+          "item": "耗材",
+          "hospital": 2570,
+          "city": 2390
+        },
+        {
+          "item": "检查检验",
+          "hospital": 780,
+          "city": 730
+        },
+        {
+          "item": "治疗",
+          "hospital": 780,
+          "city": 730
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 450,
+          "city": 420
+        }
+      ],
+      "teams": [
+        {
+          "name": "心血管内科一组",
+          "cases": 99,
+          "avgCost": 5930,
+          "avgDiff": 452,
+          "los": 7.1,
+          "repeatRate": 23
+        },
+        {
+          "name": "心血管内科二组",
+          "cases": 72,
+          "avgCost": 5420,
+          "avgDiff": 224,
+          "los": 6.5,
+          "repeatRate": 18
+        }
+      ]
     },
     {
-      "name": "其他(合并)",
-      "cases": 21,
-      "avgCost": 13240,
-      "avgDiff": 820,
-      "los": 10.4,
-      "repeatRate": 18
+      "code": "GZ15",
+      "name": "其他消化系统诊断",
+      "weight": 0.69,
+      "standard": 6010,
+      "cases": 125,
+      "cityCases": 540,
+      "avgCost": 6530,
+      "cityAvgCost": 6100,
+      "avgDiff": 520,
+      "cityAvgDiff": 90,
+      "peerPercentile": 41,
+      "los": 7.1,
+      "cityLos": 6.5,
+      "comorbidityRate": "72%",
+      "cityComorbidityRate": "69%",
+      "bucket": 1000,
+      "histogram": [
+        0,
+        0,
+        4,
+        13,
+        21,
+        23,
+        20,
+        15,
+        10,
+        7,
+        4,
+        3,
+        2,
+        3
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 1570,
+          "city": 1460
+        },
+        {
+          "item": "耗材",
+          "hospital": 1040,
+          "city": 980
+        },
+        {
+          "item": "检查检验",
+          "hospital": 1440,
+          "city": 1340
+        },
+        {
+          "item": "治疗",
+          "hospital": 1700,
+          "city": 1590
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 780,
+          "city": 730
+        }
+      ],
+      "teams": [
+        {
+          "name": "普外科一组",
+          "cases": 72,
+          "avgCost": 6920,
+          "avgDiff": 708,
+          "los": 7.5,
+          "repeatRate": 23
+        },
+        {
+          "name": "肛肠外科",
+          "cases": 53,
+          "avgCost": 6330,
+          "avgDiff": 426,
+          "los": 6.9,
+          "repeatRate": 18
+        }
+      ]
+    },
+    {
+      "code": "FM19",
+      "name": "经皮心血管操作及支架置入",
+      "weight": 4.69,
+      "standard": 40750,
+      "cases": 157,
+      "cityCases": 520,
+      "avgCost": 40130,
+      "cityAvgCost": 38600,
+      "avgDiff": -620,
+      "cityAvgDiff": -2150,
+      "peerPercentile": 41,
+      "los": 11.8,
+      "cityLos": 10.9,
+      "comorbidityRate": "79%",
+      "cityComorbidityRate": "74%",
+      "bucket": 6000,
+      "histogram": [
+        0,
+        0,
+        4,
+        15,
+        25,
+        28,
+        25,
+        20,
+        14,
+        9,
+        6,
+        4,
+        3,
+        4
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 7220,
+          "city": 6950
+        },
+        {
+          "item": "耗材",
+          "hospital": 18460,
+          "city": 17760
+        },
+        {
+          "item": "检查检验",
+          "hospital": 5620,
+          "city": 5400
+        },
+        {
+          "item": "治疗",
+          "hospital": 5620,
+          "city": 5400
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 3210,
+          "city": 3090
+        }
+      ],
+      "teams": [
+        {
+          "name": "心血管内科一组",
+          "cases": 91,
+          "avgCost": 42540,
+          "avgDiff": 306,
+          "los": 12.5,
+          "repeatRate": 23
+        },
+        {
+          "name": "心血管内科二组",
+          "cases": 66,
+          "avgCost": 38930,
+          "avgDiff": -1083,
+          "los": 11.4,
+          "repeatRate": 18
+        }
+      ]
+    },
+    {
+      "code": "GU25",
+      "name": "食管炎、胃肠炎",
+      "weight": 0.55,
+      "standard": 4740,
+      "cases": 161,
+      "cityCases": 470,
+      "avgCost": 4980,
+      "cityAvgCost": 4800,
+      "avgDiff": 240,
+      "cityAvgDiff": 60,
+      "peerPercentile": 46,
+      "los": 6.4,
+      "cityLos": 5.9,
+      "comorbidityRate": "56%",
+      "cityComorbidityRate": "79%",
+      "bucket": 1000,
+      "histogram": [
+        0,
+        2,
+        18,
+        36,
+        37,
+        28,
+        18,
+        10,
+        6,
+        3,
+        2,
+        1,
+        0,
+        0
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 1200,
+          "city": 1150
+        },
+        {
+          "item": "耗材",
+          "hospital": 800,
+          "city": 770
+        },
+        {
+          "item": "检查检验",
+          "hospital": 1100,
+          "city": 1060
+        },
+        {
+          "item": "治疗",
+          "hospital": 1290,
+          "city": 1250
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 600,
+          "city": 580
+        }
+      ],
+      "teams": [
+        {
+          "name": "普外科一组",
+          "cases": 93,
+          "avgCost": 5280,
+          "avgDiff": 374,
+          "los": 6.8,
+          "repeatRate": 23
+        },
+        {
+          "name": "肛肠外科",
+          "cases": 68,
+          "avgCost": 4830,
+          "avgDiff": 173,
+          "los": 6.2,
+          "repeatRate": 18
+        }
+      ]
+    },
+    {
+      "code": "LR15",
+      "name": "肾衰竭",
+      "weight": 1.45,
+      "standard": 12590,
+      "cases": 115,
+      "cityCases": 380,
+      "avgCost": 13570,
+      "cityAvgCost": 12800,
+      "avgDiff": 980,
+      "cityAvgDiff": 210,
+      "peerPercentile": 35,
+      "los": 9,
+      "cityLos": 8.3,
+      "comorbidityRate": "63%",
+      "cityComorbidityRate": "62%",
+      "bucket": 2000,
+      "histogram": [
+        0,
+        0,
+        3,
+        10,
+        18,
+        20,
+        18,
+        15,
+        11,
+        7,
+        5,
+        3,
+        2,
+        3
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 4610,
+          "city": 4350
+        },
+        {
+          "item": "耗材",
+          "hospital": 1360,
+          "city": 1280
+        },
+        {
+          "item": "检查检验",
+          "hospital": 3530,
+          "city": 3330
+        },
+        {
+          "item": "治疗",
+          "hospital": 2710,
+          "city": 2560
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 1360,
+          "city": 1280
+        }
+      ],
+      "teams": [
+        {
+          "name": "肾内科",
+          "cases": 115,
+          "avgCost": 14380,
+          "avgDiff": 1364,
+          "los": 9.5,
+          "repeatRate": 23
+        }
+      ]
+    },
+    {
+      "code": "HS25",
+      "name": "肝硬化",
+      "weight": 1.53,
+      "standard": 13270,
+      "cases": 85,
+      "cityCases": 270,
+      "avgCost": 14480,
+      "cityAvgCost": 13600,
+      "avgDiff": 1210,
+      "cityAvgDiff": 330,
+      "peerPercentile": 32,
+      "los": 9.1,
+      "cityLos": 8.4,
+      "comorbidityRate": "70%",
+      "cityComorbidityRate": "67%",
+      "bucket": 2500,
+      "histogram": [
+        0,
+        0,
+        5,
+        13,
+        18,
+        16,
+        12,
+        8,
+        5,
+        3,
+        2,
+        1,
+        1,
+        1
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 5790,
+          "city": 5440
+        },
+        {
+          "item": "耗材",
+          "hospital": 870,
+          "city": 820
+        },
+        {
+          "item": "检查检验",
+          "hospital": 3760,
+          "city": 3540
+        },
+        {
+          "item": "治疗",
+          "hospital": 2320,
+          "city": 2180
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 1740,
+          "city": 1630
+        }
+      ],
+      "teams": [
+        {
+          "name": "消化内科一组",
+          "cases": 49,
+          "avgCost": 15350,
+          "avgDiff": 1630,
+          "los": 9.6,
+          "repeatRate": 23
+        },
+        {
+          "name": "感染科",
+          "cases": 36,
+          "avgCost": 14050,
+          "avgDiff": 1000,
+          "los": 8.8,
+          "repeatRate": 18
+        }
+      ]
+    },
+    {
+      "code": "IC29",
+      "name": "髋、膝关节置换",
+      "weight": 6.83,
+      "standard": 59320,
+      "cases": 69,
+      "cityCases": 210,
+      "avgCost": 63420,
+      "cityAvgCost": 62000,
+      "avgDiff": 4100,
+      "cityAvgDiff": 2680,
+      "peerPercentile": 44,
+      "los": 13,
+      "cityLos": 12,
+      "comorbidityRate": "77%",
+      "cityComorbidityRate": "72%",
+      "bucket": 9500,
+      "histogram": [
+        0,
+        0,
+        2,
+        7,
+        11,
+        12,
+        11,
+        8,
+        6,
+        4,
+        3,
+        2,
+        1,
+        2
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 15220,
+          "city": 14880
+        },
+        {
+          "item": "耗材",
+          "hospital": 22830,
+          "city": 22320
+        },
+        {
+          "item": "检查检验",
+          "hospital": 11420,
+          "city": 11160
+        },
+        {
+          "item": "治疗",
+          "hospital": 8880,
+          "city": 8680
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 5070,
+          "city": 4960
+        }
+      ],
+      "teams": [
+        {
+          "name": "骨科一组",
+          "cases": 32,
+          "avgCost": 67230,
+          "avgDiff": 5868,
+          "los": 13.8,
+          "repeatRate": 23
+        },
+        {
+          "name": "骨科二组",
+          "cases": 22,
+          "avgCost": 61520,
+          "avgDiff": 3216,
+          "los": 12.6,
+          "repeatRate": 18
+        },
+        {
+          "name": "关节外科",
+          "cases": 15,
+          "avgCost": 59610,
+          "avgDiff": 2332,
+          "los": 12.2,
+          "repeatRate": 16
+        }
+      ]
+    },
+    {
+      "code": "BR11",
+      "name": "颅内出血性疾患,伴严重并发症",
+      "weight": 5.18,
+      "standard": 45050,
+      "cases": 66,
+      "cityCases": 190,
+      "avgCost": 48450,
+      "cityAvgCost": 48000,
+      "avgDiff": 3400,
+      "cityAvgDiff": 2950,
+      "peerPercentile": 48,
+      "los": 12.3,
+      "cityLos": 11.3,
+      "comorbidityRate": "84%",
+      "cityComorbidityRate": "77%",
+      "bucket": 7000,
+      "histogram": [
+        0,
+        0,
+        1,
+        6,
+        10,
+        11,
+        11,
+        9,
+        6,
+        4,
+        3,
+        2,
+        1,
+        2
+      ],
+      "structure": [
+        {
+          "item": "药品",
+          "hospital": 15990,
+          "city": 15840
+        },
+        {
+          "item": "耗材",
+          "hospital": 6300,
+          "city": 6240
+        },
+        {
+          "item": "检查检验",
+          "hospital": 11630,
+          "city": 11520
+        },
+        {
+          "item": "治疗",
+          "hospital": 8720,
+          "city": 8640
+        },
+        {
+          "item": "护理及其他",
+          "hospital": 5810,
+          "city": 5760
+        }
+      ],
+      "teams": [
+        {
+          "name": "神经内科一组",
+          "cases": 26,
+          "avgCost": 51360,
+          "avgDiff": 4767,
+          "los": 13,
+          "repeatRate": 23
+        },
+        {
+          "name": "神经内科二组",
+          "cases": 20,
+          "avgCost": 47000,
+          "avgDiff": 2717,
+          "los": 11.9,
+          "repeatRate": 18
+        },
+        {
+          "name": "神经内科三组",
+          "cases": 13,
+          "avgCost": 45540,
+          "avgDiff": 2033,
+          "los": 11.6,
+          "repeatRate": 16
+        },
+        {
+          "name": "其他(合并)",
+          "cases": 7,
+          "avgCost": 53300,
+          "avgDiff": 5678,
+          "los": 13.5,
+          "repeatRate": 25
+        }
+      ]
     }
   ],
   "teamsNote": "仅本院可见 · 病例 < 10 的医疗组合并"

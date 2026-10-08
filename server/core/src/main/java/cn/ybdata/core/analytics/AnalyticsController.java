@@ -3,6 +3,7 @@ package cn.ybdata.core.analytics;
 import cn.ybdata.core.config.YbProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -41,6 +42,7 @@ public class AnalyticsController {
     private record Entry(JsonNode body, Instant at) {}
 
     private final RestClient http;
+    private final String base;
     /** last good response per request URI, least-recently-used evicted */
     private final Map<String, Entry> lastGood = new LinkedHashMap<>(16, 0.75f, true) {
         @Override
@@ -54,7 +56,8 @@ public class AnalyticsController {
         SimpleClientHttpRequestFactory rf = new SimpleClientHttpRequestFactory();
         rf.setConnectTimeout(Duration.ofMillis(timeoutMs));
         rf.setReadTimeout(Duration.ofMillis(timeoutMs));
-        this.http = builder.baseUrl(props.analyticsUrl()).requestFactory(rf).build();
+        this.base = props.analyticsUrl().replaceAll("/+$", "");
+        this.http = builder.requestFactory(rf).build();
     }
 
     @GetMapping("/**")
@@ -62,8 +65,16 @@ public class AnalyticsController {
         String path = req.getRequestURI().substring("/api/v1".length());
         String q = req.getQueryString();
         String uri = q == null ? path : path + "?" + q;
+        URI target;
         try {
-            JsonNode body = http.get().uri(uri).retrieve().body(JsonNode.class);
+            target = URI.create(base + uri);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("查询参数格式不正确");
+        }
+        try {
+            // path and query are passed on exactly as the browser encoded them (a String URI template
+            // would percent-encode the '%' of an already encoded query a second time)
+            JsonNode body = http.get().uri(target).retrieve().body(JsonNode.class);
             synchronized (lastGood) {
                 lastGood.put(uri, new Entry(body, Instant.now()));
             }

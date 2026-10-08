@@ -89,6 +89,7 @@ const emit = defineEmits<{
             r.ind.source === 'national' ? 'bg-brand-soft text-brand' : 'bg-line-3 text-ink-4',
           )"
         >{{ SOURCE_TAG[r.ind.source] }}</span>
+        <span v-if="r.ind.inPackage" class="shrink-0 rounded-[4px] bg-ok-soft px-1.5 py-px text-[10px] whitespace-nowrap text-ok-ink" title="已加入本月发布包">已入包</span>
       </div>
       <span class="flex items-center gap-[5px]" :class="r.intl && 'opacity-50'">
         <span class="size-[7px] rounded-full" :style="{ background: GROUP_COLOR[r.ind.group] }" />{{ r.ind.group }}

@@ -13,7 +13,7 @@ import AuditDetail from './A14/AuditDetail.vue'
 import { LIVE_FILTERS, useAuditLog } from './A14/useAuditLog'
 
 const data = usePageData('A14', A14_SEED)
-const { live, logs, today, nextCursor, loading, chain, filters, load, verify, exportCsv } = useAuditLog(data)
+const { live, logs, today, nextCursor, loading, chain, filters, error, rangeError, narrowed, load, verify, exportCsv } = useAuditLog(data)
 
 const selId = ref<string | null>(null)
 
@@ -52,6 +52,10 @@ const chainView = computed(() => {
 
 const exporting = ref(false)
 async function onExport() {
+  if (rangeError.value) {
+    say(rangeError.value)
+    return
+  }
   if (!live.value) {
     say('演示数据 · 连接审计服务后可导出 CSV')
     return
@@ -74,15 +78,16 @@ const DATE = 'h-8 max-xl:h-10 rounded-md border border-line-1 bg-white px-2 font
 <template>
   <PageSection label="A14 审计日志">
     <PageHeader class="max-xl:flex-wrap" title="审计日志" :subtitle="summary">
-      <div class="flex max-w-full flex-wrap gap-1.5 max-xl:gap-2">
+      <div class="flex max-w-full min-w-0 flex-wrap gap-1.5 max-xl:gap-2" role="group" aria-label="按事件类型筛选">
         <button
           v-for="c in chips"
           :key="c"
           type="button"
           :class="cn(
-            'cursor-pointer rounded-full border px-3 py-1.5 text-xs whitespace-nowrap max-xl:min-h-10 max-xl:px-4',
+            'cursor-pointer rounded-full border px-3 py-1.5 text-xs whitespace-nowrap max-xl:min-h-10 max-xl:px-4 max-sm:px-3',
             c === filters.type ? 'border-brand-line bg-brand-soft text-brand' : 'border-line-1 bg-white text-ink-3',
           )"
+          :aria-pressed="c === filters.type"
           @click="filters.type = c"
         >{{ c }}</button>
       </div>
@@ -95,7 +100,8 @@ const DATE = 'h-8 max-xl:h-10 rounded-md border border-line-1 bg-white px-2 font
           <template v-if="live">
             <input v-model="filters.from" type="date" aria-label="起始日期" :class="DATE">
             <span class="text-ink-5">—</span>
-            <input v-model="filters.to" type="date" aria-label="截止日期" :class="DATE">
+            <input v-model="filters.to" type="date" aria-label="截止日期" :class="DATE" :aria-invalid="!!rangeError" :aria-describedby="rangeError ? 'a14-range-error' : undefined">
+            <span v-if="rangeError" id="a14-range-error" role="alert" class="text-bad-ink" data-testid="a14-range-error">{{ rangeError }}</span>
           </template>
           <label class="flex cursor-pointer items-center gap-1.5 text-ink-3 max-xl:min-h-10">
             <Switch v-model="filters.offHours" aria-label="仅非工作时间" />
@@ -117,21 +123,33 @@ const DATE = 'h-8 max-xl:h-10 rounded-md border border-line-1 bg-white px-2 font
         <div :class="[GRID, 'max-xl:top-0 sticky top-(--sticky-top) z-[6] bg-surface-1 text-xs text-ink-4']">
           <span>时间</span><span>类型</span><span>操作人</span><span>对象</span><span>IP</span>
         </div>
-        <div v-if="logs.length === 0" class="flex flex-col items-center gap-1.5 px-5 py-11 text-ink-4">
-          <div class="font-semibold text-ink-2">{{ loading ? '加载中…' : '今日暂无该类事件' }}</div>
-          <div class="text-xs">可切换事件类型或查看历史日期</div>
+        <div v-if="logs.length === 0" class="flex flex-col items-center gap-1.5 px-5 py-11 text-ink-4" data-testid="a14-empty">
+          <template v-if="error">
+            <div class="font-semibold text-bad-ink">{{ error }}</div>
+            <div class="text-xs">请调整筛选条件后重试</div>
+          </template>
+          <template v-else>
+            <div class="font-semibold text-ink-2">{{ loading ? '加载中…' : narrowed ? '没有符合筛选条件的事件' : '暂无该类事件' }}</div>
+            <div class="text-xs">{{ narrowed ? '可调整操作人、日期范围或事件类型' : '可切换事件类型' }}</div>
+          </template>
         </div>
         <div
           v-for="l in logs"
           :key="l.id"
+          role="button"
+          tabindex="0"
+          :aria-pressed="l.id === sel?.id"
+          :aria-label="`${l.time} ${l.type} ${l.who} ${l.object}`"
           :class="cn(
             GRID,
-            'cursor-pointer yb-tr border-b border-line-3 hover:bg-surface-1 max-xl:min-h-11',
+            'cursor-pointer yb-tr border-b border-line-3 hover:bg-surface-1 max-xl:min-h-11 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand',
             l.id === sel?.id ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]'
             : !l.signatureOk ? 'bg-bad-soft/40 shadow-[inset_3px_0_0_var(--bad)]'
             : l.risk ? 'bg-[#FFFBF4] shadow-[inset_3px_0_0_var(--warn)]' : 'bg-white',
           )"
           @click="selId = l.id"
+          @keydown.enter.prevent="selId = l.id"
+          @keydown.space.prevent="selId = l.id"
         >
           <span class="yb-num text-xs text-ink-3">{{ l.time }}</span>
           <span :class="['justify-self-start rounded px-2 py-px text-[11px] font-semibold', KIND_CLASS[l.type]]">{{ l.type }}</span>

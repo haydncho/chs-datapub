@@ -22,13 +22,13 @@ const wf = computed(() =>
 </script>
 
 <template>
-  <div class="relative grid h-[220px] grid-cols-4 gap-8 border-b border-line-4 px-6">
+  <div class="relative grid h-[220px] grid-cols-4 gap-8 border-b border-line-4 px-6 max-sm:gap-2.5 max-sm:px-0">
     <div v-for="w in wf" :key="w.label" class="relative">
       <div class="absolute inset-x-0 rounded" :style="{ bottom: w.b, height: w.h, background: w.c }" />
-      <div class="yb-num absolute inset-x-0 text-center text-[15px] font-semibold" :style="{ bottom: `calc(${w.top} + 6px)` }">{{ w.display }}</div>
+      <div class="yb-num absolute inset-x-0 text-center text-[15px] font-semibold whitespace-nowrap max-sm:text-[13px]" :style="{ bottom: `calc(${w.top} + 6px)` }">{{ w.display }}</div>
     </div>
   </div>
-  <div class="grid grid-cols-4 gap-8 px-6 text-center text-xs text-ink-3">
+  <div class="grid grid-cols-4 gap-8 px-6 text-center text-xs text-ink-3 max-sm:gap-2.5 max-sm:px-0">
     <span v-for="w in wf" :key="w.label">{{ w.label }}</span>
   </div>
   <div class="text-[11px] text-ink-4">{{ note }}</div>

@@ -12,6 +12,8 @@ export interface CommentView {
   text: string
   time: string
   resolved: boolean
+  /** pushed to 意见与申诉 (A10) as this item */
+  pushedAs?: string
 }
 
 defineProps<{
@@ -21,7 +23,10 @@ defineProps<{
   checks: A7Source[]
   checkNote: string
   versions: A7Version[]
+  /** not handled and not yet pushed */
   pending: number
+  /** not handled */
+  unresolved: number
 }>()
 const tab = defineModel<A7Tab>('tab', { required: true })
 defineEmits<{ resolve: [k: number]; export: [] }>()
@@ -52,7 +57,8 @@ const TABS: A7Tab[] = ['批注', '数据核查', '版本']
             type="button"
             class="h-8 shrink-0 cursor-pointer max-xl:h-11 rounded-lg border border-dashed border-brand-line bg-brand-tint text-xs font-medium whitespace-nowrap text-brand hover:brightness-[.98]"
             @click="$emit('export')"
-          >导出为意见单 · {{ pending }} 条待处理</button>
+          >导出为意见单 · {{ unresolved }} 条未处理{{ pending < unresolved ? '(' + (unresolved - pending) + ' 条已推送)' : '' }}</button>
+          <div v-if="comments.length === 0" class="rounded-[10px] bg-surface-1 px-3 py-4 text-center text-xs text-ink-4">暂无批注 · 提交核对后机构与专家组的意见会出现在这里</div>
           <div
             v-for="c in comments"
             :key="c.k"
@@ -71,6 +77,7 @@ const TABS: A7Tab[] = ['批注', '数据核查', '版本']
             </div>
             <div class="mt-2 text-[11px] text-brand">§ {{ c.sec }}</div>
             <div class="mt-0.5 text-xs leading-[1.6] text-ink-2">{{ c.text }}</div>
+            <span v-if="c.pushedAs && !c.resolved" class="mt-1.5 mr-3 inline-block text-xs text-violet">已推送至意见与申诉 · {{ c.pushedAs }}</span>
             <span v-if="c.resolved" class="mt-1.5 inline-block text-xs text-ok-ink">✓ 已处理</span>
             <span
               v-else
@@ -93,6 +100,7 @@ const TABS: A7Tab[] = ['批注', '数据核查', '版本']
             <span class="yb-num font-semibold whitespace-nowrap text-brand">{{ c.value }}</span>
             <span class="text-right text-ink-3">{{ c.source }}</span>
           </div>
+          <div v-if="checks.length === 0" class="rounded-[10px] bg-surface-1 px-3 py-4 text-center text-xs text-ink-4">本段没有绑定数据源的数字(文字建议段或初稿待生成)</div>
           <div class="text-[11px] text-ink-5">{{ checkNote }}</div>
         </template>
 

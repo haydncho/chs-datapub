@@ -11,8 +11,9 @@ const initial = computed(() => props.viewer.name[0] ?? '')
 </script>
 
 <template>
-  <div class="flex shrink-0 items-center gap-2.5">
-    <div class="min-w-0 text-right leading-[1.3]">
+  <div class="flex shrink-0 items-center gap-2.5" data-testid="user-area">
+    <!-- 窄屏(< 640)只留头像:姓名、角色、范围在账号菜单里 -->
+    <div class="min-w-0 text-right leading-[1.3] max-sm:hidden">
       <div class="text-[13px] font-medium whitespace-nowrap">
         {{ viewer.name }} <span class="font-normal text-ink-4">· {{ viewer.role }}</span>
       </div>
@@ -29,6 +30,7 @@ const initial = computed(() => props.viewer.name[0] ?? '')
         <DropdownMenuLabel class="font-normal">
           <div class="text-[13px] font-medium text-ink-1">{{ viewer.name }}</div>
           <div class="text-xs text-ink-4">{{ viewer.role }}</div>
+          <div v-if="viewer.scope" class="mt-0.5 text-xs text-ink-5">{{ viewer.scope }}</div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem v-if="canSwitch" class="cursor-pointer max-xl:min-h-11" @select="emit('switch')">
@@ -39,6 +41,6 @@ const initial = computed(() => props.viewer.name[0] ?? '')
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-    <span v-else class="yb-user-av">{{ initial }}</span>
+    <span v-else class="yb-user-av" :title="`${viewer.name} · ${viewer.role}`">{{ initial }}</span>
   </div>
 </template>

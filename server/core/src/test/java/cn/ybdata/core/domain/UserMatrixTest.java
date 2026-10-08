@@ -99,4 +99,19 @@ class UserMatrixTest {
         assertThat(UserMatrix.mayAct("analyst", "reviewAddUser")).isFalse();
         assertThat(UserMatrix.mayAct("convener", "unknown")).isFalse();
     }
+
+    @Test
+    void roleMustMatchTheKindOfOrg() {
+        for (String r : List.of("convener", "admin", "analyst", "auditor")) {
+            assertThat(UserMatrix.orgFits(r, "医保局")).as(r).isTrue();
+            assertThat(UserMatrix.orgFits(r, "市三级")).as(r).isFalse();
+        }
+        assertThat(UserMatrix.orgFits("observer", "公开")).isTrue();
+        assertThat(UserMatrix.orgFits("observer", "医保局")).isFalse();
+        assertThat(UserMatrix.orgFits("hospital", "市三级")).isTrue();
+        assertThat(UserMatrix.orgFits("hospital", "医保局")).isFalse();
+        assertThat(UserMatrix.orgFits("county", "县三级")).isTrue();
+        assertThat(UserMatrix.orgFits("county", "医保局")).isFalse();
+        assertThat(UserMatrix.orgFits("county", null)).isFalse();
+    }
 }

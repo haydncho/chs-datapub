@@ -11,6 +11,9 @@ const props = defineProps<{
   track: A7TrackStep[]
   nOk: number
   total: number
+  /** already submitted for 核对与审核 (once) */
+  submitted?: boolean
+  busy?: boolean
 }>()
 defineEmits<{ submit: [] }>()
 
@@ -29,17 +32,17 @@ const ready = computed(() => props.nOk === props.total)
 <template>
   <div class="sticky top-(--sticky-top) z-30 border-b border-line-1 bg-white px-8 pt-[18px] pb-3.5 max-xl:static max-xl:px-5">
     <div class="flex items-start gap-5 max-xl:flex-wrap">
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center gap-1.5 text-[11px]">
+      <div class="min-w-0 flex-1 max-xl:basis-full">
+        <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
           <Badge variant="ok" class="px-2 py-0.5 text-[11px] font-medium">{{ topic.recommendTag }}</Badge>
           <Badge variant="brand" class="px-2 py-0.5 text-[11px] font-normal">{{ topic.envTag }}</Badge>
           <span class="text-ink-5">{{ topic.meta }}</span>
         </div>
-        <div class="mt-1.5 text-[22px] font-semibold">
+        <div class="mt-1.5 text-[22px] font-semibold text-pretty break-words max-sm:text-lg">
           <span class="yb-num text-brand">{{ topic.code }}</span> {{ topic.name }}
         </div>
       </div>
-      <div class="flex shrink-0 items-center gap-4 max-xl:flex-wrap">
+      <div class="flex shrink-0 items-center gap-4 max-xl:flex-wrap max-xl:gap-y-3">
         <div class="flex">
           <span
             v-for="(c, i) in collaborators"
@@ -68,6 +71,14 @@ const ready = computed(() => props.nOk === props.total)
           </div>
         </div>
         <Button
+          v-if="submitted"
+          disabled
+          variant="soft"
+          class="h-[38px] rounded-[10px] px-[18px] text-[13px] max-xl:h-11"
+        >已提交 · 核对与审核中</Button>
+        <Button
+          v-else
+          :disabled="busy"
           :class="cn('h-[38px] rounded-[10px] px-[18px] text-[13px] max-xl:h-11', !ready && 'bg-brand-mute')"
           @click="$emit('submit')"
         >提交核对与审核</Button>

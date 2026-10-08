@@ -20,7 +20,7 @@ defineProps<{ categories: string[]; rows: A7StructureRow[] }>()
       </div>
     </div>
   </div>
-  <div class="flex gap-3.5 pl-[66px] text-[11px] text-ink-4">
+  <div class="flex flex-wrap gap-x-3.5 gap-y-1 pl-[66px] text-[11px] text-ink-4">
     <span v-for="(c, j) in categories" :key="c" class="flex items-center gap-1">
       <span class="size-[9px] rounded-[2px]" :style="{ background: RAMP[j % RAMP.length] }" />{{ c }}
     </span>

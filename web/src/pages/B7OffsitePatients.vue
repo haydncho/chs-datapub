@@ -4,9 +4,12 @@ import { PageHeader, PageSection, StatCard } from '@/components/yb'
 import { usePageData } from '@/api/client'
 import { fmt } from '@/lib/format'
 import { A, BRAND, G, INK } from '@/lib/palette'
-import { B7_SEED, type B7Icon, type B7Source } from '@/mock/B7'
+import { B7_EMPTY, B7_SEED, type B7Icon, type B7Source } from '@/mock/B7'
+import OwnDataEmpty from './B1/OwnDataEmpty.vue'
+import { ownSeed } from './B1/ownSeed'
 
-const data = usePageData('B7', B7_SEED)
+const data = usePageData('B7', ownSeed(B7_SEED, B7_EMPTY))
+const empty = computed(() => !!data.value.noOwnData || data.value.kpis.length === 0)
 
 const ICON: Record<B7Icon, string> = {
   users: 'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21c0-3.9 3.1-7 7-7s7 3.1 7 7M16 3.5a4 4 0 0 1 0 7.5M22 21c0-3.2-2-5.8-5-6.7',
@@ -30,7 +33,10 @@ const COLS = 'grid grid-cols-[52px_minmax(0,1fr)_64px_90px_90px] gap-2.5'
   <PageSection label="B7 区域外患者">
     <PageHeader title="区域外患者 · 本院收治" :subtitle="data.subtitle" />
 
-    <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <OwnDataEmpty v-if="empty" :note="data.noOwnDataNote" />
+
+    <template v-else>
+    <div class="grid grid-cols-1 gap-3 min-[440px]:grid-cols-2 lg:grid-cols-4">
       <StatCard
         v-for="k in data.kpis"
         :key="k.label"
@@ -59,17 +65,30 @@ const COLS = 'grid grid-cols-[52px_minmax(0,1fr)_64px_90px_90px] gap-2.5'
 
       <div class="yb-card px-card-x py-card-y">
         <div class="mb-3 text-[15px] font-semibold">主要病组 · 与本地患者对比</div>
-        <div :class="[COLS, 'pb-1.5 text-[11px] text-ink-5']">
+        <!-- ≥ 640px: table; narrower: one card per DRG (no column squeezed to one character) -->
+        <div :class="[COLS, 'pb-1.5 text-[11px] text-ink-5 max-sm:hidden']">
           <span>编码</span><span>病组</span><span class="text-right">人次</span><span class="text-right">次均 · 异地</span><span class="text-right">次均 · 本地</span>
         </div>
-        <div v-for="r in data.drgs" :key="r.code" :class="[COLS, 'items-center border-t border-line-3 py-[7px] text-[13px]']">
+        <div v-for="r in data.drgs" :key="r.code" :class="[COLS, 'items-center border-t border-line-3 py-[7px] text-[13px] max-sm:hidden']">
           <span class="yb-num font-semibold text-brand">{{ r.code }}</span>
           <span>{{ r.name }}</span>
           <span class="yb-num text-right">{{ r.cases }}</span>
           <span :class="['yb-num text-right font-semibold', r.offsiteAvg > r.localAvg * 1.05 ? 'text-bad' : 'text-ink-1']">{{ fmt(r.offsiteAvg) }}</span>
           <span class="yb-num text-right text-ink-4">{{ fmt(r.localAvg) }}</span>
         </div>
+        <div v-for="r in data.drgs" :key="'m' + r.code" class="border-t border-line-3 py-2.5 text-[13px] sm:hidden" data-testid="b7-drg-card">
+          <div class="flex items-baseline gap-2">
+            <span class="yb-num font-semibold text-brand">{{ r.code }}</span>
+            <span class="min-w-0 flex-1">{{ r.name }}</span>
+            <span class="yb-num shrink-0 text-ink-3">{{ r.cases }} 人次</span>
+          </div>
+          <div class="mt-1 flex flex-wrap gap-x-4 text-[12px] text-ink-4">
+            <span>次均 · 异地 <b :class="['yb-num font-semibold', r.offsiteAvg > r.localAvg * 1.05 ? 'text-bad' : 'text-ink-1']">{{ fmt(r.offsiteAvg) }}</b></span>
+            <span>次均 · 本地 <b class="yb-num font-semibold text-ink-2">{{ fmt(r.localAvg) }}</b></span>
+          </div>
+        </div>
       </div>
     </div>
+    </template>
   </PageSection>
 </template>

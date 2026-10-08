@@ -16,7 +16,7 @@ browser ──► web (nginx) ──/api──► core  (Java 21 · Spring Boot 
 | Method & path | Purpose |
 |---|---|
 | `GET /pages` · `GET /pages/{code}` | screen read model — the JSON shape of `web/src/mock/{code}.ts`, overlaid with live domain state (B4 report status, A10 items incl. ones raised from B5, A11 alert status, A8 task steps) |
-| `POST /actions/{code}/{action}` | record a user action (actor = session user; `X-YB-User` accepted only while `yb.auth.dev-header=true`). Always audited; registered actions also change domain state: `B4/D1 signReport`, `A10 assignFeedback · replyFeedback` (correction → 更正 task), `B5 submitVerification` (差异 → A10 纠错 items), `A11 sendReminder`, `D1 submitReceipt`, `A8 approvePublish · rejectPublish · resetDemo` (approval gate at step 5), `A13 setPolicyRule`, `A15 publishAppearance · resetAppearance`, `A12 setUserEnabled · requestAddUser`(仅召集人)`· reviewAddUser`(召集人 / 行政管理组,申请人不能复核自己) |
+| `POST /actions/{code}/{action}` | record a user action (actor = session user; `X-YB-User: <login>` accepted only while `yb.auth.dev-header=true`, tests only). Only registered actions and a fixed list of record-only actions are accepted (unknown → 400, not audited); payload must be a JSON object ≤ 64 KB (413 otherwise). Registered actions also change domain state: `B4/D1 signReport`, `A10 assignFeedback · replyFeedback` (correction → 更正 task), `B5 submitVerification` (差异 → A10 纠错 items), `A11 sendReminder`, `D1 submitReceipt`, `A8 approvePublish · rejectPublish · resetDemo` (approval gate at step 5), `A13 setPolicyRule`, `A15 publishAppearance · resetAppearance`, `A12 setUserEnabled · requestAddUser`(仅召集人)`· reviewAddUser`(召集人 / 行政管理组,申请人不能复核自己) |
 | `POST /auth/sms-code` · `POST /auth/login` · `GET /auth/me` · `POST /auth/identity` · `POST /auth/logout` | unified login (数字证书 PIN / 短信验证码, demo code `123456`), HMAC-signed 8h bearer token, lockout after 5 failures / 15 min. 登录请求可带 `side`(`bureau` 医保局端 / `org` 机构端):返回的身份列表只含所选端的身份,切换身份不能跨端(403),换端需重新登录 |
 | `GET /audit?type=&actor=&page=&action=&from=&to=&offHours=&cursor=&limit=` | audit events `{items, nextCursor, today}` with A14 event type, off-hours/risk flags, per-event chain status, config diffs (A13/A15) |
 | `GET /audit/{id}` · `GET /audit/export.csv` · `GET /audit/verify` | event detail; CSV export (UTF-8 BOM, formula-safe, the export itself is audited); full SHA-256 chain re-hash |
@@ -64,9 +64,12 @@ Every `/api/v1/**` call passes `security/AuthFilter`: bearer token → actor and
 actions are checked against the role × page matrix (403 JSON otherwise); auditor is read-only;
 A8 approve/reject is convener-only. For the hospital role, `cockpit` and `B3` payloads are filtered so
 other institutions' named data never leaves the server. The frontend mirrors the matrix (route guard,
-nav hides unreachable stages). `yb.auth.dev-header=true` (default, for demos and tests) still lets
-unauthenticated calls through with a per-page demo identity — **set `YB_AUTH_DEV_HEADER=false` and a
-32+ byte `YB_AUTH_SECRET` in production.**
+nav hides unreachable stages). Calls without a valid bearer token get 401 (only `POST /auth/login`,
+`POST /auth/sms-code` and `GET /pages/A1` are public). For automated tests only, `YB_AUTH_DEV_HEADER=true`
+(`yb.auth.dev-header`, **default false**) also accepts `X-YB-User: <login>` naming a known, enabled user;
+such calls are access-checked exactly like that user's primary identity, and unknown names get 401.
+Refused (403) calls are written to the audit trail (`accessDenied`, type 权限). **Set a 32+ byte
+`YB_AUTH_SECRET` in production and leave the dev header off.**
 
 ## Not done yet
 

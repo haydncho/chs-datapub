@@ -10,11 +10,13 @@ const s = useA8()
 const passN = computed(() => s.checks.filter(c => c.ok).length)
 const allOk = computed(() => s.checks.every(c => c.ok))
 const gateTxt = computed(() =>
-  s.step < 5
-    ? '当前处于「' + s.stepName(s.step) + '」,完成前序步骤后进入召集人审批。'
-    : s.step >= 10
-      ? '本发布已归档。'
-      : '已于本期批准并定向发布至 ' + s.covN + ' 家机构,签收追踪进行中。',
+  s.cur.status === 'withdrawn'
+    ? '本发布已撤回。'
+    : s.step < 5
+      ? (s.cur.status === 'rejected' ? '已被召集人驳回至「' + s.stepName(s.step) + '」,按意见修改后可重新提交审批。' : '当前处于「' + s.stepName(s.step) + '」,完成前序步骤后提交召集人审批。')
+      : s.step >= 10
+        ? '本发布已归档。'
+        : '已于本期批准并定向发布至 ' + s.covN + ' 家机构,签收追踪进行中。',
 )
 const logs = computed(() =>
   s.logs
@@ -44,9 +46,9 @@ const logs = computed(() =>
           <span
             :class="cn(
               'flex size-[18px] shrink-0 items-center justify-center rounded-full text-[11px]',
-              c.ok ? 'bg-ok-soft text-ok' : 'bg-warn-soft text-warn-ink',
+              c.ok ? 'bg-ok-soft text-ok' : c.warn ? 'bg-warn-soft text-warn-ink' : 'bg-bad-soft text-bad',
             )"
-          >{{ c.ok ? '✓' : '!' }}</span>
+          >{{ c.ok ? '✓' : c.warn ? '!' : '×' }}</span>
           <span class="min-w-0 flex-1">{{ c.text }}</span>
           <span class="text-ink-6">›</span>
         </div>
@@ -55,7 +57,7 @@ const logs = computed(() =>
 
     <div class="border-t border-line-2 pt-[18px]">
       <div class="mb-2.5 text-sm font-semibold">召集人审批</div>
-      <template v-if="s.step === 5">
+      <template v-if="s.step === 5 && s.isConvener">
         <div class="mb-2 flex flex-wrap gap-1.5">
           <button type="button"
             v-for="p in s.d.phrases"
@@ -69,7 +71,8 @@ const logs = computed(() =>
           placeholder="审批意见(驳回时必填)"
           class="h-[84px] w-full resize-none rounded-[10px] border border-line-1 bg-surface-1 px-3 py-2.5 text-[13px] outline-none placeholder:text-ink-5 focus:border-brand-line"
         />
-        <Button class="mt-2.5 h-10 w-full rounded-[10px] text-sm max-xl:h-12" @click="s.confirmOpen = true">批准发布 · 推送 {{ s.covN }} 家</Button>
+        <Button class="mt-2.5 h-10 w-full rounded-[10px] text-sm max-xl:h-12" :disabled="s.busy || s.blocked" @click="s.openConfirm()">批准发布 · 推送 {{ s.covN }} 家</Button>
+        <div v-if="s.blocked" class="mt-1.5 text-[11px] text-bad-ink">发布前检查未通过,修正后才能批准</div>
         <div class="mt-3 mb-1.5 text-xs text-ink-4">驳回至</div>
         <div class="grid grid-cols-2 gap-1.5">
           <button type="button"
@@ -82,11 +85,26 @@ const logs = computed(() =>
         <Button
           variant="outline"
           class="mt-2 h-9 w-full rounded-[10px] border-[#F3C5C0] max-xl:h-11 font-normal text-bad"
+          :disabled="s.busy"
           @click="s.reject()"
         >驳回至「{{ s.stepName(s.rjTo) }}」</Button>
       </template>
+      <template v-else-if="s.step === 5">
+        <div class="rounded-[10px] bg-surface-1 px-3.5 py-3 text-xs leading-[1.7] text-ink-3">
+          等待召集人审批。当前身份({{ s.actorName || '未登录' }})只能查看,审批意见与操作由召集人完成。
+        </div>
+      </template>
       <template v-else>
         <div class="rounded-[10px] bg-surface-1 px-3.5 py-3 text-xs leading-[1.7] text-ink-3">{{ gateTxt }}</div>
+        <div v-if="s.lastReject && s.step < 5" class="mt-2 rounded-[10px] border border-[#F3C5C0] bg-bad-soft px-3.5 py-2.5 text-xs leading-[1.7] text-bad-ink">
+          驳回意见 · {{ s.lastReject.who }} {{ s.lastReject.time }}:{{ s.lastReject.what }}
+        </div>
+        <Button
+          v-if="s.step < 5 && !s.archived && s.canWork"
+          class="mt-2.5 h-10 w-full rounded-[10px] text-sm max-xl:h-12"
+          :disabled="s.busy"
+          @click="s.submit()"
+        >{{ s.cur.status === 'rejected' ? '重新提交审批' : '提交召集人审批' }}</Button>
       </template>
     </div>
 

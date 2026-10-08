@@ -22,9 +22,10 @@ services:
       DB_USER: ybdata
       DB_PASSWORD: ybdata
       ANALYTICS_URL: http://analytics:8090
-      # production: set a 32+ byte secret and turn the demo header off
+      # production: set a 32+ byte secret. The X-YB-User test header stays off unless explicitly enabled
+      # (YB_AUTH_DEV_HEADER=true, for automated tests only — never on a shared or public deployment).
       YB_AUTH_SECRET: ${YB_AUTH_SECRET:-change-me-to-a-32-byte-random-secret!!}
-      YB_AUTH_DEV_HEADER: ${YB_AUTH_DEV_HEADER:-true}
+      YB_AUTH_DEV_HEADER: ${YB_AUTH_DEV_HEADER:-false}
     depends_on:
       db:
         condition: service_healthy

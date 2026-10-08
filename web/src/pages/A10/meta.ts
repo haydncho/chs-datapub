@@ -17,4 +17,5 @@ export const FBT: Record<FeedbackType, [string, string]> = {
   申诉: [RS, RT],
   意见: ['var(--brand-soft)', 'var(--brand)'],
   纠错: [AS, AT],
+  监督建议: ['var(--violet-soft)', 'var(--violet)'],
 }

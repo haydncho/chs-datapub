@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { A, AS, G, GS, GT, R, BRAND, BRAND_SOFT } from '@/lib/palette'
 import type { B1Kpi } from '@/mock/B1'
+import { PERCENTILE_HINT, WATCH_BELOW } from './percentile'
 
 /** KPI card: gradient + icon, value with mini trend, MoM delta and peer-percentile bar. */
 const props = defineProps<{ kpi: B1Kpi; icon: string }>()
@@ -10,7 +11,7 @@ const view = computed(() => {
   const k = props.kpi
   const up = k.mom > 0
   const good = k.goodDirection > 0 ? up : !up
-  const warn = k.watchWhenHigh && k.percentile >= 70
+  const warn = k.percentile < WATCH_BELOW
   const [g, bd, ic] = warn ? [AS, '#F6DFB8', A] : good ? [GS, '#CBEBDB', G] : [BRAND_SOFT, '#DCE6F8', BRAND]
   return {
     g, bd, ic,
@@ -61,7 +62,7 @@ const view = computed(() => {
       />
     </div>
     <div class="flex justify-between text-[11px]">
-      <span class="text-ink-5">同级分位</span>
+      <span class="text-ink-5" :title="PERCENTILE_HINT">同级分位 · 越高越好</span>
       <span class="yb-num font-semibold" :style="{ color: view.mc }">P{{ kpi.percentile }}</span>
     </div>
   </div>

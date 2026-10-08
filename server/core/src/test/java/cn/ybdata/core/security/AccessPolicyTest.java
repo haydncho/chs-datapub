@@ -81,4 +81,30 @@ class AccessPolicyTest {
         assertThat(AuthFilter.isPublic("GET", "pages/A3")).isFalse();
         assertThat(AuthFilter.isPublic("POST", "actions/A1/login")).isFalse();
     }
+
+    @Test
+    void analyticsFollowsTheScreenThatUsesIt() {
+        // A11 预警 uses alerts/evaluate: everyone who can open A11 may call it
+        for (String r : List.of("convener", "admin", "county")) {
+            assertThat(AccessPolicy.check(r, "GET", "analytics/alerts/evaluate")).as(r).isEmpty();
+        }
+        for (String r : List.of("analyst", "hospital", "auditor", "observer")) {
+            assertThat(AccessPolicy.check(r, "GET", "analytics/alerts/evaluate")).as(r).isPresent();
+        }
+        assertThat(AccessPolicy.check("county", "GET", "analytics/topics/recommend")).isPresent();
+        assertThat(AccessPolicy.check("observer", "GET", "analytics/health")).isEmpty();
+        assertThat(AccessPolicy.check("observer", "GET", "analytics/unknown")).isPresent();
+    }
+
+    @Test
+    void refusalsAreAttributedToTheirScreen() {
+        assertThat(AccessPolicy.pageOf("pages/B3")).isEqualTo("B3");
+        assertThat(AccessPolicy.pageOf("actions/A8/approvePublish")).isEqualTo("A8");
+        assertThat(AccessPolicy.pageOf("audit/export.csv")).isEqualTo("A14");
+        assertThat(AccessPolicy.pageOf("settings/appearance")).isEqualTo("A15");
+        assertThat(AccessPolicy.pageOf("settings/display_policy")).isEqualTo("A13");
+        assertThat(AccessPolicy.pageOf("analytics/alerts/evaluate")).isEqualTo("A11");
+        assertThat(AccessPolicy.pageOf("pages")).isNull();
+        assertThat(AccessPolicy.pageOf("auth/me")).isNull();
+    }
 }

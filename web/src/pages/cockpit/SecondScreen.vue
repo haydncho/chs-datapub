@@ -14,7 +14,7 @@ import { K, useCockpit } from './store'
  * 原则:副屏只放主屏没有的内容 —— 主屏已有的面板与数字(实时提醒、闭环、待办数)不再出现;
  * 双屏时主屏的视图切换也不再包含副屏这些视图(见 store 的 SCREEN2_VIEWS)。指标卡数字全部由页面数据现算。
  */
-const { s, I, data, clock, bubble } = useCockpit()
+const { s, I, data, clock, bubble, span, insts, deptsP, peerStats, savedSub } = useCockpit()
 const hosp = computed(() => I.value.id === 'hosp')
 const panel = 'rounded-[10px] border border-[rgb(var(--ck-line)/.16)] bg-[rgb(var(--ck-panel)/.66)] px-[22px] py-3.5'
 const caption = computed(() => (hosp.value ? 'HOSPITAL OPERATION · BENCHMARK' : 'OPEN DATA · FEEDBACK MONITOR'))
@@ -55,15 +55,15 @@ interface Card { k: string; v: string; u: string; sub: string; c: string }
 const cards = computed<Card[]>(() => {
   const d = data.value
   if (hosp.value) {
-    const over = d.depts.filter(x => x.diff > 0).length
-    const below = d.peers.filter(x => +x.pct.slice(1) < 50)
+    const over = deptsP.value.filter(x => x.diff > 0).length
+    const ps = peerStats.value
     return [
-      { k: '同级对标向好', v: d.peerSummary.better.split(' ')[0] ?? '', u: '/ ' + (d.peerSummary.better.split('/ ')[1] ?? ''), sub: '同级 市三级 6 家 · 匿名', c: K.green },
-      { k: 'CMI 同级分位', v: d.peerSummary.cmiPct, u: '', sub: '越高越好', c: K.green },
-      { k: '例均差额分位', v: d.peerSummary.diffPct, u: '', sub: '越低越好', c: K.amber },
-      { k: '低于同级中位', v: String(below.length), u: '项', sub: below.map(x => x.name).join(' · '), c: K.amber },
-      { k: '超支科室', v: String(over), u: '/ ' + d.depts.length + ' 个', sub: '结余科室 ' + (d.depts.length - over) + ' 个', c: K.red },
-      { k: '重点关注', v: d.peerSummary.watch, u: '', sub: '同级分位最低的指标', c: K.redSoft },
+      { k: '优于同级中位', v: String(ps.better.length), u: '/ ' + ps.n + ' 项', sub: `差于中位 ${ps.worse.length} 项 · 同级 6 家匿名`, c: K.green },
+      { k: 'CMI 同级分位', v: ps.cmi?.pct ?? '—', u: '', sub: '同级分位 · 越高越好', c: K.green },
+      { k: '例均差额分位', v: ps.diff?.pct ?? '—', u: '', sub: '同级分位 · 越高越好', c: K.amber },
+      { k: '差于同级中位', v: String(ps.worse.length), u: '/ ' + ps.n + ' 项', sub: ps.worse.map(x => x.name).join(' · ') || '无', c: K.amber },
+      { k: '超支科室', v: String(over), u: '/ ' + deptsP.value.length + ' 个', sub: '结余科室 ' + (deptsP.value.length - over) + ' 个', c: K.red },
+      { k: '重点关注', v: ps.watch, u: '', sub: '同级分位最低的一项', c: K.redSoft },
     ]
   }
   const p = pub.value
@@ -90,25 +90,21 @@ const flowRows = computed(() => {
 
 /* ---------- 科室差额排行(本院):左结余、右超支 */
 const deptRows = computed(() => {
-  const ds = [...data.value.depts].sort((a, b) => b.diff - a.diff)
+  const ds = [...deptsP.value].sort((a, b) => b.diff - a.diff)
   const mx = Math.max(...ds.map(x => Math.abs(x.diff)), 1)
   return ds.map(x => ({ ...x, v: sign(x.diff), w: ((Math.abs(x.diff) / mx) * 100).toFixed(1) + '%', over: x.diff > 0 }))
 })
 
 /* ---------- 订阅推送(主屏只有入口按钮,没有展示当前订阅) */
 const push = computed(() => {
-  const sub = data.value.subscription
-  return {
-    when: sub.whenLabels[s.sfq] ?? '', ch: sub.channels[s.sch] ?? '',
-    contents: sub.contents.filter((_, i) => s.sct[i]),
-    to: I.value.recipients.filter((_, i) => s.sto[i]),
-  }
+  const x = savedSub.value
+  return x ? { on: x.enabled, when: x.frequency, ch: x.channel, contents: x.contents, to: x.recipients } : null
 })
 
 /* ---------- 区县机构概况(医保局):机构数 · 逆差机构占比 · 逆差最大的机构(主屏机构矩阵只有逐家色块,没有这组汇总) */
 const districts = computed(() =>
   data.value.districts.map(dist => {
-    const list = data.value.institutions.filter(x => x.district === dist)
+    const list = insts.value.filter(x => x.district === dist)
     const n = list.length || 1
     const deficit = list.filter(x => x.diff > 0)
     const worst = [...list].sort((a, b) => b.diff - a.diff)[0]
@@ -143,11 +139,13 @@ const quads = computed(() => {
 const sizes = computed(() => {
   const items = bubble.value.items
   const total = items.reduce((a, i) => a + i.x, 0) || 1
+  // 分档按月均病例数(季 / 年口径按期内月数折算),与气泡图「病例 < 30/月 并入其他」同一口径
+  const m = span.value
   const B = [
-    { k: '≥ 100 例', f: (x: number) => x >= 100 },
-    { k: '50–99 例', f: (x: number) => x >= 50 && x < 100 },
-    { k: '30–49 例', f: (x: number) => x >= 30 && x < 50 },
-    { k: '< 30 例', f: (x: number) => x < 30, note: '门户中并入其他' },
+    { k: `≥ ${100 * m} 例`, f: (x: number) => x >= 100 * m },
+    { k: `${50 * m}–${100 * m - 1} 例`, f: (x: number) => x >= 50 * m && x < 100 * m },
+    { k: `${30 * m}–${50 * m - 1} 例`, f: (x: number) => x >= 30 * m && x < 50 * m },
+    { k: `< ${30 * m} 例`, f: (x: number) => x < 30 * m, note: '门户中并入其他' },
   ]
   const rows = B.map(b => {
     const g = items.filter(i => b.f(i.x))
@@ -186,7 +184,7 @@ const LEGEND = [
   </div>
 
   <!-- 专属指标卡 -->
-  <div class="absolute top-[84px] right-7 left-7 grid h-[100px] grid-cols-6 rounded-[10px] border border-[rgb(var(--ck-line)/.18)] bg-[linear-gradient(180deg,rgba(18,40,82,.55),rgb(var(--ck-panel)/.35))]">
+  <div class="absolute top-[84px] right-7 left-7 grid h-[100px] grid-cols-6 rounded-[10px] border border-[rgb(var(--ck-line)/.18)] ck-ribbon">
     <div
       v-for="(c, i) in cards"
       :key="c.k"
@@ -291,7 +289,7 @@ const LEGEND = [
   <div :class="[panel, 'absolute top-[780px] left-7 flex h-[276px] w-[760px] flex-col']">
     <template v-if="!hosp">
       <div class="flex items-center justify-between">
-        <PanelTitle title="区县机构概况" bar="#5B8FD9" />
+        <PanelTitle title="区县机构概况" bar="rgb(var(--ck-accl))" />
         <span class="text-sm text-[#6F84A6]">逆差 = 例均基金差额 > 0</span>
       </div>
       <div class="mt-2 grid grid-cols-[64px_64px_1fr_220px] gap-x-3 text-sm text-[#6F84A6]">
@@ -305,7 +303,7 @@ const LEGEND = [
             <span class="h-2.5 flex-1 rounded-[3px] bg-[rgba(255,255,255,.06)]">
               <span class="block h-2.5 rounded-[3px] bg-[#FF6B5E] opacity-85 transition-[width] duration-[900ms] ease-[cubic-bezier(.2,.8,.2,1)]" :style="{ width: s.intro ? x.w : '0%', transitionDelay: i * 70 + 'ms' }" />
             </span>
-            <span class="yb-num w-[64px] shrink-0 text-sm text-[#FFB2AA]">{{ x.def }} 家 · {{ x.w }}</span>
+            <span class="yb-num w-[88px] shrink-0 text-sm whitespace-nowrap text-[#FFB2AA]">{{ x.def }} 家 · {{ x.w }}</span>
           </span>
           <span class="truncate text-sm text-[#C9D6EA]" :title="x.worst">{{ x.worst }} <b class="yb-num font-semibold text-[#FFB2AA]">{{ x.wv }}</b></span>
         </div>
@@ -313,7 +311,7 @@ const LEGEND = [
     </template>
     <template v-else>
       <div class="flex items-center justify-between">
-        <PanelTitle title="病组规模分布" bar="#5B8FD9" />
+        <PanelTitle title="病组规模分布" bar="rgb(var(--ck-accl))" />
         <span class="text-sm text-[#6F84A6]">按本院病例数分档 · 条长为病例占比</span>
       </div>
       <div class="mt-2 flex flex-1 flex-col justify-around">
@@ -333,9 +331,10 @@ const LEGEND = [
   <div :class="[panel, 'absolute top-[780px] left-[804px] flex h-[276px] w-[432px] flex-col']">
     <div class="flex items-center justify-between">
       <PanelTitle title="订阅推送" bar="#B9A2FF" />
-      <span class="flex items-center gap-1.5 text-sm text-[#3FD1A0]"><span class="size-2 rounded-full bg-[#3FD1A0]" />已开启</span>
+      <span v-if="push?.on" class="flex items-center gap-1.5 text-sm text-[#3FD1A0]" data-testid="screen2-sub-state"><span class="size-2 rounded-full bg-[#3FD1A0]" />已开启</span>
+      <span v-else class="flex items-center gap-1.5 text-sm text-[#6F84A6]" data-testid="screen2-sub-state"><span class="size-2 rounded-full bg-[#6F84A6]" />{{ push ? '已停用' : '未开启' }}</span>
     </div>
-    <div class="mt-3 grid grid-cols-[64px_1fr] gap-x-3 gap-y-2.5 text-sm">
+    <div v-if="push" :class="['mt-3 grid grid-cols-[64px_1fr] gap-x-3 gap-y-2.5 text-sm', !push.on && 'opacity-60']">
       <span class="text-[#6F84A6]">频率</span><span class="text-[15px] font-medium text-[#CDBDFF]">{{ push.when }}</span>
       <span class="text-[#6F84A6]">渠道</span><span class="text-[15px] font-medium text-[#CDBDFF]">{{ push.ch }}</span>
       <span class="pt-0.5 text-[#6F84A6]">内容</span>
@@ -346,6 +345,10 @@ const LEGEND = [
       <span class="flex flex-wrap gap-1.5">
         <span v-for="r in push.to" :key="r" class="rounded-[4px] bg-[rgba(255,255,255,.05)] px-2 py-0.5 text-[#C9D6EA]">{{ r }}</span>
       </span>
+    </div>
+    <div v-else class="flex flex-1 flex-col items-center justify-center gap-1.5 text-center text-sm text-[#6F84A6]">
+      <span class="text-[15px] text-[#9FB2D1]">尚未订阅全景图推送</span>
+      <span>在主屏点「订阅推送」设置频率、内容与接收人</span>
     </div>
   </div>
 

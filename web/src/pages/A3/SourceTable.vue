@@ -62,7 +62,7 @@ const rowsLabel = (w: number) => (w >= 1 ? w.toFixed(1) + ' 万' : '<1 万')
         <span class="yb-num w-6 text-right font-semibold">{{ r.status === 'late' ? '—' : r.src.score }}</span>
       </div>
       <Badge :variant="statusPill(r).variant" :class="cn('w-full', statusPill(r).cls)">{{ statusPill(r).label }}</Badge>
-      <span class="yb-num text-right text-ink-3">{{ rowsLabel(r.src.rowsWan) }}</span>
+      <span class="yb-num text-right text-ink-3" :title="r.status === 'late' ? '本期未到数' : undefined">{{ r.status === 'late' ? '—' : rowsLabel(r.src.rowsWan) }}</span>
     </div>
     </div>
    </div>

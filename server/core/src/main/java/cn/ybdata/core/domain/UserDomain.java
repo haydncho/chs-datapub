@@ -176,12 +176,13 @@ public class UserDomain {
         p.set("users", users);
         p.set("summary", summary);
         p.put("userSummary", "共 " + total + " 人 · 医保局端 " + bureau + " · 机构端 " + org
-                + " · 超过 " + UserMatrix.INACTIVE_DAYS + " 天未登录 " + expiring + " 人即将停用");
+                + " · 超过 " + UserMatrix.INACTIVE_DAYS + " 天未登录 " + expiring + " 人即将停用"
+                + (reqs.isEmpty() ? "" : " · 另有待复核申请 " + reqs.size() + " 项(列表与分端计数含申请)"));
     }
 
     // ───────────────────────── 操作 ─────────────────────────
 
-    /** 当前请求的会话角色;未经访问检查的旧版演示身份(无角色)视为不受限。 */
+    /** 当前请求的身份(由 AuthFilter 解析;没有身份的请求到不了这里)。 */
     private static Actor currentActor() {
         if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes a) {
             HttpServletRequest req = a.getRequest();
@@ -191,7 +192,7 @@ public class UserDomain {
     }
 
     static void require(Actor who, String action) {
-        if (who == null || !who.enforced()) return;
+        if (who == null) throw new AccessDeniedException("请先登录");
         if (!UserMatrix.mayAct(who.role(), action)) {
             throw new AccessDeniedException("当前身份无权执行 A12/" + action + (
                     "reviewAddUser".equals(action) ? "(仅召集人、行政管理组可复核)" : "(仅召集人可操作)"));
@@ -208,7 +209,7 @@ public class UserDomain {
             if (en == null || !en.isBoolean()) throw new IllegalArgumentException("missing field: enabled");
             boolean enabled = en.asBoolean();
             if (!enabled) {
-                if (who != null && who.enforced() && login.equals(who.login())) throw new IllegalArgumentException("不能停用自己的账号");
+                if (who != null && login.equals(who.login())) throw new IllegalArgumentException("不能停用自己的账号");
                 String role = jdbc.sql("select role_code from app_user where login = :l").param("l", login)
                         .query(String.class).optional().orElse(null);
                 if ("convener".equals(role)) {
@@ -244,6 +245,10 @@ public class UserDomain {
             String orgId = orgIn.isEmpty() ? defaultOrg(roleCode)
                     : jdbc.sql("select id from org where id = :o or name = :o").param("o", orgIn)
                             .query(String.class).optional().orElseThrow(() -> new IllegalArgumentException("未知机构: " + orgIn));
+            String level = jdbc.sql("select level from org where id = :o").param("o", orgId).query(String.class).optional().orElse("");
+            if (!UserMatrix.orgFits(roleCode, level)) {
+                throw new IllegalArgumentException("所属机构与角色不匹配:" + UserMatrix.orgRule(roleCode));
+            }
             if (jdbc.sql("select count(*) from app_user where login = :l").param("l", login).query(Integer.class).single() > 0) {
                 throw new IllegalArgumentException("登录名已存在: " + login);
             }
@@ -282,6 +287,7 @@ public class UserDomain {
         return switch (roleCode) {
             case "observer" -> "PUB";
             case "hospital" -> "H001";
+            case "county" -> throw new IllegalArgumentException("县区医保部门须填写所属机构");
             default -> "YBJ";
         };
     }

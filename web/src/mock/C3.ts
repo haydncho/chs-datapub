@@ -1,5 +1,7 @@
 /** C3 外部监督 — seed data (same shape as GET /api/v1/pages/C3). Summary-only public layer. */
 
+import type { A10Item } from './A10'
+
 export type C3Tone = 'ok' | 'info'
 export type C3Icon = 'coin' | 'shield' | 'doc' | 'check'
 
@@ -39,6 +41,10 @@ export interface C3Data {
   kpis: C3Kpi[]
   calendar: C3Month[]
   feedback: C3Feedback[]
+  /** 监督建议 categories accepted by submitSuggestion (server) */
+  suggestionTopics?: string[]
+  /** the viewer's own suggestions with status and reply (server; handled in A10 as kind 监督建议) */
+  mySuggestions?: A10Item[]
 }
 
 const months: C3Month[] = Array.from({ length: 12 }, (_, i) => ({
@@ -59,6 +65,8 @@ export const C3_SEED: C3Data = {
     { label: '机构签收率', value: '96%', sub: '52 家定点机构', tone: 'ok', icon: 'check' },
   ],
   calendar: months,
+  suggestionTopics: ['公开内容', '发布时效', '反馈闭环', '数据口径', '其他'],
+  mySuggestions: [],
   feedback: [
     { label: '机构意见答复率', value: '78%', pct: 78 },
     { label: '意见平均答复', value: '3.2 天', pct: 68 },
@@ -69,5 +77,6 @@ export const C3_SEED: C3Data = {
 
 /**
  * ACTIONS:
- * submitSuggestion({}) — 提交监督建议: records an oversight suggestion from the external supervisor; answered within 15 个工作日.
+ * submitSuggestion({ topic: string, text: string }) — 提交监督建议 (topic one of suggestionTopics; text 10–500 字). Stored as a
+ *   feedback item (kind 监督建议) handled in A10; the same open text is accepted once. Listed back in mySuggestions with its reply.
  */

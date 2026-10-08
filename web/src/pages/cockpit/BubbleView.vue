@@ -7,10 +7,44 @@ const { s, I, bubble, motion, labelOf } = useCockpit()
 /* 未常驻标注的气泡,悬停时临时显示名称 */
 const hov = ref<string | null>(null)
 const hovLabel = computed(() => (hov.value ? labelOf(hov.value) : null))
+
+/**
+ * 鼠标命中按「离气泡中心最近」判定(而不是看谁的 DOM 在最上层):两个气泡重叠、或气泡边缘压到
+ * 文字时,指向哪个中心就命中哪个,被遮住的气泡中心也能悬停 / 点中。键盘仍可逐个聚焦气泡。
+ */
+const plot = ref<HTMLDivElement | null>(null)
+function hit(e: MouseEvent): string | null {
+  const el = plot.value
+  if (!el || !s.grow) return null
+  const rc = el.getBoundingClientRect()
+  const scale = rc.width / (el.offsetWidth || 1)
+  let best: string | null = null
+  let bestD = Infinity
+  for (const b of bubble.value.main) {
+    const dx = e.clientX - (rc.left + (b.cx / 100) * rc.width)
+    const dy = e.clientY - (rc.top + (b.cy / 100) * rc.height)
+    const d = Math.hypot(dx, dy) / (Math.max(b.r, 6) * scale)
+    if (d <= 1.1 && d < bestD) { best = b.k; bestD = d }
+  }
+  return best
+}
+function onMove(e: MouseEvent) { hov.value = hit(e) }
+function onClick(e: MouseEvent) {
+  const k = hit(e)
+  if (k) s.sel = k
+}
 </script>
 
 <template>
-  <div class="absolute top-1.5 right-3 bottom-9 left-[72px]">
+  <div
+    ref="plot"
+    class="absolute top-1.5 right-3 bottom-9 left-[72px]"
+    :class="hov ? 'cursor-pointer' : ''"
+    data-testid="bubble-plot"
+    @mousemove="onMove"
+    @mouseleave="hov = null"
+    @click="onClick"
+  >
     <!-- quadrant tints -->
     <div class="absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(180deg,rgba(255,90,78,.08),rgba(255,90,78,0))]" />
     <div class="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(0deg,rgba(46,209,138,.07),rgba(46,209,138,0))]" />
@@ -26,10 +60,10 @@ const hovLabel = computed(() => (hov.value ? labelOf(hov.value) : null))
     <div class="absolute inset-y-0 border-l-[1.5px] border-dashed border-[rgb(var(--ck-accl)/.35)]" :style="{ left: bubble.med + '%' }" />
     <span class="absolute bottom-1 ml-2 text-sm text-[rgb(var(--ck-accl))]" :style="{ left: bubble.med + '%' }">病例数中位</span>
     <!-- quadrant labels -->
-    <span class="absolute top-2 right-2.5 text-[15px] font-semibold text-[#FF8A7E] z-[90] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">高量 · 逆差 — 关键少数</span>
-    <span class="absolute top-2 left-2.5 text-[15px] text-[#C9877F] z-[90] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">低量 · 逆差</span>
-    <span class="absolute right-2.5 bottom-2 text-[15px] text-[#6FCDA8] z-[90] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">高量 · 结余</span>
-    <span class="absolute bottom-2 left-2.5 text-[15px] text-[#5A9C84] z-[90] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">低量 · 结余</span>
+    <span class="absolute top-2 right-2.5 text-[15px] font-semibold text-[#FF8A7E] pointer-events-none z-[1] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">高量 · 逆差 — 关键少数</span>
+    <span class="absolute top-2 left-2.5 text-[15px] text-[#C9877F] pointer-events-none z-[1] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">低量 · 逆差</span>
+    <span class="absolute right-2.5 bottom-2 text-[15px] text-[#6FCDA8] pointer-events-none z-[1] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">高量 · 结余</span>
+    <span class="absolute bottom-2 left-2.5 text-[15px] text-[#5A9C84] pointer-events-none z-[1] rounded bg-[rgb(var(--ck-deep)/.72)] px-1.5">低量 · 结余</span>
     <!-- city reference (hospital view) -->
     <div
       v-for="(g, i) in bubble.grays"
@@ -41,12 +75,13 @@ const hovLabel = computed(() => (hov.value ? labelOf(hov.value) : null))
     <div v-press
       v-for="b in bubble.main"
       :key="I.id + b.k"
-      :title="b.tip"
-      class="absolute cursor-pointer rounded-full"
+      :aria-label="b.tip"
+      :data-k="b.k"
+      class="pointer-events-none absolute rounded-full"
       :style="b.style"
       @click="s.sel = b.k"
-      @mouseenter="hov = b.k"
-      @mouseleave="hov = null"
+      @focus="hov = b.k"
+      @blur="hov = null"
     />
     <!-- effects: scanning band + pulse rings -->
     <template v-if="motion">

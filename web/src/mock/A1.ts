@@ -55,8 +55,8 @@ export interface A1Data {
   /** 第一步: 选择端 */
   sides: A1SideCard[]
   loginTabs: string[]
-  /** `account`: login the detected certificate belongs to (sent with the PIN); optional — older seeds lack it */
-  cert: { title: string; subject: string; account?: string }
+  /** detected certificate (display only; the account is read locally — see pages/A1/cert.ts — never served) */
+  cert: { title: string; subject: string }
   agreement: string
   user: { name: string; authNote: string }
   identities: A1Identity[]
@@ -95,7 +95,7 @@ export const A1_SEED: A1Data = {
     },
   ],
   loginTabs: ['数字证书', '账号 + 短信'],
-  cert: { title: '已检测到数字证书', subject: 'CN=陈志远 · 示例市医疗保障局 · 有效期至 2027-06', account: 'chenzy' },
+  cert: { title: '已检测到数字证书', subject: 'CN=陈志远 · 示例市医疗保障局 · 有效期至 2027-06' },
   agreement: '登录即表示同意《医保数据定向公开管理办法》。本平台所有页面叠加个人水印,查阅与导出行为全程记录。',
   user: { name: '陈志远', authNote: '已通过证书认证 · 身份决定可见数据范围' },
   identities: [

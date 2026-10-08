@@ -26,26 +26,31 @@ const dash = computed(() => (s.posted ? ((s.sigN / Math.max(1, s.covN)) * 97.4).
           <span class="text-[11px] text-ink-4">已签收</span>
         </div>
       </div>
-      <div class="text-xs whitespace-nowrap text-ink-3">{{ s.sigN }} / {{ s.covN }} 家 · {{ s.d.signRemain }}</div>
+      <div class="text-xs whitespace-nowrap text-ink-3">{{ s.sigN }} / {{ s.covN }} 家 · {{ s.signDue }}</div>
     </div>
     <div class="flex flex-col overflow-hidden rounded-[10px] border border-line-2">
       <div class="flex items-center justify-between bg-surface-1 px-3.5 py-2.5">
         <span class="text-xs text-ink-4">未签收机构 · {{ s.covN - s.sigN }} 家</span>
-        <button type="button" class="cursor-pointer text-xs font-semibold text-brand max-xl:min-h-10 max-xl:px-2" @click="s.urgeAll()">一键催办</button>
+        <button v-if="s.canWork && s.unsignedAll.length" type="button" class="cursor-pointer text-xs font-semibold text-brand disabled:cursor-default disabled:text-ink-5 max-xl:min-h-10 max-xl:px-2" :disabled="s.busy" @click="s.urgeAll()">一键催办</button>
       </div>
       <div
-        v-for="(u, i) in s.unsigned"
+        v-for="u in s.unsigned"
         :key="u.name"
         class="grid grid-cols-[minmax(0,1fr)_90px_100px_72px] items-center gap-3 border-t border-line-3 px-3.5 py-[9px] text-[13px]"
       >
         <span class="overflow-hidden text-ellipsis whitespace-nowrap">{{ u.name }}</span>
         <span class="text-xs whitespace-nowrap text-ink-4">{{ s.d.tiers[u.tier]?.name }}</span>
-        <span :class="['text-xs whitespace-nowrap', i < 2 ? 'text-warn-ink' : 'text-ink-5']">{{ i < 2 ? '已查阅 · 未签收' : '未查阅' }}</span>
+        <span class="text-xs whitespace-nowrap text-warn-ink">未签收</span>
         <button type="button"
-          :class="['text-right text-xs whitespace-nowrap max-xl:min-h-10', s.urged[u.name] ? 'cursor-default text-ink-5' : 'cursor-pointer text-brand']"
+          :class="['text-right text-xs whitespace-nowrap max-xl:min-h-10', s.urged[u.name] || !s.canWork ? 'cursor-default text-ink-5' : 'cursor-pointer text-brand']"
+          :disabled="s.urged[u.name] || !s.canWork || s.busy"
           @click="s.urge(u.name)"
         >{{ s.urged[u.name] ? '已催办' : '催办' }}</button>
       </div>
+      <div v-if="s.unsignedAll.length > s.unsigned.length" class="border-t border-line-3 px-3.5 py-2 text-xs text-ink-5">
+        另有 {{ s.unsignedAll.length - s.unsigned.length }} 家未签收
+      </div>
+      <div v-if="!s.unsignedAll.length" class="border-t border-line-3 px-3.5 py-3 text-xs text-ok-ink">全部机构已签收</div>
     </div>
   </div>
 </template>

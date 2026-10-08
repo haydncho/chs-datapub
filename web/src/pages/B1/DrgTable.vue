@@ -4,11 +4,12 @@ import { cn } from '@/lib/utils'
 import { fmt, sign } from '@/lib/format'
 import { A, GT, R, BRAND } from '@/lib/palette'
 import { goPage } from '@/app/router'
-import type { B1Drg } from '@/mock/B1'
+import type { B1Data, B1Drg } from '@/mock/B1'
+import { PERCENTILE_HINT, WATCH_BELOW } from './percentile'
 import { vPress } from '@/lib/a11y'
 
 /** 重点病组明细: top-8 by 差额总额, sticky header (under the 60px app header), click-to-sort. */
-const props = defineProps<{ drgs: B1Drg[] }>()
+const props = defineProps<{ drgs: B1Drg[]; totalCases: number; settlement: B1Data['settlement'] }>()
 const selected = defineModel<string>('selected', { required: true })
 
 type SortKey = 'k' | 'n' | 'c' | 'df' | 'city' | 'p' | 'tot'
@@ -58,11 +59,28 @@ const rows = computed(() => {
         city: sign(x.cityDiff),
         p: small ? '—' : 'P' + x.percentile,
         pl: x.percentile + '%',
-        pc: x.percentile >= 70 ? A : BRAND,
+        pc: x.percentile < WATCH_BELOW ? A : BRAND,
         big: !small,
         tr: x.trend.map(t => ({ h: 6 + (t + 3) * 3 + 'px', c: t > 0 ? '#F3B4AE' : '#A9DCC4' })),
       }
     })
+})
+
+/** reconciliation: listed groups + 其余病组 = 全院 (cases) and = 偏离 (差额总额, 万元) */
+const recon = computed(() => {
+  const listedCases = props.drgs.reduce((a, x) => a + x.cases, 0)
+  const listed = props.drgs.reduce((a, x) => a + x.cases * x.diff, 0) / 10000
+  const total = props.settlement.billed - props.settlement.drgPaid
+  const s1 = (v: number) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + ' 万'
+  return {
+    n: props.drgs.length,
+    listedCases: fmt(listedCases),
+    listed: s1(listed),
+    otherCases: fmt(Math.max(0, props.totalCases - listedCases)),
+    other: s1(total - listed),
+    totalCases: fmt(props.totalCases),
+    total: s1(total),
+  }
 })
 
 const GRID = 'grid grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_110px_80px] gap-3.5 px-5'
@@ -72,7 +90,7 @@ const GRID = 'grid grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_11
   <div class="yb-card overflow-clip">
     <div class="flex justify-between border-b border-line-2 px-card-x py-3.5">
       <span class="text-[15px] font-semibold">重点病组明细</span>
-      <span class="text-[12px] text-ink-4">按差额总额排序 · 病例 &lt; 30 并入其他</span>
+      <span class="text-[12px] text-ink-4">差额总额前 8 · 病例 &lt; 30 并入其他 · <span :title="PERCENTILE_HINT">同级分位越高越好</span></span>
     </div>
     <div class="max-xl:overflow-x-auto">
     <div class="max-xl:min-w-[1010px]">
@@ -112,9 +130,13 @@ const GRID = 'grid grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_11
       <div class="flex h-[22px] items-end gap-[3px]">
         <span v-for="(b, i) in r.tr" :key="i" class="w-2 rounded-[1px]" :style="{ height: b.h, background: b.c }" />
       </div>
-      <button type="button" class="text-right text-[12px] text-brand max-xl:min-h-10" @click.stop="goPage('B2')">下钻 →</button>
+      <button type="button" class="text-right text-[12px] text-brand max-xl:min-h-10" @click.stop="goPage('B2', { drg: r.k })">下钻 →</button>
     </div>
     </div>
+    </div>
+    <div class="border-t border-line-2 px-card-x py-2.5 text-[12px] text-ink-4" data-testid="b1-recon">
+      本院 {{ recon.n }} 个病组 {{ recon.listedCases }} 例 · 差额合计 {{ recon.listed }};其余病组 {{ recon.otherCases }} 例 · {{ recon.other }};
+      全院入组 {{ recon.totalCases }} 例 · 差额合计 {{ recon.total }}(= 医保记账 − DRG 支付)
     </div>
   </div>
 </template>

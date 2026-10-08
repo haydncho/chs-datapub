@@ -11,6 +11,10 @@ export interface A9Node {
   kind: A9Kind
   /** 办理时限,工作日;0 = 即时 */
   days: number
+  /** 超时动作 (one of timeoutActions); default by kind when absent */
+  timeoutAction?: string
+  /** 通知渠道; defaultChannels when absent */
+  channels?: string[]
 }
 
 export interface A9Flow {
@@ -18,6 +22,8 @@ export interface A9Flow {
   name: string
   version: number
   nodes: A9Node[]
+  /** this flow's version history (server overlay; the seed uses the page-level `versions`) */
+  versions?: A9Version[]
 }
 
 export interface A9Version {
@@ -90,7 +96,9 @@ export const A9_SEED: A9Data = {
 
 /**
  * ACTIONS:
- * publishFlowVersion({ flow: string, version: number, total: number, nodes: { name, lane, days, timeoutAction, channels: string[] }[] })
- *   — 将 flow(月告知/专题/预警)的当前编辑(承办角色、时限、超时动作、通知渠道)发布为新版本;
- *     关键路径 total 超过 legalLimit 时前端拒绝发布,不调用此动作。
+ * publishFlowVersion({ flow: string, version: number, total: number, note: string,
+ *   nodes: { name, lane, col, kind, days, timeoutAction, channels: string[] }[] })
+ *   — 召集人 / 行政管理组:将 flow(月告知/专题/预警)的当前编辑(节点增删、承办角色、时限、超时动作、通知渠道)
+ *     存为新版本(version = 当前版本 + 1,否则视为他人已更新而拒绝)。服务端重新校验:起止节点完整、审批节点由召集人
+ *     承办、签收节点由定点医疗机构承办、关键路径 ≤ legalLimit;不通过时拒绝。刷新后显示最新版本及版本记录。
  */

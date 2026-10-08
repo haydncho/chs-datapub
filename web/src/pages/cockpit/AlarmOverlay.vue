@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useCockpit } from './store'
 
+defineProps<{ busy?: boolean }>()
 const emit = defineEmits<{ ack: [] }>()
 const { alarm } = useCockpit()
 </script>
@@ -25,9 +26,11 @@ const { alarm } = useCockpit()
       <div class="yb-num text-2xl text-white">{{ alarm.time }}</div>
       <button
         type="button"
-        class="mt-2 h-10 cursor-pointer rounded-lg border-0 bg-[#FF3B30] px-[22px] text-base font-semibold text-white"
+        class="mt-2 h-10 cursor-pointer rounded-lg border-0 bg-[#FF3B30] px-[22px] text-base font-semibold text-white disabled:cursor-wait disabled:opacity-70"
+        :disabled="busy"
+        data-testid="alarm-ack"
         @click="emit('ack')"
-      >确认处置</button>
+      >{{ busy ? '提交中…' : '确认处置' }}</button>
     </div>
   </div>
 </template>

@@ -13,6 +13,8 @@ export interface A5Template {
   refs: number
   version: number
   sections: A5Section[]
+  /** server state: the working copy has changes not yet saved as a new version */
+  dirty?: boolean
 }
 
 /** accent colour of a thumbnail's highlighted shape */
@@ -102,6 +104,10 @@ export const A5_SEED: A5Data = {
 
 /**
  * ACTIONS:
- * addChart({ template: number, section: number, chart: string }) — 将图表组件 chart 加入模板 template(下标)的第 section 章;
- * saveTemplateVersion({ template: number, version: number }) — 将当前模板保存为新版本 version(原版本 +1),下期起生效。
+ * addChart({ template: number, section: number, chart: string }) — 将图表组件 chart 加入模板 template(下标)的第 section 章
+ *   (同一章节不可重复加入);
+ * removeChart({ template: number, section: number, chart: string }) — 从该章节移除图表;
+ * saveTemplateVersion({ template: number }) — 将当前模板保存为新版本(服务端在已保存版本上 +1 并返回 version;
+ *   没有未保存修改时拒绝),下期起生效。
+ * Server state (page_state tpl:<i>) is merged into templates[i]: sections[].charts, version, dirty.
  */

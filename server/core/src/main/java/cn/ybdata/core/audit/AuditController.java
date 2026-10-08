@@ -18,7 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,9 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/audit")
 public class AuditController {
-
-    /** A14 demo identity (安全审计员) until the request carries an authenticated user. */
-    static final String DEFAULT_ACTOR = "赵安";
 
     private final AuditService audit;
     private final ObjectMapper json;
@@ -80,7 +76,6 @@ public class AuditController {
                                          @RequestParam(required = false) String from,
                                          @RequestParam(required = false) String to,
                                          @RequestParam(required = false) Boolean offHours,
-                                         @RequestHeader(value = "X-YB-User", required = false) String user,
                                          HttpServletRequest req) {
         var q = query(type, actor, page, action, from, to, offHours, null, AuditService.MAX_EXPORT);
         List<AuditService.AuditView> rows = audit.exportRows(q);
@@ -104,7 +99,7 @@ public class AuditController {
         }
         String name = "审计日志-" + LocalDate.now(AuditTypes.ZONE) + ".csv";
         payload.put("fileName", name);
-        var ev = audit.record(actorOf(req, user), "A14", "exportAudit", payload, terminal(req));
+        var ev = audit.record(actorOf(req), "A14", "exportAudit", payload, terminal(req));
 
         byte[] body = AuditCsv.render(rows, AuditService.watermark(ev.hash()));
         return ResponseEntity.ok()
@@ -146,12 +141,11 @@ public class AuditController {
         return s == null || s.isBlank() ? null : s.trim();
     }
 
-    /** the session user resolved by the auth filter; else the legacy header; else the A14 demo auditor */
-    private static String actorOf(HttpServletRequest req, String header) {
+    /** the user resolved by the auth filter (every /audit call has one); never a header value or a stand-in */
+    private static String actorOf(HttpServletRequest req) {
         Actor a = CurrentActor.get(req);
-        if (a != null && a.name() != null && !a.name().isBlank()) return cap(a.name(), 32);
-        if (header != null && !header.isBlank()) return cap(header.trim(), 32);
-        return DEFAULT_ACTOR;
+        if (a == null || a.name() == null || a.name().isBlank()) throw new cn.ybdata.core.security.AccessDeniedException("请先登录");
+        return cap(a.name(), 32);
     }
 
     private static String terminal(HttpServletRequest req) {

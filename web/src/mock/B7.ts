@@ -34,6 +34,9 @@ export interface B7Data {
   kpis: B7Kpi[]
   sources: B7Source[]
   drgs: B7Drg[]
+  /** set by the server when the viewer's institution has no data here */
+  noOwnData?: boolean
+  noOwnDataNote?: string
 }
 
 export const B7_SEED: B7Data = {
@@ -56,10 +59,13 @@ export const B7_SEED: B7Data = {
     { code: 'BR25', name: '脑缺血性疾患', cases: 64, offsiteAvg: 15840, localAvg: 14820 },
     { code: 'ES35', name: '呼吸系统感染', cases: 52, offsiteAvg: 10210, localAvg: 9640 },
     { code: 'IU29', name: '骨病及关节病', cases: 38, offsiteAvg: 11960, localAvg: 11020 },
-    { code: 'FM19', name: '经皮心血管操作', cases: 31, offsiteAvg: 39100, localAvg: 38200 },
-    { code: 'RE19', name: '恶性肿瘤化疗', cases: 27, offsiteAvg: 7420, localAvg: 7010 },
+    { code: 'FM19', name: '经皮心血管操作', cases: 31, offsiteAvg: 41090, localAvg: 40130 },
+    { code: 'RE19', name: '恶性肿瘤化疗', cases: 27, offsiteAvg: 8070, localAvg: 7630 },
   ],
 }
+
+/** before the server answers, a hospital outside the stored data sees no institution's figures */
+export const B7_EMPTY: B7Data = { subtitle: '暂无本院数据', kpis: [], sources: [], drgs: [], noOwnDataNote: '暂无本院数据' }
 
 /**
  * ACTIONS: none — read-only view.

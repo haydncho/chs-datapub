@@ -91,10 +91,12 @@ const lin = computed(() => props.data.lineage)
         <span class="text-[15px] font-semibold">本院病组全景</span>
         <Popover>
           <PopoverTrigger as-child>
-            <span
+            <button
+              type="button"
               title="查看口径与数据血缘"
+              aria-label="查看口径与数据血缘"
               class="cursor-pointer rounded-full bg-surface-3 px-2 py-px font-mono text-[11px] whitespace-nowrap text-ink-3 hover:bg-brand-soft hover:text-brand data-[state=open]:bg-brand-soft data-[state=open]:text-brand"
-            >口径 {{ lin.version }} · {{ lin.batch }}</span>
+            >口径 {{ lin.version }} · {{ lin.batch }}</button>
           </PopoverTrigger>
           <PopoverContent align="start" class="w-[280px] rounded-[10px] border-line-1 px-4 py-3 text-[12px] shadow-[0_8px_24px_rgba(11,21,38,.12)]">
             <div class="mb-2 text-[13px] font-semibold">口径与数据血缘</div>
@@ -171,7 +173,7 @@ const lin = computed(() => props.data.lineage)
         <div class="text-[11px] text-ink-4">差额总额</div>
         <div class="yb-num text-[20px] font-semibold" :style="{ color: sel.totc }">{{ sel.tot }}</div>
       </div>
-      <Button variant="outline" class="h-[34px] px-3.5 font-normal max-xl:col-span-full max-xl:h-10" @click="goPage('B2')">病组下钻 →</Button>
+      <Button variant="outline" class="h-[34px] px-3.5 font-normal max-xl:col-span-full max-xl:h-10" @click="goPage('B2', { drg: sel.k })">病组下钻 →</Button>
     </div>
   </div>
 </template>

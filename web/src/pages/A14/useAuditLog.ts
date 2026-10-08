@@ -1,5 +1,5 @@
 import { computed, reactive, ref, watch, type Ref } from 'vue'
-import { authHeaders, getJson } from '@/api/client'
+import { ApiError, authHeaders, getJson } from '@/api/client'
 import type { A14Change, A14Data, A14EventType, A14Log } from '@/mock/A14'
 
 /**
@@ -112,10 +112,23 @@ export function useAuditLog(data: Ref<A14Data>) {
   const loading = ref(false)
   const chain = ref<ChainState>({ state: 'checking' })
   const filters = reactive<AuditFilters>({ type: '全部', actor: '', from: '', to: '', offHours: false })
+  /** why the live list could not be loaded for the current filters (null = fine) */
+  const error = ref<string | null>(null)
+  /** 起始晚于截止:不发请求,直接提示 */
+  const rangeError = computed(() => (filters.from && filters.to && filters.from > filters.to ? '起始日期不能晚于截止日期' : null))
+  /** any filter besides the event type narrows the list */
+  const narrowed = computed(() => !!(filters.actor.trim() || filters.from || filters.to || filters.offHours))
 
   let seq = 0
   async function load(more = false) {
     const mine = ++seq
+    if (live.value && rangeError.value) {
+      error.value = rangeError.value
+      liveLogs.value = []
+      nextCursor.value = null
+      loading.value = false
+      return
+    }
     loading.value = true
     try {
       const extra: Record<string, string> = { limit: String(PAGE_SIZE) }
@@ -127,8 +140,15 @@ export function useAuditLog(data: Ref<A14Data>) {
       nextCursor.value = page.nextCursor ?? null
       today.value = page.today
       live.value = true
-    } catch {
-      /* audit API not reachable (or not permitted) — keep the seed */
+      error.value = null
+    } catch (e) {
+      // live list + a refused query (e.g. a bad filter): say so and show nothing stale;
+      // API not reachable (or not permitted) before the first answer — keep the seed
+      if (mine === seq && live.value) {
+        error.value = e instanceof ApiError && e.api ? `查询失败:${e.message}` : '审计服务暂不可用,请稍后重试'
+        liveLogs.value = []
+        nextCursor.value = null
+      }
     } finally {
       if (mine === seq) loading.value = false
     }
@@ -191,5 +211,5 @@ export function useAuditLog(data: Ref<A14Data>) {
   void load()
   void verify()
 
-  return { live, logs, today, nextCursor, loading, chain, filters, load, verify, exportCsv }
+  return { live, logs, today, nextCursor, loading, chain, filters, error, rangeError, narrowed, load, verify, exportCsv }
 }

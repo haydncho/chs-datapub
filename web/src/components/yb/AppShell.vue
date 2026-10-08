@@ -93,13 +93,13 @@ watch(code, (next, prev) => {
   >
     <template v-if="layout !== 'bare'">
       <!-- security strip -->
-      <div class="flex h-[26px] items-center gap-4 bg-chrome px-5 text-xs text-chrome-ink">
-        <span class="flex items-center gap-1.5 font-medium text-[#FFD08A]">
-          <span class="size-1.5 rounded-full bg-[#FFB547]" />本页数据仅限内部工作使用,禁止截图外传
+      <div class="flex h-[26px] min-w-0 items-center gap-4 overflow-hidden bg-chrome px-5 text-xs whitespace-nowrap text-chrome-ink max-sm:px-3">
+        <span class="flex min-w-0 items-center gap-1.5 font-medium text-[#FFD08A]">
+          <span class="size-1.5 shrink-0 rounded-full bg-[#FFB547]" /><span class="truncate">本页数据仅限内部工作使用,禁止截图外传</span>
         </span>
-        <span>全程留痕审计</span>
-        <div class="flex-1" />
-        <span>医保专网 · 政务云 · 10.86.12.47</span>
+        <span class="max-sm:hidden">全程留痕审计</span>
+        <div class="flex-1 max-sm:hidden" />
+        <span class="max-md:hidden">医保专网 · 政务云 · 10.86.12.47</span>
       </div>
 
       <!-- header: 端徽标 › 一级菜单(分组) -->
@@ -111,15 +111,15 @@ watch(code, (next, prev) => {
           data-testid="nav-toggle"
           @click="drawer = true"
         ><Menu class="size-5" aria-hidden="true" /></button>
-        <div class="flex shrink-0 items-center gap-2.5">
-          <div class="flex size-[30px] items-center justify-center rounded-lg bg-brand text-[15px] font-bold text-white">医</div>
-          <div class="leading-tight">
-            <div class="text-[15px] font-semibold">{{ platformName.main }}</div>
-            <div v-if="platformName.sub" class="text-[11px] text-ink-4">{{ platformName.sub }}</div>
+        <div class="flex shrink-0 items-center gap-2.5 max-sm:min-w-0 max-sm:shrink" :title="platformName.full">
+          <div class="flex size-[30px] shrink-0 items-center justify-center rounded-lg bg-brand text-[15px] font-bold text-white">医</div>
+          <div class="min-w-0 leading-tight">
+            <div class="text-[15px] font-semibold max-sm:truncate">{{ platformName.main }}</div>
+            <div v-if="platformName.sub" class="text-[11px] text-ink-4 max-sm:hidden">{{ platformName.sub }}</div>
           </div>
         </div>
-        <span class="yb-side shrink-0" :data-side="side" data-testid="side-badge" :title="`当前端:${SIDE_NAME[side]}`">
-          <component :is="SideIcon" class="size-3.5" aria-hidden="true" />{{ SIDE_NAME[side] }}
+        <span class="yb-side shrink-0" :data-side="side" data-testid="side-badge" :title="`当前端:${SIDE_NAME[side]}`" :aria-label="`当前端:${SIDE_NAME[side]}`">
+          <component :is="SideIcon" class="size-3.5" aria-hidden="true" /><span class="max-sm:sr-only">{{ SIDE_NAME[side] }}</span>
         </span>
         <span class="h-5 w-px shrink-0 bg-line-1 max-lg:hidden" />
         <nav class="flex min-w-0 flex-1 items-center justify-center gap-0.5 max-lg:hidden min-[1024px]:max-[1099px]:gap-0" aria-label="一级菜单">

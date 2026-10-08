@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
  * <ul>
  *   <li>{@code identities} → only the 市医保局 view ({@code conv}); the 医院 view is one specific
  *       hospital's own figures and is not part of the 医保局 big screen;</li>
+ *   <li>{@code depts} → emptied: 科室明细 belongs to that hospital's view only;</li>
  *   <li>{@code county} (县区医保部门): additionally {@code institutions} are limited to the
  *       identity's own district, {@code alerts} to those naming a kept institution, and the
  *       internal publication monitoring ({@code matrix}) is removed — 本县具名, other 县区 aggregated only.</li>
@@ -35,6 +36,7 @@ public class BureauCockpitScope implements PageScopeFilter {
             if ("conv".equals(id.path("id").asText())) conv.add(id);
         }
         payload.set("identities", conv);
+        payload.set("depts", payload.arrayNode());
         if ("county".equals(actor.role())) limitToCounty(payload, conv, actor.orgName());
     }
 

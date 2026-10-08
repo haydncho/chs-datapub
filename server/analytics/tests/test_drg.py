@@ -57,7 +57,13 @@ def test_recommend_a6_topic_shape():
 def test_recommend_score_is_weighted_sum():
     for x in recommend(G):
         s = x["scores"]
-        assert x["score"] == round(0.4 * s["impact"] + 0.25 * s["deviation"] + 0.2 * s["actionable"] + 0.15 * s["ready"])
+        raw = 0.4 * s["impact"] + 0.25 * s["deviation"] + 0.2 * s["actionable"] + 0.15 * s["ready"]
+        assert x["score"] == int(raw + 0.5 + 1e-9)
+
+
+def test_round_half_up():
+    from app.drg import _round
+    assert _round(74.5) == 75 and _round(63.55) == 64 and _round(73.05) == 73 and _round(0.5) == 1 and _round(97.0) == 97
 
 
 def test_recommend_top_and_zero_cost():

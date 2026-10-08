@@ -22,6 +22,7 @@ class BureauCockpitScopeTest {
                    {"name":"第一人民医院","district":"市区"},
                    {"name":"甲县人民医院","district":"甲县"},
                    {"name":"乙县中医院","district":"乙县"}],
+                 "depts":[{"name":"神经内科"}],
                  "matrix":[{"name":"x"}],"matrixSummary":{"unpublished":3,"unread":2,"unanswered":1}}""");
     }
 
@@ -46,6 +47,7 @@ class BureauCockpitScopeTest {
         assertThat(p.path("identities").get(0).path("id").asText()).isEqualTo("conv");
         assertThat(p.path("institutions")).hasSize(3); // the city view keeps every institution
         assertThat(p.path("identities").get(0).path("alerts")).hasSize(2);
+        assertThat(p.path("depts")).isEmpty(); // 本院科室明细 is not part of the 医保局 view
     }
 
     @Test

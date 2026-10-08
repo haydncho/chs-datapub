@@ -102,6 +102,9 @@ jobs:
       DATABASE_URL: postgresql://ybdata:ybdata@localhost:5432/ybdata
       ANALYTICS_URL: http://localhost:8090
       E2E_BASE_URL: http://localhost:4173
+      # e2e only: enables the test-only A8/resetDemo action used by web/e2e (support.ts postAction, logged in as chenzy)
+      # and the X-YB-User test header; never set on a shared deployment
+      YB_AUTH_DEV_HEADER: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4

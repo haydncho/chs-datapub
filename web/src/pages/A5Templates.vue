@@ -1,18 +1,27 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { usePageData, sendAction } from '@/api/client'
+import { getJson, runAction, usePageData } from '@/api/client'
 import { say } from '@/app/shell'
 import { Button } from '@/components/ui/button'
 import { pad } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { A5_SEED, type A5Chart } from '@/mock/A5'
+import { A5_SEED, type A5Chart, type A5Data } from '@/mock/A5'
 import ChartThumb from './A5/ChartThumb.vue'
 import { vPress } from '@/lib/a11y'
 
 const data = usePageData('A5', A5_SEED)
 
+/** re-read the read model: the template's charts / version / dirty flag live on the server */
+async function refresh() {
+  try {
+    const remote = await getJson<A5Data>('/pages/A5')
+    if (remote && typeof remote === 'object') data.value = { ...A5_SEED, ...remote }
+  } catch { /* keep the current view */ }
+}
+
 const tplIdx = ref(0)
 const secIdx = ref(0)
+const busy = ref(false)
 
 const tpl = computed(() => data.value.templates[tplIdx.value] ?? data.value.templates[0]!)
 const secName = computed(() => tpl.value.sections[secIdx.value]?.name ?? '')
@@ -22,18 +31,40 @@ function pickTpl(i: number) {
   secIdx.value = 0
 }
 
-function addChart(c: A5Chart) {
+async function addChart(c: A5Chart) {
   const sec = tpl.value.sections[secIdx.value]
-  if (!sec) return
-  if (!sec.charts.includes(c.name)) sec.charts.push(c.name)
-  sendAction('A5', 'addChart', { template: tplIdx.value, section: secIdx.value, chart: c.name })
+  if (!sec || busy.value) return
+  if (sec.charts.includes(c.name)) {
+    say('“' + c.name + '”已在 ' + sec.name + ' 中')
+    return
+  }
+  busy.value = true
+  const r = await runAction('A5', 'addChart', { template: tplIdx.value, section: secIdx.value, chart: c.name })
+  busy.value = false
+  if (!r.ok) return say(r.error)
+  await refresh()
   say('已将“' + c.name + '”加入 ' + sec.name)
 }
 
-function save() {
-  const v = tpl.value.version + 1
-  sendAction('A5', 'saveTemplateVersion', { template: tplIdx.value, version: v })
-  say('已保存为 v' + v + ' · 下期起生效')
+async function removeChart(si: number, chart: string) {
+  const sec = tpl.value.sections[si]
+  if (!sec || busy.value) return
+  busy.value = true
+  const r = await runAction('A5', 'removeChart', { template: tplIdx.value, section: si, chart })
+  busy.value = false
+  if (!r.ok) return say(r.error)
+  await refresh()
+  say('已从 ' + sec.name + ' 移除“' + chart + '”')
+}
+
+async function save() {
+  if (busy.value) return
+  busy.value = true
+  const r = await runAction<{ result?: { version: number } }>('A5', 'saveTemplateVersion', { template: tplIdx.value })
+  busy.value = false
+  if (!r.ok) return say(r.error)
+  await refresh()
+  say('已保存为 v' + (r.data?.result?.version ?? tpl.value.version) + ' · 下期起生效')
 }
 </script>
 
@@ -50,24 +81,27 @@ function save() {
         )"
         @click="pickTpl(i)"
       >
-        <div class="font-semibold">{{ t.name }}</div>
-        <div class="text-[11px] text-ink-4">{{ t.desc }}</div>
+        <div class="font-semibold">{{ t.name }}<span v-if="t.dirty" class="ml-1.5 align-[1px] text-[11px] font-normal text-warn-ink">· 未保存</span></div>
+        <div class="text-[11px] text-ink-4">{{ t.desc }} · v{{ t.version }}</div>
       </div>
     </aside>
 
     <main class="flex min-w-0 flex-col gap-3.5 px-7 pt-6 pb-12 max-xl:px-5 max-xl:pb-8">
-      <div class="flex items-end justify-between gap-5">
+      <div class="flex flex-wrap items-end justify-between gap-x-5 gap-y-2">
         <div class="min-w-0 flex-1">
           <div class="text-[22px] font-semibold">{{ tpl.name }}</div>
-          <div class="text-xs text-ink-4">{{ tpl.desc }} · 被引用 {{ tpl.refs }} 次 · v{{ tpl.version }}</div>
+          <div class="text-xs text-ink-4">
+            {{ tpl.desc }} · 被引用 {{ tpl.refs }} 次 · v{{ tpl.version }}
+            <span v-if="tpl.dirty" class="text-warn-ink"> · 有未保存的修改,保存后生成 v{{ tpl.version + 1 }}</span>
+          </div>
         </div>
-        <Button class="h-9 max-xl:h-10" @click="save">保存为新版本</Button>
+        <Button class="h-9 max-xl:h-10" :disabled="busy || !tpl.dirty" :title="tpl.dirty ? undefined : '当前模板没有未保存的修改'" @click="save">保存为新版本</Button>
       </div>
       <div v-press
         v-for="(s, i) in tpl.sections"
         :key="tpl.name + s.name"
         :class="cn(
-          'grid cursor-pointer grid-cols-[28px_minmax(0,1fr)_300px] items-center max-xl:grid-cols-[28px_minmax(0,1fr)] max-xl:min-h-11 gap-3.5 rounded-xl border-[1.5px] bg-white px-4 py-3.5',
+          'grid cursor-pointer grid-cols-[28px_minmax(0,1fr)_minmax(120px,300px)] items-center max-xl:grid-cols-[28px_minmax(0,1fr)] max-xl:min-h-11 gap-3.5 rounded-xl border-[1.5px] bg-white px-4 py-3.5',
           i === secIdx ? 'border-brand' : 'border-line-1',
         )"
         @click="secIdx = i"
@@ -77,8 +111,18 @@ function save() {
           <div class="font-semibold">{{ s.name }}</div>
           <div class="text-xs text-ink-4">{{ s.indicators === '—' ? '自由内容' : '绑定指标:' + s.indicators }}</div>
         </div>
-        <div class="flex justify-end gap-1.5 max-xl:col-start-2 max-xl:flex-wrap max-xl:justify-start">
-          <span v-for="c in s.charts" :key="c" class="rounded-lg bg-surface-3 px-2.5 py-1 text-xs text-ink-2">{{ c }}</span>
+        <div class="flex flex-wrap justify-end gap-1.5 max-xl:col-start-2 max-xl:justify-start">
+          <span v-for="c in s.charts" :key="c" class="flex items-center gap-0.5 rounded-lg bg-surface-3 py-0.5 pr-0.5 pl-2.5 text-xs whitespace-nowrap text-ink-2">
+            {{ c }}
+            <button
+              type="button"
+              class="flex size-6 cursor-pointer items-center justify-center rounded-md text-ink-4 hover:bg-line-2 hover:text-ink-1 max-xl:size-8"
+              :aria-label="`从 ${s.name} 移除 ${c}`"
+              :title="`移除 ${c}`"
+              @click.stop="removeChart(i, c)"
+            >×</button>
+          </span>
+          <span v-if="s.charts.length === 0" class="text-xs text-ink-5">暂无图表</span>
         </div>
       </div>
     </main>
@@ -89,11 +133,15 @@ function save() {
         <div v-press
           v-for="c in data.library"
           :key="c.name"
-          class="flex cursor-pointer flex-col gap-2 rounded-[10px] border border-line-1 p-2.5 hover:border-brand-line"
+          :aria-disabled="tpl.sections[secIdx]?.charts.includes(c.name) || undefined"
+          :class="cn(
+            'flex cursor-pointer flex-col gap-2 rounded-[10px] border border-line-1 p-2.5 hover:border-brand-line',
+            tpl.sections[secIdx]?.charts.includes(c.name) && 'opacity-55',
+          )"
           @click="addChart(c)"
         >
           <ChartThumb :thumb="c.thumb" />
-          <div class="text-xs font-medium">{{ c.name }}</div>
+          <div class="text-xs font-medium">{{ c.name }}<span v-if="tpl.sections[secIdx]?.charts.includes(c.name)" class="ml-1 font-normal text-ink-5">· 已加入</span></div>
           <div class="-mt-1.5 text-[11px] text-ink-5">{{ c.desc }}</div>
         </div>
       </div>

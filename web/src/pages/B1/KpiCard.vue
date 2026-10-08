@@ -47,7 +47,7 @@ const view = computed(() => {
     </div>
     <div class="flex items-end justify-between gap-3">
       <div class="min-w-0 flex-1 whitespace-nowrap">
-        <KpiValue :value="kpi.value" :unit="kpi.unit" />
+        <KpiValue :value="kpi.value" :unit="kpi.unit" class="mt-0" />
       </div>
       <div class="flex h-6 shrink-0 items-end gap-0.5">
         <span v-for="(b, i) in view.spark" :key="i" class="w-1 rounded-[1px]" :style="{ height: b.h, background: b.c }" />
@@ -61,7 +61,7 @@ const view = computed(() => {
         :style="{ left: kpi.percentile + '%', background: view.mc }"
       />
     </div>
-    <div class="flex justify-between text-[11px] max-xl:text-[12px]">
+    <div class="flex justify-between text-xs">
       <span class="text-ink-5" :title="PERCENTILE_HINT">同级分位 · 越高越好</span>
       <span class="yb-num font-semibold" :style="{ color: view.mc }">P{{ kpi.percentile }}</span>
     </div>

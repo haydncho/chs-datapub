@@ -123,7 +123,7 @@ function viewDoc(d: B6Doc) {
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" :stroke="TONE[c.tone].fg" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="ICON[c.icon]" /></svg>
             </span>{{ c.tag }}
           </span>
-          <KpiValue :value="c.minutes" unit="分钟" class="relative" :style="{ color: TONE[c.tone].fg }" />
+          <KpiValue :value="c.minutes" unit="分钟" class="relative mt-0" :style="{ color: TONE[c.tone].fg }" />
         </div>
         <div class="flex flex-1 flex-col gap-2 p-3.5">
           <div class="font-semibold">{{ c.name }}</div>

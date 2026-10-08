@@ -32,7 +32,7 @@ const kpis = computed(() => [
       </div>
       <div class="grid grid-cols-3 gap-2.5">
         <div v-for="k in kpis" :key="k.k" class="rounded-[10px] bg-surface-1 p-3">
-          <div class="text-[11px] text-ink-4">{{ k.k }}</div>
+          <div class="text-xs text-ink-4">{{ k.k }}</div>
           <KpiValue :value="k.v" size="md" class="block" />
         </div>
       </div>

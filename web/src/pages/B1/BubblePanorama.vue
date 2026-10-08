@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { KpiValue } from '@/components/yb'
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -158,20 +159,20 @@ const lin = computed(() => props.data.lineage)
         <div class="truncate font-semibold" :title="sel.n">{{ sel.n }}</div>
       </div>
       <div class="flex-1">
-        <div class="text-[11px] text-ink-4 max-xl:text-[12px]">本院病例</div>
-        <div class="yb-num text-lg font-semibold">{{ sel.c }}</div>
+        <div class="text-xs text-ink-4">本院病例</div>
+        <KpiValue :value="sel.c" size="sm" />
       </div>
       <div class="flex-1">
-        <div class="text-[11px] text-ink-4 max-xl:text-[12px]">例均差额</div>
-        <div class="yb-num text-lg font-semibold" :style="{ color: sel.dfc }">{{ sel.df }}</div>
+        <div class="text-xs text-ink-4">例均差额</div>
+        <KpiValue :value="sel.df" size="sm" :style="{ color: sel.dfc }" />
       </div>
       <div class="flex-1">
-        <div class="text-[11px] text-ink-4 max-xl:text-[12px]">全市同组</div>
-        <div class="yb-num text-lg font-semibold" :style="{ color: sel.cc }">{{ sel.city }}</div>
+        <div class="text-xs text-ink-4">全市同组</div>
+        <KpiValue :value="sel.city" size="sm" :style="{ color: sel.cc }" />
       </div>
       <div class="flex-[1.3] whitespace-nowrap">
-        <div class="text-[11px] text-ink-4 max-xl:text-[12px]">差额总额</div>
-        <div class="yb-num text-lg font-semibold" :style="{ color: sel.totc }">{{ sel.tot }}</div>
+        <div class="text-xs text-ink-4">差额总额</div>
+        <KpiValue :value="sel.tot" size="sm" :style="{ color: sel.totc }" />
       </div>
       <Button variant="outline" class="h-[34px] px-3.5 font-normal max-xl:col-span-full max-xl:h-10" @click="goPage('B2', { drg: sel.k })">病组下钻 →</Button>
     </div>

@@ -46,7 +46,7 @@ const suppressed = computed(() => pv.value.peerCount < minOrg.value)
 </script>
 
 <template>
-  <PageSection label="A13 展示策略" class="grid! grid-cols-1 items-start xl:grid-cols-[minmax(0,1fr)_400px]">
+  <PageSection label="A13 展示策略" class="grid! grid-cols-1 items-start lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_400px]">
     <div class="flex flex-col gap-4">
       <PageHeader title="展示策略" subtitle="全局规则 · 对所有发布物生效 · 召集人与行政管理组可修改,保存即生效并记入审计" />
       <div v-for="r in data.rules" :key="r.key" class="yb-card flex items-center gap-5 px-card-x py-card-y-sm">
@@ -83,7 +83,7 @@ const suppressed = computed(() => pv.value.peerCount < minOrg.value)
       </div>
     </div>
 
-    <div class="yb-card xl:sticky xl:top-(--sticky-panel) flex flex-col gap-3 p-card-x">
+    <div class="yb-card lg:sticky lg:top-(--sticky-panel) flex flex-col gap-3 p-card-x">
       <div class="text-xs font-semibold text-ink-4">{{ pv.title }}</div>
       <div class="relative overflow-hidden rounded-[10px] border border-line-2 p-3.5">
         <div class="text-xs text-ink-4">{{ pv.metric }}</div>

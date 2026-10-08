@@ -34,7 +34,8 @@ function setOpen(k: string, v: boolean) {
   else if (v) openKey.value = k
 }
 
-const GRID = 'grid grid-cols-[minmax(190px,1.3fr)_repeat(8,minmax(0,1fr))] items-center gap-1.5 px-card-x'
+/** Pad(< xl):角色列与格子收窄,8 个分组在 768 竖屏也能一屏放下,不再横滚 */
+const GRID = 'grid grid-cols-[minmax(190px,1.3fr)_repeat(8,minmax(0,1fr))] max-xl:grid-cols-[minmax(160px,1.3fr)_repeat(8,minmax(52px,1fr))] items-center gap-1.5 px-card-x'
 
 function groupOf(id: string): A12Group {
   return props.data.groups.find(g => g.id === id) ?? { id, name: id, pages: [] }
@@ -65,7 +66,7 @@ function has(c: A12Cell, code: string) {
     </div>
 
     <div class="max-xl:overflow-x-auto">
-    <div class="max-xl:min-w-[980px]">
+    <div class="max-xl:min-w-[640px]">
       <div :class="[GRID, 'max-xl:static sticky top-(--sticky-top) z-[6] bg-surface-1 py-2.5 text-xs text-ink-4']">
         <span class="max-xl:sticky max-xl:left-0 max-xl:z-[1] max-xl:bg-surface-1">角色</span>
         <span v-for="g in data.groups" :key="g.id" class="text-center whitespace-nowrap">{{ g.name }}</span>
@@ -93,7 +94,7 @@ function has(c: A12Cell, code: string) {
                 @pointerenter="hover(row.role + g.id, true, $event)"
                 @pointerleave="hover(row.role + g.id, false, $event)"
                 @pointerdown="down($event)"
-                :class="cn('flex h-8 max-xl:h-10 w-[60px] cursor-default items-center justify-center gap-1 rounded-md px-2 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand', LEVEL_CHIP[cellOf(row, g.id).level])"
+                :class="cn('flex h-8 max-xl:h-10 w-[60px] max-xl:w-full max-xl:max-w-[60px] cursor-default items-center justify-center gap-1 rounded-md px-2 text-xs font-medium outline-none focus-visible:ring-2 focus-visible:ring-brand', LEVEL_CHIP[cellOf(row, g.id).level])"
               >
                 <Check v-if="cellOf(row, g.id).level === 'access'" class="size-4" />
                 <Eye v-else-if="cellOf(row, g.id).level === 'readonly'" class="size-4" />

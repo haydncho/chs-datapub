@@ -26,7 +26,8 @@ const sources = computed(() => {
   return s.map(x => ({ ...x, w: (x.count / max) * 100 + '%', pct: ((x.count / total) * 100).toFixed(1) + '%', color: SRC_COLOR[x.group] }))
 })
 
-const COLS = 'grid grid-cols-[52px_minmax(0,1fr)_64px_90px_90px] gap-2.5'
+/** Pad (< 1280): the two cards sit side by side from 1024 on, so the fixed columns get a little narrower */
+const COLS = 'grid grid-cols-[52px_minmax(0,1fr)_64px_90px_90px] gap-2.5 max-xl:grid-cols-[44px_minmax(0,1fr)_44px_80px_80px] max-xl:gap-x-3'
 </script>
 
 <template>
@@ -50,26 +51,26 @@ const COLS = 'grid grid-cols-[52px_minmax(0,1fr)_64px_90px_90px] gap-2.5'
       />
     </div>
 
-    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <div class="yb-card px-card-x py-card-y">
         <div class="mb-3 text-[15px] font-semibold">来源地</div>
-        <div v-for="r in sources" :key="r.name" class="grid grid-cols-[90px_1fr_56px_70px] items-center gap-2.5 py-[9px] text-[13px]">
+        <div v-for="r in sources" :key="r.name" class="grid grid-cols-[90px_1fr_56px_70px] items-center gap-2.5 py-[9px] text-[13px] max-xl:grid-cols-[64px_minmax(0,1fr)_40px_48px] max-xl:gap-x-3">
           <span>{{ r.name }}</span>
           <div class="h-3 rounded-[3px] bg-background">
             <div class="h-3 rounded-[3px]" :style="{ width: r.w, background: r.color }" />
           </div>
           <span class="yb-num text-right font-semibold">{{ r.count }}</span>
-          <span class="text-right text-xs text-ink-4">{{ r.pct }}</span>
+          <span class="yb-num text-right text-xs text-ink-4">{{ r.pct }}</span>
         </div>
       </div>
 
       <div class="yb-card px-card-x py-card-y">
         <div class="mb-3 text-[15px] font-semibold">主要病组 · 与本地患者对比</div>
         <!-- ≥ 640px: table; narrower: one card per DRG (no column squeezed to one character) -->
-        <div :class="[COLS, 'pb-1.5 text-[11px] text-ink-5 max-sm:hidden']">
+        <div :class="[COLS, 'pb-1.5 text-xs whitespace-nowrap text-ink-4 max-sm:hidden']">
           <span>编码</span><span>病组</span><span class="text-right">人次</span><span class="text-right">次均 · 异地</span><span class="text-right">次均 · 本地</span>
         </div>
-        <div v-for="r in data.drgs" :key="r.code" :class="[COLS, 'items-center border-t border-line-3 py-[7px] text-[13px] max-sm:hidden']">
+        <div v-for="r in data.drgs" :key="r.code" :class="[COLS, 'items-center border-t border-line-3 py-[7px] text-[13px] max-sm:hidden max-xl:py-2']">
           <span class="yb-num font-semibold text-brand">{{ r.code }}</span>
           <span>{{ r.name }}</span>
           <span class="yb-num text-right">{{ r.cases }}</span>

@@ -168,12 +168,13 @@ function restart() {
 <template>
   <section
     data-screen-label="A1 登录与身份"
-    class="grid min-h-screen min-w-0 grid-cols-1 max-lg:grid-rows-[auto_1fr] lg:grid-cols-[minmax(0,1.15fr)_minmax(460px,1fr)] bg-white text-[13px] leading-normal text-ink-1"
+    class="grid min-h-screen min-w-0 grid-cols-1 max-lg:grid-rows-[auto_1fr] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,1.15fr)_minmax(460px,1fr)] bg-white text-[13px] leading-normal text-ink-1"
   >
     <BrandPanel :data="data" />
 
-    <div class="flex items-center justify-center bg-white p-10 max-lg:px-5 max-lg:py-8">
-      <div class="flex w-full max-w-[420px] flex-col gap-[22px] max-lg:max-w-[440px]">
+    <!-- 1024–1279 两栏等分、表单 440px,避免卡片说明折出孤字;< 1024 单栏 -->
+    <div class="flex items-center justify-center bg-white p-10 max-xl:px-9 max-lg:px-5 max-lg:py-8">
+      <div class="flex w-full max-w-[420px] flex-col gap-[22px] max-xl:max-w-[440px]">
         <!-- 三步指示 -->
         <ol class="flex items-center gap-2 text-xs" data-testid="login-steps">
           <template v-for="(l, i) in STEPS" :key="l">
@@ -214,14 +215,14 @@ function restart() {
                 </div>
                 <ChevronRight :size="20" class="shrink-0 text-ink-5 transition-colors group-hover:text-brand" />
               </div>
-              <div class="leading-[1.65] text-ink-3">{{ c.desc }}</div>
+              <div class="leading-[1.65] text-pretty text-ink-3">{{ c.desc }}</div>
               <div class="flex flex-wrap gap-1.5">
                 <span v-for="r in c.roles" :key="r" class="rounded-md bg-surface-3 px-2 py-0.5 text-xs text-ink-3">{{ r }}</span>
               </div>
               <div :class="cn('text-xs font-medium', c.id === 'org' ? 'text-ok-ink' : 'text-brand')">{{ c.enter }} →</div>
             </button>
           </div>
-          <div class="text-xs leading-[1.7] text-ink-5">{{ data.agreement }}</div>
+          <div class="text-xs leading-[1.7] text-pretty text-ink-5">{{ data.agreement }}</div>
         </template>
 
         <!-- 2 登录 -->
@@ -280,7 +281,7 @@ function restart() {
           </template>
 
           <Button class="h-[46px] rounded-[10px] text-[15px]" :disabled="busy" @click="next">登录</Button>
-          <div class="text-xs leading-[1.7] text-ink-5">{{ data.agreement }}</div>
+          <div class="text-xs leading-[1.7] text-pretty text-ink-5">{{ data.agreement }}</div>
         </template>
 
         <!-- 3 选择身份 -->

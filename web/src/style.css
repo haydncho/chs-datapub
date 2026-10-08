@@ -44,7 +44,7 @@
   --ink-2: #2A3650;
   --ink-3: #445066;
   --ink-4: #6B778C;
-  --ink-5: #98A2B3;
+  --ink-5: #98A2B3;   /* 对比度约 2.6:1(白底):只用于装饰、占位、禁用、分隔符与次要单位;承载信息的文字用 ink-4(约 4.6:1)及以上 */
   --ink-6: #C3CAD6;
 
   /* lines & surfaces */
@@ -102,6 +102,14 @@ html[data-radius="0"] { --radius-card: 4px; --radius: 0.25rem; }
 html[data-radius="2"] { --radius-card: 18px; --radius: 0.625rem; }
 html[data-font="0"] #app { zoom: .94; }
 html[data-font="2"] #app { zoom: 1.07; }
+/* 字号档位用 zoom 实现,#app 里的 100vh 会被二次放大(1.07 档整页比视口高 7%)。
+   --app-zoom 记录当前档位,--app-vh 是换算回来的「一屏高」:页面里需要整屏高度时用
+   min-h-(--app-vh) / h-[calc(var(--app-vh)-132px)],不要直接写 100vh。 */
+:root { --app-zoom: 1; --app-vh: calc(100vh / var(--app-zoom)); }
+html[data-font="0"] { --app-zoom: .94; }
+html[data-font="2"] { --app-zoom: 1.07; }
+html[data-font] #app .min-h-screen { min-height: calc(100vh / var(--app-zoom)); }
+html[data-font] #app .h-screen { height: calc(100vh / var(--app-zoom)); }
 html[data-wm="0"] { --wm-opacity: .04; }
 html[data-wm="2"] { --wm-opacity: .14; }
 html[data-dens="0"] { --card-px: 16px; --card-py: 14px; --card-py-sm: 12px; --page-gap: 12px; --row-py: 7px; }
@@ -242,6 +250,8 @@ html[data-motion="0"] *, html[data-motion="0"] *::before, html[data-motion="0"] 
   button, [role="button"], [role="tab"], [role="menuitem"], [role="option"], a, label, input, select, textarea, summary {
     touch-action: manipulation; -webkit-tap-highlight-color: transparent;
   }
+  /* 触屏拖拽元素(芯片、节点)自己处理手势:加 data-drag 即可,不必在页面里写 touch-none! */
+  [data-drag] { touch-action: none; }
 }
 @media (max-width: 1279px), (pointer: coarse) {
   /* 主要控件最小点按高度 40px(小徽章 / 行内微型按钮 h-5、h-6、size-5、size-6 除外) */
@@ -263,6 +273,20 @@ html[data-motion="0"] *, html[data-motion="0"] *::before, html[data-motion="0"] 
     content: ""; position: absolute; inset: -14px;
   }
 }
+/* 吸顶表头的安全写法:横滚容器(overflow-x/auto)本身就是滚动容器,里面的 sticky 以它为参照,
+   再偏移 --sticky-top(60px)就会压住第一行。凡是 top-(--sticky-top) 落在横滚容器里,一律改为 top:0
+   (容器不纵向滚动时等同不吸顶;容器自带 max-h 纵向滚动时吸在容器顶部)。
+   需要横滚又要页面级吸顶的表格,请把表头拆到横滚容器外,或只在不横滚的断点(xl:sticky)吸顶。 */
+.overflow-x-auto [class*="top-(--sticky-top)"], .overflow-auto [class*="top-(--sticky-top)"],
+.overflow-x-scroll [class*="top-(--sticky-top)"] { top: 0; }
+@media (max-width: 1279px) {
+  .max-xl\:overflow-x-auto [class*="top-(--sticky-top)"], .max-xl\:overflow-auto [class*="top-(--sticky-top)"],
+  .max-lg\:overflow-x-auto [class*="top-(--sticky-top)"], .max-lg\:overflow-auto [class*="top-(--sticky-top)"] { top: 0; }
+}
+@media (max-width: 767px) {
+  .max-md\:overflow-x-auto [class*="top-(--sticky-top)"], .max-md\:overflow-auto [class*="top-(--sticky-top)"] { top: 0; }
+}
+
 @media (max-width: 767px) {
   /* Dialog 在小屏接近全屏宽度 */
   [data-slot="dialog-content"], [data-slot="alert-dialog-content"] { width: calc(100vw - 16px) !important; max-width: calc(100vw - 16px) !important; }

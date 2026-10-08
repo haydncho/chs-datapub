@@ -37,12 +37,12 @@ function onGroup(g: NavGroup) {
 
 <template>
   <Sheet :open="open" @update:open="v => emit('update:open', v)">
-    <SheetContent side="left" class="yb-drawer w-[min(86vw,320px)] gap-0 p-0 sm:max-w-none" data-testid="nav-drawer">
+    <SheetContent side="left" class="yb-drawer w-[min(86vw,320px)] gap-0 bg-white p-0 sm:max-w-none" data-testid="nav-drawer">
       <div class="flex shrink-0 items-center gap-2.5 border-b border-line-1 px-4 py-3.5 pr-12">
         <div class="flex size-[30px] items-center justify-center rounded-lg bg-brand text-[15px] font-bold text-white">医</div>
         <div class="min-w-0 leading-tight">
           <SheetTitle class="text-[15px]">{{ platformName.main }}</SheetTitle>
-          <SheetDescription class="text-[11px] text-ink-4">{{ platformName.sub }}</SheetDescription>
+          <SheetDescription class="text-xs text-ink-4">{{ platformName.sub }}</SheetDescription>
         </div>
       </div>
       <div class="px-4 pt-3 pb-1">

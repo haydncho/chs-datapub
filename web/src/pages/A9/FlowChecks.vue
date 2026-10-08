@@ -6,13 +6,16 @@ defineProps<{ checks: { ok: boolean; text: string }[]; versions: A9Version[] }>(
 </script>
 
 <template>
-  <div class="flex flex-col gap-2 rounded-[var(--radius-card)] border border-line-1 bg-white px-[18px] py-4">
-    <div class="mb-0.5 text-[13px] font-semibold">流程校验</div>
-    <div v-for="c in checks" :key="c.text" class="flex items-center gap-2 text-xs">
-      <span :class="cn('flex size-4 shrink-0 items-center justify-center rounded-full text-[10px] text-white', c.ok ? 'bg-ok' : 'bg-bad')">{{ c.ok ? '✓' : '!' }}</span>
-      <span :class="c.ok ? 'text-ink-2' : 'text-bad-ink'">{{ c.text }}</span>
+  <div class="flex flex-col gap-2 rounded-[var(--radius-card)] border border-line-1 bg-white px-[18px] py-4 max-xl:px-5 md:max-xl:grid md:max-xl:grid-cols-2 md:max-xl:items-start md:max-xl:gap-x-8">
+    <div class="flex flex-col gap-2 max-xl:gap-2.5">
+      <div class="mb-0.5 text-[13px] font-semibold">流程校验</div>
+      <div v-for="c in checks" :key="c.text" class="flex items-center gap-2 text-xs">
+        <span :class="cn('flex size-4 shrink-0 items-center justify-center rounded-full text-[10px] text-white', c.ok ? 'bg-ok' : 'bg-bad')">{{ c.ok ? '✓' : '!' }}</span>
+        <span :class="c.ok ? 'text-ink-2' : 'text-bad-ink'">{{ c.text }}</span>
+      </div>
     </div>
-    <div class="mt-1.5 flex flex-col gap-1.5 border-t border-line-2 pt-2.5 text-xs">
+    <div class="mt-1.5 flex flex-col gap-1.5 border-t border-line-2 pt-2.5 text-xs md:max-xl:mt-0 md:max-xl:border-t-0 md:max-xl:border-l md:max-xl:pt-0 md:max-xl:pl-8">
+      <div class="mb-0.5 hidden text-[13px] font-semibold md:max-xl:block">版本记录</div>
       <template v-for="(v, i) in versions" :key="v.label">
         <div :class="cn('flex justify-between', i > 0 && 'mt-1')">
           <b v-if="v.current" class="font-semibold">{{ v.label }}</b>

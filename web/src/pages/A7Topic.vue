@@ -226,7 +226,7 @@ async function pushComments() {
 </script>
 
 <template>
-  <section data-screen-label="A7 病种专题工作台" class="flex flex-col">
+  <section data-screen-label="A7 病种专题工作台" class="flex flex-col max-xl:[&_.text-\[10px\]]:text-[11px] max-xl:[&_.text-\[11px\]]:text-xs">
     <div v-if="!known" class="m-6 flex flex-col items-center gap-2 rounded-xl border border-dashed border-line-4 bg-white px-5 py-12 text-ink-4">
       <div class="font-semibold text-ink-2">该选题尚未采纳,不能进入专题工作台</div>
       <div class="text-xs">选题编号 {{ topicId }} · 请先在智能推荐中由行政管理组采纳</div>
@@ -248,11 +248,11 @@ async function pushComments() {
         @submit="submit"
       />
 
-      <div class="grid grid-cols-1 items-start xl:grid-cols-[240px_minmax(0,1fr)_340px]">
-        <SectionOutline :items="outline" :active="act" @go="goSec" />
+      <div class="grid grid-cols-1 items-start lg:max-xl:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[240px_minmax(0,1fr)_340px]">
+        <SectionOutline class="lg:max-xl:col-span-2" :items="outline" :active="act" @go="goSec" />
 
-        <main class="flex min-w-0 justify-center px-6 pt-5 pb-20 max-xl:px-4 max-xl:pb-6">
-          <div class="flex w-full max-w-[800px] flex-col gap-3 rounded-[14px] border border-line-1 bg-white px-11 pt-9 pb-12 max-xl:px-8 max-xl:pt-6 max-xl:pb-8 max-sm:px-5 shadow-[0_1px_3px_rgba(15,23,42,.04)]">
+        <main class="flex min-w-0 justify-center px-6 pt-5 pb-20 max-xl:px-5 max-xl:pb-6 max-sm:px-4">
+          <div class="flex w-full max-w-[800px] flex-col gap-3 rounded-[14px] border border-line-1 bg-white px-11 pt-9 pb-12 max-xl:px-8 max-xl:pt-6 max-xl:pb-8 lg:max-xl:px-7 max-sm:px-5 shadow-[0_1px_3px_rgba(15,23,42,.04)]">
             <div class="text-[11px] text-ink-5">{{ isSeed ? data.docMeta : `示例市医保数据工作组 · ${topic.code} 专题 · 初稿` }}</div>
             <div v-if="submitted" class="rounded-[10px] bg-ok-soft px-3.5 py-2.5 text-xs text-ok-ink">
               ✓ 已于 {{ review?.submittedAt }} 提交核对与审核({{ review?.submittedBy }}) · 稿件已锁定,机构核对与专家组审核进行中

@@ -215,16 +215,19 @@ const versions = computed(() => flow.value.versions ?? data.value.versions)
 </script>
 
 <template>
-  <section data-screen-label="A9 流程设计器" class="mx-auto flex w-full max-w-[1600px] flex-col gap-3.5 px-8 pt-6 pb-14 max-xl:px-4">
+  <section data-screen-label="A9 流程设计器" class="mx-auto flex w-full max-w-[1600px] flex-col gap-3.5 px-8 pt-6 pb-14 max-xl:gap-4 max-xl:px-6 max-lg:px-4 max-xl:[&_.text-\[10px\]]:text-[11px] max-xl:[&_.text-\[11px\]]:text-xs">
     <PageHeader subtitle="按承办角色分泳道 · 同一列节点并行 · 点击节点编辑时限与超时动作">
+      <template #subtitle><span class="inline-block whitespace-nowrap">按承办角色分泳道 · 同一列节点并行 ·&nbsp;</span><span class="inline-block whitespace-nowrap">点击节点编辑时限与超时动作</span></template>
       <template #title>
-        <span class="tracking-[-0.2px]">流程设计器</span>
-        <span class="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">{{ flow.name }}流程 v{{ flow.version }}{{ dirty ? ' · 有未发布修改' : '' }}</span>
-        <span
-          :class="cn('rounded-full px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap', valid ? 'bg-ok-soft text-ok-ink' : 'bg-bad-soft text-bad-ink')"
-        >{{ valid ? '校验通过' : over ? '超出法定期限' : '校验未通过' }}</span>
+        <span class="tracking-[-0.2px] whitespace-nowrap">流程设计器</span>
+        <span class="flex min-w-0 flex-wrap items-center gap-2.5 max-xl:gap-1.5">
+          <span class="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap text-brand">{{ flow.name }}流程 v{{ flow.version }}{{ dirty ? ' · 有未发布修改' : '' }}</span>
+          <span
+            :class="cn('rounded-full px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap', valid ? 'bg-ok-soft text-ok-ink' : 'bg-bad-soft text-bad-ink')"
+          >{{ valid ? '校验通过' : over ? '超出法定期限' : '校验未通过' }}</span>
+        </span>
       </template>
-      <div class="flex rounded-[10px] bg-line-2 p-[3px]">
+      <div class="flex rounded-[10px] bg-line-2 p-[3px]" role="group" aria-label="选择流程">
         <button
           v-for="f in data.flows"
           :key="f.name"
@@ -242,7 +245,7 @@ const versions = computed(() => flow.value.versions ?? data.value.versions)
     </PageHeader>
 
     <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-      <div class="flex min-w-0 flex-col gap-3.5">
+      <div class="flex min-w-0 flex-col gap-3.5 max-xl:gap-4">
         <FlowCanvas
           :nodes="nodes"
           :lanes="usedLanes"
@@ -254,7 +257,7 @@ const versions = computed(() => flow.value.versions ?? data.value.versions)
         />
         <FlowGantt :nodes="nodes" :cols="cols" :total="total" :limit="limit" :selected="ni" />
       </div>
-      <div class="flex flex-col gap-3 max-xl:grid max-xl:grid-cols-2 max-xl:items-start max-md:grid-cols-1 xl:sticky xl:top-(--sticky-panel)">
+      <div class="flex flex-col gap-3 max-xl:gap-4 xl:sticky xl:top-(--sticky-panel)">
         <NodePanel
           v-if="node"
           :node="node"

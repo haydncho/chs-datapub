@@ -54,17 +54,17 @@ const stages = computed(() => {
           :class="cn('rounded-md px-2 py-0.5 font-medium whitespace-nowrap', isUrgent(s.cur) ? 'bg-bad-soft text-bad-ink' : 'bg-surface-3 text-ink-3')"
         >{{ s.cur.due }}</span>
       </div>
-      <div class="mt-2 text-2xl font-semibold tracking-[-0.2px]">{{ s.cur.name }}</div>
+      <div class="mt-2 text-2xl font-semibold tracking-[-0.2px] text-pretty">{{ s.cur.name }}</div>
     </div>
     <div class="flex rounded-xl border border-line-1 bg-white max-xl:w-full xl:w-auto">
-      <div v-for="m in meta" :key="m.k" class="border-l border-line-2 px-[18px] py-2 whitespace-nowrap first:border-l-0">
+      <div v-for="m in meta" :key="m.k" class="border-l border-line-2 px-[18px] py-2 whitespace-nowrap first:border-l-0 max-xl:min-w-0 max-xl:flex-1 max-xl:px-4 max-sm:px-3 max-sm:whitespace-normal">
         <div class="text-[11px] text-ink-4">{{ m.k }}</div>
         <div :class="cn('font-semibold', m.warn ? 'text-warn-ink' : 'text-ink-1')">{{ m.v }}</div>
       </div>
     </div>
   </div>
 
-  <div class="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)_minmax(0,2fr)_minmax(0,3fr)] gap-2.5 max-lg:grid-cols-2">
+  <div class="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)_minmax(0,2fr)_minmax(0,3fr)] gap-2.5 max-xl:grid-cols-2 max-sm:grid-cols-1">
     <div v-for="g in stages" :key="g.n" :class="cn('flex flex-col gap-2.5 rounded-xl border px-3.5 py-3', g.box)">
       <div class="flex items-center justify-between gap-2">
         <span :class="cn('text-xs font-semibold whitespace-nowrap', g.tc)">{{ g.n }}</span>

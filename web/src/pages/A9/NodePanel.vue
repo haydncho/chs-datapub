@@ -28,7 +28,7 @@ const emit = defineEmits<{
 <template>
   <div class="overflow-hidden rounded-[var(--radius-card)] border border-line-1 bg-white">
     <div
-      class="flex items-center gap-3 border-b border-line-2 px-[18px] py-4"
+      class="flex items-center gap-3 border-b border-line-2 px-[18px] py-4 max-xl:px-5"
       :style="{ background: `linear-gradient(135deg, ${KIND[node.kind].cb} 0%, #fff 70%)` }"
     >
       <span class="flex size-9 shrink-0 items-center justify-center rounded-[10px] bg-white" :style="{ boxShadow: `0 0 0 1px ${KIND[node.kind].cb}` }">
@@ -39,7 +39,8 @@ const emit = defineEmits<{
         <div class="text-[17px] font-semibold whitespace-nowrap">{{ node.name }}</div>
       </div>
     </div>
-    <div class="flex flex-col gap-4 px-[18px] py-4">
+    <div class="flex flex-col gap-4 px-[18px] py-4 max-xl:px-5 md:max-xl:grid md:max-xl:grid-cols-2 md:max-xl:items-start md:max-xl:gap-x-8 md:max-xl:gap-y-5 md:max-xl:py-5">
+      <div class="contents md:max-xl:flex md:max-xl:min-w-0 md:max-xl:flex-col md:max-xl:gap-5">
       <div class="grid grid-cols-2 gap-2">
         <label class="flex flex-col gap-1 text-xs text-ink-4">节点名称
           <input
@@ -67,7 +68,8 @@ const emit = defineEmits<{
           <button type="button"
             v-for="l in lanes"
             :key="l"
-            :class="cn('cursor-pointer rounded-lg border px-2.5 py-1 text-xs whitespace-nowrap max-xl:min-h-10', chipCls(l === node.lane))"
+            :aria-pressed="l === node.lane"
+            :class="cn('cursor-pointer rounded-lg border px-2.5 py-1 text-xs whitespace-nowrap max-xl:min-h-10 max-xl:px-3', chipCls(l === node.lane))"
             @click="emit('lane', l)"
           >{{ l }}</button>
         </div>
@@ -83,12 +85,15 @@ const emit = defineEmits<{
           <button type="button" class="flex size-8 max-xl:size-11 cursor-pointer items-center justify-center bg-surface-1 select-none" aria-label="增加时限天数" @click="emit('days', node.days + 1)">+</button>
         </div>
       </div>
+      </div>
+      <div class="contents md:max-xl:flex md:max-xl:min-w-0 md:max-xl:flex-col md:max-xl:gap-5">
       <div>
         <div class="mb-2 text-xs text-ink-4">超时动作</div>
         <div class="grid grid-cols-2 gap-1.5">
           <button type="button"
             v-for="(l, i) in timeoutActions"
             :key="l"
+            :aria-pressed="i === timeout"
             :class="cn('cursor-pointer rounded-lg border px-2.5 py-[7px] text-center text-xs whitespace-nowrap max-xl:min-h-10', chipCls(i === timeout))"
             @click="emit('timeout', i)"
           >{{ l }}</button>
@@ -100,16 +105,18 @@ const emit = defineEmits<{
           <button type="button"
             v-for="c in channels"
             :key="c"
-            :class="cn('cursor-pointer rounded-full border px-2.5 py-1 text-xs whitespace-nowrap max-xl:min-h-10', chipCls(!!channelOn[c]))"
+            :aria-pressed="!!channelOn[c]"
+            :class="cn('cursor-pointer rounded-full border px-2.5 py-1 text-xs whitespace-nowrap max-xl:min-h-10 max-xl:px-3.5', chipCls(!!channelOn[c]))"
             @click="emit('channel', c)"
           >{{ c }}</button>
         </div>
       </div>
       <div class="rounded-[10px] bg-surface-1 px-3 py-2.5 text-xs leading-[1.7] text-ink-3">{{ note }}</div>
+      </div>
       <button
         type="button"
         :disabled="!canRemove"
-        class="h-8 cursor-pointer rounded-lg border border-[#F3C5C0] text-xs text-bad disabled:cursor-not-allowed disabled:opacity-50 max-xl:h-11"
+        class="h-8 cursor-pointer rounded-lg border border-[#F3C5C0] text-xs text-bad disabled:cursor-not-allowed disabled:opacity-50 max-xl:h-11 md:max-xl:col-span-2 md:max-xl:justify-self-end md:max-xl:px-8"
         @click="emit('remove')"
       >删除此节点</button>
     </div>

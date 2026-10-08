@@ -84,9 +84,9 @@ function select(id: string) {
 </script>
 
 <template>
-  <section data-screen-label="A10 意见与申诉" class="flex min-h-[calc(100vh-132px)] flex-col">
+  <section data-screen-label="A10 意见与申诉" class="flex min-h-[calc(100vh-132px)] flex-col max-xl:[&_.text-\[10px\]]:text-[11px] max-xl:[&_.text-\[11px\]]:text-xs">
     <!-- title + SLA KPIs -->
-    <div class="flex items-center gap-7 border-b border-line-1 bg-white px-7 py-[18px] max-xl:flex-col max-xl:items-stretch max-xl:gap-3">
+    <div class="flex items-center gap-7 border-b border-line-1 bg-white px-7 py-[18px] max-xl:flex-col max-xl:items-stretch max-xl:gap-3 max-xl:px-5 max-xl:pt-5 max-xl:pb-4">
       <div class="shrink-0 whitespace-nowrap">
         <div class="text-[22px] font-semibold">意见与申诉</div>
         <div class="text-xs text-ink-4">机构反馈统一受理 · 时限 5 个工作日 · 答复同步机构端</div>
@@ -102,12 +102,13 @@ function select(id: string) {
       </div>
     </div>
 
-    <div class="grid flex-1 grid-cols-1 content-start xl:grid-cols-[180px_minmax(0,1fr)_minmax(380px,460px)]">
+    <div class="grid flex-1 grid-cols-1 content-start lg:max-xl:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[180px_minmax(0,1fr)_minmax(380px,460px)]">
       <!-- status queues -->
-      <aside class="flex flex-col gap-0.5 border-r border-line-1 bg-surface-1 px-2.5 py-4 max-xl:flex-row max-xl:gap-2 max-xl:overflow-x-auto max-xl:border-r-0 max-xl:border-b max-xl:px-4 max-xl:py-2.5">
+      <aside class="flex flex-col gap-0.5 border-r border-line-1 bg-surface-1 px-2.5 py-4 max-xl:flex-row max-xl:gap-2 max-xl:overflow-x-auto max-xl:border-r-0 max-xl:border-b max-xl:px-2.5 max-xl:py-2.5 lg:max-xl:col-span-2" role="group" aria-label="按状态筛选">
         <div v-press
           v-for="x in queues"
           :key="x.id"
+          :aria-pressed="x.on"
           :class="cn(
             'flex cursor-pointer justify-between rounded-lg px-2.5 py-2 max-xl:min-h-10 max-xl:shrink-0 max-xl:items-center max-xl:gap-2 max-xl:whitespace-nowrap',
             x.on ? 'bg-brand-soft font-semibold text-brand' : 'font-normal text-ink-2',
@@ -120,7 +121,7 @@ function select(id: string) {
       </aside>
 
       <!-- item list -->
-      <div class="min-w-0 border-r border-line-1 bg-white max-xl:max-h-[420px] max-xl:overflow-y-auto max-xl:border-r-0 max-xl:border-b">
+      <div class="min-w-0 border-r border-line-1 bg-white max-lg:max-h-[420px] max-lg:overflow-y-auto max-lg:border-r-0 max-lg:border-b">
         <div v-if="!rows.length" class="p-12 text-center text-ink-5">此队列暂无事项</div>
         <div v-press
           v-for="r in rows"

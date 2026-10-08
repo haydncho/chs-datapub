@@ -95,7 +95,7 @@ const lin = computed(() => props.data.lineage)
               type="button"
               title="查看口径与数据血缘"
               aria-label="查看口径与数据血缘"
-              class="cursor-pointer rounded-full bg-surface-3 px-2 py-px font-mono text-[11px] whitespace-nowrap text-ink-3 hover:bg-brand-soft hover:text-brand data-[state=open]:bg-brand-soft data-[state=open]:text-brand"
+              class="relative cursor-pointer rounded-full bg-surface-3 px-2 py-px font-mono text-[11px] whitespace-nowrap max-xl:py-0.5 max-xl:text-[12px] max-xl:before:absolute max-xl:before:-inset-x-1 max-xl:before:-inset-y-3 max-xl:before:content-[''] text-ink-3 hover:bg-brand-soft hover:text-brand data-[state=open]:bg-brand-soft data-[state=open]:text-brand"
             >口径 {{ lin.version }} · {{ lin.batch }}</button>
           </PopoverTrigger>
           <PopoverContent align="start" class="w-[280px] rounded-[10px] border-line-1 px-4 py-3 text-[12px] shadow-[0_8px_24px_rgba(11,21,38,.12)]">
@@ -149,7 +149,7 @@ const lin = computed(() => props.data.lineage)
           :style="{ left: b.x + '%', top: b.y + '%', marginLeft: b.off + 'px', transform: b.tf }"
         >{{ b.t }}</div>
       </div>
-      <span class="absolute right-3 bottom-0 text-[11px] text-ink-5">本院病例数 →</span>
+      <span class="absolute right-3 bottom-0 text-[11px] text-ink-5 max-xl:text-[12px]">本院病例数 →</span>
     </div>
 
     <div class="mt-3 items-center gap-[22px] rounded-[10px] bg-surface-1 px-4 py-3 max-xl:grid max-xl:grid-cols-2 max-xl:gap-x-4 max-xl:gap-y-3 md:max-xl:grid-cols-4 xl:flex">
@@ -158,19 +158,19 @@ const lin = computed(() => props.data.lineage)
         <div class="truncate font-semibold" :title="sel.n">{{ sel.n }}</div>
       </div>
       <div class="flex-1">
-        <div class="text-[11px] text-ink-4">本院病例</div>
+        <div class="text-[11px] text-ink-4 max-xl:text-[12px]">本院病例</div>
         <div class="yb-num text-[20px] font-semibold">{{ sel.c }}</div>
       </div>
       <div class="flex-1">
-        <div class="text-[11px] text-ink-4">例均差额</div>
+        <div class="text-[11px] text-ink-4 max-xl:text-[12px]">例均差额</div>
         <div class="yb-num text-[20px] font-semibold" :style="{ color: sel.dfc }">{{ sel.df }}</div>
       </div>
       <div class="flex-1">
-        <div class="text-[11px] text-ink-4">全市同组</div>
+        <div class="text-[11px] text-ink-4 max-xl:text-[12px]">全市同组</div>
         <div class="yb-num text-[20px] font-semibold" :style="{ color: sel.cc }">{{ sel.city }}</div>
       </div>
       <div class="flex-[1.3] whitespace-nowrap">
-        <div class="text-[11px] text-ink-4">差额总额</div>
+        <div class="text-[11px] text-ink-4 max-xl:text-[12px]">差额总额</div>
         <div class="yb-num text-[20px] font-semibold" :style="{ color: sel.totc }">{{ sel.tot }}</div>
       </div>
       <Button variant="outline" class="h-[34px] px-3.5 font-normal max-xl:col-span-full max-xl:h-10" @click="goPage('B2', { drg: sel.k })">病组下钻 →</Button>

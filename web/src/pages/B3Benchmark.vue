@@ -69,14 +69,12 @@ const rows = computed(() =>
         val: p.v,
       }
     })
-    // stagger labels of named metrics so neighbouring names do not overlap on narrow screens
+    // stagger labels of named metrics so neighbouring names do not overlap on narrow screens:
+    // 本院 stays above, its direct neighbours go below, and the rest alternate outwards from 本院
     if (m.tier === 'named') {
       const order = [...dots].sort((a, b) => parseFloat(a.x) - parseFloat(b.x))
-      let below = true // alternate above/below; 本院 always stays above
-      for (const d of order) {
-        d.alt = d.l === '本院' ? false : !below
-        below = d.alt
-      }
+      const at = Math.max(0, order.findIndex(d => d.l === '本院'))
+      order.forEach((d, i) => { d.alt = Math.abs(i - at) % 2 === 1 })
     }
     return { name: m.name, tier: TIER[m.tier], v: m.ownValue, dots }
   }),
@@ -126,7 +124,7 @@ const COLS = 'grid gap-[18px] max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:
         </div>
         <div v-for="r in rows" :key="r.name" :class="cn(COLS, 'items-center yb-tr border-b border-line-3 py-3.5')" :data-testid="'b3-row-' + r.name">
           <span class="font-medium">{{ r.name }}</span>
-          <span :class="cn('justify-self-start rounded px-2 py-px text-[11px] font-semibold', r.tier.cls)">{{ r.tier.label }}</span>
+          <span :class="cn('justify-self-start rounded px-2 py-px text-[11px] font-semibold max-xl:text-[12px]', r.tier.cls)">{{ r.tier.label }}</span>
           <div class="relative max-lg:order-last max-lg:col-span-full max-xl:mb-1" :class="r.dots.some(d => d.alt) ? 'h-[48px]' : 'h-[34px]'">
             <div class="absolute inset-x-0 top-4 h-0.5 bg-line-2" />
             <div class="absolute top-3 left-1/4 h-2.5 w-1/2 rounded-[2px] bg-[#EEF3FC]" />
@@ -138,7 +136,7 @@ const COLS = 'grid gap-[18px] max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:
               />
               <span
                 v-if="d.show"
-                class="absolute -translate-x-1/2 text-[10px] whitespace-nowrap"
+                class="absolute -translate-x-1/2 text-[10px] whitespace-nowrap max-xl:text-[12px]"
                 :class="d.alt ? 'top-[30px]' : '-top-1.5'"
                 :style="{ left: d.x, color: d.lc, fontWeight: d.lw }"
               >{{ d.l }}</span>

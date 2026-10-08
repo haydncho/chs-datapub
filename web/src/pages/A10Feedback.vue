@@ -84,7 +84,7 @@ function select(id: string) {
 </script>
 
 <template>
-  <section data-screen-label="A10 意见与申诉" class="flex min-h-[calc(100vh-132px)] flex-col max-xl:[&_.text-\[10px\]]:text-[11px] max-xl:[&_.text-\[11px\]]:text-xs">
+  <section data-screen-label="A10 意见与申诉" class="flex min-h-[calc(var(--app-vh)-132px)] flex-col max-xl:[&_.text-\[10px\]]:text-[11px] max-xl:[&_.text-\[11px\]]:text-xs">
     <!-- title + SLA KPIs -->
     <div class="flex items-center gap-7 border-b border-line-1 bg-white px-7 py-[18px] max-xl:flex-col max-xl:items-stretch max-xl:gap-3 max-xl:px-5 max-xl:pt-5 max-xl:pb-4">
       <div class="shrink-0 whitespace-nowrap">

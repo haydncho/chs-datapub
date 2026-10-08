@@ -31,7 +31,7 @@ const tabs = computed(() =>
 </script>
 
 <template>
-  <section data-screen-label="04 发布工作流" class="grid min-h-[calc(100vh-132px)] grid-cols-1 lg:max-xl:grid-cols-[minmax(0,1fr)_300px] xl:max-[1439px]:grid-cols-[248px_minmax(0,1fr)_304px] min-[1440px]:grid-cols-[280px_minmax(0,1fr)_340px] max-xl:[&_.text-\[10px\]]:text-[11px] max-xl:[&_.text-\[11px\]]:text-xs">
+  <section data-screen-label="04 发布工作流" class="grid min-h-[calc(var(--app-vh)-132px)] grid-cols-1 lg:max-xl:grid-cols-[minmax(0,1fr)_300px] xl:max-[1439px]:grid-cols-[248px_minmax(0,1fr)_304px] min-[1440px]:grid-cols-[280px_minmax(0,1fr)_340px] max-xl:[&_.text-\[10px\]]:text-[11px] max-xl:[&_.text-\[11px\]]:text-xs">
     <TaskQueue class="lg:max-xl:col-span-2" />
     <main class="flex min-w-0 flex-col gap-4 px-7 pt-[22px] pb-12 max-[1439px]:px-6 max-xl:px-4 max-xl:pt-5 max-xl:pb-6 lg:max-xl:px-5">
       <FlowHeader />

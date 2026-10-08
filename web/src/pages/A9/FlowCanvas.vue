@@ -134,8 +134,9 @@ const edges = computed(() => {
         v-for="p in PALETTE"
         :key="p.kind"
         draggable="true"
+        data-drag
         :aria-label="'添加' + p.label"
-        class="flex cursor-grab touch-none! items-center gap-1.5 rounded-lg border border-dashed border-[#C9D3E1] bg-white px-2.5 py-[5px] text-xs whitespace-nowrap select-none hover:border-brand hover:text-brand max-xl:min-h-10 max-xl:px-3"
+        class="flex cursor-grab items-center gap-1.5 rounded-lg border border-dashed border-[#C9D3E1] bg-white px-2.5 py-[5px] text-xs whitespace-nowrap select-none hover:border-brand hover:text-brand max-xl:min-h-10 max-xl:px-3"
         @click="tapAdd(p.kind)"
         @dragstart="dragStart($event, p.kind)"
         @pointerdown="pDown($event, p.kind, p.label)"

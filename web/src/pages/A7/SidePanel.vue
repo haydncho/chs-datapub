@@ -51,7 +51,7 @@ const TABS: A7Tab[] = ['批注', '数据核查', '版本']
           @click="tab = t"
         >{{ t }}</button>
       </div>
-      <div :class="cn('flex max-h-[calc(100vh-300px)] flex-col gap-2.5 overflow-y-auto px-4 py-3.5 lg:max-xl:max-h-[calc(100vh-var(--sticky-top)-170px)] max-lg:max-h-none', tab === '批注' && 'md:max-lg:grid md:max-lg:grid-cols-2 md:max-lg:items-start md:max-lg:[&>:not(.a7-cmt)]:col-span-2')">
+      <div :class="cn('flex max-h-[calc(var(--app-vh)-300px)] flex-col gap-2.5 overflow-y-auto px-4 py-3.5 lg:max-xl:max-h-[calc(var(--app-vh)-var(--sticky-top)-170px)] max-lg:max-h-none', tab === '批注' && 'md:max-lg:grid md:max-lg:grid-cols-2 md:max-lg:items-start md:max-lg:[&>:not(.a7-cmt)]:col-span-2')">
         <template v-if="tab === '批注'">
           <button
             type="button"

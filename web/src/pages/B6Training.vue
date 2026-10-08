@@ -99,7 +99,7 @@ function viewDoc(d: B6Doc) {
 
 <template>
   <PageSection label="B6 政策培训">
-    <PageHeader title="政策与培训" :subtitle="data.subtitle">
+    <PageHeader title="政策与培训" :subtitle="data.subtitle" align="start">
       <div class="w-[220px] max-sm:w-full">
         <div class="flex justify-between text-xs">
           <span class="text-ink-4">我的必修进度</span>

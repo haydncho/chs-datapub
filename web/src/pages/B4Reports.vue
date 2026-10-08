@@ -137,7 +137,7 @@ async function submitFeedback() {
   <section
     data-screen-label="B4 报告中心"
     :class="cn(
-      'grid min-h-[calc(100vh-132px)] grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] lg:max-xl:grid-rows-[auto_1fr] xl:grid-cols-[320px_minmax(0,1fr)_320px]',
+      'grid min-h-[calc(var(--app-vh)-132px)] grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] lg:max-xl:grid-rows-[auto_1fr] xl:grid-cols-[320px_minmax(0,1fr)_320px]',
       rp ? 'max-lg:grid-rows-[auto_auto_1fr]' : 'max-lg:grid-rows-[auto_1fr]',
     )"
   >

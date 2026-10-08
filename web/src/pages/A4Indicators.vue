@@ -196,7 +196,7 @@ async function onSubmitted() {
     1024–1279(横屏 Pad):目录左栏常驻;标题、表格、详情在右侧依次排列。
     <1024(竖屏 Pad):标题 → 目录(紧凑筛选卡)→ 表格 → 详情,单列。
   -->
-  <section data-screen-label="A4 指标配置" class="grid min-h-[calc(100vh-132px)] grid-cols-1 lg:grid-cols-[208px_minmax(0,1fr)] lg:grid-rows-[auto_auto_1fr] xl:grid-cols-[220px_minmax(0,1fr)_340px] xl:grid-rows-[auto_1fr]">
+  <section data-screen-label="A4 指标配置" class="grid min-h-[calc(var(--app-vh)-132px)] grid-cols-1 lg:grid-cols-[208px_minmax(0,1fr)] lg:grid-rows-[auto_auto_1fr] xl:grid-cols-[220px_minmax(0,1fr)_340px] xl:grid-rows-[auto_1fr]">
     <Catalog
       class="max-lg:order-2 lg:row-span-3 xl:row-span-2"
       :indicators="inds"

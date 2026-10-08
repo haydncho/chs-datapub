@@ -73,7 +73,7 @@ async function save() {
     ≥1280:模板列表 | 章节 | 组件库 三栏。
     <1280(Pad):模板列表改为顶部一行卡片;章节与组件库左右并排,组件库吸顶,选中章节后无需滚到页底即可加图。
   -->
-  <section data-screen-label="A5 图表与报告模板" class="grid min-h-[calc(100vh-132px)] grid-cols-[minmax(0,1fr)_272px] grid-rows-[auto_1fr] max-md:grid-cols-1 lg:grid-cols-[minmax(0,1fr)_312px] xl:grid-cols-[260px_minmax(0,1fr)_340px] xl:grid-rows-none">
+  <section data-screen-label="A5 图表与报告模板" class="grid min-h-[calc(var(--app-vh)-132px)] grid-cols-[minmax(0,1fr)_272px] grid-rows-[auto_1fr] max-md:grid-cols-1 lg:grid-cols-[minmax(0,1fr)_312px] xl:grid-cols-[260px_minmax(0,1fr)_340px] xl:grid-rows-none">
     <aside aria-label="报告模板" class="flex flex-col gap-1.5 border-r border-line-1 bg-surface-1 px-3.5 py-5 max-xl:col-span-full max-xl:grid max-xl:grid-cols-2 max-xl:gap-2 max-xl:border-r-0 max-xl:border-b max-xl:px-5 max-xl:py-4 lg:max-xl:grid-cols-4">
       <div class="px-2 pb-2 text-lg font-semibold max-xl:col-span-full max-xl:px-0 max-xl:pb-0">报告模板</div>
       <div v-press

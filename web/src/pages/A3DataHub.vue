@@ -197,23 +197,24 @@ async function onGen() {
 
     <!-- 数据管道 -->
     <div class="yb-card px-card-x py-card-y-sm">
-      <div class="mb-3 flex justify-between">
+      <div class="mb-3 flex flex-wrap justify-between gap-x-4 gap-y-1">
         <span class="text-sm font-semibold">数据管道</span>
         <span class="text-xs text-ink-4">接入 → 指标集市 · {{ data.stats.schedule }}</span>
       </div>
-      <div class="grid grid-cols-3 gap-2 max-lg:gap-y-3 lg:grid-cols-6 xl:flex xl:items-stretch">
-        <div v-for="(p, i) in pipe" :key="p.n" class="flex min-w-0 flex-1 items-center gap-2">
-          <div :class="cn('min-w-0 flex-1 rounded-[10px] px-3.5 py-3', p.bg)">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-medium text-ink-3">{{ p.n }}</span>
-              <span :class="cn('text-[11px] font-semibold', p.fg)">{{ p.label }}</span>
+      <ol class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6 xl:flex xl:items-stretch">
+        <li v-for="(p, i) in pipe" :key="p.n" class="flex min-w-0 flex-1 items-stretch gap-2 xl:items-center">
+          <div :class="cn('min-w-0 flex-1 rounded-[10px] px-3.5 py-3 lg:max-xl:px-3', p.bg)">
+            <div class="flex items-center justify-between gap-1.5">
+              <span class="flex min-w-0 items-center gap-1.5 text-xs font-medium whitespace-nowrap text-ink-3"><span class="yb-num text-ink-5 xl:hidden">{{ i + 1 }}</span>{{ p.n }}</span>
+              <span :class="cn('text-[11px] font-semibold whitespace-nowrap max-xl:text-xs', p.fg)">{{ p.label }}</span>
             </div>
-            <div class="yb-num mt-0.5 text-[22px] font-semibold text-ink-1">{{ p.v }}</div>
-            <div class="truncate text-[11px] text-ink-4">{{ p.sub }}</div>
+            <div class="yb-num mt-0.5 text-[22px] font-semibold whitespace-nowrap text-ink-1">{{ p.v }}</div>
+            <!-- 窄卡时只在「 · 」处换行,不拆开数字 -->
+            <div class="truncate text-[11px] text-ink-4 max-xl:text-xs lg:max-xl:line-clamp-2 lg:max-xl:whitespace-normal" :title="p.sub"><template v-for="(seg, k) in p.sub.split(' · ')" :key="k"><span class="whitespace-nowrap">{{ k ? '· ' : '' }}{{ seg }}</span>{{ ' ' }}</template></div>
           </div>
-          <span v-if="i < pipe.length - 1" class="text-ink-6 max-xl:hidden">→</span>
-        </div>
-      </div>
+          <span v-if="i < pipe.length - 1" class="text-ink-6 max-xl:hidden" aria-hidden="true">→</span>
+        </li>
+      </ol>
     </div>
 
     <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(300px,340px)]">
@@ -223,18 +224,18 @@ async function onGen() {
       </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
       <!-- 机构编码质量 -->
       <div class="yb-card px-card-x py-card-y">
         <div class="mb-3 flex flex-wrap justify-between gap-x-4 gap-y-1">
           <span class="flex items-center gap-2">
             <span class="text-sm font-semibold">机构编码质量</span>
-            <span class="rounded-full bg-surface-3 px-2 py-px font-mono text-[11px] whitespace-nowrap text-ink-3">口径 {{ qcSpec.version }} · {{ qcSpec.batch }}</span>
+            <span class="rounded-full bg-surface-3 px-2 py-px font-mono text-[11px] max-xl:text-xs whitespace-nowrap text-ink-3">口径 {{ qcSpec.version }} · {{ qcSpec.batch }}</span>
           </span>
           <span class="text-xs text-ink-4">门槛:合并症编码率 {{ qcSpec.comorbidityThreshold }}% · 清单质控率 {{ qcSpec.listQcThreshold }}%</span>
         </div>
         <div class="overflow-x-auto"><div class="min-w-[460px]">
-        <div class="grid grid-cols-[150px_1fr_1fr] gap-4 pb-1.5 text-[11px] text-ink-5">
+        <div class="grid grid-cols-[150px_1fr_1fr] gap-4 pb-1.5 text-[11px] max-xl:text-xs text-ink-5">
           <span>机构</span><span>合并症编码率</span><span>结算清单质控率</span>
         </div>
         <div v-for="q in orgQc" :key="q.org" class="grid grid-cols-[150px_1fr_1fr] items-center gap-4 py-1.5 text-xs">
@@ -265,7 +266,7 @@ async function onGen() {
         </div>
         <div v-for="r in rules" :key="r.id" class="border-t border-line-3 py-2">
           <div class="flex justify-between text-xs">
-            <span>{{ r.name }} <span class="font-mono text-[11px] text-ink-5">{{ r.id }}</span></span>
+            <span>{{ r.name }} <span class="font-mono text-[11px] max-xl:text-xs text-ink-5">{{ r.id }}</span></span>
             <span class="yb-num font-semibold">{{ r.hits }}</span>
           </div>
           <div class="mt-1.5 h-1 rounded-[2px] bg-line-2">

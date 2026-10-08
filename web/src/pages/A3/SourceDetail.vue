@@ -49,7 +49,10 @@ const lineage = computed(() => {
 </script>
 
 <template>
-  <div class="yb-card flex flex-col gap-3.5 px-card-x py-card-y">
+  <!-- 窄列(桌面右栏)单列;作为整宽面板(Pad)时左列状态 / 质量 / 依赖指标,右列血缘 -->
+  <div class="yb-card @container px-card-x py-card-y">
+   <div class="grid grid-cols-1 gap-3.5 @xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] @xl:gap-x-6">
+   <div class="flex min-w-0 flex-col gap-3.5">
     <div>
       <div class="text-base font-semibold">{{ row.src.name }}</div>
       <div class="text-xs text-ink-4">{{ row.src.provider }} · {{ row.src.mode }} · 应到 {{ row.src.due }}</div>
@@ -70,7 +73,7 @@ const lineage = computed(() => {
         <div class="flex items-center gap-2 text-xs font-semibold text-bad-ink">
           <span class="flex size-[18px] items-center justify-center rounded-full bg-bad text-[11px] text-white">!</span>省平台接口超时 · HTTP 504
         </div>
-        <div class="font-mono text-[11px] text-ink-4">trace {{ row.src.lastPull?.trace ?? '—' }} · {{ row.src.lastPull?.at ?? '' }} · 等待 30s 无响应</div>
+        <div class="font-mono text-[11px] text-ink-4 max-xl:text-xs">trace {{ row.src.lastPull?.trace ?? '—' }} · {{ row.src.lastPull?.at ?? '' }} · 等待 30s 无响应</div>
         <div class="flex gap-2">
           <Button class="h-[30px] flex-1 text-xs" @click="emit('pull')">重试</Button>
           <Button variant="outline" class="h-[30px] flex-1 text-xs font-normal" @click="emit('notify')">通知对接人</Button>
@@ -83,23 +86,25 @@ const lineage = computed(() => {
 
     <div class="grid grid-cols-3 gap-2">
       <div v-for="q in quality" :key="q.k" class="rounded-[10px] bg-surface-2 px-3 py-2.5" :title="q.hint || undefined">
-        <div class="text-[11px] text-ink-4">{{ q.k }}</div>
+        <div class="text-[11px] text-ink-4 max-xl:text-xs">{{ q.k }}</div>
         <div class="yb-num text-xl font-semibold">{{ q.v }}</div>
-        <div v-if="q.hint && !late" class="truncate text-[10px] text-ink-5">{{ q.hint }}</div>
+        <div v-if="q.hint && !late" class="truncate text-[10px] text-ink-5 max-xl:text-xs">{{ q.hint }}</div>
       </div>
     </div>
 
     <div>
       <div class="mb-1.5 text-xs text-ink-4">依赖指标</div>
       <div class="flex flex-col gap-1">
-        <div v-for="d in row.src.dependents" :key="d" class="flex items-center justify-between rounded-lg bg-surface-1 px-2.5 py-[7px]">
-          <span>{{ d }}</span>
+        <div v-for="d in row.src.dependents" :key="d" class="flex items-center justify-between gap-2 rounded-lg bg-surface-1 px-2.5 py-[7px]">
+          <span class="min-w-0">{{ d }}</span>
           <Badge :variant="late ? 'warn' : 'ok'" class="py-px font-normal">{{ late ? '本期暂缓' : '可计算' }}</Badge>
         </div>
       </div>
     </div>
 
-    <div v-if="lineage.length">
+   </div>
+
+    <div v-if="lineage.length" class="min-w-0 @xl:border-l @xl:border-line-2 @xl:pl-6">
       <div class="mb-2 text-xs text-ink-4">血缘</div>
       <div v-for="l in lineage" :key="l.k" class="flex gap-2.5">
         <div class="flex w-2.5 flex-col items-center">
@@ -107,10 +112,11 @@ const lineage = computed(() => {
           <span v-if="l.line" class="w-px flex-1 bg-line-1" />
         </div>
         <div class="pb-2.5">
-          <div class="text-[11px] text-ink-5">{{ l.k }}</div>
-          <div class="font-mono text-xs">{{ l.v }}</div>
+          <div class="text-[11px] text-ink-5 max-xl:text-xs">{{ l.k }}</div>
+          <div class="font-mono text-xs break-all">{{ l.v }}</div>
         </div>
       </div>
     </div>
+   </div>
   </div>
 </template>

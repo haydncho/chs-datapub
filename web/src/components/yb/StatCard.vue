@@ -32,7 +32,11 @@ const TONES: Record<StatTone, { g: string; bd: string; ic: string; ib: string }>
   bad: { g: '#FDECEA', bd: '#F5CFCB', ic: '#D2362B', ib: '#fff' },
   info: { g: 'var(--brand-soft)', bd: '#DCE6F8', ic: 'var(--brand)', ib: '#fff' },
 }
-const VALUE_SIZE: Record<StatSize, string> = { sm: 'text-xl', md: 'text-2xl max-xl:text-[22px]', lg: 'text-[26px] max-xl:text-2xl' }
+const VALUE_SIZE: Record<StatSize, string> = {
+  sm: 'text-xl leading-[26px]',
+  md: 'text-2xl leading-[30px] max-xl:text-[22px] max-xl:leading-[28px]',
+  lg: 'text-[26px] leading-[32px] max-xl:text-2xl max-xl:leading-[30px]',
+}
 const t = computed(() => TONES[props.tone])
 const parts = computed(() => (props.unit != null ? { vn: String(props.value), vu: props.unit } : splitUnit(props.value)))
 </script>
@@ -45,7 +49,7 @@ const parts = computed(() => (props.unit != null ? { vn: String(props.value), vu
     <!-- 文字列压在装饰图形之上;说明行可伸到图标下方(图标只占上半部),整卡放不下时省略而不是被裁切 -->
     <div class="relative z-[1] min-w-0 flex-1 whitespace-nowrap">
       <div class="truncate text-xs text-ink-4" :title="label">{{ label }}</div>
-      <div :class="['yb-num leading-[1.2] font-semibold', VALUE_SIZE[size]]">
+      <div :class="['yb-kpi-v yb-num font-semibold', VALUE_SIZE[size]]">
         {{ parts.vn }}<span v-if="parts.vu" class="ml-[3px] text-[13px] font-medium text-ink-4">{{ parts.vu }}</span>
       </div>
       <div v-if="sub || $slots.sub" :class="['truncate text-xs', icon && 'mr-[-50px]']" :style="{ color: subColor ?? 'var(--ink-3)' }"><slot name="sub">{{ sub }}</slot></div>

@@ -202,17 +202,17 @@ async function onGen() {
         <span class="text-xs text-ink-4">接入 → 指标集市 · {{ data.stats.schedule }}</span>
       </div>
       <ol class="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-6 xl:flex xl:items-stretch">
-        <li v-for="(p, i) in pipe" :key="p.n" class="flex min-w-0 flex-1 items-stretch gap-2 xl:items-center">
+        <li v-for="(p, i) in pipe" :key="p.n" class="flex min-w-0 flex-1 items-stretch gap-2">
           <div :class="cn('min-w-0 flex-1 rounded-[10px] px-3.5 py-3 lg:max-xl:px-3', p.bg)">
             <div class="flex items-center justify-between gap-1.5">
               <span class="flex min-w-0 items-center gap-1.5 text-xs font-medium whitespace-nowrap text-ink-3"><span class="yb-num text-ink-5 xl:hidden">{{ i + 1 }}</span>{{ p.n }}</span>
-              <span :class="cn('text-[11px] font-semibold whitespace-nowrap max-xl:text-xs', p.fg)">{{ p.label }}</span>
+              <span :class="cn('text-xs font-semibold whitespace-nowrap', p.fg)">{{ p.label }}</span>
             </div>
-            <KpiValue :value="p.v" size="md" class="mt-0.5 block text-ink-1" />
+            <KpiValue :value="p.v" size="md" class="text-ink-1" />
             <!-- 窄卡时只在「 · 」处换行,不拆开数字 -->
-            <div class="truncate text-[11px] text-ink-4 max-xl:text-xs lg:max-xl:line-clamp-2 lg:max-xl:whitespace-normal" :title="p.sub"><template v-for="(seg, k) in p.sub.split(' · ')" :key="k"><span class="whitespace-nowrap">{{ k ? '· ' : '' }}{{ seg }}</span>{{ ' ' }}</template></div>
+            <div class="truncate text-xs text-ink-4 lg:max-xl:line-clamp-2 lg:max-xl:whitespace-normal" :title="p.sub"><template v-for="(seg, k) in p.sub.split(' · ')" :key="k"><span class="whitespace-nowrap">{{ k ? '· ' : '' }}{{ seg }}</span>{{ ' ' }}</template></div>
           </div>
-          <span v-if="i < pipe.length - 1" class="text-ink-6 max-xl:hidden" aria-hidden="true">→</span>
+          <span v-if="i < pipe.length - 1" class="self-center text-ink-6 max-xl:hidden" aria-hidden="true">→</span>
         </li>
       </ol>
     </div>

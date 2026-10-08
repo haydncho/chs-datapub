@@ -28,14 +28,14 @@ const c = computed<B4ReportContent & { audience: string }>(() => {
       <div class="mt-2.5 text-sm text-ink-3">{{ c.audience }}</div>
       <div class="mt-9 mb-8 grid grid-cols-[1.2fr_1fr_1fr] gap-[18px] rounded-lg bg-brand-tint px-[22px] py-5 max-md:mt-6 max-md:mb-6 max-md:grid-cols-1 max-md:gap-3 max-md:px-4 max-md:py-4">
         <div v-for="k in c.coverKpis" :key="k.label" class="min-w-0">
-          <div class="text-[11px] max-xl:text-[12px] text-ink-4">{{ k.label }}</div>
+          <div class="text-xs text-ink-4">{{ k.label }}</div>
           <KpiValue
             v-if="k.kind === 'num'"
             :value="k.value"
             :class="cn('block', k.tone === 'bad' && 'text-bad')"
           />
           <div v-else class="mt-1 text-sm font-semibold">{{ k.value }}</div>
-          <div class="text-[11px] max-xl:text-[12px] whitespace-nowrap text-ink-3 max-md:whitespace-normal">{{ k.sub }}</div>
+          <div class="text-xs whitespace-nowrap text-ink-3 max-md:whitespace-normal">{{ k.sub }}</div>
         </div>
       </div>
       <div class="flex-1" />
@@ -65,7 +65,7 @@ const c = computed<B4ReportContent & { audience: string }>(() => {
           :key="s.label"
           :class="cn('rounded-lg p-3', s.tone === 'bad' ? 'bg-bad-soft' : 'bg-surface-1')"
         >
-          <div class="text-[11px] max-xl:text-[12px] text-ink-4">{{ s.label }}</div>
+          <div class="text-xs text-ink-4">{{ s.label }}</div>
           <KpiValue :value="s.value" size="md" :class="cn('block', s.tone === 'bad' && 'text-bad')" />
         </div>
       </div>

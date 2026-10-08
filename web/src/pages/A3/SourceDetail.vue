@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { KpiValue } from '@/components/yb'
 import { computed } from 'vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -86,9 +87,9 @@ const lineage = computed(() => {
 
     <div class="grid grid-cols-3 gap-2">
       <div v-for="q in quality" :key="q.k" class="rounded-[10px] bg-surface-2 px-3 py-2.5" :title="q.hint || undefined">
-        <div class="text-[11px] text-ink-4 max-xl:text-xs">{{ q.k }}</div>
-        <div class="yb-num text-xl font-semibold">{{ q.v }}</div>
-        <div v-if="q.hint && !late" class="truncate text-[10px] text-ink-5 max-xl:text-xs">{{ q.hint }}</div>
+        <div class="text-xs text-ink-4">{{ q.k }}</div>
+        <KpiValue :value="q.v" size="md" />
+        <div v-if="q.hint && !late" class="truncate text-xs text-ink-4">{{ q.hint }}</div>
       </div>
     </div>
 

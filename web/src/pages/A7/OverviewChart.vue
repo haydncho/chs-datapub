@@ -15,9 +15,9 @@ defineProps<{ kpis: A7Kpi[]; tierTitle: string; tiers: A7Tier[] }>()
       :key="k.label"
       :class="cn('rounded-[10px] px-3.5 py-3', k.tone === 'bad' ? 'bg-bad-soft' : 'bg-surface-1')"
     >
-      <div class="text-[11px] text-ink-4">{{ k.label }}</div>
+      <div class="text-xs text-ink-4">{{ k.label }}</div>
       <KpiValue :value="k.value" :class="cn('block', k.tone === 'bad' && 'text-bad')" />
-      <div :class="cn('text-[11px]', k.subBad ? 'text-bad' : 'text-ink-3')">{{ k.sub }}</div>
+      <div :class="cn('text-xs', k.subBad ? 'text-bad' : 'text-ink-3')">{{ k.sub }}</div>
     </div>
   </div>
   <div>

@@ -221,6 +221,10 @@ html[data-motion="0"] *, html[data-motion="0"] *::before, html[data-motion="0"] 
 }
 
 @layer components {
+  /* KPI 读数(KpiValue / StatCard)统一行距:标签 → 读数 → 说明各隔 4px;页面可用 mt-0 等工具类覆盖 */
+  .yb-kpi-v { margin-top: 4px; }
+  .yb-kpi-v + * { margin-top: 4px; }
+
   /* the standard white panel used across every workbench page */
   .yb-card { background: var(--card); border: 1px solid var(--line-1); border-radius: var(--radius-card); }
   /* KPI card gradient (StatCard, B1/B2 KPI cards): set --stat-g / --stat-bd inline */

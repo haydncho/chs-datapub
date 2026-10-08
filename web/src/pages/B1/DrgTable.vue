@@ -83,7 +83,8 @@ const recon = computed(() => {
   }
 })
 
-const GRID = 'grid grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_110px_80px] gap-3.5 px-5'
+/** Pad: narrower fixed columns so the table fits without a horizontal scroll (portrait drops the 趋势 sparkline) */
+const GRID = 'grid grid-cols-[48px_minmax(0,1fr)_64px_76px_76px_112px_52px] gap-3 px-4 lg:grid-cols-[52px_minmax(0,1fr)_68px_80px_80px_128px_64px_56px] xl:grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_110px_80px] xl:gap-3.5 xl:px-5'
 </script>
 
 <template>
@@ -92,9 +93,9 @@ const GRID = 'grid grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_11
       <span class="text-[15px] font-semibold">重点病组明细</span>
       <span class="text-[12px] text-ink-4">差额总额前 8 · 病例 &lt; 30 并入其他 · <span :title="PERCENTILE_HINT">同级分位越高越好</span></span>
     </div>
-    <div class="max-xl:overflow-x-auto">
-    <div class="max-xl:min-w-[1010px]">
-    <div :class="cn(GRID, 'sticky top-(--sticky-top) z-[6] bg-surface-1 py-[9px] text-[12px] text-ink-4')">
+    <div class="max-md:overflow-x-auto">
+    <div class="max-md:min-w-[640px]">
+    <div :class="cn(GRID, 'sticky top-(--sticky-top) z-[6] bg-surface-1 py-[9px] text-[12px] text-ink-4 max-xl:py-0.5 max-md:static')">
       <button type="button"
         v-for="c in head" :key="c.k"
         :class="cn(
@@ -104,13 +105,13 @@ const GRID = 'grid grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_11
         )"
         @click="toggle(c.k)"
       >{{ c.l }}<span class="text-[9px]" :class="c.on ? 'opacity-100' : 'opacity-35'">{{ c.ar }}</span></button>
-      <span /><span />
+      <span class="max-lg:hidden" /><span />
     </div>
     <div v-press
       v-for="r in rows" :key="r.k"
       :class="cn(
         GRID,
-        'cursor-pointer items-center yb-tr border-b border-line-3 py-[calc(var(--row-py)-1px)] text-[13px] hover:bg-surface-1',
+        'cursor-pointer items-center yb-tr border-b border-line-3 py-[calc(var(--row-py)-1px)] text-[13px] hover:bg-surface-1 max-xl:py-[calc(var(--row-py)-7px)]',
         r.k === selected ? 'bg-brand-tint' : 'bg-white',
       )"
       @click="selected = r.k"
@@ -125,12 +126,12 @@ const GRID = 'grid grid-cols-[56px_minmax(180px,1.6fr)_80px_100px_100px_160px_11
           <div class="absolute inset-y-0 left-1/4 w-1/2 bg-[#DCE5F6]" />
           <div class="absolute -top-[3px] -ml-px h-3 w-[3px] rounded-[1px]" :style="{ left: r.pl, background: r.pc }" />
         </div>
-        <span class="yb-num w-[30px] font-semibold" :style="{ color: r.pc }">{{ r.p }}</span>
+        <span class="yb-num w-[30px] shrink-0 font-semibold" :style="{ color: r.pc }">{{ r.p }}</span>
       </div>
-      <div class="flex h-[22px] items-end gap-[3px]">
+      <div class="flex h-[22px] items-end gap-[3px] max-lg:hidden">
         <span v-for="(b, i) in r.tr" :key="i" class="w-2 rounded-[1px]" :style="{ height: b.h, background: b.c }" />
       </div>
-      <button type="button" class="text-right text-[12px] text-brand max-xl:min-h-10" @click.stop="goPage('B2', { drg: r.k })">下钻 →</button>
+      <button type="button" class="text-right text-[12px] whitespace-nowrap text-brand max-xl:min-h-10" @click.stop="goPage('B2', { drg: r.k })">下钻 →</button>
     </div>
     </div>
     </div>

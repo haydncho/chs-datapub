@@ -17,9 +17,9 @@ const segClass = (s: B4Seg) =>
 <template>
   <div class="flex w-full max-w-[980px] flex-col gap-3.5">
     <div class="flex flex-wrap items-center gap-x-[18px] gap-y-2 rounded-xl border border-line-1 bg-white px-[22px] py-[18px]">
-      <div class="min-w-0 flex-1">
+      <div class="min-w-0 flex-1 max-xl:basis-[240px]">
         <div class="text-xs text-ink-4">版本对比</div>
-        <div class="text-lg font-semibold whitespace-nowrap">{{ name }}</div>
+        <div class="text-lg font-semibold text-pretty xl:whitespace-nowrap">{{ name }}</div>
       </div>
       <div class="flex items-center gap-2.5 whitespace-nowrap">
         <span class="rounded-lg bg-bad-soft px-2.5 py-1 text-xs font-semibold text-bad-ink">{{ diff.from }}</span>
@@ -30,14 +30,14 @@ const segClass = (s: B4Seg) =>
     </div>
 
     <div class="overflow-x-auto rounded-xl border border-line-1 bg-white">
-    <div class="max-xl:min-w-[720px]">
-      <div class="grid grid-cols-[110px_minmax(0,1fr)_100px_130px_100px] 2xl:grid-cols-[150px_minmax(0,1fr)_140px_140px_150px] gap-3.5 bg-surface-1 px-5 py-2.5 text-xs text-ink-4">
+    <div class="max-xl:min-w-[616px]">
+      <div class="grid grid-cols-[96px_minmax(0,1fr)_88px_136px_96px] xl:grid-cols-[110px_minmax(0,1fr)_100px_130px_100px] 2xl:grid-cols-[150px_minmax(0,1fr)_140px_140px_150px] gap-3 px-4 xl:gap-3.5 xl:px-5 bg-surface-1 py-2.5 text-xs text-ink-4">
         <span>位置</span><span>内容</span><span class="text-right">v1</span><span class="text-right">v2</span><span>依据</span>
       </div>
       <div
         v-for="d in diff.rows"
         :key="d.item"
-        class="grid grid-cols-[110px_minmax(0,1fr)_100px_130px_100px] 2xl:grid-cols-[150px_minmax(0,1fr)_140px_140px_150px] items-center gap-3.5 border-t border-line-3 px-5 py-3 text-[13px]"
+        class="grid grid-cols-[96px_minmax(0,1fr)_88px_136px_96px] xl:grid-cols-[110px_minmax(0,1fr)_100px_130px_100px] 2xl:grid-cols-[150px_minmax(0,1fr)_140px_140px_150px] items-center gap-3 px-4 xl:gap-3.5 xl:px-5 border-t border-line-3 py-3 text-[13px]"
       >
         <span class="text-xs whitespace-nowrap text-brand">{{ d.pos }}</span>
         <span>{{ d.item }}</span>

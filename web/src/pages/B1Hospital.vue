@@ -43,7 +43,11 @@ const KPI_ICONS = [
 <template>
   <PageSection label="B1 本院全景">
     <PageHeader :title="data.hospital.name || viewerOrgName()" :subtitle="data.hospital.subtitle">
-      <template v-if="!empty">
+      <!-- wrap only between「·」segments so a narrow header never leaves a single orphaned character -->
+      <template v-if="data.hospital.subtitle" #subtitle>
+        <template v-for="(seg, i) in data.hospital.subtitle.split(' · ')" :key="i"><template v-if="i"> · </template><span class="whitespace-nowrap">{{ seg }}</span></template>
+      </template>
+      <template v-if="!empty" #default>
         <button type="button"
           class="flex h-[34px] cursor-pointer items-center gap-1.5 rounded-lg max-xl:h-10 bg-brand-soft px-3 text-[12px] font-medium text-brand"
           @click="goPage('B4')"
@@ -72,7 +76,7 @@ const KPI_ICONS = [
         同级分位 = 本院在同级组(市三级 6 家)中按<b class="font-medium text-ink-2">表现好坏</b>的排位,<b class="font-medium text-ink-2">越高越好</b>:P100 为同级最优;费用、指数类指标数值越低排位越高。低于 P{{ WATCH_BELOW }} 计为「关注」。
       </p>
 
-      <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <div class="grid grid-cols-1 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px]">
         <BubblePanorama v-model:selected="selected" :data="data" />
         <SettlementPanel v-model:selected="selected" :data="data" />
       </div>

@@ -15,7 +15,7 @@ function short(h: string) {
 </script>
 
 <template>
-  <div class="yb-card xl:sticky xl:top-(--sticky-panel) flex flex-col gap-3 p-5">
+  <div class="yb-card lg:sticky lg:top-(--sticky-panel) flex flex-col gap-3 p-5 md:max-lg:grid md:max-lg:grid-cols-2 md:max-lg:items-start md:max-lg:gap-x-8">
     <div>
       <span :class="['rounded px-2 py-px text-[11px] font-semibold', kindClass[log.type]]">{{ log.type }}</span>
       <div class="mt-1.5 text-base font-semibold break-all">{{ log.object }}</div>
@@ -34,17 +34,17 @@ function short(h: string) {
         <span class="text-ink-4">本条哈希</span><span class="truncate font-mono text-ink-4" :title="log.hash">{{ short(log.hash) }}</span>
       </template>
     </div>
-    <div v-if="log.changes && log.changes.length" class="flex flex-col gap-1.5">
+    <div v-if="log.changes && log.changes.length" class="flex flex-col gap-1.5 md:max-lg:col-span-2">
       <div v-for="c in log.changes" :key="c.field" class="overflow-hidden rounded-[10px] font-mono text-xs">
         <div class="bg-surface-1 px-2.5 py-1 text-[11px] text-ink-4">{{ c.label }}</div>
         <div class="bg-bad-soft px-2.5 py-1.5 text-bad-ink">− {{ c.from }}</div>
         <div class="bg-ok-soft px-2.5 py-1.5 text-ok-ink">+ {{ c.to }}</div>
       </div>
     </div>
-    <div v-else-if="log.diff" class="overflow-hidden rounded-[10px] font-mono text-xs">
+    <div v-else-if="log.diff" class="overflow-hidden rounded-[10px] font-mono text-xs md:max-lg:col-span-2">
       <div class="bg-bad-soft px-2.5 py-1.5 text-bad-ink">− {{ log.diff.from }}</div>
       <div class="bg-ok-soft px-2.5 py-1.5 text-ok-ink">+ {{ log.diff.to }}</div>
     </div>
-    <div v-if="log.risk" class="rounded-[10px] bg-warn-soft px-3 py-2.5 text-xs text-[#7A4510]">{{ log.riskNote ?? '异常:非工作时间批量查阅 · 已推送安全员' }}</div>
+    <div v-if="log.risk" class="md:max-lg:col-span-2 rounded-[10px] bg-warn-soft px-3 py-2.5 text-xs text-[#7A4510]">{{ log.riskNote ?? '异常:非工作时间批量查阅 · 已推送安全员' }}</div>
   </div>
 </template>

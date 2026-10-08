@@ -171,7 +171,7 @@ function logoUpload() {
 </script>
 
 <template>
-  <PageSection label="A15 外观配置">
+  <PageSection label="A15 外观配置" class="max-xl:pb-24">
     <PageHeader title="外观配置" subtitle="平台主题 · 界面密度 · 全景图大屏 · 品牌标识 · 保存并发布后对全部用户生效" />
 
     <!-- 吸顶操作条 -->
@@ -201,7 +201,7 @@ function logoUpload() {
 
     <div class="flex flex-col gap-4 xl:grid xl:grid-cols-[140px_minmax(0,1fr)_460px] xl:items-start xl:gap-5">
       <!-- 分区导航 -->
-      <nav aria-label="设置分区" class="sticky top-[136px] z-10 flex flex-col gap-0.5 max-xl:top-[calc(var(--sticky-top)+60px)] max-xl:-mx-2 max-xl:flex-row max-xl:gap-2 max-xl:overflow-x-auto max-xl:rounded-[10px] max-xl:border max-xl:border-line-1 max-xl:bg-white max-xl:p-1.5">
+      <nav aria-label="设置分区" class="sticky top-[136px] z-10 flex flex-col gap-0.5 max-xl:top-[calc(var(--sticky-top)+60px)] max-xl:flex-row max-xl:gap-2 max-xl:overflow-x-auto max-xl:rounded-[10px] max-xl:border max-xl:border-line-1 max-xl:bg-white max-xl:p-1.5">
         <button
           v-for="s in SECTIONS"
           :key="s.id"

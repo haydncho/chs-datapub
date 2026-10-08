@@ -12,7 +12,7 @@ const GAP = ['2px', '4px', '6px']
 </script>
 
 <template>
-  <div class="grid grid-cols-[repeat(auto-fit,minmax(96px,1fr))] gap-2" role="group" aria-label="预设方案">
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(96px,1fr))] gap-2 max-lg:grid-cols-3" role="group" aria-label="预设方案">
     <button
       v-for="p in presets"
       :key="p.id"

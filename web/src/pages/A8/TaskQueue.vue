@@ -28,25 +28,27 @@ const groups = computed(() => s.queueGroups.map(g => ({ g: g.g, items: g.items.m
 
 <template>
   <aside class="flex flex-col gap-2.5 border-r border-line-1 bg-surface-1 px-3 py-4 max-xl:border-r-0 max-xl:border-b max-xl:px-4">
-    <div class="contents max-xl:flex max-xl:items-center max-xl:gap-3">
-    <div class="flex items-baseline justify-between px-1.5 max-xl:shrink-0 max-xl:gap-3">
+    <div class="contents max-xl:flex max-xl:items-center max-xl:gap-3 max-md:flex-wrap max-md:gap-y-2.5">
+    <div class="flex items-baseline justify-between px-1.5 max-xl:shrink-0 max-xl:gap-3 max-md:basis-full max-md:justify-start">
       <span class="text-[15px] font-semibold">发布任务</span>
       <span class="text-xs text-ink-4">{{ s.queueCount }} 项</span>
     </div>
-    <div class="relative max-xl:min-w-0 max-xl:flex-1">
+    <div class="relative max-xl:min-w-0 max-xl:flex-1 max-md:basis-full">
       <input
         v-model="s.q"
         placeholder="搜索发布任务"
+        aria-label="搜索发布任务"
         class="h-[34px] w-full max-xl:h-11 rounded-lg border border-line-1 bg-white pr-2.5 pl-8 text-[13px] outline-none placeholder:text-ink-5 focus:border-brand-line"
       >
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#98A2B3" stroke-width="2" stroke-linecap="round" class="absolute top-2.5 left-2.5"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3" /></svg>
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#98A2B3" stroke-width="2" stroke-linecap="round" class="pointer-events-none absolute top-2.5 left-2.5 max-xl:top-1/2 max-xl:-translate-y-1/2" aria-hidden="true"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3" /></svg>
     </div>
-    <div class="flex rounded-lg bg-line-2 p-[3px] max-xl:min-w-0 max-xl:flex-1">
+    <div class="flex rounded-lg bg-line-2 p-[3px] max-xl:min-w-0 max-xl:flex-1 max-md:basis-full" role="group" aria-label="任务筛选">
       <button type="button"
         v-for="t in s.filterCounts"
         :key="t.l"
+        :aria-pressed="t.l === s.qf"
         :class="cn(
-          'flex-1 cursor-pointer rounded-md py-[5px] text-center text-xs whitespace-nowrap max-xl:min-h-10',
+          'flex-1 cursor-pointer rounded-md py-[5px] text-center text-xs whitespace-nowrap max-xl:min-h-10 max-xl:px-2',
           t.l === s.qf ? 'bg-white text-ink-1 shadow-[0_1px_2px_rgba(15,23,42,.1)]' : 'text-ink-4',
         )"
         @click="s.qf = t.l"

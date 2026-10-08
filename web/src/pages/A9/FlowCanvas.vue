@@ -17,6 +17,11 @@ const emit = defineEmits<{ select: [i: number]; add: [p: { kind: A9Kind; col?: n
 const DND = 'application/x-a9-kind'
 const dropOn = ref(false)
 function dragStart(e: DragEvent, kind: A9Kind) {
+  // a finger drag is handled by the pointer handlers below
+  if (press) {
+    e.preventDefault()
+    return
+  }
   e.dataTransfer?.setData(DND, kind)
   e.dataTransfer?.setData('text/plain', kind)
   if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copy'
@@ -33,10 +38,58 @@ function drop(e: DragEvent) {
   const kind = e.dataTransfer?.getData(DND) as A9Kind | undefined
   if (!kind) return
   e.preventDefault()
-  const box = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  const col = Math.max(0, Math.min(COLS - 1, Math.floor(((e.clientX - box.left) / box.width) * COLS)))
-  const lane = props.lanes[Math.max(0, Math.min(props.lanes.length - 1, Math.floor((e.clientY - box.top) / LANE_H)))]
+  dropAt(e.currentTarget as HTMLElement, kind, e.clientX, e.clientY)
+}
+function dropAt(el: HTMLElement, kind: A9Kind, x: number, y: number) {
+  const box = el.getBoundingClientRect()
+  const col = Math.max(0, Math.min(COLS - 1, Math.floor(((x - box.left) / box.width) * COLS)))
+  const lane = props.lanes[Math.max(0, Math.min(props.lanes.length - 1, Math.floor((y - box.top) / LANE_H)))]
   emit('add', { kind, col, lane })
+}
+
+/**
+ * Touch / pen: HTML5 drag-and-drop does not start from a finger, so a palette chip is dragged with
+ * pointer events instead — a ghost chip follows the finger and lifting it over the canvas drops the
+ * node there (same placement rule as the mouse drop). A plain tap still adds after the selected node.
+ */
+const ghost = ref<{ kind: A9Kind; label: string; x: number; y: number } | null>(null)
+let press: { kind: A9Kind; label: string; x: number; y: number } | null = null
+let swallowClick = false
+const canvasAt = (x: number, y: number) =>
+  (document.elementFromPoint(x, y)?.closest('[data-a9-canvas]') as HTMLElement | null) ?? null
+function pDown(e: PointerEvent, kind: A9Kind, label: string) {
+  if (e.pointerType === 'mouse') return
+  press = { kind, label, x: e.clientX, y: e.clientY }
+  ;(e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId)
+}
+function pMove(e: PointerEvent) {
+  if (!press) return
+  if (!ghost.value && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 8) return
+  ghost.value = { kind: press.kind, label: press.label, x: e.clientX, y: e.clientY }
+  dropOn.value = !!canvasAt(e.clientX, e.clientY)
+}
+function pUp(e: PointerEvent) {
+  const g = ghost.value
+  press = null
+  ghost.value = null
+  dropOn.value = false
+  if (!g) return
+  swallowClick = true
+  setTimeout(() => (swallowClick = false), 400)
+  const el = canvasAt(e.clientX, e.clientY)
+  if (el) dropAt(el, g.kind, e.clientX, e.clientY)
+}
+function pCancel() {
+  press = null
+  ghost.value = null
+  dropOn.value = false
+}
+function tapAdd(kind: A9Kind) {
+  if (swallowClick) {
+    swallowClick = false
+    return
+  }
+  emit('add', { kind })
 }
 
 const ny = (n: FlowNode) => props.lanes.indexOf(n.lane) * LANE_H + 14
@@ -82,20 +135,24 @@ const edges = computed(() => {
         :key="p.kind"
         draggable="true"
         :aria-label="'添加' + p.label"
-        class="flex cursor-grab items-center gap-1.5 rounded-lg border border-dashed border-[#C9D3E1] bg-white px-2.5 py-[5px] text-xs whitespace-nowrap hover:border-brand hover:text-brand max-xl:min-h-10"
-        @click="emit('add', { kind: p.kind })"
+        class="flex cursor-grab touch-none! items-center gap-1.5 rounded-lg border border-dashed border-[#C9D3E1] bg-white px-2.5 py-[5px] text-xs whitespace-nowrap select-none hover:border-brand hover:text-brand max-xl:min-h-10 max-xl:px-3"
+        @click="tapAdd(p.kind)"
         @dragstart="dragStart($event, p.kind)"
+        @pointerdown="pDown($event, p.kind, p.label)"
+        @pointermove="pMove"
+        @pointerup="pUp"
+        @pointercancel="pCancel"
       >
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" :style="{ stroke: KIND[p.kind].c }" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="KIND[p.kind].icon" /></svg>
         {{ p.label }}
       </button>
       <div class="flex-1" />
-      <span class="text-xs whitespace-nowrap text-ink-5">点击添加到所选节点之后 · 或拖入画布的泳道</span>
+      <span class="text-xs whitespace-nowrap text-ink-5 max-xl:whitespace-normal">点击添加到所选节点之后 · 或拖入画布的泳道<span class="lg:hidden"> · 画布可左右滑动</span></span>
     </div>
 
     <div class="max-xl:overflow-x-auto">
-    <div class="grid grid-cols-[132px_minmax(0,1fr)] max-xl:min-w-[1080px]">
-      <div class="flex h-11 items-center border-r border-b border-line-2 bg-surface-1 px-3.5 text-[11px] font-semibold tracking-[.5px] text-ink-5">承办角色</div>
+    <div class="grid grid-cols-[132px_minmax(0,1fr)] max-xl:min-w-[880px] max-lg:grid-cols-[120px_minmax(0,1fr)]">
+      <div class="flex h-11 items-center border-r border-b border-line-2 bg-surface-1 px-3.5 text-[11px] font-semibold tracking-[.5px] text-ink-5 max-xl:sticky max-xl:left-0 max-xl:z-[4] max-lg:px-3">承办角色</div>
       <div class="grid h-11 border-b border-line-2" :style="{ gridTemplateColumns: `repeat(${COLS},1fr)` }">
         <div
           v-for="(l, c) in stages"
@@ -108,8 +165,8 @@ const edges = computed(() => {
       </div>
 
       <!-- swimlane headers -->
-      <div class="flex flex-col border-r border-line-2 bg-surface-1">
-        <div v-for="l in laneRows" :key="l.n" class="flex h-24 items-center gap-2.5 border-b border-line-2 px-3.5">
+      <div class="flex flex-col border-r border-line-2 bg-surface-1 max-xl:sticky max-xl:left-0 max-xl:z-[4] max-lg:shadow-[6px_0_10px_-6px_rgba(15,23,42,.18)]">
+        <div v-for="l in laneRows" :key="l.n" class="flex h-24 items-center gap-2.5 border-b border-line-2 px-3.5 max-lg:gap-2 max-lg:px-3">
           <span :class="cn('flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold', laneTone(l.n))">{{ l.n[0] }}</span>
           <div class="min-w-0 leading-[1.3]">
             <div class="text-xs font-semibold whitespace-nowrap">{{ l.n }}</div>
@@ -143,6 +200,8 @@ const edges = computed(() => {
         <div v-press
           v-for="n in nodes"
           :key="n.idx"
+          :aria-label="n.name + ' · ' + n.kind + ' · ' + (n.days ? n.days + ' 天' : '即时')"
+          :aria-pressed="n.idx === selected"
           :class="cn(
             'absolute z-[2] flex h-[68px] cursor-pointer overflow-hidden rounded-[10px] border-[1.5px] bg-white hover:shadow-[0_4px_14px_rgba(15,23,42,.10)]',
             n.kind === '可选' ? 'border-dashed' : 'border-solid',
@@ -169,6 +228,15 @@ const edges = computed(() => {
         </div>
       </div>
     </div>
+    </div>
+    <div
+      v-if="ghost"
+      class="pointer-events-none fixed z-[90] flex -translate-x-1/2 -translate-y-[130%] items-center gap-1.5 rounded-lg border border-brand bg-white px-3 py-2 text-xs font-medium text-brand shadow-[0_8px_24px_rgba(15,23,42,.18)]"
+      :style="{ left: ghost.x + 'px', top: ghost.y + 'px' }"
+      aria-hidden="true"
+    >
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" :style="{ stroke: KIND[ghost.kind].c }" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="KIND[ghost.kind].icon" /></svg>
+      {{ ghost.label }}
     </div>
   </div>
 </template>

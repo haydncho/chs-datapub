@@ -95,7 +95,7 @@ async function send() {
 </script>
 
 <template>
-  <div class="flex flex-col gap-4 bg-white px-6 pt-[22px] pb-8">
+  <div class="flex min-w-0 flex-col gap-4 bg-white px-6 pt-[22px] pb-8 max-xl:px-5 max-xl:pt-5">
     <div>
       <div class="flex items-center gap-2">
         <span
@@ -114,7 +114,7 @@ async function send() {
       <span class="text-ink-4">位置</span><span>{{ item.section }}</span>
     </div>
 
-    <div class="text-[13px] leading-[1.75] text-ink-2">{{ item.text }}</div>
+    <div class="text-[13px] leading-[1.75] text-pretty text-ink-2">{{ item.text }}</div>
 
     <div v-if="item.attachments.length" class="flex flex-wrap gap-1.5">
       <span
@@ -138,7 +138,7 @@ async function send() {
       </div>
     </div>
 
-    <Button v-if="status === 'todo'" class="bg-ink-1 font-medium" :disabled="busy" @click="assign">
+    <Button v-if="status === 'todo'" class="bg-ink-1 font-medium max-xl:h-11" :disabled="busy" @click="assign">
       分派给 {{ assignTo.name }} · {{ assignTo.team }}
     </Button>
 
@@ -149,7 +149,7 @@ async function send() {
           v-for="(t, i) in templates"
           :key="t.label"
           :class="cn(
-            'cursor-pointer rounded-lg border px-2.5 py-[5px] text-xs whitespace-nowrap',
+            'cursor-pointer rounded-lg border px-2.5 py-[5px] text-xs whitespace-nowrap max-xl:min-h-10 max-xl:px-3',
             i === tpl ? 'border-brand-line bg-brand-soft text-brand' : 'border-line-1 bg-white text-ink-3',
           )"
           @click="pickTpl(i)"
@@ -163,14 +163,14 @@ async function send() {
         class="min-h-24 rounded-lg border-line-4 bg-surface-1 px-3 py-2.5 text-[13px] leading-[1.7] shadow-none md:text-[13px]"
       />
       <div class="-mt-2 text-right text-[11px] text-ink-5">{{ draft.trim().length }} / {{ MAX_REPLY }}</div>
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between gap-3">
         <div>
           <div class="text-[13px] font-medium">触发报告更正</div>
           <div class="text-[11px] text-ink-4">自动创建更正任务进入发布工作流</div>
         </div>
         <Switch v-model="fix" size="lg" aria-label="触发报告更正" />
       </div>
-      <Button :disabled="busy || !draft.trim()" @click="send">发送答复</Button>
+      <Button class="max-xl:h-11" :disabled="busy || !draft.trim()" @click="send">发送答复</Button>
     </div>
 
     <div v-else class="flex flex-col gap-1.5 rounded-[10px] bg-ok-soft px-3.5 py-3 text-xs text-ok-ink">

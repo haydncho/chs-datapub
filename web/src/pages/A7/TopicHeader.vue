@@ -84,20 +84,20 @@ const ready = computed(() => props.nOk === props.total)
         >提交核对与审核</Button>
       </div>
     </div>
-    <div class="mt-3.5 flex items-center gap-2.5 max-xl:overflow-x-auto max-xl:pb-1">
-      <div v-for="(t, i) in track" :key="t.label" class="flex shrink-0 items-center gap-2.5">
-        <div class="flex items-center gap-2">
-          <span :class="cn('size-2 rounded-full', DOT[t.state])" />
+    <div class="mt-3.5 flex items-center gap-2.5 max-xl:flex-wrap max-xl:gap-y-2 max-lg:grid max-lg:grid-cols-5 max-lg:items-start max-lg:gap-3 max-sm:grid-cols-2">
+      <div v-for="(t, i) in track" :key="t.label" class="flex shrink-0 items-center gap-2.5 max-lg:min-w-0">
+        <div class="flex items-center gap-2 max-lg:flex-wrap max-lg:gap-x-1.5 max-lg:gap-y-0.5">
+          <span :class="cn('size-2 shrink-0 rounded-full', DOT[t.state])" />
           <span
             :class="cn(
-              'text-xs whitespace-nowrap',
+              'text-xs whitespace-nowrap max-lg:min-w-0 max-lg:flex-1 max-lg:break-keep max-lg:whitespace-normal',
               t.state === 'todo' ? 'text-ink-5' : 'text-ink-1',
               t.state === 'cur' ? 'font-semibold' : 'font-medium',
             )"
           >{{ t.label }}</span>
-          <span class="text-[11px] text-ink-5">{{ t.progress ? `${nOk}/${total}` : t.sub }}</span>
+          <span class="text-[11px] text-ink-5 max-lg:basis-full max-lg:pl-3.5">{{ t.progress ? `${nOk}/${total}` : t.sub }}</span>
         </div>
-        <span v-if="i < track.length - 1" class="h-px w-9 bg-line-4" />
+        <span v-if="i < track.length - 1" class="h-px w-9 bg-line-4 max-xl:w-6 max-lg:hidden" aria-hidden="true" />
       </div>
     </div>
   </div>

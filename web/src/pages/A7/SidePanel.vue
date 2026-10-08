@@ -35,7 +35,7 @@ const TABS: A7Tab[] = ['批注', '数据核查', '版本']
 </script>
 
 <template>
-  <aside class="sticky top-[calc(var(--sticky-top)+136px)] flex flex-col gap-3 py-5 pr-6 max-xl:static max-xl:px-4 max-xl:pt-0 max-xl:pb-10">
+  <aside class="sticky top-[calc(var(--sticky-top)+136px)] flex flex-col gap-3 py-5 pr-6 lg:max-xl:top-[calc(var(--sticky-top)+84px)] lg:max-xl:pr-5 lg:max-xl:pl-0 max-lg:static max-lg:px-5 max-lg:pt-0 max-lg:pb-10 max-sm:px-4" aria-label="批注与核查">
     <div class="yb-card rounded-xl">
       <div class="flex gap-5 border-b border-line-2 px-4" role="tablist">
         <button
@@ -51,7 +51,7 @@ const TABS: A7Tab[] = ['批注', '数据核查', '版本']
           @click="tab = t"
         >{{ t }}</button>
       </div>
-      <div class="flex max-h-[calc(100vh-300px)] flex-col max-xl:max-h-none gap-2.5 overflow-y-auto px-4 py-3.5">
+      <div :class="cn('flex max-h-[calc(100vh-300px)] flex-col gap-2.5 overflow-y-auto px-4 py-3.5 lg:max-xl:max-h-[calc(100vh-var(--sticky-top)-170px)] max-lg:max-h-none', tab === '批注' && 'md:max-lg:grid md:max-lg:grid-cols-2 md:max-lg:items-start md:max-lg:[&>:not(.a7-cmt)]:col-span-2')">
         <template v-if="tab === '批注'">
           <button
             type="button"
@@ -63,7 +63,7 @@ const TABS: A7Tab[] = ['批注', '数据核查', '版本']
             v-for="c in comments"
             :key="c.k"
             :class="cn(
-              'rounded-[10px] border border-line-2 p-3 transition-opacity',
+              'a7-cmt rounded-[10px] border border-line-2 p-3 transition-opacity',
               c.section === active ? 'bg-brand-tint' : 'bg-white',
               c.resolved && 'opacity-50',
             )"

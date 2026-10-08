@@ -16,15 +16,18 @@ public record Actor(String name, Long userId, String login, String role, String 
     public enum Source {
         /** bearer token from the unified login */
         SESSION,
-        /** X-YB-User header naming a known user (yb.auth.dev-header=true) */
+        /** tests only: X-YB-User header naming a known user (yb.auth.dev-header=true); access-checked */
         DEV_HEADER,
-        /** no credentials, dev mode: legacy per-page demo identity, not access-checked */
+        /**
+         * Unchecked placeholder kept for unit tests of the scope filters only — {@link AuthFilter} never
+         * produces it: requests without credentials get 401.
+         */
         DEV_DEFAULT
     }
 
     public static final String REQUEST_ATTR = Actor.class.getName();
 
-    /** Access matrix and data scope apply to every actor except the legacy dev fallback. */
+    /** Access matrix and data scope apply to every actor resolved by {@link AuthFilter}. */
     public boolean enforced() {
         return source != Source.DEV_DEFAULT;
     }

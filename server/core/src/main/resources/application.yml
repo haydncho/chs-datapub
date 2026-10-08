@@ -17,8 +17,9 @@ yb:
   auth:
     # HMAC-SHA256 key for session tokens (>= 32 bytes); blank = random per process
     secret: ${YB_AUTH_SECRET:}
-    # accept X-YB-User / per-page demo identity without a bearer token (set false in production)
-    dev-header: ${YB_AUTH_DEV_HEADER:true}
+    # tests only: accept X-YB-User naming a known user (access-checked as that user's primary identity)
+    # in place of a bearer token. Off by default; never enable on a shared or public deployment.
+    dev-header: ${YB_AUTH_DEV_HEADER:false}
     ttl: 8h
     sms-cooldown: 60s
     demo-sms-code: ${YB_AUTH_DEMO_SMS_CODE:123456}

@@ -1,47 +1,48 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { PageHeader, PageSection, StatCard, type StatTone } from '@/components/yb'
 import { Button } from '@/components/ui/button'
-import { sendAction, usePageData } from '@/api/client'
+import { getJson, runAction, usePageData } from '@/api/client'
 import { goPage } from '@/app/router'
 import { say } from '@/app/shell'
 import { cn } from '@/lib/utils'
-import { A3_SEED } from '@/mock/A3'
+import { A3_SEED, type A3Data } from '@/mock/A3'
 import SourceTable from './A3/SourceTable.vue'
 import SourceDetail, { type A3PullState } from './A3/SourceDetail.vue'
 import type { A3Row } from './A3/types'
 
 const data = usePageData('A3', A3_SEED)
 
-// ── state (demo state machine from the prototype) ──
-const arrived = ref(false)
-const qcDone = ref(false)
+/** re-read the page read model after an accepted action (server state is the source of truth) */
+async function refresh() {
+  try {
+    const remote = await getJson<A3Data>('/pages/A3')
+    if (remote && typeof remote === 'object') data.value = { ...A3_SEED, ...remote }
+  } catch { /* keep the current view */ }
+}
+
+// ── state: arrival / quality check come from the server read model ──
+const qcDone = computed(() => !!data.value.qcDone)
 // default selection: the first late source (异地就医 in the seed)
 const sel = ref(Math.max(0, A3_SEED.sources.findIndex(s => s.status === 'late')))
 const pull = ref<A3PullState>('idle')
-const pullTry = ref(0)
-
-const timers: ReturnType<typeof setTimeout>[] = []
-onBeforeUnmount(() => timers.forEach(clearTimeout))
+const busy = ref(false)
 
 // ── derived ──
 const rows = computed<A3Row[]>(() =>
-  data.value.sources.map(src => {
-    const recovered = src.status === 'late' && arrived.value
-    return {
-      src,
-      status: recovered ? 'ok' : src.status,
-      history: recovered ? [...src.history.slice(0, -1), 'late'] : src.history,
-    }
-  }),
+  data.value.sources.map(src => ({ src, status: src.status, history: src.history })),
 )
 const lateRows = computed(() => rows.value.filter(r => r.status === 'late'))
+const arrived = computed(() => lateRows.value.length === 0)
 const nIn = computed(() => rows.value.length - lateRows.value.length)
 const nSrc = computed(() => rows.value.length)
 const suspended = computed(() => lateRows.value.reduce((n, r) => n + r.src.dependents.length, 0))
 const indTotal = computed(() => data.value.stats.indicatorTotal)
 const indCalc = computed(() => `${indTotal.value - suspended.value}/${indTotal.value}`)
 const late = computed(() => lateRows.value.length > 0)
+/** 本期数据量 = Σ rowsWan of the sources that have arrived (a late source contributes nothing yet) */
+const totalWan = computed(() => rows.value.filter(r => r.status !== 'late').reduce((n, r) => n + r.src.rowsWan, 0))
+const totalRows = computed(() => totalWan.value.toLocaleString('zh-CN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' 万')
 
 const ICONS = [
   'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3',
@@ -67,7 +68,7 @@ const kpis = computed(() => {
       tone: suspended.value ? 'warn' : 'ok',
     },
     { label: '综合质量分', value: st.qualityScore, sub: `较上期 ${st.qualityDelta}`, tone: 'info' },
-    { label: '本期数据量', value: st.totalRows, sub: `行 · ${nSrc.value} 个数据源`, tone: 'info' },
+    { label: '本期数据量', value: totalRows.value, sub: `行 · ${nIn.value} 个已到数据源合计`, tone: 'info' },
   ]
   return list.map((k, i) => ({ ...k, icon: ICONS[i]!, subColor: SUB_COLOR[k.tone] }))
 })
@@ -82,7 +83,7 @@ const pipe = computed(() => {
   const st = data.value.stats
   const qc = qcDone.value
   const steps: [string, string, string, PipeState][] = [
-    ['接入', `${nIn.value}/${nSrc.value} 源`, `${st.totalRows}行`, 'done'],
+    ['接入', `${nIn.value}/${nSrc.value} 源`, `${totalRows.value}行`, late.value ? 'run' : 'done'],
     ['标准化', `${nIn.value}/${nIn.value}`, `字段映射 ${st.fieldMappings}`, 'done'],
     ['主数据对齐', `${st.orgs} 机构`, `医师 ${st.doctors} · 病组 ${st.drgGroups}`, 'done'],
     ['质量校验', qc ? '通过' : '进行中', `规则 ${st.rules} 条`, qc ? 'done' : 'run'],
@@ -93,6 +94,10 @@ const pipe = computed(() => {
 })
 
 const selRow = computed(() => rows.value[sel.value] ?? rows.value[0]!)
+function selectRow(i: number) {
+  sel.value = i
+  pull.value = 'idle'
+}
 
 const qcSpec = computed(() => data.value.qcSpec)
 const listScale = (v: number) => ((v - 80) / 20) * 100
@@ -111,50 +116,70 @@ const rules = computed(() => {
   return data.value.rules.map(r => ({ ...r, w: (r.hits / max) * 100 + '%' }))
 })
 
-// ── actions ──
-function onPull() {
-  const first = pullTry.value === 0
+// ── actions: the view changes only after the server accepted them ──
+interface PullResult { result?: { arrived: boolean; status?: number; trace?: string; at?: string; dependents?: number } }
+
+async function onPull() {
+  if (pull.value === 'load') return
   const source = selRow.value.src.name
-  const nDeps = selRow.value.src.dependents.length
   pull.value = 'load'
-  pullTry.value += 1
-  sendAction('A3', 'retryPull', { source, attempt: pullTry.value })
-  timers.push(setTimeout(() => {
-    if (first) {
-      pull.value = 'err'
-    } else {
-      pull.value = 'idle'
-      arrived.value = true
-      say(`重试成功 · ${source}数据已到达,${nDeps} 项指标恢复计算`)
-    }
-  }, 1300))
+  const r = await runAction<PullResult>('A3', 'retryPull', { source })
+  if (!r.ok) {
+    pull.value = 'idle'
+    say(r.error)
+    return
+  }
+  await refresh()
+  const res = r.data?.result
+  if (res?.arrived) {
+    pull.value = 'idle'
+    say(`重试成功 · ${source}数据已到达,${res.dependents ?? 0} 项指标恢复计算`)
+  } else {
+    pull.value = 'err'
+  }
 }
-function onNotify() {
-  sendAction('A3', 'notifyContact', { source: selRow.value.src.name, channels: ['政务微信', '短信'] })
+async function onNotify() {
+  const source = selRow.value.src.name
+  const r = await runAction('A3', 'notifyContact', { source, channels: ['政务微信', '短信'] })
+  if (!r.ok) return say(r.error)
+  await refresh()
   say('已通知省平台对接人 · 政务微信 + 短信')
 }
-function onQc() {
-  qcDone.value = true
-  sendAction('A3', 'completeQualityCheck', { period: data.value.period })
+async function onQc() {
+  if (busy.value) return
+  busy.value = true
+  const r = await runAction('A3', 'completeQualityCheck', { period: data.value.period })
+  busy.value = false
+  if (!r.ok) return say(r.error)
+  await refresh()
   say('质量校验通过,指标集市已刷新')
 }
-function onGen() {
+async function onGen() {
   if (!qcDone.value) {
     say('请先完成数据到数与质量校验')
     return
   }
-  sendAction('A3', 'generateMonthlyReport', { period: data.value.period })
-  say(`已生成 ${data.value.periodShort}月度报告草稿,进入发布工作流`)
-  timers.push(setTimeout(() => goPage('A8'), 800))
+  if (busy.value) return
+  busy.value = true
+  const r = await runAction<{ result?: { created: boolean; title: string } }>('A3', 'generateMonthlyReport', { period: data.value.period })
+  busy.value = false
+  if (!r.ok) return say(r.error)
+  await refresh()
+  const res = r.data?.result
+  say(res && !res.created
+    ? `${data.value.periodShort}月度报告草稿已在发布工作流中(${res.title})`
+    : `已生成 ${data.value.periodShort}月度报告草稿,进入发布工作流`)
+  setTimeout(() => goPage('A8'), 800)
 }
 </script>
 
 <template>
   <PageSection label="A3 数据归集中心">
     <PageHeader title="数据归集中心" :subtitle="`${data.period} · ${nSrc} 类数据源 · 应到截止 ${data.dueDate}`">
-      <span class="flex h-9 items-center gap-2 rounded-lg border border-line-1 bg-white px-3.5 whitespace-nowrap">{{ data.period }} <span class="text-ink-5">▾</span></span>
-      <Button v-if="arrived && !qcDone" variant="soft" class="font-medium" @click="onQc">完成质量校验</Button>
-      <Button :class="cn(!qcDone && 'bg-brand-mute')" @click="onGen">生成月度报告 →</Button>
+      <span class="flex h-9 items-center gap-1.5 rounded-lg bg-surface-3 px-3.5 text-ink-3 whitespace-nowrap" title="数据归集按账期进行,仅可操作当前账期">当前账期 <b class="font-medium text-ink-1">{{ data.period }}</b></span>
+      <span v-if="qcDone" class="flex h-9 items-center text-xs text-ok-ink whitespace-nowrap">✓ 质量校验已完成{{ data.qcAt ? ' · ' + data.qcAt : '' }}</span>
+      <Button v-if="arrived && !qcDone" variant="soft" class="font-medium" :disabled="busy" @click="onQc">完成质量校验</Button>
+      <Button :class="cn(!qcDone && 'bg-brand-mute')" :disabled="busy" @click="onGen">{{ data.reportTaskId ? '查看月度报告草稿 →' : '生成月度报告 →' }}</Button>
     </PageHeader>
 
     <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -192,7 +217,7 @@ function onGen() {
     </div>
 
     <div class="grid grid-cols-1 items-start gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(300px,340px)]">
-      <SourceTable :rows="rows" :selected="sel" @select="sel = $event" />
+      <SourceTable :rows="rows" :selected="sel" @select="selectRow" />
       <div class="flex flex-col gap-4">
         <SourceDetail :row="selRow" :pull="pull" @pull="onPull" @notify="onNotify" />
       </div>

@@ -3,33 +3,43 @@ import { computed } from 'vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import type { A4Data, A4Indicator, A4Tier } from '@/mock/A4'
+import type { A4Indicator, A4Tier } from '@/mock/A4'
 import { GROUP_COLOR, SOURCE_RAW, STATUS, TIER_LABEL } from './meta'
 
 const props = defineProps<{
   ind: A4Indicator
   audiences: string[]
-  history: A4Data['versionHistory']
   confirm: A4Tier | null
   pending: A4Tier | null
+  busy?: boolean
+  packageName: string
 }>()
 const emit = defineEmits<{ pickTier: [t: A4Tier]; confirmOk: []; confirmNo: [] }>()
 
 const intl = computed(() => props.ind.source === 'internal')
 const TIERS: A4Tier[] = ['pct', 'anon', 'named']
 
+/** what each audience sees, by the indicator's current 对标档位 */
+const HOSPITAL_VIEW: Record<A4Tier, string> = { pct: '本院+分位', anon: '本院+匿名编号', named: '具名排行', none: '—' }
 const vis = computed(() =>
   props.audiences.map((a, i) => {
+    // 异地就医 is not split by 二级 / 一级 (no cases there)
     const ok = !intl.value && !(props.ind.name === '异地就医基金支出占比' && i < 4 && i > 1)
     const t = intl.value
       ? '不可见'
       : i === 5 ? '全量'
       : i === 6 ? '汇总'
       : i === 4 ? '本县具名'
-      : ok ? (props.ind.tier === 'named' ? '具名' : '本院+分位') : '—'
+      : ok ? HOSPITAL_VIEW[props.ind.tier] : '—'
     return { a, t, ok }
   }),
 )
+/** own 版本记录, newest first: an open request, the current version, then 上一版 … */
+const history = computed(() => {
+  const list = props.ind.history ?? []
+  const cur = list.findIndex(h => !h.pending)
+  return list.map((h, i) => ({ ...h, tag: h.pending ? '审批中 ' : i === cur ? '' : '上一版 ' }))
+})
 </script>
 
 <template>
@@ -45,6 +55,8 @@ const vis = computed(() =>
         {{ ind.name }} <span class="font-mono text-xs font-normal text-brand">{{ ind.version }}</span>
       </div>
       <div class="text-xs text-ink-4">{{ SOURCE_RAW[ind.source] }} · {{ ind.freq }}更新 · 被 {{ ind.refs }} 份报告引用</div>
+      <div v-if="ind.approvalNo" class="mt-1 text-xs text-brand">上线审批 {{ ind.approvalNo }} · 待召集人审批</div>
+      <div v-if="ind.inPackage" class="mt-1 text-xs text-ok-ink">✓ 已加入 {{ packageName }}</div>
     </div>
 
     <div v-if="intl" class="rounded-[10px] bg-line-3 px-3 py-2.5 text-xs text-ink-3">
@@ -78,7 +90,7 @@ const vis = computed(() =>
         <div v-if="confirm" class="mt-2.5 rounded-[10px] border border-[#F6DFB8] bg-[#FFFBF4] p-3 text-xs">
           <div class="text-ink-2">{{ TIER_LABEL[ind.tier] }} → <b>{{ TIER_LABEL[confirm] }}</b>:提交后由召集人审批,通过前按原档位发布。</div>
           <div class="mt-2.5 flex gap-2">
-            <Button class="h-[30px] px-3 text-xs font-normal max-xl:h-10" @click="emit('confirmOk')">提交审批</Button>
+            <Button class="h-[30px] px-3 text-xs font-normal max-xl:h-10" :disabled="busy" @click="emit('confirmOk')">提交审批</Button>
             <Button variant="outline" class="h-[30px] px-3 text-xs font-normal max-xl:h-10" @click="emit('confirmNo')">取消</Button>
           </div>
         </div>
@@ -103,14 +115,11 @@ const vis = computed(() =>
     <div>
       <div class="mb-2 text-xs text-ink-4">版本</div>
       <div class="flex flex-col gap-2.5 border-l-2 border-line-2 pl-3 text-xs">
-        <div>
-          <div class="font-medium">{{ ind.version }} · {{ history.latest.date }} · {{ history.latest.author }}</div>
-          <div class="text-ink-4">{{ history.latest.note }}</div>
+        <div v-for="(h, i) in history" :key="i">
+          <div :class="cn('font-medium', h.pending && 'text-warn-ink')">{{ h.tag }}{{ h.version }} · {{ h.date }} · {{ h.author }}</div>
+          <div class="text-ink-4">{{ h.note }}</div>
         </div>
-        <div>
-          <div class="font-medium">上一版 · {{ history.previous.date }}</div>
-          <div class="text-ink-4">{{ history.previous.note }}</div>
-        </div>
+        <div v-if="history.length === 0" class="text-ink-5">暂无版本记录</div>
       </div>
     </div>
   </aside>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { say } from '@/app/shell'
+import { computed, ref } from 'vue'
 import { cn } from '@/lib/utils'
+import type { A9Kind } from '@/mock/A9'
 import { CW, COLS, KIND, LANE_H, PALETTE, laneTone, type ColSpan, type FlowNode } from './model'
 import { vPress } from '@/lib/a11y'
 
@@ -12,7 +12,32 @@ const props = defineProps<{
   cols: ColSpan[]
   selected: number
 }>()
-const emit = defineEmits<{ select: [i: number] }>()
+const emit = defineEmits<{ select: [i: number]; add: [p: { kind: A9Kind; col?: number; lane?: string }] }>()
+
+const DND = 'application/x-a9-kind'
+const dropOn = ref(false)
+function dragStart(e: DragEvent, kind: A9Kind) {
+  e.dataTransfer?.setData(DND, kind)
+  e.dataTransfer?.setData('text/plain', kind)
+  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copy'
+}
+function dragOver(e: DragEvent) {
+  if (!e.dataTransfer?.types.includes(DND)) return
+  e.preventDefault()
+  e.dataTransfer.dropEffect = 'copy'
+  dropOn.value = true
+}
+/** the drop point picks the stage column and the swimlane */
+function drop(e: DragEvent) {
+  dropOn.value = false
+  const kind = e.dataTransfer?.getData(DND) as A9Kind | undefined
+  if (!kind) return
+  e.preventDefault()
+  const box = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  const col = Math.max(0, Math.min(COLS - 1, Math.floor(((e.clientX - box.left) / box.width) * COLS)))
+  const lane = props.lanes[Math.max(0, Math.min(props.lanes.length - 1, Math.floor((e.clientY - box.top) / LANE_H)))]
+  emit('add', { kind, col, lane })
+}
 
 const ny = (n: FlowNode) => props.lanes.indexOf(n.lane) * LANE_H + 14
 const pct = (v: number) => v.toFixed(2) + '%'
@@ -55,14 +80,17 @@ const edges = computed(() => {
       <button type="button"
         v-for="p in PALETTE"
         :key="p.kind"
+        draggable="true"
+        :aria-label="'添加' + p.label"
         class="flex cursor-grab items-center gap-1.5 rounded-lg border border-dashed border-[#C9D3E1] bg-white px-2.5 py-[5px] text-xs whitespace-nowrap hover:border-brand hover:text-brand max-xl:min-h-10"
-        @click="say('拖动到画布中的泳道即可添加“' + p.kind + '”节点')"
+        @click="emit('add', { kind: p.kind })"
+        @dragstart="dragStart($event, p.kind)"
       >
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" :style="{ stroke: KIND[p.kind].c }" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="KIND[p.kind].icon" /></svg>
         {{ p.label }}
       </button>
       <div class="flex-1" />
-      <span class="text-xs whitespace-nowrap text-ink-5">拖入画布添加 · 100%</span>
+      <span class="text-xs whitespace-nowrap text-ink-5">点击添加到所选节点之后 · 或拖入画布的泳道</span>
     </div>
 
     <div class="max-xl:overflow-x-auto">
@@ -92,8 +120,12 @@ const edges = computed(() => {
 
       <!-- canvas -->
       <div
-        class="relative bg-[radial-gradient(#E3E8F0_1px,transparent_1px)] bg-[size:16px_16px]"
+        data-a9-canvas
+        :class="cn('relative bg-[radial-gradient(#E3E8F0_1px,transparent_1px)] bg-[size:16px_16px]', dropOn && 'outline-2 outline-dashed outline-brand')"
         :style="{ height: canvasH + 'px' }"
+        @dragover="dragOver"
+        @dragleave="dropOn = false"
+        @drop="drop"
       >
         <div v-for="x in colLines" :key="x" class="absolute inset-y-0 border-l border-dashed border-line-2" :style="{ left: x }" />
         <div v-for="y in laneLines" :key="y" class="absolute inset-x-0 border-t border-line-2" :style="{ top: y + 'px' }" />

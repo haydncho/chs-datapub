@@ -1,6 +1,6 @@
 /** A10 意见与申诉 — seed data (承办人 view). Same shape as GET /api/v1/pages/A10. */
 
-export type FeedbackType = '申诉' | '意见' | '纠错'
+export type FeedbackType = '申诉' | '意见' | '纠错' | '监督建议'
 export type FeedbackStatus = 'todo' | 'doing' | 'reply' | 'over' | 'done'
 
 export interface A10Item {
@@ -19,6 +19,21 @@ export interface A10Item {
   assignee: string
   text: string
   attachments: string[]
+  /** SLA due date (MM-DD, 5 个工作日 from submission) — from the server */
+  dueDate?: string
+  /** real processing track (server): who did what, when */
+  track?: A10ItemTrack
+}
+
+export interface A10ItemTrack {
+  submittedAt: string
+  submittedBy?: string
+  assignedAt?: string
+  assignedBy?: string
+  repliedAt?: string
+  repliedBy?: string
+  reply?: string
+  correction?: boolean
 }
 
 export interface A10Template {
@@ -31,12 +46,12 @@ export interface A10Template {
 
 export interface A10Data {
   items: A10Item[]
-  /** static KPIs (未闭环 / 已超期 are derived from items) */
-  stats: { replyRate: string; avgReplyDays: string; corrections: string }
+  /** KPIs computed by the server from the live queue (未闭环 / 已超期 are derived from items) */
+  stats: { replyRate: string; avgReplyDays: string; corrections: string; slaDays?: number }
   templates: A10Template[]
   /** default assignee for one-click 分派 */
   assignTo: { name: string; team: string }
-  /** demo timestamps for the processing track */
+  /** fallback timestamps for the processing track (seed only; items carry their own `track` from the server) */
   track: { submittedAt: string; assignedAt: string; assignedBy: string }
 }
 
@@ -63,6 +78,9 @@ export const A10_SEED: A10Data = {
 
 /**
  * ACTIONS:
- * assignFeedback({ id: string, assignee: string, team: string }) — one-click 分派 of a 待分派 item; status → 'doing', assignee set, SLA 5 个工作日;
- * replyFeedback({ id: string, template: string, text: string, triggerCorrection: boolean }) — send the reply to the institution; status → 'done'; when triggerCorrection, also create a 报告更正 task in the 发布工作流 (A8).
+ * assignFeedback({ id: string, assignee: string, team: string }) — 分派 / 改派 an open item (never a closed one); assignee must be a
+ *   known user; status todo → 'doing'; the track records who assigned it and when. SLA 5 个工作日 from submission.
+ * replyFeedback({ id: string, template: string, text: string, triggerCorrection: boolean }) — send the (edited, non-empty) reply to the
+ *   institution, once; status → 'done'; the reply is shown to the institution in B5 (处理进度) / C3 (我的建议). When triggerCorrection,
+ *   also create a 报告更正 task in the 发布工作流 (A8).
  */

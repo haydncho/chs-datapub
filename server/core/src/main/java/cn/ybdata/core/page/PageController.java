@@ -43,7 +43,7 @@ public class PageController {
         ObjectNode payload = pages.get(code);
         if (actor != null) {
             for (PageScopeFilter f : scopes) {
-                if (f.appliesTo(code, actor)) f.apply(payload, actor);
+                if (f.appliesTo(code, actor)) f.apply(code, payload, actor);
             }
         }
         return payload;

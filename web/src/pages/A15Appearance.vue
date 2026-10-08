@@ -11,7 +11,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { usePageData, sendAction } from '@/api/client'
+import { usePageData, runAction } from '@/api/client'
 import { say } from '@/app/shell'
 import {
   appearance, applyAppearance, publishAppearance, resetAppearance, normalizeAppearance, brandOf,
@@ -40,7 +40,9 @@ watch(() => keyOf(appearance), (_n, old) => {
 
 /** 自定义色输入不合格(格式错误 / 对比度不足)→ 禁止保存 */
 const colorInvalid = ref(false)
-const canSave = computed(() => dirty.value && !colorInvalid.value)
+/** 正在等待服务端确认(保存 / 恢复默认) */
+const saving = ref(false)
+const canSave = computed(() => dirty.value && !colorInvalid.value && !saving.value)
 
 /* ───────── 分区导航 ───────── */
 const SECTIONS = [
@@ -87,11 +89,18 @@ watch([tryLive, () => keyOf(draft)], () => {
 })
 
 /* ───────── 保存 / 放弃 / 恢复默认 ───────── */
-function save() {
+/** 先由服务端校验并保存,成功后才在本机生效;失败时提示原因,草稿保留 */
+async function save() {
   if (!canSave.value) return
   const next = normalizeAppearance(draft)
+  saving.value = true
+  const r = await runAction('A15', 'publishAppearance', next)
+  saving.value = false
+  if (!r.ok) {
+    say(`外观未发布:${r.error}`)
+    return
+  }
   publishAppearance(next)
-  sendAction('A15', 'publishAppearance', next)
   say('外观已发布 · 已应用到全部页面')
 }
 function discard() {
@@ -99,11 +108,17 @@ function discard() {
   say('已放弃未保存的更改')
 }
 const confirmReset = ref(false)
-function doReset() {
+async function doReset() {
+  saving.value = true
+  const r = await runAction('A15', 'resetAppearance', {})
+  saving.value = false
+  if (!r.ok) {
+    say(`未能恢复默认:${r.error}`)
+    return
+  }
   resetAppearance()
   Object.assign(draft, DEFAULT_APPEARANCE)
-  sendAction('A15', 'resetAppearance', {})
-  say('已恢复默认外观')
+  say('已恢复默认外观 · 全平台生效')
 }
 
 /* ───────── 离开保护 ───────── */
@@ -179,7 +194,7 @@ function logoUpload() {
           <span class="truncate text-ink-4">已是当前发布的外观</span>
         </template>
       </div>
-      <Button variant="outline" class="gap-1.5 px-3.5 font-normal whitespace-nowrap max-xl:h-10" @click="confirmReset = true"><RotateCcw class="size-3.5" />恢复默认</Button>
+      <Button variant="outline" class="gap-1.5 px-3.5 font-normal whitespace-nowrap max-xl:h-10" :disabled="saving" @click="confirmReset = true"><RotateCcw class="size-3.5" />恢复默认</Button>
       <Button variant="outline" class="gap-1.5 px-3.5 font-normal whitespace-nowrap max-xl:h-10" :disabled="!dirty" @click="discard"><Undo2 class="size-3.5" />放弃更改</Button>
       <Button class="gap-1.5 whitespace-nowrap max-xl:h-10" :disabled="!canSave" @click="save"><Save class="size-3.5" />保存并发布</Button>
     </div>

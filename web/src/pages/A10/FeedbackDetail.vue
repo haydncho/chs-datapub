@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { sendAction } from '@/api/client'
+import { runAction } from '@/api/client'
 import { say } from '@/app/shell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import type { A10Data, A10Item, A10Template, FeedbackStatus } from '@/mock/A10'
 import { FBS, FBT } from './meta'
@@ -14,62 +15,82 @@ const props = defineProps<{
   status: FeedbackStatus
   templates: A10Template[]
   assignTo: A10Data['assignTo']
+  /** seed-only fallback when the item carries no server track */
   track: A10Data['track']
-  /** assigned locally in this session (track shows 刚刚) */
-  justAssigned?: boolean
 }>()
-const emit = defineEmits<{
-  status: [id: string, st: FeedbackStatus]
-  assign: [id: string, name: string]
-}>()
+/** the server accepted an action — the parent re-reads the queue */
+const emit = defineEmits<{ changed: [] }>()
 
-// reset per item (parent re-keys this component on selection)
+const MAX_REPLY = 2000
+
+// reset per item (parent re-keys this component on selection / state change)
 const tpl = ref(-1)
 const fix = ref(false)
+const draft = ref('')
+const busy = ref(false)
 
-const replyTxt = computed(() =>
-  tpl.value < 0 ? '' : props.templates[tpl.value]!.text.replace('{title}', props.item.title),
-)
+const closed = computed(() => props.status === 'done')
 
 const thread = computed(() => {
   const f = props.item
-  const t: [string, string, string][] = [['提交', f.org, props.track.submittedAt]]
-  if (f.assignee) {
-    t.push(props.justAssigned
-      ? ['分派', `${f.assignee} · 由王倩分派`, '刚刚']
-      : ['分派', `${f.assignee} · 由${props.track.assignedBy}分派`, props.track.assignedAt])
+  const tr = f.track
+  const t: [string, string, string][] = []
+  if (tr) {
+    t.push(['提交', tr.submittedBy ? `${f.org} · ${tr.submittedBy}` : f.org, tr.submittedAt])
+    if (f.assignee) t.push(['分派', tr.assignedBy ? `${f.assignee} · 由${tr.assignedBy}分派` : f.assignee, tr.assignedAt ?? '—'])
+    if (tr.repliedAt) t.push(['答复', tr.repliedBy ?? '—', tr.repliedAt])
+  } else {
+    t.push(['提交', f.org, props.track.submittedAt])
+    if (f.assignee) t.push(['分派', `${f.assignee} · 由${props.track.assignedBy}分派`, props.track.assignedAt])
   }
-  if (props.status === 'done') t.push(['答复', f.assignee || '王倩', '刚刚'])
   return t.map((x, i, a) => ({ k: x[0], v: x[1], t: x[2], line: i < a.length - 1 }))
 })
 
 function pickTpl(i: number) {
   tpl.value = i
   fix.value = props.templates[i]!.triggersCorrection
+  draft.value = props.templates[i]!.text.replace('{title}', props.item.title)
 }
 
-function assign() {
+async function assign() {
+  if (busy.value) return
   const { name, team } = props.assignTo
-  emit('status', props.item.id, 'doing')
-  emit('assign', props.item.id, name)
-  sendAction('A10', 'assignFeedback', { id: props.item.id, assignee: name, team })
-  say(`已分派给 ${name}(${team}),时限 5 个工作日`)
-}
-
-function send() {
-  if (tpl.value < 0) {
-    say('请先选择答复模板')
+  busy.value = true
+  const r = await runAction('A10', 'assignFeedback', { id: props.item.id, assignee: name, team })
+  busy.value = false
+  if (!r.ok) {
+    say(r.error)
     return
   }
-  sendAction('A10', 'replyFeedback', {
+  say(`已分派给 ${name}(${team}),时限 5 个工作日`)
+  emit('changed')
+}
+
+async function send() {
+  if (busy.value) return
+  const text = draft.value.trim()
+  if (!text) {
+    say('请填写答复内容(可先选择模板生成草稿)')
+    return
+  }
+  if (text.length > MAX_REPLY) {
+    say(`答复内容不能超过 ${MAX_REPLY} 字`)
+    return
+  }
+  busy.value = true
+  const r = await runAction('A10', 'replyFeedback', {
     id: props.item.id,
-    template: props.templates[tpl.value]!.label,
-    text: replyTxt.value,
+    template: tpl.value >= 0 ? props.templates[tpl.value]!.label : '',
+    text,
     triggerCorrection: fix.value,
   })
-  emit('status', props.item.id, 'done')
-  say(fix.value ? '已答复并创建更正任务 → 发布工作流' : '已答复 · 机构端将收到通知')
-  tpl.value = -1
+  busy.value = false
+  if (!r.ok) {
+    say(r.error)
+    return
+  }
+  say(fix.value ? '已答复并创建更正任务 → 发布工作流' : '已答复 · 机构端可在处理进度中查看')
+  emit('changed')
 }
 </script>
 
@@ -117,11 +138,11 @@ function send() {
       </div>
     </div>
 
-    <Button v-if="status === 'todo'" class="bg-ink-1 font-medium" @click="assign">
+    <Button v-if="status === 'todo'" class="bg-ink-1 font-medium" :disabled="busy" @click="assign">
       分派给 {{ assignTo.name }} · {{ assignTo.team }}
     </Button>
 
-    <div v-if="status !== 'done'" class="flex flex-col gap-3 rounded-xl border border-line-1 p-3.5">
+    <div v-if="!closed" class="flex flex-col gap-3 rounded-xl border border-line-1 p-3.5">
       <div class="text-xs text-ink-4">答复模板</div>
       <div class="flex flex-wrap gap-1.5">
         <button type="button"
@@ -134,8 +155,14 @@ function send() {
           @click="pickTpl(i)"
         >{{ t.label }}</button>
       </div>
-      <div v-if="tpl >= 0" class="min-h-16 rounded-lg bg-surface-1 px-3 py-2.5 text-[13px] leading-[1.7]">{{ replyTxt }}</div>
-      <div v-else class="min-h-16 rounded-lg border border-dashed border-line-4 px-3 py-2.5 text-xs text-ink-5">选择模板生成答复草稿,可再编辑</div>
+      <Textarea
+        v-model="draft"
+        :maxlength="MAX_REPLY"
+        aria-label="答复内容"
+        placeholder="选择模板生成答复草稿,可再编辑;也可直接输入答复"
+        class="min-h-24 rounded-lg border-line-4 bg-surface-1 px-3 py-2.5 text-[13px] leading-[1.7] shadow-none md:text-[13px]"
+      />
+      <div class="-mt-2 text-right text-[11px] text-ink-5">{{ draft.trim().length }} / {{ MAX_REPLY }}</div>
       <div class="flex items-center justify-between">
         <div>
           <div class="text-[13px] font-medium">触发报告更正</div>
@@ -143,9 +170,12 @@ function send() {
         </div>
         <Switch v-model="fix" size="lg" aria-label="触发报告更正" />
       </div>
-      <Button @click="send">发送答复</Button>
+      <Button :disabled="busy || !draft.trim()" @click="send">发送答复</Button>
     </div>
 
-    <div v-else class="rounded-[10px] bg-ok-soft px-3.5 py-3 text-xs text-ok-ink">✓ 已答复并闭环 · 机构端已收到通知</div>
+    <div v-else class="flex flex-col gap-1.5 rounded-[10px] bg-ok-soft px-3.5 py-3 text-xs text-ok-ink">
+      <div class="font-medium">✓ 已答复并闭环 · 机构端可在处理进度中查看<template v-if="item.track?.correction"> · 已创建更正任务</template></div>
+      <div v-if="item.track?.reply" class="text-[13px] leading-[1.7] whitespace-pre-wrap text-ink-2">{{ item.track.reply }}</div>
+    </div>
   </div>
 </template>

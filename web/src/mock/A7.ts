@@ -6,7 +6,7 @@ export type A7TrackState = 'done' | 'cur' | 'todo'
 export interface A7Topic {
   code: string
   name: string
-  /** green pill, e.g. 选题推荐 · 得分 92 · 已采纳 */
+  /** green pill, e.g. 选题推荐 · 得分 97 · 已采纳 */
   recommendTag: string
   /** brand pill */
   envTag: string
@@ -23,15 +23,20 @@ export interface A7TrackStep {
   state: A7TrackState
   /** this step shows the live 七段成稿 progress */
   progress?: boolean
+  /** A8 发布流程 step this track step corresponds to (the track follows the A8 task) */
+  a8Step?: number
 }
+
+/** one traced number: the value as written in the draft and where it comes from */
+export interface A7Source { value: string; source: string }
 
 export interface A7Section {
   name: string
   /** LLM draft as alternating parts: even index = prose, odd index = data-bound number */
   draft: string[]
+  /** 数据核查: every data-bound number of this section with its source */
+  sources: A7Source[]
 }
-
-export interface A7Source { value: string; source: string }
 
 export interface A7Comment {
   /** 0-based section index */
@@ -41,6 +46,8 @@ export interface A7Comment {
   text: string
   time: string
   resolved: boolean
+  /** server state: pushed to 意见与申诉 (A10) as this item */
+  pushedAs?: string
 }
 
 export type A7KpiTone = 'plain' | 'bad'
@@ -82,7 +89,33 @@ export interface A7OptPart { name: string; value: number; pct: number }
 export interface A7Advice { side: string; tone: 'brand' | 'ok'; items: string[] }
 export interface A7Version { title: string; meta: string; current: boolean }
 
+/** an adopted topic (server state from A6) */
+export interface A7TopicRef {
+  id: string
+  code: string
+  title: string
+  kind: string
+  score: number
+  facts: { k: string; v: string }[]
+  taskId?: string
+}
+
+/** review state of one topic (server state) */
+export interface A7Review {
+  approved: number[]
+  resolved: number[]
+  /** comment index → A10 item id */
+  pushed: Record<string, string>
+  submitted: boolean
+  submittedAt?: string
+  submittedBy?: string
+  /** newest first: 重新生成 entries added on top of the seeded versions */
+  versions: A7Version[]
+}
+
 export interface A7Data {
+  /** id of the topic this seeded manuscript belongs to (A6 id) */
+  topicId: string
   topic: A7Topic
   collaborators: A7Collaborator[]
   track: A7TrackStep[]
@@ -90,10 +123,6 @@ export interface A7Data {
   sections: A7Section[]
   /** sections already approved (0-based) */
   approved: number[]
-  /** 数据核查 entries for §01 */
-  sources: A7Source[]
-  /** 数据核查 source labels for the 1st / 2nd number of other sections */
-  checkSources: string[]
   checkNote: string
   comments: A7Comment[]
   versions: A7Version[]
@@ -105,15 +134,28 @@ export interface A7Data {
   optimisation: { notice: string; label: string; total: string; unit: string; parts: A7OptPart[] }
   advice: A7Advice[]
   export: { docNo: string; subtitle: string; title: string; fileName: string; footNote: string }
+  /** server state: adopted topics by id (A6) */
+  topics?: Record<string, A7TopicRef>
+  /** server state: review per topic id */
+  reviews?: Record<string, A7Review>
+  /** server state: A8 step of each topic's 专题 task */
+  taskSteps?: Record<string, number>
 }
 
+/**
+ * BR25 · 2026年8月. Same caliber as A6 / the analytics service (drg_group): 1,420 例, 次均 14,200 元,
+ * 例均基金差额 +1,860 元 → 逆差 264.1 万元, 综合得分 97. Cross-section checks:
+ * §04 全市均值 14,200 + 患者差异 1,850 + 行为差异 3,010 = 偏离组均值 19,060 (= §05 偏离组例均费用);
+ * §05 标杆组 11,860 → 差 7,200; §06 3,010 元 × 偏离组月均 356 例 × 12 = 1,286 万元 = 412 + 368 + 506.
+ */
 export const A7_SEED: A7Data = {
+  topicId: 'T-BR25',
   topic: {
     code: 'BR25',
-    name: '脑缺血性疾患,伴并发症 · 季度专题',
-    recommendTag: '选题推荐 · 得分 92 · 已采纳',
+    name: '脑缺血性疾患,伴并发症 · 2026年8月专题',
+    recommendTag: '选题推荐 · 得分 97 · 已采纳',
     envTag: '受控分析环境',
-    meta: '18 家机构 · 4,262 例 · 2026Q3',
+    meta: '18 家机构 · 1,420 例 · 2026年8月',
   },
   collaborators: [
     { name: '张悦', role: '分析', tone: 'brand' },
@@ -121,30 +163,79 @@ export const A7_SEED: A7Data = {
     { name: '刘教授', role: '审阅', tone: 'warn' },
   ],
   track: [
-    { label: '选题采纳', sub: '09-15', state: 'done' },
-    { label: '七段成稿', sub: '', state: 'cur', progress: true },
-    { label: '机构核对 ∥ 专家组审核', sub: '18 家 · 3 人', state: 'todo' },
-    { label: '召集人审批', sub: '', state: 'todo' },
-    { label: '定向发布', sub: '收治 18 家', state: 'todo' },
+    { label: '选题采纳', sub: '09-15', state: 'done', a8Step: 1 },
+    { label: '七段成稿', sub: '', state: 'cur', progress: true, a8Step: 3 },
+    { label: '机构核对 ∥ 专家组审核', sub: '18 家 · 3 人', state: 'todo', a8Step: 4 },
+    { label: '召集人审批', sub: '', state: 'todo', a8Step: 5 },
+    { label: '定向发布', sub: '收治 18 家', state: 'todo', a8Step: 6 },
   ],
   docMeta: '示例市医保数据工作组 · 病种专题 · 核对稿 v3 · 2026-10-03',
   sections: [
-    { name: '整体描述', draft: ['本季度 BR25 全市收治 ', '4,262 例', ',次均总费用 ', '14,200 元', ',同比上升 ', '8.4%', '。例均基金差额 ', '+1,860 元', ',为本期逆差总额最大的病组;病例集中在市三级机构,占 ', '52%', '。'] },
-    { name: '费用结构', draft: ['偏离组药品与耗材合计占比 ', '44%', ',高于标杆组 ', '13 个百分点', '；治疗及护理类占比偏低,提示费用结构以检查与药品驱动为主。'] },
-    { name: '关键行为', draft: ['五项行为中,“转入ICU”费用倍率最高(', '×2.38', '),但发生率仅 ', '6.3%', '；“使用辅助用药”发生率最高(', '34.1%', '),对总费用影响最大。'] },
-    { name: '差异归因', draft: ['偏离组与全市均值相差 ', '4,860 元', ',其中患者差异约 ', '1,850 元', ',行为差异约 ', '3,010 元', '。行为差异主要来自重复检查与辅助用药。'] },
-    { name: '标杆对比', draft: ['标杆组 4 家机构例均费用 ', '11,860 元', ',偏离组 5 家为 ', '16,720 元', '；偏离组重复检查发生率是标杆组的 ', '2.7 倍', '。'] },
-    { name: '优化空间', draft: ['按行为差异占比测算,理论优化空间年化约 ', '1,286 万元', '。该数值为理论测算,不作为控费指标下达。'] },
-    { name: '医保侧与医院侧建议', draft: ['建议医保侧复核分组边界并完善审核规则;医院侧推进检查结果互认与辅助用药管理。'] },
+    {
+      name: '整体描述',
+      draft: ['本月 BR25 全市收治 ', '1,420 例', ',次均总费用 ', '14,200 元', ',同比上升 ', '8.4%', '。例均基金差额 ', '+1,860 元', ',逆差总额 ', '264.1 万元', ',为本期逆差总额最大的病组;病例集中在市三级机构,占 ', '52%', '。'],
+      sources: [
+        { value: '1,420 例', source: '结算明细 · 批次 B20260905-01' },
+        { value: '14,200 元', source: '指标卡 次均总费用 v1.4' },
+        { value: '8.4%', source: '指标卡 次均总费用 v1.4 · 同比 2025年8月' },
+        { value: '+1,860 元', source: '指标卡 例均基金差额 v2.1' },
+        { value: '264.1 万元', source: '1,420 例 × 1,860 元(例均基金差额 v2.1)' },
+        { value: '52%', source: '机构等级维表 2026.09' },
+      ],
+    },
+    {
+      name: '费用结构',
+      draft: ['偏离组药品与耗材合计占比 ', '44%', ',高于标杆组 ', '13 个百分点', ';治疗及护理类占比偏低,提示费用结构以检查与药品驱动为主。'],
+      sources: [
+        { value: '44%', source: '结算明细费用分类 · 偏离组 5 家 · 药品 33% + 耗材 11%' },
+        { value: '13 个百分点', source: '标杆组 4 家 药品 24% + 耗材 7% = 31%' },
+      ],
+    },
+    {
+      name: '关键行为',
+      draft: ['五项行为中,“转入ICU”费用倍率最高(', '×2.38', '),但发生率仅 ', '6.3%', ';“使用辅助用药”发生率最高(', '34.1%', '),对总费用影响最大。'],
+      sources: [
+        { value: '×2.38', source: '受控环境聚合结果 · 诊疗行为模型 B20260906-01 · 已脱敏' },
+        { value: '6.3%', source: '电子病案 · 转科记录 · 批次 B20260906-01' },
+        { value: '34.1%', source: '结算明细 · 辅助用药目录 2026 版' },
+      ],
+    },
+    {
+      name: '差异归因',
+      draft: ['偏离组例均费用 ', '19,060 元', ',比全市均值 ', '14,200 元', ' 高 ', '4,860 元', ',其中患者差异约 ', '1,850 元', ',行为差异约 ', '3,010 元', '。行为差异主要来自重复检查与辅助用药。'],
+      sources: [
+        { value: '19,060 元', source: '偏离组 5 家结算明细 · 批次 B20260905-01' },
+        { value: '14,200 元', source: '指标卡 次均总费用 v1.4(同 §01)' },
+        { value: '4,860 元', source: '19,060 − 14,200' },
+        { value: '1,850 元', source: '多层回归 · 患者特征项(年龄、合并症、入院途径)' },
+        { value: '3,010 元', source: '多层回归 · 诊疗行为项(R² = 0.64)' },
+      ],
+    },
+    {
+      name: '标杆对比',
+      draft: ['标杆组 4 家机构例均费用 ', '11,860 元', ',偏离组 5 家为 ', '19,060 元', ';偏离组重复检查发生率是标杆组的 ', '2.7 倍', '。'],
+      sources: [
+        { value: '11,860 元', source: '标杆组 4 家结算明细 · 批次 B20260905-01' },
+        { value: '19,060 元', source: '偏离组 5 家结算明细(同 §04)' },
+        { value: '2.7 倍', source: '重复检查发生率 38% ÷ 14%(电子病案 · 检查记录)' },
+      ],
+    },
+    {
+      name: '优化空间',
+      draft: ['按行为差异 ', '3,010 元/例', ' × 偏离组月均 ', '356 例', ' × 12 个月测算,理论优化空间年化约 ', '1,286 万元', '。该数值为理论测算,不作为控费指标下达。'],
+      sources: [
+        { value: '3,010 元/例', source: '§04 行为差异' },
+        { value: '356 例', source: '偏离组 5 家 2026年1–8月 月均病例数' },
+        { value: '1,286 万元', source: '3,010 × 356 × 12 = 1,285.9 万元' },
+      ],
+    },
+    {
+      name: '医保侧与医院侧建议',
+      draft: ['建议医保侧复核分组边界并完善审核规则;医院侧推进检查结果互认与辅助用药管理。'],
+      sources: [],
+    },
   ],
   approved: [0, 1, 2],
-  sources: [
-    { value: '4,262 例', source: '结算明细 · 批次 B20260905-01' },
-    { value: '14,200 元', source: '指标卡 次均总费用 v1.4' },
-    { value: '+1,860 元', source: '指标卡 例均基金差额 v2.1' },
-    { value: '52%', source: '机构等级维表 2026.09' },
-  ],
-  checkSources: ['指标卡 · 批次 B20260905-03', '受控环境聚合结果 · 已脱敏'],
   checkNote: '蓝色高亮数字绑定数据源;审定后转为正文样式',
   comments: [
     { section: 0, who: '刘教授', role: '专家组', text: '“病例集中在市三级”建议补充县三级占比,便于县区理解。', time: '10-02 15:20', resolved: false },
@@ -159,9 +250,9 @@ export const A7_SEED: A7Data = {
   ],
   overview: {
     kpis: [
-      { label: '病例数', value: '4,262', sub: '18 家收治', tone: 'plain' },
+      { label: '病例数', value: '1,420', sub: '18 家收治', tone: 'plain' },
       { label: '次均总费用', value: '14,200', sub: '同比 +8.4%', tone: 'plain', subBad: true },
-      { label: '例均基金差额', value: '+1,860', sub: '逆差 792.7 万', tone: 'bad' },
+      { label: '例均基金差额', value: '+1,860', sub: '逆差 264.1 万', tone: 'bad' },
       { label: '平均住院日', value: '10.8', sub: '同级中位 9.6', tone: 'plain' },
     ],
     tierTitle: '病例按机构等级分布',
@@ -194,20 +285,20 @@ export const A7_SEED: A7Data = {
     ],
   },
   waterfall: {
-    scaleMax: 15000,
+    scaleMax: 20000,
     bars: [
-      { label: '全市均值', base: 0, value: 8920, display: '8,920', kind: 'city' },
-      { label: '患者差异', base: 8920, value: 1850, display: '+1,850', kind: 'patient' },
-      { label: '行为差异', base: 10770, value: 3010, display: '+3,010', kind: 'behaviour' },
-      { label: '偏离组均值', base: 0, value: 13780, display: '13,780', kind: 'deviant' },
+      { label: '全市均值', base: 0, value: 14200, display: '14,200', kind: 'city' },
+      { label: '患者差异', base: 14200, value: 1850, display: '+1,850', kind: 'patient' },
+      { label: '行为差异', base: 16050, value: 3010, display: '+3,010', kind: 'behaviour' },
+      { label: '偏离组均值', base: 0, value: 19060, display: '19,060', kind: 'deviant' },
     ],
-    note: '多层回归 R² = 0.64 · 患者差异含年龄、合并症、入院途径',
+    note: '单位:元/例 · 多层回归 R² = 0.64 · 患者差异含年龄、合并症、入院途径',
   },
   dumbbell: {
     benchmarkLegend: '标杆组(4 家,匿名)',
     deviantLegend: '偏离组(5 家,匿名)',
     rows: [
-      { label: '例均费用(元)', benchmark: 11860, deviant: 16720, min: 10000, max: 18000, gap: '+4,860' },
+      { label: '例均费用(元)', benchmark: 11860, deviant: 19060, min: 10000, max: 20000, gap: '+7,200' },
       { label: '平均住院日(天)', benchmark: 9.2, deviant: 12.6, min: 8, max: 14, gap: '+3.4' },
       { label: '药品占比(%)', benchmark: 24, deviant: 33, min: 15, max: 40, gap: '+9 pt' },
       { label: '重复检查发生率(%)', benchmark: 14, deviant: 38, min: 0, max: 45, gap: '×2.7' },
@@ -232,17 +323,20 @@ export const A7_SEED: A7Data = {
     docNo: 'YJD-2026-1004-01',
     subtitle: 'BR25 专题 · 核对稿 v3',
     title: '意见单预览',
-    fileName: '意见单_BR25_v3.xlsx',
+    fileName: '意见单_BR25_v3.csv',
     footNote: '导出文件带水印与追溯编号',
   },
 }
 
 /**
- * ACTIONS:
- * approveSection({ section: number }) — 人工审定第 section 段(0-based),该段数字转为正文样式;
- * regenerateSection({ section: number }) — 基于最新批次重新生成该段初稿,原稿保留为当前版本;
- * resolveComment({ comment: number }) — 将批注(comments 下标)标记为已处理;
- * exportCommentsExcel({ docNo: string, fileName: string }) — 生成带水印的意见单 Excel;
- * pushComments({ docNo: string, count: number, comments: number[] }) — 将待处理批注推送至意见与申诉(A10);
- * submitReview({ approved: number[] }) — 7/7 审定后提交,机构核对(18 家)与专家组审核同步开始。
+ * ACTIONS (all take `topic`: the A6 topic id, default the seeded T-BR25; other topics must be adopted in A6):
+ * approveSection({ topic, section: number }) — 人工审定第 section 段(0-based),该段数字转为正文样式;
+ * regenerateSection({ topic, section: number }) — 基于最新批次重新生成该段初稿;已审定的段落回到「待审定」,
+ *   版本记录新增一条;
+ * resolveComment({ topic, comment: number }) — 将批注(comments 下标)标记为已处理;
+ * exportCommentsExcel({ topic, docNo, fileName }) — 意见单导出(服务端登记并返回追溯编号与水印,前端生成 CSV);
+ *   受控分析环境(委托分析)身份不可导出(含机构具名明细、未经审核);
+ * pushComments({ topic, docNo }) — 将未处理、未推送的批注推送至意见与申诉(A10,生成意见条目);已推送的不重复推送;
+ * submitReview({ topic, approved: number[] }) — 7/7 审定后提交(仅一次),A8 专题任务由「分析成稿」进入「专家组审核」。
+ * Server state is merged into the payload as topics / reviews / taskSteps (and approved / comments[].resolved for T-BR25).
  */

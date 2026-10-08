@@ -13,4 +13,9 @@ public interface PageScopeFilter {
     boolean appliesTo(String code, Actor actor);
 
     void apply(ObjectNode payload, Actor actor);
+
+    /** Called by the read model; override when one filter serves several pages and needs the code. */
+    default void apply(String code, ObjectNode payload, Actor actor) {
+        apply(payload, actor);
+    }
 }

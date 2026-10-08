@@ -88,15 +88,15 @@
       "code": "FM19",
       "name": "经皮心血管操作",
       "cases": 31,
-      "offsiteAvg": 39100,
-      "localAvg": 38200
+      "offsiteAvg": 41090,
+      "localAvg": 40130
     },
     {
       "code": "RE19",
       "name": "恶性肿瘤化疗",
       "cases": 27,
-      "offsiteAvg": 7420,
-      "localAvg": 7010
+      "offsiteAvg": 8070,
+      "localAvg": 7630
     }
   ]
 }

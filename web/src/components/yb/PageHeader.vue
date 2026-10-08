@@ -16,7 +16,7 @@ defineProps<{ title?: string; subtitle?: string }>()
         <slot name="subtitle">{{ subtitle }}</slot>
       </div>
     </div>
-    <div v-if="$slots.default" class="flex shrink-0 items-center gap-2 max-xl:flex-wrap">
+    <div v-if="$slots.default" class="flex shrink-0 items-center gap-2 max-xl:max-w-full max-xl:min-w-0 max-xl:flex-wrap">
       <slot />
     </div>
   </div>

@@ -8,14 +8,14 @@ defineProps<{ kpis: A7Kpi[]; tierTitle: string; tiers: A7Tier[] }>()
 </script>
 
 <template>
-  <div class="grid grid-cols-4 gap-2.5">
+  <div class="grid grid-cols-4 gap-2.5 max-sm:grid-cols-2">
     <div
       v-for="k in kpis"
       :key="k.label"
       :class="cn('rounded-[10px] px-3.5 py-3', k.tone === 'bad' ? 'bg-bad-soft' : 'bg-surface-1')"
     >
       <div class="text-[11px] text-ink-4">{{ k.label }}</div>
-      <div :class="cn('yb-num text-2xl font-semibold', k.tone === 'bad' && 'text-bad')">{{ k.value }}</div>
+      <div :class="cn('yb-num text-2xl font-semibold whitespace-nowrap', k.tone === 'bad' && 'text-bad')">{{ k.value }}</div>
       <div :class="cn('text-[11px]', k.subBad ? 'text-bad' : 'text-ink-3')">{{ k.sub }}</div>
     </div>
   </div>

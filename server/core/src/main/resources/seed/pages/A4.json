@@ -16,7 +16,21 @@
       "status": "on",
       "refs": 14,
       "numerator": "(Σ医保记账金额 − ΣDRG支付标准)",
-      "denominator": "出院病例数"
+      "denominator": "出院病例数",
+      "history": [
+        {
+          "version": "v2.1",
+          "date": "2026-07-02",
+          "author": "李华",
+          "note": "同级分组由四档调整为五档"
+        },
+        {
+          "version": "v2.0",
+          "date": "2026-03-15",
+          "author": "王倩",
+          "note": "小样本阈值 3 → 5 家,经召集人审批"
+        }
+      ]
     },
     {
       "name": "次均总费用",
@@ -29,7 +43,21 @@
       "status": "on",
       "refs": 12,
       "numerator": "Σ住院总费用",
-      "denominator": "出院病例数"
+      "denominator": "出院病例数",
+      "history": [
+        {
+          "version": "v1.4",
+          "date": "2026-06-18",
+          "author": "李华",
+          "note": "剔除特例单议病例"
+        },
+        {
+          "version": "v1.3",
+          "date": "2026-01-10",
+          "author": "李华",
+          "note": "口径对齐结算清单 v2026.1"
+        }
+      ]
     },
     {
       "name": "医保外费用占比",
@@ -42,7 +70,15 @@
       "status": "review",
       "refs": 3,
       "numerator": "Σ医保外费用",
-      "denominator": "Σ住院总费用"
+      "denominator": "Σ住院总费用",
+      "history": [
+        {
+          "version": "v1.0",
+          "date": "2026-08-20",
+          "author": "王倩",
+          "note": "新建 · 提交上线审批 ZB-2026-0902"
+        }
+      ]
     },
     {
       "name": "CMI值",
@@ -55,7 +91,21 @@
       "status": "on",
       "refs": 11,
       "numerator": "Σ(病组权重 × 病例数)",
-      "denominator": "总病例数"
+      "denominator": "总病例数",
+      "history": [
+        {
+          "version": "v1.2",
+          "date": "2026-05-06",
+          "author": "李华",
+          "note": "对标档位由匿名分位调整为匿名编号,经召集人审批"
+        },
+        {
+          "version": "v1.1",
+          "date": "2025-12-01",
+          "author": "李华",
+          "note": "病组权重更新为 2026 版"
+        }
+      ]
     },
     {
       "name": "费用消耗指数",
@@ -68,7 +118,15 @@
       "status": "on",
       "refs": 9,
       "numerator": "Σ(本院例均 ÷ 全市例均 × 病例数)",
-      "denominator": "总病例数"
+      "denominator": "总病例数",
+      "history": [
+        {
+          "version": "v1.0",
+          "date": "2025-11-20",
+          "author": "李华",
+          "note": "首版上线"
+        }
+      ]
     },
     {
       "name": "时间消耗指数",
@@ -81,7 +139,15 @@
       "status": "on",
       "refs": 9,
       "numerator": "Σ(本院住院日 ÷ 全市住院日 × 病例数)",
-      "denominator": "总病例数"
+      "denominator": "总病例数",
+      "history": [
+        {
+          "version": "v1.0",
+          "date": "2025-11-20",
+          "author": "李华",
+          "note": "首版上线"
+        }
+      ]
     },
     {
       "name": "床日付费例均费用",
@@ -94,7 +160,15 @@
       "status": "draft",
       "refs": 0,
       "numerator": "Σ床日费用",
-      "denominator": "床日数"
+      "denominator": "床日数",
+      "history": [
+        {
+          "version": "v0.8",
+          "date": "2026-09-02",
+          "author": "王倩",
+          "note": "草稿 · 补充床日数口径"
+        }
+      ]
     },
     {
       "name": "结算清单质控率",
@@ -107,7 +181,21 @@
       "status": "on",
       "refs": 8,
       "numerator": "质控通过清单数",
-      "denominator": "上传清单数"
+      "denominator": "上传清单数",
+      "history": [
+        {
+          "version": "v1.3",
+          "date": "2026-04-12",
+          "author": "李华",
+          "note": "对标档位调整为具名PK与排行,经召集人审批"
+        },
+        {
+          "version": "v1.2",
+          "date": "2026-01-08",
+          "author": "李华",
+          "note": "质控规则增至 214 条"
+        }
+      ]
     },
     {
       "name": "14天再住院率",
@@ -120,7 +208,15 @@
       "status": "hold",
       "refs": 2,
       "numerator": "14天内非计划再住院人次",
-      "denominator": "出院人次"
+      "denominator": "出院人次",
+      "history": [
+        {
+          "version": "v0.9",
+          "date": "2026-08-30",
+          "author": "王倩",
+          "note": "本期暂缓:电子病案依赖待复核"
+        }
+      ]
     },
     {
       "name": "异地就医基金支出占比",
@@ -133,7 +229,15 @@
       "status": "on",
       "refs": 5,
       "numerator": "Σ异地就医基金支出",
-      "denominator": "Σ统筹基金支出"
+      "denominator": "Σ统筹基金支出",
+      "history": [
+        {
+          "version": "v1.0",
+          "date": "2026-02-14",
+          "author": "李华",
+          "note": "首版上线"
+        }
+      ]
     },
     {
       "name": "中医优势病种例均费用",
@@ -146,7 +250,21 @@
       "status": "on",
       "refs": 2,
       "numerator": "Σ中医优势病种费用",
-      "denominator": "病例数"
+      "denominator": "病例数",
+      "history": [
+        {
+          "version": "v1.1",
+          "date": "2026-06-01",
+          "author": "王倩",
+          "note": "病种目录增至 12 个"
+        },
+        {
+          "version": "v1.0",
+          "date": "2025-12-20",
+          "author": "王倩",
+          "note": "首版上线"
+        }
+      ]
     },
     {
       "name": "单病例费用明细",
@@ -159,7 +277,15 @@
       "status": "on",
       "refs": 0,
       "numerator": "—",
-      "denominator": "—"
+      "denominator": "—",
+      "history": [
+        {
+          "version": "v1.0",
+          "date": "2025-10-09",
+          "author": "李华",
+          "note": "首版 · 仅内部"
+        }
+      ]
     },
     {
       "name": "参保人就医轨迹",
@@ -172,20 +298,17 @@
       "status": "on",
       "refs": 0,
       "numerator": "—",
-      "denominator": "—"
+      "denominator": "—",
+      "history": [
+        {
+          "version": "v1.0",
+          "date": "2025-10-09",
+          "author": "李华",
+          "note": "首版 · 仅内部"
+        }
+      ]
     }
   ],
-  "versionHistory": {
-    "latest": {
-      "date": "2026-07-02",
-      "author": "李华",
-      "note": "同级分组由四档调整为五档"
-    },
-    "previous": {
-      "date": "2026-03-15",
-      "note": "小样本阈值 3 → 5 家,经召集人审批"
-    }
-  },
   "audiences": [
     "市三级",
     "县三级",
@@ -198,7 +321,6 @@
   "wizard": {
     "name": "术前平均住院日",
     "draftVersion": "v0.1",
-    "group": "效 · 地方增选",
     "approver": "陈志远(召集人)",
     "approvalNo": "ZB-2026-0917",
     "tiers": [
@@ -225,6 +347,37 @@
       "第一人民医院(市三级)",
       "甲县人民医院(县三级)",
       "召集人全量"
+    ],
+    "freqs": [
+      "月",
+      "季",
+      "年"
+    ],
+    "dims": [
+      "机构",
+      "等级",
+      "病组",
+      "时间",
+      "县区",
+      "险种"
+    ],
+    "defaultDims": [
+      "机构",
+      "等级",
+      "病组",
+      "时间"
+    ],
+    "charts": [
+      "分位条",
+      "趋势线",
+      "分组柱",
+      "散点"
+    ],
+    "granularities": [
+      "统筹区",
+      "县区",
+      "机构",
+      "病组"
     ]
   }
 }

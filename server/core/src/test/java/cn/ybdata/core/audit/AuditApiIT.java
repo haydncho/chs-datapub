@@ -26,7 +26,8 @@ import org.springframework.transaction.support.TransactionTemplate;
 /**
  * A14 audit API against a real PostgreSQL database:
  *   YB_IT_DB_URL=jdbc:postgresql://localhost:5432/ybdata_test mvn verify -Dtest=AuditApiIT
- * Every test works on its own actor name, so it tolerates rows left by other tests.
+ * Every test works on its own throw-away user (a convener created for the test, removed afterwards), so it
+ * tolerates rows left by other tests. Calls authenticate with the test header ({@code X-YB-User}).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @EnabledIfEnvironmentVariable(named = "YB_IT_DB_URL", matches = ".+")
@@ -35,6 +36,7 @@ class AuditApiIT {
     @DynamicPropertySource
     static void db(DynamicPropertyRegistry r) {
         r.add("spring.datasource.url", () -> System.getenv("YB_IT_DB_URL"));
+        cn.ybdata.core.DevHeader.enable(r);
     }
 
     @Autowired TestRestTemplate http;
@@ -42,8 +44,38 @@ class AuditApiIT {
     @Autowired AuditService audit;
     @Autowired TransactionTemplate tx;
 
-    private static String uniqueActor() {
-        return "it" + UUID.randomUUID().toString().substring(0, 8);
+    private final List<Long> created = new java.util.ArrayList<>();
+
+    @org.junit.jupiter.api.BeforeEach
+    void readAsConvener() {
+        cn.ybdata.core.DevHeader.defaultUser(http, "chenzy");
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void dropUsers() {
+        for (long id : created) {
+            jdbc.sql("delete from user_identity where user_id = :u").param("u", id).update();
+            jdbc.sql("delete from app_user where id = :u").param("u", id).update();
+        }
+        created.clear();
+    }
+
+    /** A fresh convener whose display name (= audit actor) is unique to the test. */
+    private String uniqueActor() {
+        return user("it" + UUID.randomUUID().toString().substring(0, 8), "convener");
+    }
+
+    /** Create a user named {@code name} holding one identity of {@code role}; returns the name (usable as X-YB-User). */
+    private String user(String name, String role) {
+        String login = "it_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12);
+        long id = jdbc.sql("insert into app_user (login, name, role_code, org_id) values (:l, :n, :r, 'YBJ') returning id")
+                .param("l", login).param("n", name).param("r", role).query(Long.class).single();
+        jdbc.sql("""
+                insert into user_identity (user_id, role_code, org_id, label, description, zone, initial, target, scope)
+                values (:u, :r, 'YBJ', 'IT', 'IT', '分析监测区', 'I', 'A14', 'IT')""")
+                .param("u", id).param("r", role).update();
+        created.add(id);
+        return name;
     }
 
     private long act(String actor, String path, Object body) {
@@ -53,6 +85,16 @@ class AuditApiIT {
         ResponseEntity<Map> r = http.exchange("/api/v1/actions/" + path, HttpMethod.POST, new HttpEntity<>(body, h), Map.class);
         assertThat(r.getStatusCode().is2xxSuccessful()).as(path + " → " + r.getBody()).isTrue();
         return ((Number) r.getBody().get("auditId")).longValue();
+    }
+
+    /** a demo user with one identity (X-YB-User = login acts as it) */
+    private void demoUser(String login, String name, String role, String org) {
+        jdbc.sql("insert into app_user (login, name, role_code, org_id) values (:l, :n, :r, :o)")
+                .param("l", login).param("n", name).param("r", role).param("o", org).update();
+        jdbc.sql("""
+                insert into user_identity (user_id, role_code, org_id, label, description, zone, tone, initial, target, scope, sort_order)
+                select id, :r, :o, 'it', 'it', 'it', 'brand', 'i', 'A3', 'it', 0 from app_user where login = :l""")
+                .param("l", login).param("r", role).param("o", org).update();
     }
 
     /** Append a correctly chained event with a chosen timestamp (record() always uses now()). */
@@ -80,9 +122,18 @@ class AuditApiIT {
     @Test
     void listMapsTypesDerivesFieldsAndFilters() {
         String me = uniqueActor();
-        act(me, "A8/urgeSign", Map.of("taskId", "m8", "institution", "示例市第一人民医院"));
-        act(me, "B4/exportReport", Map.of("name", "2026年8月 DRG月度运行报告", "version", "v1", "format", "pdf"));
-        act(me, "D1/signReport", Map.of("report", "2026年8月 本院医保运行报告", "version", "v1"));
+        // 催办 / 签收 are role-checked (PublishDomain / ReportDomain): two demo identities sharing the display name `me`
+        demoUser(me + "a", me, "admin", "YBJ");
+        demoUser(me + "h", me, "hospital", "H001");
+        act("chenzy", "A8/resetDemo", Map.of("taskId", "m8"));
+        act("chenzy", "A8/approvePublish", Map.of("taskId", "m8", "institutions", List.of("第一人民医院")));
+        try {
+            act(me + "a", "A8/urgeSign", Map.of("taskId", "m8", "institution", "第一人民医院"));
+            act(me + "h", "B4/exportReport", Map.of("name", "2026年8月 DRG月度运行报告", "version", "v1", "format", "pdf"));
+            act(me + "h", "D1/signReport", Map.of("reportId", "R-2026-08", "report", "2026年8月 本院医保运行报告", "version", "v1"));
+        } finally {
+            act("chenzy", "A8/resetDemo", Map.of("taskId", "m8"));
+        }
 
         List<Map<String, Object>> all = items("actor=" + me);
         assertThat(all).extracting(m -> m.get("action")).containsExactly("signReport", "exportReport", "urgeSign");
@@ -194,9 +245,9 @@ class AuditApiIT {
         String me = uniqueActor();
         act(me, "B4/exportReport", Map.of("name", "报告,含逗号", "version", "v1"));
         // actor names flow into the 操作人 column: a leading "=" must not become a spreadsheet formula
-        act("=" + me, "A3/notifyContact", Map.of("source", "结算明细", "channels", List.of("政务微信")));
+        act(user("=" + me, "convener"), "A3/notifyContact", Map.of("source", "结算明细与DRG入组", "channels", List.of("政务微信")));
 
-        String auditor = uniqueActor();
+        String auditor = user(uniqueActor() + "a", "auditor");
         HttpHeaders h = new HttpHeaders();
         h.set("X-YB-User", auditor);
         ResponseEntity<byte[]> r = http.exchange("/api/v1/audit/export.csv?actor=" + me, HttpMethod.GET, new HttpEntity<>(h), byte[].class);
@@ -225,9 +276,85 @@ class AuditApiIT {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void numbersNormalisedByJsonbKeepTheChainValid() {
+        String me = uniqueActor();
+        // jsonb stores 1e2 as 100 and 2.50 as 2.50: the hash must be taken over what is read back
+        HttpHeaders h = new HttpHeaders();
+        h.set("X-YB-User", me);
+        h.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        ResponseEntity<Map> r = http.exchange("/api/v1/actions/D1/markRead", HttpMethod.POST,
+                new HttpEntity<>("{\"message\":\"n\",\"a\":1e2,\"b\":2.50,\"c\":-0.0,\"d\":12345678901234567890123,\"e\":1E-7}", h), Map.class);
+        assertThat(r.getStatusCode().value()).as(String.valueOf(r.getBody())).isEqualTo(200);
+        long id = ((Number) r.getBody().get("auditId")).longValue();
+        assertThat(http.getForObject("/api/v1/audit/" + id, Map.class).get("chain")).isEqualTo("ok");
+        assertThat(http.getForObject("/api/v1/audit/verify", Map.class)).containsEntry("valid", true);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void unknownActionsAreRefusedAndNotAudited() {
+        String me = uniqueActor();
+        HttpHeaders h = new HttpHeaders();
+        h.set("X-YB-User", me);
+        long before = jdbc.sql("select count(*) from audit_event where actor = :a").param("a", me).query(Long.class).single();
+        for (String path : List.of("C3/deleteAllRecords", "A1/login", "A14/exportAudit", "A8/qaTmpBogusAction")) {
+            ResponseEntity<Map> r = http.exchange("/api/v1/actions/" + path, HttpMethod.POST, new HttpEntity<>(Map.of(), h), Map.class);
+            assertThat(r.getStatusCode().value()).as(path).isEqualTo(400);
+            assertThat(r.getBody()).containsKey("error");
+        }
+        assertThat(jdbc.sql("select count(*) from audit_event where actor = :a").param("a", me).query(Long.class).single()).isEqualTo(before);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void refusedCallsAreAuditedAsPermissionEvents() {
+        String me = user(uniqueActor() + "o", "observer");
+        HttpHeaders h = new HttpHeaders();
+        h.set("X-YB-User", me);
+        assertThat(http.exchange("/api/v1/actions/A8/approvePublish", HttpMethod.POST, new HttpEntity<>(Map.of("taskId", "m8"), h), Map.class)
+                .getStatusCode().value()).isEqualTo(403);
+        assertThat(http.exchange("/api/v1/pages/A12", HttpMethod.GET, new HttpEntity<>(h), Map.class).getStatusCode().value()).isEqualTo(403);
+        List<Map<String, Object>> rows = items("actor=" + me + "&type=权限");
+        assertThat(rows).extracting(m -> m.get("page")).containsExactly("A12", "A8");
+        assertThat(rows).allSatisfy(m -> {
+            assertThat(m.get("action")).isEqualTo("accessDenied");
+            assertThat((String) m.get("object")).startsWith("越权访问被拒绝 · ");
+        });
+    }
+
+    @Test
+    void payloadRules() {
+        String me = uniqueActor();
+        HttpHeaders h = new HttpHeaders();
+        h.set("X-YB-User", me);
+        h.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        java.util.function.Function<String, Integer> post = body -> http.exchange("/api/v1/actions/D1/markRead", HttpMethod.POST,
+                new HttpEntity<>(body, h), Map.class).getStatusCode().value();
+        assertThat(post.apply("[1,2]")).isEqualTo(400);
+        assertThat(post.apply("\"x\"")).isEqualTo(400);
+        assertThat(post.apply("{bad json")).isEqualTo(400);
+        assertThat(post.apply("{\"message\":\"a\\u0000b\"}")).isEqualTo(400);
+        assertThat(post.apply("{\"message\":\"" + "x".repeat(9000) + "\"}")).isEqualTo(400);
+        assertThat(post.apply("{\"message\":\"" + "x".repeat(70_000) + "\"}")).isEqualTo(413);
+        assertThat(post.apply("{\"toStep\":2.9}")).isEqualTo(400);
+        assertThat(post.apply("{\"toStep\":2}")).isEqualTo(200);
+        assertThat(post.apply("")).isEqualTo(200);
+    }
+
+    @Test
+    void userAdministrationIsClassifiedAsPermission() {
+        assertThat(AuditTypes.classify("setUserEnabled")).isEqualTo(AuditTypes.PERMISSION);
+        assertThat(AuditTypes.classify("reviewAddUser")).isEqualTo(AuditTypes.PERMISSION);
+        var off = AuditService.describe("A12", AuditTypes.kind("setUserEnabled"),
+                new com.fasterxml.jackson.databind.ObjectMapper().valueToTree(Map.of("login", "zhaoan", "enabled", false)));
+        assertThat(off).isEqualTo("停用账号 · zhaoan");
+    }
+
+    @Test
     void tamperingShowsPerEventAndChainStatus() {
         String me = uniqueActor();
-        long id = act(me, "A3/notifyContact", Map.of("source", "结算明细"));
+        long id = act(me, "A3/notifyContact", Map.of("source", "结算明细与DRG入组", "channels", List.of("政务微信")));
         long after = act(me, "D1/markRead", Map.of("message", "n"));
         String original = jdbc.sql("select payload::text from audit_event where id = :id").param("id", id).query(String.class).single();
         try {

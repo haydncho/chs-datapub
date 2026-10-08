@@ -61,5 +61,5 @@ export const A13_SEED: A13Data = {
 
 /**
  * ACTIONS:
- * setPolicyRule({ key: 'minOrg'|'minCase'|'wm'|'exp'|'named', value: number|boolean }) — change one global display rule (−/+ or switch); applies to all publications (修改需召集人审批 in the backend workflow).
+ * setPolicyRule({ key: 'minOrg'|'minCase'|'wm'|'exp'|'named', value: number|boolean }) — change one global display rule (−/+ or switch); applies to all publications immediately (召集人 / 行政管理组; validated server-side against min/max/step, saved values come back in GET /pages/A13).
  */

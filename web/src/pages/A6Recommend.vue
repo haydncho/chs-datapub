@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 import { PageHeader, PageSection } from '@/components/yb'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { goPage } from '@/app/router'
 import { say } from '@/app/shell'
-import { sendAction, usePageData } from '@/api/client'
+import { session } from '@/app/session'
+import { getJson, runAction, usePageData } from '@/api/client'
+import { vPress } from '@/lib/a11y'
 import { A6_SEED, type A6Data, type A6Kind, type A6Status, type A6Topic } from '@/mock/A6'
 import { mergeTopics, useLiveTopics } from './A6/liveTopics'
 
@@ -19,11 +21,23 @@ const data = computed<A6Data>(() =>
     : page.value,
 )
 
+/** re-read the read model: 采纳 / 本期不做 decisions are server state */
+async function refresh() {
+  try {
+    const remote = await getJson<A6Data>('/pages/A6')
+    if (remote && typeof remote === 'object') page.value = { ...A6_SEED, ...remote }
+  } catch { /* keep the current view */ }
+}
+
+/** 推荐仅供参考,由行政管理组(及召集人)采纳 — other identities only look */
+const DECIDERS = ['convener', 'admin']
+const role = computed(() => session.current?.identity.role ?? null)
+const canDecide = computed(() => role.value === null || DECIDERS.includes(role.value))
+
 const filter = ref('全部')
-/** selected topic id (defaults to the first topic) */
+/** selected topic id (defaults to the first topic of the current filter) */
 const selId = ref<string | null>(null)
-/** local status overrides after 采纳 / 本期不做 */
-const overrides = reactive<Record<string, A6Status>>({})
+const busy = ref(false)
 
 const KIND_CLS: Record<A6Kind, string> = {
   病种专题: 'bg-brand-soft text-brand',
@@ -36,17 +50,36 @@ const STATUS: Record<A6Status, { label: string; cls: string }> = {
   open: { label: '待评估', cls: 'bg-brand-soft text-brand' },
   skip: { label: '本期不做', cls: 'bg-line-3 text-ink-4' },
 }
+const DIM_KEYS = ['impact', 'deviation', 'actionable', 'ready'] as const
 
-const statusOf = (t: A6Topic) => overrides[t.id] ?? t.status
+const statusOf = (t: A6Topic): A6Status => data.value.topicStates?.[t.id] ?? t.status
 const scoreCls = (s: number) => (s >= 85 ? 'text-brand' : s >= 70 ? 'text-ink-1' : 'text-ink-4')
 
 const topics = computed(() =>
   data.value.topics.filter(t => filter.value === '全部' || t.kind === filter.value),
 )
+/** the selection follows the filter: a topic outside the current list is not shown in the detail */
 const current = computed<A6Topic | undefined>(
-  () => data.value.topics.find(t => t.id === selId.value) ?? data.value.topics[0],
+  () => topics.value.find(t => t.id === selId.value) ?? topics.value[0],
 )
 const curStatus = computed(() => (current.value ? statusOf(current.value) : 'open'))
+const subtitle = computed(() => `${data.value.batch ? '基于实时计算批次' : data.value.period} · ${data.value.subtitle}`)
+
+const method = computed(() => {
+  const m = current.value?.method
+  if (!m || !current.value) return null
+  const terms = DIM_KEYS.map((k, j) => `${m.weights[k].toFixed(2)}×${data.value.dimLabels[j]} ${current.value!.dims[j]}`)
+  const i = m.inputs
+  return {
+    formula: `${terms.join(' + ')} = ${current.value.score}`,
+    inputs: [
+      ['病例数', i.cases.toLocaleString('zh-CN')],
+      ['例均差额', (i.diffPerCase > 0 ? '+' : i.diffPerCase < 0 ? '−' : '') + Math.abs(i.diffPerCase).toLocaleString('zh-CN') + ' 元'],
+      ['次均费用', i.costPerCase.toLocaleString('zh-CN') + ' 元'],
+      ['偏离度', i.deviationPct.toFixed(1) + '%'],
+    ],
+  }
+})
 
 const detailEl = ref<HTMLElement | null>(null)
 function pick(id: string) {
@@ -58,38 +91,52 @@ function pick(id: string) {
 let navT: ReturnType<typeof setTimeout> | undefined
 onBeforeUnmount(() => clearTimeout(navT))
 
-function adopt() {
-  const t = current.value
-  if (!t) return
-  overrides[t.id] = 'adopted'
-  sendAction('A6', 'adoptTopic', { id: t.id, title: t.title })
-  say('已采纳,正在打开专题工作台')
-  navT = setTimeout(() => goPage('A7'), 700)
+function payloadOf(t: A6Topic) {
+  return { id: t.id, title: t.title, kind: t.kind, score: t.score, facts: t.facts }
 }
-function skip() {
+async function decide(action: 'adoptTopic' | 'skipTopic' | 'reopenTopic') {
   const t = current.value
-  if (!t) return
-  overrides[t.id] = 'skip'
-  sendAction('A6', 'skipTopic', { id: t.id, title: t.title })
+  if (!t || busy.value) return
+  busy.value = true
+  const r = await runAction('A6', action, payloadOf(t))
+  busy.value = false
+  if (!r.ok) {
+    say(r.error)
+    return
+  }
+  await refresh()
+  if (action === 'adoptTopic') {
+    say('已采纳,正在打开专题工作台')
+    navT = setTimeout(() => goPage('A7', { topic: t.id }), 700)
+  } else if (action === 'skipTopic') {
+    say(`已标记「${t.title}」本期不做 · 下期自动重新评估`)
+  } else {
+    say(`已恢复「${t.title}」为待评估`)
+  }
+}
+function openWorkbench() {
+  if (current.value) goPage('A7', { topic: current.value.id })
 }
 </script>
 
 <template>
   <PageSection label="A6 智能推荐">
-    <PageHeader title="智能推荐 · 选题池" :subtitle="data.subtitle">
+    <PageHeader title="智能推荐 · 选题池" :subtitle="subtitle">
       <template v-if="data.batch" #subtitle>
-        {{ data.subtitle }}<Badge variant="ok" class="ml-2 align-[1px]">实时计算 · 批次 {{ data.batch }}</Badge>
+        {{ subtitle }}<Badge variant="ok" class="ml-2 align-[1px]">实时计算 · 批次 {{ data.batch }}</Badge>
       </template>
-      <div class="flex gap-1.5">
-        <span
+      <div class="flex flex-wrap gap-1.5" role="group" aria-label="选题类别筛选">
+        <button
           v-for="f in data.filters"
           :key="f"
+          type="button"
+          :aria-pressed="f === filter"
           :class="cn(
             'cursor-pointer rounded-full border px-3.5 py-1.5 text-xs whitespace-nowrap max-xl:flex max-xl:min-h-10 max-xl:items-center',
             f === filter ? 'border-brand-line bg-brand-soft text-brand' : 'border-line-1 bg-white text-ink-3',
           )"
           @click="filter = f"
-        >{{ f }}</span>
+        >{{ f }}</button>
       </div>
     </PageHeader>
 
@@ -106,8 +153,11 @@ function skip() {
         <div
           v-for="t in topics"
           :key="t.id"
+          v-press
+          :aria-pressed="t.id === current?.id"
+          :aria-label="`${t.title} · 得分 ${t.score} · ${STATUS[statusOf(t)].label}`"
           :class="cn(
-            'grid cursor-pointer grid-cols-[64px_minmax(0,1fr)_260px_110px] items-center gap-5 rounded-xl border bg-white px-5 py-4 hover:border-brand-line max-xl:grid-cols-[64px_minmax(0,1fr)_auto] max-xl:gap-x-4 max-xl:gap-y-3',
+            'grid cursor-pointer grid-cols-[64px_minmax(0,1fr)_260px_110px] items-center gap-5 rounded-xl border bg-white px-5 py-4 hover:border-brand-line focus-visible:outline-2 focus-visible:outline-brand max-xl:grid-cols-[64px_minmax(0,1fr)_auto] max-xl:gap-x-4 max-xl:gap-y-3',
             t.id === current?.id ? 'border-brand shadow-[0_0_0_3px_var(--brand-soft)] hover:border-brand' : 'border-line-1',
           )"
           @click="pick(t.id)"
@@ -156,18 +206,33 @@ function skip() {
             <div class="yb-num text-[19px] font-semibold">{{ f.v }}</div>
           </div>
         </div>
+        <div v-if="method" class="rounded-[10px] border border-line-2 px-3 py-2.5 text-xs">
+          <div class="mb-1 font-medium text-ink-2">方法卡 · 得分如何算出</div>
+          <div class="leading-[1.6] text-ink-3">{{ method.formula }}</div>
+          <div class="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] text-ink-4">
+            <span v-for="[k, v] in method.inputs" :key="k">{{ k }} <b class="yb-num font-medium text-ink-2">{{ v }}</b></span>
+          </div>
+        </div>
         <div>
           <div class="mb-1.5 text-xs text-ink-4">建议受众</div>
           <div class="flex flex-wrap gap-1.5">
             <span v-for="a in current.audiences" :key="a" class="rounded-lg bg-brand-soft px-2.5 py-1 text-xs text-brand">{{ a }}</span>
           </div>
         </div>
-        <div v-if="curStatus === 'open'" class="flex gap-2">
-          <Button class="h-9 flex-1 max-xl:h-10" @click="adopt">采纳 · 进入专题工作台</Button>
-          <Button variant="outline" class="h-9 px-3.5 font-normal text-ink-4 max-xl:h-10" @click="skip">本期不做</Button>
+        <template v-if="curStatus === 'open'">
+          <div class="flex gap-2">
+            <Button class="h-9 flex-1 max-xl:h-10" :disabled="!canDecide || busy" @click="decide('adoptTopic')">采纳 · 进入专题工作台</Button>
+            <Button variant="outline" class="h-9 px-3.5 font-normal text-ink-4 max-xl:h-10" :disabled="!canDecide || busy" @click="decide('skipTopic')">本期不做</Button>
+          </div>
+          <div v-if="!canDecide" class="text-xs text-ink-4">推荐仅供参考,由行政管理组采纳 · 当前身份仅可查看</div>
+        </template>
+        <div v-else-if="curStatus === 'adopted'" class="flex items-center justify-between gap-2 rounded-[10px] bg-ok-soft px-3 py-2.5 text-xs text-ok-ink">
+          <span>✓ 已采纳 · 专题工作台进行中</span>
+          <button type="button" class="cursor-pointer font-medium text-brand hover:underline max-xl:min-h-10" @click="openWorkbench">进入专题工作台 →</button>
         </div>
-        <div v-else class="rounded-[10px] bg-ok-soft px-3 py-2.5 text-xs text-ok-ink">
-          {{ curStatus === 'adopted' ? '✓ 已采纳 · 专题工作台进行中' : '本期不做 · 下期自动重新评估' }}
+        <div v-else class="flex items-center justify-between gap-2 rounded-[10px] bg-line-3 px-3 py-2.5 text-xs text-ink-3">
+          <span>本期不做 · 下期自动重新评估</span>
+          <button v-if="canDecide" type="button" :disabled="busy" class="cursor-pointer font-medium text-brand hover:underline max-xl:min-h-10" @click="decide('reopenTopic')">撤销 · 恢复待评估</button>
         </div>
       </div>
     </div>

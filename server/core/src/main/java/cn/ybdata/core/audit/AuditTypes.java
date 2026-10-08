@@ -91,6 +91,9 @@ public final class AuditTypes {
         exact("exportAudit", EXPORT, "导出审计日志");
         // 权限
         exact("requestAddUser", PERMISSION, "新增用户申请");
+        exact("setUserEnabled", PERMISSION, "停用/启用账号");
+        exact("reviewAddUser", PERMISSION, "复核新增用户");
+        exact("accessDenied", PERMISSION, "越权访问被拒绝");
         // 发布
         exact("urgeSign", PUBLISH, "催办签收");
         exact("urgeSignAll", PUBLISH, "一键催办");
@@ -105,6 +108,8 @@ public final class AuditTypes {
         exact("markRead", VIEW, "标记已读");
         exact("viewPage", VIEW, "查阅页面");
         exact("completeCourse", VIEW, "完成培训课程");
+        exact("startCourse", VIEW, "开始学习课程");
+        exact("submitQuiz", VIEW, "提交课程测验");
 
         PREFIX.put("login", LOGIN);
         PREFIX.put("logout", LOGIN);

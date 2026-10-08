@@ -44,25 +44,31 @@ export interface A6Method {
 
 export interface A6Data {
   subtitle: string
+  /** data period of the seeded scores (replaced by the live batch id when analytics answers) */
+  period: string
   /** filter chips (first = 全部) */
   filters: string[]
   dimLabels: string[]
   topics: A6Topic[]
   /** set when 病种专题 were scored live (GET /api/v1/analytics/topics/recommend) */
   batch?: string
+  /** server state: 采纳 / 本期不做 decisions by topic id (also for live topics not in the seed) */
+  topicStates?: Record<string, A6Status>
 }
 
 export const A6_SEED: A6Data = {
-  subtitle: '基于 2026年8月数据 · 按综合得分排序 · 推荐仅供参考,由行政管理组采纳',
-  filters: ['全部', '病种专题', '机构专题', '质量专题'],
+  subtitle: '按综合得分排序 · 推荐仅供参考,由行政管理组采纳',
+  period: '基于 2026年8月结算数据',
+  filters: ['全部', '病种专题', '机构专题', '质量专题', '区域专题'],
   dimLabels: ['影响金额', '偏离度', '可干预性', '数据就绪'],
   topics: [
     {
       id: 'T-BR25', kind: '病种专题', title: 'BR25 脑缺血性疾患,伴并发症',
-      why: '逆差总额全市最大(792.7 万),集中在市三级,行为差异占比高',
-      score: 92, dims: [95, 88, 90, 96], source: '差额排行 + 行为分析', status: 'adopted',
-      facts: [{ k: '逆差总额', v: '792.7 万' }, { k: '涉及机构', v: '18 家' }, { k: '病例数', v: '4,262' }, { k: '行为差异占比', v: '62%' }],
+      why: '逆差总额全市最大(264.1 万),例均逆差 +1,860 元',
+      score: 97, dims: [100, 94, 100, 90], source: '差额排行', status: 'adopted',
+      facts: [{ k: '逆差总额', v: '264.1 万' }, { k: '例均差额', v: '+1,860' }, { k: '病例数', v: '1,420' }, { k: '差额占次均', v: '13.1%' }],
       audiences: ['市三级', '县三级', '专家组'],
+      method: { weights: { impact: 0.4, deviation: 0.25, actionable: 0.2, ready: 0.15 }, inputs: { cases: 1420, diffPerCase: 1860, costPerCase: 14200, totalDiff: 2641200, deviationPct: 13.1, quality: 90 } },
     },
     {
       id: 'T-GG19', kind: '机构专题', title: '某肛肠专科医院 GG19 费用异常',
@@ -72,11 +78,12 @@ export const A6_SEED: A6Data = {
       audiences: ['二级其他', '专家组'],
     },
     {
-      id: 'T-IC29', kind: '病种专题', title: 'IC29 髋、膝关节置换',
-      why: '例均逆差 +2,680 元,耗材集采后仍偏高',
-      score: 81, dims: [84, 82, 70, 88], source: '差额排行', status: 'open',
-      facts: [{ k: '例均差额', v: '+2,680' }, { k: '涉及机构', v: '9 家' }, { k: '病例数', v: '210' }, { k: '耗材占比', v: '58%' }],
+      id: 'T-IU29', kind: '病种专题', title: 'IU29 骨病及其他关节病',
+      why: '例均逆差 +1,420 元,占次均费用 14.8%',
+      score: 75, dims: [61, 100, 58, 90], source: '差额排行', status: 'open',
+      facts: [{ k: '逆差总额', v: '98.0 万' }, { k: '例均差额', v: '+1,420' }, { k: '病例数', v: '690' }, { k: '差额占次均', v: '14.8%' }],
       audiences: ['市三级', '县三级'],
+      method: { weights: { impact: 0.4, deviation: 0.25, actionable: 0.2, ready: 0.15 }, inputs: { cases: 690, diffPerCase: 1420, costPerCase: 9600, totalDiff: 979800, deviationPct: 14.79, quality: 90 } },
     },
     {
       id: 'T-READM14', kind: '质量专题', title: '14天再住院率上升',
@@ -86,11 +93,12 @@ export const A6_SEED: A6Data = {
       audiences: ['县三级', '县区医保'],
     },
     {
-      id: 'T-FM19', kind: '病种专题', title: 'FM19 经皮心血管操作',
+      id: 'T-FM19', kind: '病种专题', title: 'FM19 经皮心血管操作及支架置入',
       why: '结余 −2,150 元/例,疑似低码高编反向',
-      score: 68, dims: [66, 70, 58, 80], source: '差额排行', status: 'skip',
-      facts: [{ k: '例均差额', v: '−2,150' }, { k: '病例数', v: '520' }, { k: '涉及机构', v: '6 家' }, { k: '结余总额', v: '111.8 万' }],
+      score: 64, dims: [65, 61, 44, 90], source: '差额排行', status: 'skip',
+      facts: [{ k: '结余总额', v: '111.8 万' }, { k: '例均差额', v: '−2,150' }, { k: '病例数', v: '520' }, { k: '差额占次均', v: '5.6%' }],
       audiences: ['市三级'],
+      method: { weights: { impact: 0.4, deviation: 0.25, actionable: 0.2, ready: 0.15 }, inputs: { cases: 520, diffPerCase: -2150, costPerCase: 38600, totalDiff: -1118000, deviationPct: 5.57, quality: 90 } },
     },
     {
       id: 'T-OFFSITE', kind: '区域专题', title: '异地就医外流结构',
@@ -104,6 +112,9 @@ export const A6_SEED: A6Data = {
 
 /**
  * ACTIONS:
- * adoptTopic({ id: string, title: string }) — 采纳 a candidate topic; status → 'adopted' and a 病种专题 workspace (A7) is opened for it;
- * skipTopic({ id: string, title: string }) — 本期不做; status → 'skip', the topic is re-evaluated automatically after the next data batch.
+ * adoptTopic({ id, title, kind, score, facts }) — 采纳 an open topic (召集人 / 行政管理组 only); status → 'adopted', an A8 专题
+ *   task is opened (step 3 分析成稿) and the 专题工作台 A7 is opened for it (#/A7?topic=<id>);
+ * skipTopic({ id, title, kind, score, facts }) — 本期不做 (same roles); status → 'skip', re-evaluated after the next data batch;
+ * reopenTopic({ id, title, kind, score, facts }) — 撤销本期不做 (same roles); status → 'open'.
+ * The 病种专题 above mirror the analytics service's scores for the seeded drg_group data (same numbers as A7).
  */

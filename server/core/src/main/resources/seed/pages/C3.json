@@ -177,6 +177,14 @@
       ]
     }
   ],
+  "suggestionTopics": [
+    "公开内容",
+    "发布时效",
+    "反馈闭环",
+    "数据口径",
+    "其他"
+  ],
+  "mySuggestions": [],
   "feedback": [
     {
       "label": "机构意见答复率",

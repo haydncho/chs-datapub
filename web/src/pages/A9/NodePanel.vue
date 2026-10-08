@@ -11,12 +11,17 @@ defineProps<{
   timeout: number
   channels: string[]
   channelOn: Record<string, boolean>
+  stages: string[]
+  canRemove: boolean
 }>()
 const emit = defineEmits<{
   lane: [l: string]
   days: [d: number]
   timeout: [i: number]
   channel: [c: string]
+  name: [n: string]
+  col: [c: number]
+  remove: []
 }>()
 </script>
 
@@ -35,6 +40,27 @@ const emit = defineEmits<{
       </div>
     </div>
     <div class="flex flex-col gap-4 px-[18px] py-4">
+      <div class="grid grid-cols-2 gap-2">
+        <label class="flex flex-col gap-1 text-xs text-ink-4">节点名称
+          <input
+            :value="node.name"
+            maxlength="16"
+            aria-label="节点名称"
+            class="h-8 rounded-lg border border-line-1 bg-surface-1 px-2.5 text-[13px] text-ink-1 outline-none focus:border-brand-line max-xl:h-11"
+            @change="emit('name', ($event.target as HTMLInputElement).value.trim() || node.name)"
+          >
+        </label>
+        <label class="flex flex-col gap-1 text-xs text-ink-4">所在阶段
+          <select
+            :value="node.col"
+            aria-label="所在阶段"
+            class="h-8 rounded-lg border border-line-1 bg-surface-1 px-2 text-[13px] text-ink-1 outline-none focus:border-brand-line max-xl:h-11"
+            @change="emit('col', Number(($event.target as HTMLSelectElement).value))"
+          >
+            <option v-for="(st, i) in stages" :key="st" :value="i">{{ i + 1 }} · {{ st }}</option>
+          </select>
+        </label>
+      </div>
       <div>
         <div class="mb-2 text-xs text-ink-4">承办角色</div>
         <div class="flex flex-wrap gap-1.5">
@@ -80,6 +106,12 @@ const emit = defineEmits<{
         </div>
       </div>
       <div class="rounded-[10px] bg-surface-1 px-3 py-2.5 text-xs leading-[1.7] text-ink-3">{{ note }}</div>
+      <button
+        type="button"
+        :disabled="!canRemove"
+        class="h-8 cursor-pointer rounded-lg border border-[#F3C5C0] text-xs text-bad disabled:cursor-not-allowed disabled:opacity-50 max-xl:h-11"
+        @click="emit('remove')"
+      >删除此节点</button>
     </div>
   </div>
 </template>

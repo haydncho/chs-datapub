@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Unified login (A1).
  * <pre>
- * POST /api/v1/auth/sms-code {account}                             → {ok, cooldown, phone?}      (429 within 60s)
+ * POST /api/v1/auth/sms-code {account}                             → {ok, cooldown}  (same answer for unknown accounts; 429 within 60s)
  * POST /api/v1/auth/login    {method:'cert', account, pin, side?}  → session (identities limited to {@code side}:
  *                            {method:'sms',  account, code, side?}    'bureau' 医保局端 | 'org' 机构端; 403 when none)
  * GET  /api/v1/auth/me                                             → session (user, identity, identities, viewer, pages)
@@ -44,7 +44,6 @@ public class AuthController {
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("ok", true);
         out.put("cooldown", sent.cooldownSeconds());
-        if (sent.maskedPhone() != null) out.put("phone", sent.maskedPhone());
         return out;
     }
 
@@ -93,8 +92,8 @@ public class AuthController {
     }
 
     private static String text(JsonNode body, String field) {
-        if (body == null) return null;
+        if (body == null || !body.isObject()) return null;
         JsonNode n = body.get(field);
-        return n == null || n.isNull() ? null : n.asText();
+        return n == null || !n.isValueNode() || n.isNull() ? null : n.asText();
     }
 }

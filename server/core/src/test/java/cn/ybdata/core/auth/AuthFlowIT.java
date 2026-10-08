@@ -31,6 +31,7 @@ class AuthFlowIT {
     static void db(DynamicPropertyRegistry r) {
         r.add("spring.datasource.url", () -> System.getenv("YB_IT_DB_URL"));
         r.add("yb.auth.secret", () -> "integration-test-secret-0123456789abcdef");
+        cn.ybdata.core.DevHeader.enable(r);
     }
 
     private static final ParameterizedTypeReference<Map<String, Object>> MAP = new ParameterizedTypeReference<>() {};
@@ -68,7 +69,8 @@ class AuthFlowIT {
     void smsLoginAsHospitalIsScopedAndAudited() {
         var sent = call(HttpMethod.POST, "/auth/sms-code", null, Map.of("account", "limin"));
         assertThat(sent.getStatusCode().value()).isEqualTo(200);
-        assertThat(sent.getBody()).containsEntry("cooldown", 60).containsEntry("phone", "138****0005");
+        // same answer as for an unknown account: no masked phone that would confirm the account exists
+        assertThat(sent.getBody()).containsEntry("cooldown", 60).doesNotContainKey("phone");
         var again = call(HttpMethod.POST, "/auth/sms-code", null, Map.of("account", "limin"));
         assertThat(again.getStatusCode().value()).isEqualTo(429);
         assertThat(again.getHeaders().getFirst("Retry-After")).isNotNull();
@@ -218,10 +220,17 @@ class AuthFlowIT {
     void tokensAndDevFallback() {
         assertThat(getText("/pages/B4", "yb1.forged.token").getStatusCode().value()).isEqualTo(401);
         assertThat(call(HttpMethod.GET, "/auth/me", null, null).getStatusCode().value()).isEqualTo(401);
-        // dev mode (default): no credentials → legacy demo identity, unrestricted
-        assertThat(getText("/pages/A10", null).getStatusCode().value()).isEqualTo(200);
+        // no credentials → 401 even with the test header switched on; only the A1 payload is public
+        assertThat(getText("/pages/A10", null).getStatusCode().value()).isEqualTo(401);
+        assertThat(call(HttpMethod.POST, "/actions/A8/approvePublish", null, Map.of("taskId", "m8")).getStatusCode().value()).isEqualTo(401);
+        assertThat(getText("/audit", null).getStatusCode().value()).isEqualTo(401);
         assertThat(getText("/pages/A1", null).getStatusCode().value()).isEqualTo(200);
-        // dev mode: X-YB-User naming a known user is access-checked as that user
+        assertThat(getText("/pages/A1", null).getBody()).doesNotContain("chenzy");
+        // an unknown X-YB-User name is not an identity
+        HttpHeaders unknown = new HttpHeaders();
+        unknown.set("X-YB-User", "e2e");
+        assertThat(http.exchange("/api/v1/pages/A10", HttpMethod.GET, new HttpEntity<>(unknown), String.class).getStatusCode().value()).isEqualTo(401);
+        // test header on: X-YB-User naming a known user is access-checked as that user
         HttpHeaders h = new HttpHeaders();
         h.set("X-YB-User", "limin");
         assertThat(http.exchange("/api/v1/pages/A10", HttpMethod.GET, new HttpEntity<>(h), String.class).getStatusCode().value()).isEqualTo(403);

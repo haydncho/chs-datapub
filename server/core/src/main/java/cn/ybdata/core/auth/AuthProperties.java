@@ -8,8 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * @param secret        HMAC-SHA256 key for session tokens (env YB_AUTH_SECRET); when blank a random
  *                      per-process key is generated (tokens then do not survive a restart)
- * @param devHeader     accept the legacy {@code X-YB-User} header / per-page demo identity for
- *                      requests without a bearer token (dev & existing tests); set false in production
+ * @param devHeader     tests only (default false): accept {@code X-YB-User} naming a known user in place of a
+ *                      bearer token; the request is access-checked as that user's primary identity
  * @param ttl           session lifetime (8h)
  * @param smsCooldown   minimum interval between two SMS codes for one account
  * @param smsTtl        validity of an SMS code
@@ -22,7 +22,7 @@ public record AuthProperties(String secret, Boolean devHeader, Duration ttl, Dur
                              String demoSmsCode, Integer maxFailures, Duration lockWindow) {
     public AuthProperties {
         if (secret == null) secret = "";
-        if (devHeader == null) devHeader = true;
+        if (devHeader == null) devHeader = false;
         if (ttl == null) ttl = Duration.ofHours(8);
         if (smsCooldown == null) smsCooldown = Duration.ofSeconds(60);
         if (smsTtl == null) smsTtl = Duration.ofMinutes(5);

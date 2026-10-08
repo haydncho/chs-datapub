@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { A1_SEED } from '@/mock/A1'
 import BrandPanel from './A1/BrandPanel.vue'
+import { DETECTED_CERT_ACCOUNT } from './A1/cert'
 
 const data = usePageData('A1', A1_SEED)
 
@@ -64,7 +65,8 @@ async function sendCode() {
     const r = await requestSmsCode(account.value)
     codeSent.value = true
     countdown(r.cooldown)
-    if (r.phone) say(`验证码已发送至 ${r.phone}`)
+    // 服务端对存在与不存在的账号回答相同,不回显手机号
+    say('如账号有效,验证码已发送至绑定手机,请查收')
   } catch (e) {
     if (isOffline(e)) {
       // demo mode: no backend — behave like the prototype
@@ -92,7 +94,8 @@ async function next() {
   if (busy.value) return
   busy.value = true
   const method = tab.value === 0 ? 'cert' : 'sms'
-  const acc = method === 'cert' ? (data.value.cert.account ?? A1_SEED.cert.account ?? '') : account.value
+  // 证书登录的账号由本机证书读取(不来自公开的页面数据)
+  const acc = method === 'cert' ? DETECTED_CERT_ACCOUNT : account.value
   try {
     let s
     try {
@@ -136,6 +139,23 @@ async function enter() {
     ? afterLogin(router.currentRoute.value.query.redirect, cur.pages, router.getRoutes().map(x => x.name).filter((n): n is string => typeof n === 'string'), home)
     : home
   goPage(to.code, to.query)
+}
+
+/* ---------- 键盘:登录方式标签 / 身份卡片用方向键切换(roving tabindex) */
+function moveFocus(e: KeyboardEvent, count: number, cur: number, set: (i: number) => void, selector: string) {
+  const delta = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0
+  if (!delta || count < 2) return
+  e.preventDefault()
+  const next = (cur + delta + count) % count
+  set(next)
+  const box = e.currentTarget as HTMLElement
+  void Promise.resolve().then(() => box.querySelectorAll<HTMLElement>(selector)[next]?.focus())
+}
+function onTabKey(e: KeyboardEvent) {
+  moveFocus(e, data.value.loginTabs.length, tab.value, i => { tab.value = i }, '[role="tab"]')
+}
+function onCardKey(e: KeyboardEvent) {
+  moveFocus(e, identities.value.length, idSel.value, i => { idSel.value = i }, '[role="radio"]')
 }
 
 /** 回到「选择端」:已有会话则结束会话(换端需要重新登录) */
@@ -222,16 +242,21 @@ function restart() {
               <ArrowLeft :size="13" />更换
             </button>
           </div>
-          <div class="flex rounded-[10px] bg-surface-3 p-[3px]">
-            <span
+          <div class="flex rounded-[10px] bg-surface-3 p-[3px]" role="tablist" aria-label="登录方式" @keydown="onTabKey">
+            <button
               v-for="(l, i) in data.loginTabs"
               :key="l"
+              type="button"
+              role="tab"
+              :aria-selected="i === tab"
+              :tabindex="i === tab ? 0 : -1"
+              :data-testid="`login-tab-${i}`"
               :class="cn(
-                'flex-1 cursor-pointer rounded-lg py-2 text-center font-medium whitespace-nowrap max-xl:py-3',
+                'flex-1 cursor-pointer rounded-lg py-2 text-center font-medium whitespace-nowrap max-xl:py-3 focus-visible:outline-2 focus-visible:outline-brand',
                 i === tab ? 'bg-white text-ink-1 shadow-[0_1px_3px_rgba(15,23,42,.1)]' : 'text-ink-4',
               )"
               @click="tab = i"
-            >{{ l }}</span>
+            >{{ l }}</button>
           </div>
 
           <template v-if="tab === 0">
@@ -242,13 +267,12 @@ function restart() {
               <div class="font-semibold">{{ data.cert.title }}</div>
               <div class="text-xs text-ink-4">{{ data.cert.subject }}</div>
             </div>
-            <Input v-model="pin" placeholder="证书 PIN 码" type="password" autocomplete="off" :class="inputCls" @keydown.enter="next" />
+            <Input v-model="pin" placeholder="证书 PIN 码" aria-label="证书 PIN 码" type="password" autocomplete="off" :class="inputCls" @keydown.enter="next" />
           </template>
           <template v-else>
-            <Input v-model="account" placeholder="账号 / 统一社会信用代码" :class="inputCls" />
-            <Input placeholder="密码" type="password" :class="inputCls" />
+            <Input v-model="account" placeholder="账号 / 手机号" autocomplete="username" aria-label="账号或手机号" :class="inputCls" />
             <div class="flex gap-2">
-              <Input v-model="code" placeholder="短信验证码" inputmode="numeric" autocomplete="one-time-code" :class="cn(inputCls, 'min-w-0 flex-1')" @keydown.enter="next" />
+              <Input v-model="code" placeholder="短信验证码" aria-label="短信验证码" inputmode="numeric" autocomplete="one-time-code" :class="cn(inputCls, 'min-w-0 flex-1')" @keydown.enter="next" />
               <Button variant="outline" class="h-11 rounded-[10px] border-line-4 px-3.5 text-[13px] font-normal text-brand" @click="sendCode">
                 {{ codeLabel }}
               </Button>
@@ -270,16 +294,21 @@ function restart() {
             当前登录端:<b class="font-semibold text-ink-2">{{ SIDE_NAME[side] }}</b>
             <span v-if="identities.length > 1">· 共 {{ identities.length }} 个身份可选</span>
           </div>
-          <div class="flex flex-col gap-2.5">
-            <div
+          <div class="flex flex-col gap-2.5" role="radiogroup" aria-label="本次身份" @keydown="onCardKey">
+            <button
               v-for="(r, i) in identities"
               :key="r.id"
+              type="button"
+              role="radio"
+              :aria-checked="i === idSel"
+              :tabindex="i === idSel ? 0 : -1"
               data-testid="identity-card"
               :class="cn(
-                'flex min-h-14 cursor-pointer items-center gap-3.5 rounded-xl border-[1.5px] px-4 py-3.5',
+                'flex min-h-14 w-full cursor-pointer items-center gap-3.5 whitespace-normal rounded-xl border-[1.5px] px-4 py-3.5 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
                 i === idSel ? 'border-brand bg-brand-tint' : 'border-line-1 bg-white',
               )"
               @click="idSel = i"
+              @dblclick="enter"
             >
               <span
                 :class="cn(
@@ -299,10 +328,10 @@ function restart() {
                   r.tone === 'ok' ? 'bg-ok-soft text-ok-ink' : 'bg-brand-soft text-brand',
                 )"
               >{{ r.zone }}</span>
-            </div>
+            </button>
           </div>
           <Button class="h-[46px] rounded-[10px] text-[15px]" :disabled="busy" data-testid="enter" @click="enter">进入平台</Button>
-          <span class="cursor-pointer py-1 text-center text-[13px] text-ink-4 max-xl:py-3" data-testid="relogin" @click="restart">← 重新登录 / 改选端</span>
+          <button type="button" class="cursor-pointer py-1 text-center text-[13px] text-ink-4 hover:text-ink-2 max-xl:py-3" data-testid="relogin" @click="restart">← 重新登录 / 改选端</button>
         </template>
       </div>
     </div>

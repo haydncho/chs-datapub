@@ -3,7 +3,6 @@
   "periodShort": "8 月",
   "dueDate": "09-05",
   "stats": {
-    "totalRows": "1,284 万",
     "fieldMappings": "1,862",
     "orgs": 52,
     "doctors": "4,180",
@@ -44,6 +43,8 @@
         "ok",
         "ok"
       ],
+      "completeness": 99.6,
+      "consistency": 98.9,
       "rowsWan": 412.6,
       "dependents": [
         "次均总费用",
@@ -80,6 +81,8 @@
         "ok",
         "ok"
       ],
+      "completeness": 99.2,
+      "consistency": 98.4,
       "rowsWan": 38.2,
       "dependents": [
         "例均基金差额",
@@ -115,6 +118,8 @@
         "ok",
         "ok"
       ],
+      "completeness": 98.5,
+      "consistency": 97.1,
       "rowsWan": 0.4,
       "dependents": [
         "当期结余率",
@@ -143,6 +148,8 @@
         "ok",
         "ok"
       ],
+      "completeness": 96.8,
+      "consistency": 94.2,
       "rowsWan": 286.1,
       "dependents": [
         "时间消耗指数",
@@ -179,6 +186,8 @@
         "late",
         "missing"
       ],
+      "completeness": 97.4,
+      "consistency": 95.8,
       "rowsWan": 21.8,
       "overdueDays": 29,
       "dependents": [
@@ -216,6 +225,8 @@
         "ok",
         "ok"
       ],
+      "completeness": 95.1,
+      "consistency": 92.6,
       "rowsWan": 6.3,
       "dependents": [
         "外购药费用占比"
@@ -243,6 +254,8 @@
         "ok",
         "ok"
       ],
+      "completeness": 99,
+      "consistency": 97.9,
       "rowsWan": 92.4,
       "dependents": [
         "结算清单质控率",
@@ -278,6 +291,8 @@
         "ok",
         "ok"
       ],
+      "completeness": 97,
+      "consistency": 95.5,
       "rowsWan": 0.1,
       "dependents": [
         "床位使用率",
@@ -306,6 +321,8 @@
         "ok",
         "part"
       ],
+      "completeness": 60,
+      "consistency": 93.4,
       "rowsWan": 1.2,
       "partLabel": "部分到数 3/5",
       "dependents": [
@@ -334,6 +351,8 @@
         "ok",
         "ok"
       ],
+      "completeness": 100,
+      "consistency": 100,
       "rowsWan": 0.3,
       "dependents": [
         "分组与目录映射"

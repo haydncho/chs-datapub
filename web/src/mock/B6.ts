@@ -3,6 +3,13 @@
 export type B6Tone = 'brand' | 'warn' | 'ok'
 export type B6Icon = 'book' | 'chart' | 'shield' | 'chat'
 
+export interface B6Question {
+  q: string
+  options: string[]
+  /** index of the correct option — kept on the server, removed from the payload a viewer receives */
+  answer?: number
+}
+
 export interface B6Course {
   id: string
   tag: string
@@ -11,9 +18,15 @@ export interface B6Course {
   minutes: number
   tone: B6Tone
   icon: B6Icon
+  /** learning content shown when the course is opened */
+  sections: { title: string; text: string }[]
+  /** 测验: passing (≥ 60 分) completes the course */
+  quiz: B6Question[]
+  /** viewer's own state — filled in by the server (training_progress); never pre-completed */
+  started: boolean
   done: boolean
-  /** quiz score (shown when done) */
-  score: number
+  /** best passing quiz score; null until completed */
+  score: number | null
 }
 
 export type B6DocKind = '国家' | '本市' | '口径'
@@ -24,6 +37,12 @@ export interface B6Doc {
   /** document number (文号) */
   number: string
   date: string
+  /** issuing body */
+  issuer: string
+  /** one-paragraph summary shown when the document is opened */
+  summary: string
+  /** key provisions relevant to 定点医药机构 */
+  points: string[]
 }
 
 export interface B6Data {
@@ -33,23 +52,91 @@ export interface B6Data {
 }
 
 export const B6_SEED: B6Data = {
-  subtitle: '读懂报告 · 理解口径 · 本院 18 人已完成必修',
+  subtitle: '读懂报告 · 理解口径 · 必修课程完成测验后计入进度',
   courses: [
-    { id: 'C1', tag: '必修', name: '读懂 DRG 月度报告', desc: '从例均基金差额到偏离贡献,10 个关键指标', minutes: 18, tone: 'brand', icon: 'book', done: true, score: 92 },
-    { id: 'C2', tag: '必修', name: '对标档位与分位', desc: '匿名分位、匿名编号与具名的区别', minutes: 12, tone: 'brand', icon: 'chart', done: true, score: 88 },
-    { id: 'C3', tag: '必修', name: '结算清单质控要点', desc: 'R-117 等高频规则逐条讲解', minutes: 25, tone: 'warn', icon: 'shield', done: false, score: 95 },
-    { id: 'C4', tag: '必修', name: '意见与申诉流程', desc: '如何提意见、时限与答复', minutes: 8, tone: 'ok', icon: 'chat', done: false, score: 95 },
+    {
+      id: 'C1', tag: '必修', name: '读懂 DRG 月度报告', desc: '从例均基金差额到偏离贡献,10 个关键指标', minutes: 18, tone: 'brand', icon: 'book',
+      sections: [
+        { title: '医保记账与 DRG 支付', text: '医保记账是按项目计算的医保应付金额;DRG 支付是按病组支付标准结算的金额。两者之差即「偏离」,记账高于支付为逆差。' },
+        { title: '例均基金差额', text: '某病组(或全院)每例病例的医保基金记账与 DRG 支付之差。正值表示逆差(本院多花),负值表示结余。' },
+        { title: '偏离贡献', text: '病组差额总额 = 病例数 × 例均基金差额。各病组差额总额之和等于全院偏离,用于找出逆差的主要来源。' },
+      ],
+      quiz: [
+        { q: '例均基金差额为 +2,140 元表示?', options: ['每例结余 2,140 元', '每例逆差 2,140 元', '支付标准为 2,140 元'], answer: 1 },
+        { q: '病组差额总额如何计算?', options: ['病例数 × 例均基金差额', '例均费用 − 支付标准', '医保记账 ÷ 病例数'], answer: 0 },
+      ],
+      started: false, done: false, score: null,
+    },
+    {
+      id: 'C2', tag: '必修', name: '对标档位与分位', desc: '匿名分位、匿名编号与具名的区别', minutes: 12, tone: 'brand', icon: 'chart',
+      sections: [
+        { title: '三档对标', text: '匿名分位只显示本院位置;匿名编号以字母代替他院;具名须经召集人审批开放。匿名档的他院数值不对应任何机构。' },
+        { title: '同级分位', text: '本院在同级组中按表现好坏的排位,越高越好,P100 为同级最优。费用、指数、差额类指标数值越低排位越高。' },
+      ],
+      quiz: [
+        { q: '同级分位 P28 说明?', options: ['本院表现优于 72% 的同级机构', '本院表现仅优于约 28% 的同级机构', '本院数值排在第 28 位'], answer: 1 },
+        { q: '哪一档可以看到他院名称?', options: ['匿名分位', '匿名编号', '具名(经召集人审批)'], answer: 2 },
+      ],
+      started: false, done: false, score: null,
+    },
+    {
+      id: 'C3', tag: '必修', name: '结算清单质控要点', desc: 'R-117 等高频规则逐条讲解', minutes: 25, tone: 'warn', icon: 'shield',
+      sections: [
+        { title: '主要诊断选择', text: '主要诊断应为对患者健康危害最大、消耗医疗资源最多、住院时间最长的疾病,不得以并发症替代。' },
+        { title: 'R-117 合并症编码', text: '合并症须有病程记录支持;无诊疗依据的合并症编码将被质控规则 R-117 拦截并扣分。' },
+        { title: '高频问题', text: '手术操作漏编、诊断与操作不匹配、离院方式缺失是本市清单质控扣分最多的三类问题。' },
+      ],
+      quiz: [
+        { q: '合并症编码需要满足?', options: ['有病程记录支持', '提高病组权重即可', '由患者自述即可'], answer: 0 },
+        { q: '主要诊断应选择?', options: ['入院时第一个诊断', '消耗资源最多、危害最大的疾病', '费用最低的诊断'], answer: 1 },
+      ],
+      started: false, done: false, score: null,
+    },
+    {
+      id: 'C4', tag: '必修', name: '意见与申诉流程', desc: '如何提意见、时限与答复', minutes: 8, tone: 'ok', icon: 'chat',
+      sections: [
+        { title: '提出意见', text: '对报告内容有异议的,可在签收后 10 个工作日内通过「对本报告提意见」或核对页面提交,并附佐证材料。' },
+        { title: '受理与答复', text: '医保局在受理后 10 个工作日内答复;确认有误的数据将发布更正版本,原版本保留可查。' },
+      ],
+      quiz: [
+        { q: '签收报告后提出意见的时限是?', options: ['3 个工作日', '10 个工作日', '30 天'], answer: 1 },
+        { q: '确认有误的数据会如何处理?', options: ['直接删除原报告', '发布更正版本,原版本保留可查', '不做处理'], answer: 1 },
+      ],
+      started: false, done: false, score: null,
+    },
   ],
   docs: [
-    { kind: '国家', name: 'DRG/DIP 支付方式改革三年行动计划', number: '医保发〔2021〕48号', date: '2021-11' },
-    { kind: '国家', name: '医保基金使用监督管理条例', number: '国务院令第735号', date: '2021-02' },
-    { kind: '本市', name: '示例市 DRG 付费实施细则(2026 版)', number: '示医保发〔2026〕3号', date: '2026-01' },
-    { kind: '本市', name: '医保数据定向公开管理办法(试行)', number: '示医保发〔2026〕11号', date: '2026-04' },
-    { kind: '口径', name: '指标口径手册 v2.1', number: '—', date: '2026-07' },
+    {
+      kind: '国家', name: 'DRG/DIP 支付方式改革三年行动计划', number: '医保发〔2021〕48号', date: '2021-11', issuer: '国家医疗保障局',
+      summary: '要求到 2025 年底 DRG/DIP 支付方式覆盖所有符合条件的开展住院服务的医疗机构,基本实现病种、医保基金全覆盖。',
+      points: ['抓扎实工作基础:完善核心要素管理与调整机制', '建立健全协商谈判、结余留用、特例单议等配套机制', '加强监测评估,防范分解住院、高套编码等行为'],
+    },
+    {
+      kind: '国家', name: '医保基金使用监督管理条例', number: '国务院令第735号', date: '2021-02', issuer: '国务院',
+      summary: '规范医疗保障基金使用及其监督管理,明确定点医药机构、参保人员的义务与法律责任。',
+      points: ['定点医药机构应建立内部管理制度,由专人负责医保基金使用管理', '不得分解住院、挂床住院、过度诊疗或串换项目', '违规使用基金的,责令退回并处罚款'],
+    },
+    {
+      kind: '本市', name: '示例市 DRG 付费实施细则(2026 版)', number: '示医保发〔2026〕3号', date: '2026-01', issuer: '示例市医疗保障局',
+      summary: '规定本市 DRG 分组版本、权重与费率、结算办法、特例单议及考核办法,自 2026 年 1 月 1 日起执行。',
+      points: ['病组支付标准 = 病组权重 × 费率', '高倍率病例(费用超支付标准 2 倍)可申请特例单议', '结算清单质控结果纳入年度考核'],
+    },
+    {
+      kind: '本市', name: '医保数据定向公开管理办法(试行)', number: '示医保发〔2026〕11号', date: '2026-04', issuer: '示例市医疗保障局',
+      summary: '明确医保运行数据向定点医药机构定向公开的范围、档位与流程,机构数据仅本院可见,同级对标默认匿名。',
+      points: ['同级对标分匿名分位、匿名编号、具名三档,具名须经召集人审批', '机构签收报告后 10 个工作日内可提出意见', '定向公开数据仅限本机构内部使用,全程留痕'],
+    },
+    {
+      kind: '口径', name: '指标口径手册 v2.1', number: '—', date: '2026-07', issuer: '示例市医保局数据工作组',
+      summary: '统一平台各页面指标的定义、计算口径与数据来源,版本变更随口径标签同步显示。',
+      points: ['例均基金差额 = (医保记账 − DRG 支付) ÷ 病例数', '同级分位按表现好坏排位,越高越好', '病例数 < 30 的病组并入「其他」展示'],
+    },
   ],
 }
 
 /**
  * ACTIONS:
- * completeCourse({ id: string }) — 开始学习: marks the required course as completed for the current user (demo: immediately, with the course's quiz score).
+ * startCourse({ id: string }) — 开始学习: opens the course for the current user (状态 学习中, stored per user).
+ * submitQuiz({ id: string, answers: number[] }) — 提交测验: graded on the server; ≥ 60 分 completes the course
+ *   (stored per user). Returns { score, passed, correct, total }.
  */

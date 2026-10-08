@@ -9,8 +9,8 @@ import { vPress } from '@/lib/a11y'
 const s = useA8()
 
 const view = (t: A8Task) => {
-  const k = s.flowStep[t.id] ?? t.step
-  const ur = isUrgent(t)
+  const k = t.step
+  const ur = k < 10 && isUrgent(t)
   return {
     on: t.id === s.flowId,
     due: k >= 10 ? '' : t.due,

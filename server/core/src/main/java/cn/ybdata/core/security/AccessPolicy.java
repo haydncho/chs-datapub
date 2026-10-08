@@ -23,8 +23,9 @@ import java.util.stream.Stream;
  * observer   A1, C3                          (公开层)
  * </pre>
  *
- * Other API areas: {@code /audit/**} convener · admin · auditor; {@code /analytics/**} convener · admin ·
- * analyst; {@code /settings/**} readable by everyone, writable by convener · admin; {@code /auth/**} and
+ * Other API areas: {@code /audit/**} convener · admin · auditor; {@code /analytics/**} follows the screen that
+ * renders it ({@link #ANALYTICS_PAGES}: alerts → A11, topics / drg → A6 · A7, health → everyone);
+ * {@code /settings/**} readable by everyone, writable by convener · admin; {@code /auth/**} and
  * {@code /pages} (code list) by everyone authenticated. 召集人审批 actions (A8 approve/reject) are convener-only.
  */
 public final class AccessPolicy {
@@ -60,7 +61,16 @@ public final class AccessPolicy {
             "A12/reviewAddUser", Set.of("convener", "admin"));
 
     private static final Set<String> AUDIT_ROLES = Set.of("convener", "admin", "auditor");
-    private static final Set<String> ANALYTICS_ROLES = Set.of("convener", "admin", "analyst");
+    /**
+     * analytics endpoint (first path segment below {@code analytics/}) → the screens that use it; a role may
+     * call it when it may open one of them. {@code health} is open to every authenticated caller.
+     */
+    static final Map<String, List<String>> ANALYTICS_PAGES = Map.of(
+            "alerts", List.of("A11"),
+            "topics", List.of("A6", "A7"),
+            "drg", List.of("A6", "A7"));
+    /** audit action name for calls refused by the access matrix (A14 type 权限) */
+    public static final String DENIED_ACTION = "accessDenied";
     private static final Set<String> SETTINGS_WRITERS = Set.of("convener", "admin");
 
     private AccessPolicy() {}
@@ -91,6 +101,27 @@ public final class AccessPolicy {
         return only == null || only.contains(role);
     }
 
+    static boolean canUseAnalytics(String role, String endpoint) {
+        if ("health".equals(endpoint)) return PAGES.containsKey(role);
+        return ANALYTICS_PAGES.getOrDefault(endpoint, List.of()).stream().anyMatch(page -> canView(role, page));
+    }
+
+    /**
+     * The screen a request path belongs to, for auditing refusals ({@code pages/B3} → B3, {@code actions/A8/x} → A8,
+     * {@code audit/**} → A14, {@code settings/appearance} → A15, {@code analytics/alerts/…} → A11); null when none.
+     */
+    public static String pageOf(String path) {
+        String[] p = path.split("/");
+        if (p.length < 2) return null;
+        return switch (p[0]) {
+            case "pages", "actions" -> p[1];
+            case "audit" -> "A14";
+            case "settings" -> "appearance".equals(p[1]) ? "A15" : "A13";
+            case "analytics" -> ANALYTICS_PAGES.getOrDefault(p[1], List.of("A6")).get(0);
+            default -> null;
+        };
+    }
+
     /**
      * @param path request path below {@code /api/v1/} (e.g. {@code pages/B3}, {@code actions/A8/approvePublish})
      * @return empty when allowed, otherwise the reason (served as a 403)
@@ -110,7 +141,7 @@ public final class AccessPolicy {
                         : "当前身份无权访问页面 " + p[1]);
             }
             case "audit" -> AUDIT_ROLES.contains(role) && read ? Optional.empty() : Optional.of("当前身份无权查阅审计日志");
-            case "analytics" -> ANALYTICS_ROLES.contains(role) ? Optional.empty() : Optional.of("当前身份无权使用分析服务");
+            case "analytics" -> canUseAnalytics(role, p.length > 1 ? p[1] : "") ? Optional.empty() : Optional.of("当前身份无权使用分析服务");
             case "settings" -> read || SETTINGS_WRITERS.contains(role) ? Optional.empty() : Optional.of("当前身份无权修改设置");
             default -> Optional.empty();
         };

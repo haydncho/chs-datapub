@@ -1,4 +1,5 @@
 import { computed, reactive } from 'vue'
+import { authToken } from './session'
 import { getJson } from '@/api/client'
 
 /**
@@ -214,14 +215,20 @@ export function publishAppearance(next: Appearance) {
 }
 
 /**
- * 从服务端拉取"平台级"外观(GET /api/v1/settings/appearance)并合并生效。
- * 失败(未启动后端 / 未登录 / 无记录)一律静默;建议在应用启动和登录成功后各调用一次。
+ * 从服务端拉取"平台级"外观(GET /api/v1/settings/appearance)并生效。服务端是唯一来源:
+ * 空对象 = 平台默认外观(从未设置,或 A15「恢复默认」),本地缓存的旧外观随之清除。
+ * 请求失败(未启动后端 / 未登录)静默,保留本地缓存;建议在应用启动和登录成功后各调用一次。
  */
 export async function syncAppearanceFromServer(): Promise<void> {
+  if (!authToken()) return // the setting is only served to signed-in users
   try {
     const remote = await getJson<Partial<Appearance>>('/settings/appearance')
-    if (!remote || typeof remote !== 'object' || Object.keys(remote).length === 0) return
-    const next = normalizeAppearance({ ...appearance, ...remote })
+    if (!remote || typeof remote !== 'object') return
+    if (Object.keys(remote).length === 0) {
+      resetAppearance()
+      return
+    }
+    const next = normalizeAppearance(remote)
     Object.assign(appearance, next)
     try { localStorage.setItem(APPEARANCE_KEY, JSON.stringify(next)) } catch { /* ignore */ }
     applyAppearance()

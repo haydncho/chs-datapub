@@ -29,6 +29,7 @@ class UserApiIT {
     @DynamicPropertySource
     static void db(DynamicPropertyRegistry r) {
         r.add("spring.datasource.url", () -> System.getenv("YB_IT_DB_URL"));
+        DevHeader.enable(r);
     }
 
     @Autowired TestRestTemplate http;

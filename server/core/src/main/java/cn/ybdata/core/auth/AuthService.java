@@ -40,7 +40,7 @@ public class AuthService {
     /** A freshly issued session. */
     public record Issued(String token, Instant expiresAt, Actor actor) {}
 
-    public record SmsSent(long cooldownSeconds, String maskedPhone) {}
+    public record SmsSent(long cooldownSeconds) {}
 
     private final JdbcClient jdbc;
     private final TokenService tokens;
@@ -60,29 +60,40 @@ public class AuthService {
     // ── SMS code ─────────────────────────────────────────────────────────────
 
     /**
-     * Issue an SMS code for {@code account}. At most one per {@code smsCooldown} per account (429 otherwise).
-     * The answer does not reveal whether the account exists; codes are only stored for real accounts.
+     * Issue an SMS code for {@code account} (login name or phone). At most one per {@code smsCooldown} per
+     * user — the login name and the phone number of one user share the cool-down (429 otherwise).
+     * The answer is the same whether or not the account exists (no masked phone, same cool-down);
+     * codes are only usable for real accounts.
      */
     public SmsSent requestSmsCode(String rawAccount) {
         String account = account(rawAccount);
+        Optional<User> user = findUser(account);
+        String key = key(account, user);
         OffsetDateTime now = now();
         Optional<OffsetDateTime> last = jdbc.sql("select sent_at from auth_sms_code where account = :a")
-                .param("a", account).query(OffsetDateTime.class).optional();
+                .param("a", key).query(OffsetDateTime.class).optional();
         if (last.isPresent()) {
             long wait = props.smsCooldown().toSeconds() - Duration.between(last.get(), now).toSeconds();
             if (wait > 0) throw new AuthException(HttpStatus.TOO_MANY_REQUESTS, "验证码已发送,请 " + wait + " 秒后再试", wait);
         }
-        Optional<User> user = findUser(account);
         // the row is written for unknown accounts too, so the cool-down cannot be used to probe accounts
         String code = user.isPresent() ? props.demoSmsCode() : String.format("%06d", random.nextInt(1_000_000));
         jdbc.sql("""
                 insert into auth_sms_code (account, code_hash, sent_at, expires_at, attempts) values (:a, :h, :s, :e, 0)
                 on conflict (account) do update set code_hash = excluded.code_hash, sent_at = excluded.sent_at,
                     expires_at = excluded.expires_at, attempts = 0""")
-                .param("a", account).param("h", Passwords.sha256Hex(account + "|" + code))
+                .param("a", key).param("h", Passwords.sha256Hex(key + "|" + code))
                 .param("s", now).param("e", now.plus(props.smsTtl())).update();
         user.ifPresent(u -> log.info("SMS code issued for {} (demo gateway: code {})", u.login(), props.demoSmsCode()));
-        return new SmsSent(props.smsCooldown().toSeconds(), user.map(u -> mask(u.phone())).orElse(null));
+        return new SmsSent(props.smsCooldown().toSeconds());
+    }
+
+    /**
+     * Rate-limit key: the login name of the user {@code account} resolves to (so "wangq" and wangq's phone
+     * number count together), or the trimmed account itself when it names nobody.
+     */
+    private static String key(String account, Optional<User> user) {
+        return user.map(User::login).orElse(account);
     }
 
     // ── login ────────────────────────────────────────────────────────────────
@@ -107,23 +118,26 @@ public class AuthService {
         if (secret == null || secret.isBlank()) {
             throw new AuthException(HttpStatus.BAD_REQUEST, "cert".equals(method) ? "请输入证书 PIN 码" : "请输入短信验证码");
         }
-        long failures = recentFailures(account);
+        Optional<User> found = findUser(account);
+        // failures are counted per user: the login name and the phone number share one lock-out
+        String key = key(account, found);
+        long failures = recentFailures(key);
         if (failures >= props.maxFailures()) {
             throw new AuthException(HttpStatus.TOO_MANY_REQUESTS,
                     "登录失败次数过多,请 " + props.lockWindow().toMinutes() + " 分钟后再试", props.lockWindow().toSeconds());
         }
 
-        Optional<User> user = findUser(account).filter(User::enabled);
+        Optional<User> user = found.filter(User::enabled);
         String reason = user.isEmpty() ? "unknown_account"
                 : "cert".equals(method) ? (pinMatches(user.get().id(), secret.trim()) ? null : "bad_pin")
-                : (smsMatches(account, secret.trim()) ? null : "bad_code");
+                : (smsMatches(key, secret.trim()) ? null : "bad_code");
         if (reason != null) {
-            attempt(account, method, false, reason, remote);
-            audit.record(clip(account), "A1", "loginFailed", json.valueToTree(Map.of("method", method, "reason", reason)), terminal);
+            attempt(key, method, false, reason, remote);
+            audit.record(clip(key), "A1", "loginFailed", json.valueToTree(Map.of("method", method, "reason", reason)), terminal);
             throw new AuthException(HttpStatus.UNAUTHORIZED, "cert".equals(method) ? "证书 PIN 码错误" : "账号或短信验证码错误");
         }
         User u = user.get();
-        attempt(account, method, true, null, remote);
+        attempt(key, method, true, null, remote);
         jdbc.sql("update app_user set last_login = now() where id = :id").param("id", u.id()).update();
         List<Identity> held = identities(u.id());
         if (held.isEmpty()) throw new AuthException(HttpStatus.FORBIDDEN, "该账号未分配任何身份,请联系管理员");
@@ -346,6 +360,7 @@ public class AuthService {
         String a = raw == null ? "" : raw.trim();
         if (a.isEmpty()) throw new AuthException(HttpStatus.BAD_REQUEST, "请输入账号");
         if (a.length() > 64) throw new AuthException(HttpStatus.BAD_REQUEST, "账号过长");
+        if (a.chars().anyMatch(c -> c < 0x20 || c == 0x7f)) throw new AuthException(HttpStatus.BAD_REQUEST, "账号含非法字符");
         return a;
     }
 

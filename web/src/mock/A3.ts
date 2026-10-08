@@ -36,6 +36,16 @@ export interface A3Source {
   overdueDays?: number
   /** 部分到数文案 (status = part) */
   partLabel?: string
+  /** 完整性 % (本期) */
+  completeness: number
+  /** 一致性 % (本期) */
+  consistency: number
+  /** server state: the late source arrived after a re-pull (this period's cell = late) */
+  arrivedLate?: boolean
+  /** server state: last 通知对接人 time (HH:mm:ss) */
+  notifiedAt?: string
+  /** server state: last failed re-pull */
+  lastPull?: { error: string; trace: string; at: string }
 }
 
 export interface A3OrgQc {
@@ -58,7 +68,6 @@ export interface A3Data {
   dueDate: string
   /** pipeline / KPI figures */
   stats: {
-    totalRows: string
     fieldMappings: string
     orgs: number
     doctors: string
@@ -74,6 +83,11 @@ export interface A3Data {
   sources: A3Source[]
   orgQc: A3OrgQc[]
   rules: A3Rule[]
+  /** server state: 本期质量校验已完成 */
+  qcDone?: boolean
+  qcAt?: string
+  /** server state: A8 task created by 生成月度报告 */
+  reportTaskId?: string
 }
 
 export const A3_SEED: A3Data = {
@@ -81,7 +95,6 @@ export const A3_SEED: A3Data = {
   periodShort: '8 月',
   dueDate: '09-05',
   stats: {
-    totalRows: '1,284 万',
     fieldMappings: '1,862',
     orgs: 52,
     doctors: '4,180',
@@ -97,57 +110,57 @@ export const A3_SEED: A3Data = {
   sources: [
     {
       name: '结算明细与DRG入组', provider: '市医保经办中心', mode: '库表直连', freq: '日', due: '每日 06:00',
-      status: 'ok', score: 98, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], rowsWan: 412.6,
+      status: 'ok', score: 98, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], completeness: 99.6, consistency: 98.9, rowsWan: 412.6,
       dependents: ['次均总费用', 'CMI值', '医保外费用占比'],
       lineage: { indicator: '次均总费用', version: 'v1.4', batch: 'B20260905-01', martTable: 'dm_drg_case_fee', sourceTable: 'settle_detail_202608' },
     },
     {
       name: '月结算与清算', provider: '市医保经办中心', mode: '库表直连', freq: '月', due: '次月 3 日',
-      status: 'ok', score: 97, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'late', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], rowsWan: 38.2,
+      status: 'ok', score: 97, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'late', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], completeness: 99.2, consistency: 98.4, rowsWan: 38.2,
       dependents: ['例均基金差额', '费用消耗指数'],
       lineage: { indicator: '例均基金差额', version: 'v2.1', batch: 'B20260905-03', martTable: 'dm_drg_case_fee', sourceTable: 'settle_detail_202608 · drg_pay_std_2026' },
     },
     {
       name: '基金收支与预算', provider: '市医保局基金科', mode: '文件上传', freq: '月', due: '次月 5 日',
-      status: 'ok', score: 95, history: ['ok', 'ok', 'ok', 'ok', 'late', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], rowsWan: 0.4,
+      status: 'ok', score: 95, history: ['ok', 'ok', 'ok', 'ok', 'late', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], completeness: 98.5, consistency: 97.1, rowsWan: 0.4,
       dependents: ['当期结余率', '预算执行率'],
     },
     {
       name: '电子病案', provider: '三医协同平台', mode: '接口推送', freq: '日', due: '每日 08:00',
-      status: 'ok', score: 91, history: ['ok', 'ok', 'late', 'ok', 'ok', 'ok', 'ok', 'ok', 'late', 'ok', 'ok', 'ok'], rowsWan: 286.1,
+      status: 'ok', score: 91, history: ['ok', 'ok', 'late', 'ok', 'ok', 'ok', 'ok', 'ok', 'late', 'ok', 'ok', 'ok'], completeness: 96.8, consistency: 94.2, rowsWan: 286.1,
       dependents: ['时间消耗指数', '14天再住院率', '术前平均住院日'],
       lineage: { indicator: '时间消耗指数', version: 'v1.0', batch: 'B20260906-01', martTable: 'dm_drg_los', sourceTable: 'emr_home_page_202608' },
     },
     {
       name: '异地就医', provider: '省医保平台回流', mode: '省平台交换', freq: '月', due: '次月 5 日',
-      status: 'late', score: 93, history: ['ok', 'ok', 'late', 'ok', 'ok', 'ok', 'ok', 'late', 'ok', 'ok', 'late', 'missing'], rowsWan: 21.8, overdueDays: 29,
+      status: 'late', score: 93, history: ['ok', 'ok', 'late', 'ok', 'ok', 'ok', 'ok', 'late', 'ok', 'ok', 'late', 'missing'], completeness: 97.4, consistency: 95.8, rowsWan: 21.8, overdueDays: 29,
       dependents: ['异地就医基金支出占比', '外流病种结构', '异地就医人次'],
       lineage: { indicator: '异地就医基金支出占比', version: 'v1.0', batch: 'B20260910-01', martTable: 'dm_offsite_fund', sourceTable: 'offsite_settle_202608' },
     },
     {
       name: '双通道及外购药', provider: '定点药店 · 省平台', mode: '接口推送', freq: '月', due: '次月 5 日',
-      status: 'ok', score: 88, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'late', 'ok', 'ok', 'ok', 'ok'], rowsWan: 6.3,
+      status: 'ok', score: 88, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'late', 'ok', 'ok', 'ok', 'ok'], completeness: 95.1, consistency: 92.6, rowsWan: 6.3,
       dependents: ['外购药费用占比'],
     },
     {
       name: '审核与申诉', provider: '智能审核系统', mode: '库表直连', freq: '日', due: '每日 07:00',
-      status: 'ok', score: 96, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], rowsWan: 92.4,
+      status: 'ok', score: 96, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], completeness: 99.0, consistency: 97.9, rowsWan: 92.4,
       dependents: ['结算清单质控率', '审核扣款率'],
       lineage: { indicator: '结算清单质控率', version: 'v1.3', batch: 'B20260904-02', martTable: 'dm_qc_list', sourceTable: 'audit_result_202608' },
     },
     {
       name: '卫健编办财政', provider: '卫健委 · 编办 · 财政局', mode: '文件上传', freq: '年', due: '每年 3 月',
-      status: 'ok', score: 90, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], rowsWan: 0.1,
+      status: 'ok', score: 90, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], completeness: 97.0, consistency: 95.5, rowsWan: 0.1,
       dependents: ['床位使用率', '财政补助占比'],
     },
     {
       name: '患者满意度', provider: '第三方测评机构', mode: '文件上传', freq: '季', due: '季后 15 日',
-      status: 'part', score: 76, history: ['ok', 'ok', 'late', 'ok', 'ok', 'late', 'ok', 'ok', 'late', 'ok', 'ok', 'part'], rowsWan: 1.2, partLabel: '部分到数 3/5',
+      status: 'part', score: 76, history: ['ok', 'ok', 'late', 'ok', 'ok', 'late', 'ok', 'ok', 'late', 'ok', 'ok', 'part'], completeness: 60.0, consistency: 93.4, rowsWan: 1.2, partLabel: '部分到数 3/5',
       dependents: ['住院患者满意度'],
     },
     {
       name: '目录与政策字典', provider: '国家医保信息平台', mode: '标准下发', freq: '按需', due: '变更即下发',
-      status: 'ok', score: 100, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], rowsWan: 0.3,
+      status: 'ok', score: 100, history: ['ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok', 'ok'], completeness: 100.0, consistency: 100.0, rowsWan: 0.3,
       dependents: ['分组与目录映射'],
     },
   ],
@@ -172,13 +185,15 @@ export const A3_SEED: A3Data = {
 
 /**
  * ACTIONS:
- * retryPull({ source: string, attempt: number }) — 重新拉取 / 重试: re-pull a late source from the
- *   provincial exchange interface (first attempt in the demo times out with HTTP 504, the retry succeeds
- *   and the source becomes 已到数);
+ * retryPull({ source: string }) — 重新拉取 / 重试: re-pull a late source from the provincial exchange
+ *   interface; the server answers { arrived, status?, trace?, at } (in the demo deployment the first attempt
+ *   times out with HTTP 504 and a server-generated trace, the retry succeeds and the source becomes 已到数);
  * notifyContact({ source: string, channels: string[] }) — 通知对接人: notify the provider's contact
- *   (政务微信 + 短信) about a late source;
+ *   (政务微信 / 短信 / 邮件) about a late source;
  * completeQualityCheck({ period: string }) — 完成质量校验: mark the period's quality check passed and
  *   refresh the indicator mart (only offered once all sources have arrived);
  * generateMonthlyReport({ period: string }) — 生成月度报告: create the monthly report draft and hand
- *   it to the publish workflow (A8).
+ *   it to the publish workflow (A8: publish_task mr-YYYYMM, step 3 分析成稿); requires the quality check.
+ * Server state (page_state) is merged into the payload: sources[].status/arrivedLate/notifiedAt/lastPull,
+ * qcDone, qcAt, reportTaskId. 本期数据量 is the sum of the arrived sources' rowsWan.
  */

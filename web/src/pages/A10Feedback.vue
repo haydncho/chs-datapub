@@ -1,41 +1,42 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { usePageData } from '@/api/client'
+import { computed, ref, watch } from 'vue'
+import { getJson, usePageData } from '@/api/client'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { A, AT, BRAND, G, GT, INK, R } from '@/lib/palette'
-import { A10_SEED, type FeedbackStatus } from '@/mock/A10'
+import { A10_SEED, type A10Data, type FeedbackStatus } from '@/mock/A10'
 import FeedbackDetail from './A10/FeedbackDetail.vue'
 import { FBS, FBT } from './A10/meta'
 import { vPress } from '@/lib/a11y'
 
 const data = usePageData('A10', A10_SEED)
 
-/** local status / assignee overrides keyed by item id */
-const fst = reactive<Record<string, FeedbackStatus>>({})
-const who = reactive<Record<string, string>>({})
-const q = ref<'all' | FeedbackStatus>('all')
-const fsel = ref(0)
-
-const stOf = (i: number) => {
-  const it = data.value.items[i]!
-  return fst[it.id] ?? it.status
+/** re-read the queue after an accepted action (status, track, KPIs all come from the server) */
+async function refresh() {
+  try {
+    const r = await getJson<A10Data>('/pages/A10')
+    if (r && typeof r === 'object') data.value = { ...A10_SEED, ...r }
+  } catch { /* keep the current view */ }
 }
+
+const q = ref<'all' | FeedbackStatus>('all')
+/** selection by item id — the server list may reorder / grow (B5 / C3 items) */
+const selId = ref<string>(data.value.items[0]?.id ?? '')
 
 const QUEUES: ['all' | FeedbackStatus, string][] = [
   ['all', '全部'], ['todo', '待分派'], ['over', '已超期'], ['doing', '处理中'], ['reply', '待答复'], ['done', '已答复'],
 ]
 const queues = computed(() =>
   QUEUES.map(([id, label]) => {
-    const n = data.value.items.filter((_, i) => id === 'all' || stOf(i) === id).length
+    const n = data.value.items.filter(it => id === 'all' || it.status === id).length
     return { id, label, n, on: id === q.value, alarm: id === 'over' && n > 0 }
   }),
 )
 
 const kpis = computed(() => {
   const items = data.value.items
-  const open = items.filter((_, i) => stOf(i) !== 'done').length
-  const over = items.filter((_, i) => stOf(i) === 'over').length
+  const open = items.filter(it => it.status !== 'done').length
+  const over = items.filter(it => it.status === 'over').length
   const s = data.value.stats
   return [
     { k: '未闭环', v: String(open), u: '条', c: open ? AT : GT },
@@ -46,41 +47,39 @@ const kpis = computed(() => {
   ]
 })
 
+const slaDays = computed(() => data.value.stats.slaDays ?? 5)
+
 const rows = computed(() =>
   data.value.items
-    .map((f, i) => ({ f, i }))
-    .filter(({ i }) => q.value === 'all' || stOf(i) === q.value)
-    .map(({ f, i }) => {
-      const st = stOf(i)
+    .filter(f => q.value === 'all' || f.status === q.value)
+    .map(f => {
+      const st = f.status
       const done = st === 'done'
       const d = f.daysLeft
       return {
         f,
-        i,
         st,
-        on: i === fsel.value,
+        on: f.id === selId.value,
         sla: done ? '已闭环' : d < 0 ? `超期 ${-d} 天` : d === 0 ? '今日到期' : `剩 ${d} 天`,
         slaC: done ? GT : d < 0 ? R : d <= 2 ? AT : INK[3],
-        slaW: done ? '100%' : `${Math.max(6, Math.min(100, ((7 - d) / 7) * 100))}%`,
+        slaW: done ? '100%' : `${Math.max(6, Math.min(100, ((slaDays.value - d) / slaDays.value) * 100))}%`,
         slaBar: done ? G : d < 0 ? R : d <= 2 ? A : BRAND,
       }
     }),
 )
 
-const selItem = computed(() => {
-  const it = data.value.items[fsel.value]!
-  return { ...it, assignee: who[it.id] ?? it.assignee }
-})
-const selStatus = computed(() => stOf(fsel.value))
+// keep the detail in sync with the visible list: a filter that hides the selection selects the first visible item
+watch(rows, list => {
+  if (list.length && !list.some(r => r.f.id === selId.value)) selId.value = list[0]!.f.id
+}, { immediate: true })
 
-function select(i: number) {
-  fsel.value = i
-}
-function setStatus(id: string, st: FeedbackStatus) {
-  fst[id] = st
-}
-function setAssignee(id: string, name: string) {
-  who[id] = name
+const selItem = computed(() => {
+  const items = data.value.items
+  return rows.value.find(r => r.f.id === selId.value)?.f ?? items.find(it => it.id === selId.value) ?? items[0]!
+})
+
+function select(id: string) {
+  selId.value = id
 }
 </script>
 
@@ -130,7 +129,8 @@ function setAssignee(id: string, name: string) {
             'flex min-h-10 cursor-pointer flex-col gap-1.5 border-b border-line-3 px-5 py-3.5 hover:bg-surface-1',
             r.on ? 'bg-brand-tint shadow-[inset_3px_0_0_var(--brand)]' : 'bg-white',
           )"
-          @click="select(r.i)"
+          :aria-current="r.on ? 'true' : undefined"
+          @click="select(r.f.id)"
         >
           <div class="flex items-center gap-2">
             <span
@@ -157,15 +157,14 @@ function setAssignee(id: string, name: string) {
 
       <!-- detail -->
       <FeedbackDetail
-        :key="selItem.id"
+        v-if="selItem"
+        :key="selItem.id + selItem.status + (selItem.assignee || '')"
         :item="selItem"
-        :status="selStatus"
+        :status="selItem.status"
         :templates="data.templates"
         :assign-to="data.assignTo"
         :track="data.track"
-        :just-assigned="selItem.id in who"
-        @status="setStatus"
-        @assign="setAssignee"
+        @changed="refresh"
       />
     </div>
   </section>

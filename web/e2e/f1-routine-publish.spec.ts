@@ -1,5 +1,19 @@
 import { expect, test } from './fixtures'
+import { type Page } from '@playwright/test'
 import { getPageModel, openPage, postAction, reloadPage, toast, waitForAction } from './support'
+
+/** Act in the browser as another demo user (the fixture logs in as 陈志远; a later init script wins). */
+async function loginAs(page: Page, account: string, side: 'bureau' | 'org') {
+  const r = await page.request.post('/api/v1/auth/login', { data: { method: 'cert', account, pin: '123456', side } })
+  expect(r.ok(), `login ${account}`).toBeTruthy()
+  const session = JSON.stringify(await r.json())
+  await page.addInitScript(([k, v]) => sessionStorage.setItem(k, v), ['yb.session', session])
+  // already on the app: hash navigation keeps the document, so switch the stored session and reload now
+  if (page.url().startsWith('http')) {
+    await page.evaluate(([k, v]) => sessionStorage.setItem(k!, v!), ['yb.session', session])
+    await page.reload()
+  }
+}
 
 /**
  * F1 例行发布:
@@ -7,11 +21,14 @@ import { getPageModel, openPage, postAction, reloadPage, toast, waitForAction } 
  */
 test.describe('F1 例行发布', () => {
   // the approval gate is server state: put the demo task back at step 5 before and after
+  // A3 arrival / quality check / generated draft are server state too (A3/resetDemo)
   test.beforeEach(async ({ request }) => {
     await postAction(request, 'A8', 'resetDemo', { taskId: 'm8' })
+    await postAction(request, 'A3', 'resetDemo')
   })
   test.afterEach(async ({ request }) => {
     await postAction(request, 'A8', 'resetDemo', { taskId: 'm8' })
+    await postAction(request, 'A3', 'resetDemo')
   })
 
   test('A3 归集 → 质量校验 → 生成月报 → A8 批准发布 → 签收追踪', async ({ page, request }) => {
@@ -97,5 +114,41 @@ test.describe('F1 例行发布', () => {
     await expect(page.getByRole('button', { name: /批准发布 · 推送/ })).toBeVisible({ timeout: 10_000 })
     await page.getByRole('button', { name: /^驳回至「/ }).click()
     await expect(toast(page, '驳回需填写审批意见')).toBeVisible()
+  })
+
+  test('A8 驳回 → 意见与日志刷新后仍在 → 重新提交审批', async ({ page }) => {
+    await openPage(page, 'A8')
+    await expect(page.getByRole('button', { name: /批准发布 · 推送/ })).toBeVisible({ timeout: 10_000 })
+    await page.getByPlaceholder('审批意见(驳回时必填)').fill('e2e 请补充县区解读')
+    const rej = page.waitForResponse(r => r.url().includes('/api/v1/actions/A8/rejectPublish'))
+    await page.getByRole('button', { name: /^驳回至「/ }).click()
+    expect((await rej).ok()).toBeTruthy()
+    await expect(toast(page, /已驳回至第 3 步/)).toBeVisible()
+
+    await reloadPage(page, 'A8')
+    await expect(page.getByText(/驳回意见 · 陈志远/)).toBeVisible()
+    await expect(page.getByText(/退回「分析成稿」:e2e 请补充县区解读/).first()).toBeVisible()
+
+    const sub = page.waitForResponse(r => r.url().includes('/api/v1/actions/A8/submitForApproval'))
+    await page.getByRole('button', { name: '重新提交审批' }).click()
+    expect((await sub).ok()).toBeTruthy()
+    await expect(toast(page, '已提交召集人审批')).toBeVisible()
+    await expect(page.getByRole('button', { name: /批准发布 · 推送/ })).toBeVisible()
+  })
+
+  test('A8 覆盖 0 家不能批准', async ({ page }) => {
+    await openPage(page, 'A8')
+    await page.getByText(/^定向范围/).first().click()
+    for (const d of ['市区', '丙区', '甲县', '乙县']) await page.getByRole('button', { name: d, exact: true }).click()
+    await expect(page.getByRole('button', { name: '批准发布 · 推送 0 家' })).toBeDisabled()
+    await expect(page.getByText('覆盖 0 家 · 不能发布')).toBeVisible()
+  })
+
+  test('A8 行政管理组只能查看审批区', async ({ page }) => {
+    await loginAs(page, 'lihua', 'bureau')
+    await openPage(page, 'A8')
+    await expect(page.getByText(/等待召集人审批/)).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /批准发布 · 推送/ })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /^驳回至「/ })).toHaveCount(0)
   })
 })

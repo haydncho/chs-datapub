@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { usePageData, sendAction } from '@/api/client'
+import { usePageData, runAction } from '@/api/client'
 import { session } from '@/app/session'
 import { setViewer, say } from '@/app/shell'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { COCKPIT_SEED, type CockpitData } from '@/mock/cockpit'
+import { COCKPIT_SEED, type CockpitData, type CockpitSavedSubscription } from '@/mock/cockpit'
 import AlarmOverlay from './cockpit/AlarmOverlay.vue'
 import CockpitBottom from './cockpit/CockpitBottom.vue'
 import CockpitCenter from './cockpit/CockpitCenter.vue'
@@ -43,6 +43,8 @@ const data = computed<CockpitData>(() => {
 const store = createCockpitStore(data)
 provide(COCKPIT_KEY, store)
 const { s, I, views, rotN, scr, alarm, go2, replay, restart } = store
+/** 机构端且没有本院数据(非示例数据所属医院):只显示标题与空状态,不画任何本院图表 */
+const noOwn = computed(() => data.value.noOwnData === true && I.value.id === 'hosp')
 
 /* ---------- identity ⇄ ?who= */
 const route = useRoute()
@@ -143,8 +145,28 @@ function toggleDual() {
 }
 
 /* ---------- alarm + sound */
+/*
+ * 浏览器只允许在用户手势之后创建 / 启动 AudioContext。进入页面时还没有手势,就先不响,
+ * 等第一次点击 / 按键时若告警仍未确认再补响一次 —— 控制台不再出现 AudioContext 警告。
+ */
 let ac: AudioContext | null = null
+const hasGesture = () => (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } }).userActivation?.hasBeenActive === true
+let beepPending = false
+function onFirstGesture() {
+  document.removeEventListener('pointerdown', onFirstGesture, true)
+  document.removeEventListener('keydown', onFirstGesture, true)
+  if (beepPending && s.alOn && s.snd) beep()
+  beepPending = false
+}
 function beep() {
+  if (!hasGesture()) {
+    if (!beepPending) {
+      beepPending = true
+      document.addEventListener('pointerdown', onFirstGesture, true)
+      document.addEventListener('keydown', onFirstGesture, true)
+    }
+    return
+  }
   try {
     const W = window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext }
     const Ctor = W.AudioContext ?? W.webkitAudioContext
@@ -165,38 +187,61 @@ function beep() {
     })
   } catch { /* audio unavailable */ }
 }
-/* 告警由真实的高等级预警触发:当前身份的提醒里有预警/提醒函,且本次会话未确认过 */
+/*
+ * 告警由真实的高等级预警触发(当前身份提醒里的预警 / 提醒函)。是否已确认以服务端为准:
+ * 页面数据里每条提醒带 acked(cockpit_alarm_ack);只有离线演示(无服务端状态)时才退回本会话记录。
+ * 等服务端数据到达(或超时)后再判断,避免先按演示数据弹出、再被服务端状态收回。
+ */
 const ACK_KEY = 'yb-alarm-ack'
-function ackedKeys(): string[] {
+function sessionAcked(): string[] {
   try { return JSON.parse(sessionStorage.getItem(ACK_KEY) ?? '[]') as string[] } catch { return [] }
 }
-const alarmKey = () => `${I.value.id}|${alarm.value.t}`
+const alarmKey = () => `${I.value.id}|${alarm.value.key}`
+function isAcked() {
+  const a = alarm.value
+  if (!a.key || s.acked.includes(alarmKey())) return true
+  if (a.serverAcked !== undefined) return a.serverAcked
+  return sessionAcked().includes(alarmKey())
+}
+const ready = ref(false)
+watch(raw, () => { ready.value = true })
+const readyT = setTimeout(() => { ready.value = true }, 2500)
 function checkAlarm() {
-  if (!alarm.value.t || ackedKeys().includes(alarmKey())) return
+  if (!ready.value) return
+  if (isAcked()) { s.alOn = false; return }
   if (s.alOn) return
   s.alOn = true
   if (s.snd) beep()
 }
-function ackAlarm() {
+const acking = ref(false)
+async function ackAlarm() {
+  if (acking.value) return
+  const a = alarm.value
+  const key = alarmKey()
+  acking.value = true
+  const r = await runAction('cockpit', 'ackAlarm', { identity: I.value.id, type: a.ty, text: a.t })
+  acking.value = false
+  if (!r.ok) { say(r.error || '确认未保存,请重试'); return }
+  s.acked = [...s.acked, key]
+  try { sessionStorage.setItem(ACK_KEY, JSON.stringify([...sessionAcked(), key])) } catch { /* 无存储时仅本次有效 */ }
   s.alOn = false
-  try { sessionStorage.setItem(ACK_KEY, JSON.stringify([...ackedKeys(), alarmKey()])) } catch { /* 无存储时仅本次有效 */ }
-  sendAction('cockpit', 'ackAlarm', { identity: I.value.id, type: alarm.value.ty, text: alarm.value.t })
+  say('已确认处置')
 }
-// 切换身份或收到新的预警内容时重新检查
-watch(() => alarmKey(), () => { s.alOn = false; checkAlarm() })
+// 服务端数据到达、切换身份或预警内容 / 确认状态变化时重新检查
+watch([ready, () => alarmKey(), () => alarm.value.serverAcked], () => checkAlarm())
 
-/* ---------- subscription */
-function saveSub() {
-  const sub = data.value.subscription
+/* ---------- subscription(草稿在对话框里;服务端接受后才更新全局并关闭) */
+const savingSub = ref(false)
+async function saveSub(sub: Omit<CockpitSavedSubscription, 'updatedAt'>) {
+  if (savingSub.value) return
+  savingSub.value = true
+  const idn = I.value.id
+  const r = await runAction<{ result?: CockpitSavedSubscription }>('cockpit', 'saveSubscription', { identity: idn, ...sub })
+  savingSub.value = false
+  if (!r.ok) { say(r.error || '订阅未保存'); return }
+  s.subSaved = { ...s.subSaved, [idn]: r.data?.result ?? { ...sub } }
   s.subOn = false
-  sendAction('cockpit', 'saveSubscription', {
-    identity: I.value.id,
-    frequency: sub.frequencies[s.sfq],
-    contents: sub.contents.filter((_, i) => s.sct[i]),
-    channel: sub.channels[s.sch],
-    recipients: I.value.recipients.filter((_, i) => s.sto[i]),
-  })
-  say('订阅已保存')
+  say(sub.enabled ? '订阅已保存' : '订阅已停用')
 }
 
 /* ---------- clock + auto-rotation */
@@ -212,6 +257,7 @@ onMounted(() => {
       const n = s.rotT + 1
       if (n >= rotN.value) {
         const vs = views.value
+        if (vs.length <= 1) { s.rotT = 0; s.now = Date.now(); return } // 只有一个视图时不重播
         const cur = vs.includes(s.view) ? s.view : 'bub'
         const nx = vs[(vs.indexOf(cur) + 1) % vs.length] ?? 'bub'
         go2({ view: nx, sel: null, rotT: 0, now: Date.now() })
@@ -230,6 +276,9 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
   clearInterval(iv)
+  clearTimeout(readyT)
+  document.removeEventListener('pointerdown', onFirstGesture, true)
+  document.removeEventListener('keydown', onFirstGesture, true)
   store.dispose()
   ro?.disconnect()
   document.removeEventListener('fullscreenchange', measure)
@@ -288,11 +337,22 @@ const tbOn = 'border-[rgb(var(--ck-acc))] bg-[rgb(var(--ck-acc)/.16)] text-[#CFE
         <div class="absolute inset-0" :style="{ background: glow }" />
         <div class="cockpit-grid absolute inset-0" />
         <CockpitTop />
-        <CockpitCenter />
-        <CockpitRight />
-        <CockpitBottom />
-        <CockpitLoop />
-        <AlarmOverlay v-if="s.alOn" @ack="ackAlarm" />
+        <template v-if="!noOwn">
+          <CockpitCenter />
+          <CockpitRight />
+          <CockpitBottom />
+          <CockpitLoop />
+        </template>
+        <!-- 登录机构不是示例数据所属医院:服务端已置空本院数据(HospitalCockpitScope · noOwnData) -->
+        <div
+          v-else
+          class="absolute top-[84px] right-7 bottom-6 left-7 flex flex-col items-center justify-center gap-3 rounded-[10px] border border-dashed border-[rgb(var(--ck-line)/.3)] bg-[rgb(var(--ck-panel)/.4)] text-center"
+          data-testid="cockpit-no-own-data"
+        >
+          <div class="text-[32px] font-semibold text-[#C9D6EA]">暂无本院数据</div>
+          <div class="max-w-[900px] text-lg text-[#6F84A6]">{{ data.noOwnDataNote || '本机构的医保结算数据尚未归集,全景图暂不展示本院指标' }}</div>
+        </div>
+        <AlarmOverlay v-if="s.alOn" :busy="acking" @ack="ackAlarm" />
       </div>
       <!-- secondary screen (双屏拼接 3840×1080) -->
       <div
@@ -302,11 +362,12 @@ const tbOn = 'border-[rgb(var(--ck-acc))] bg-[rgb(var(--ck-acc)/.16)] text-[#CFE
       >
         <div class="absolute inset-0" :style="{ background: glow }" />
         <div class="cockpit-grid absolute inset-0" />
-        <SecondScreen />
+        <SecondScreen v-if="!noOwn" />
+        <div v-else class="absolute inset-0 flex items-center justify-center text-[28px] text-[#6F84A6]">暂无本院数据</div>
       </div>
     </div>
 
-    <SubscribeDialog @save="saveSub" />
+    <SubscribeDialog :busy="savingSub" @save="saveSub" />
   </section>
 </template>
 
@@ -319,6 +380,10 @@ const tbOn = 'border-[rgb(var(--ck-acc))] bg-[rgb(var(--ck-acc)/.16)] text-[#CFE
   color: #E6EEF9;
   overflow: hidden;
   font-family: 'Noto Sans SC', sans-serif;
+}
+/* 指标卡条底色(主屏 / 副屏):随大屏配色(--ck-*)变化,不写死蓝色 */
+.ck-ribbon {
+  background: linear-gradient(180deg, rgb(var(--ck-acc) / .10), rgb(var(--ck-panel) / .35)), rgb(var(--ck-panel) / .55);
 }
 .cockpit-grid {
   background-image: linear-gradient(rgb(var(--ck-line)/.03) 1px, transparent 1px), linear-gradient(90deg, rgb(var(--ck-line)/.03) 1px, transparent 1px);

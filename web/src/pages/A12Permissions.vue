@@ -41,7 +41,7 @@ const sm = computed(() => data.value.summary)
 <template>
   <PageSection label="A12 用户权限">
     <PageHeader class="max-xl:flex-wrap" title="用户与权限" subtitle="以系统真实的用户、角色与访问矩阵为准 · 最小必要原则 · 新增用户需双人复核">
-      <Button :disabled="!s.isConvener" :title="s.isConvener ? '' : '仅召集人可操作'" @click="addOpen = true">+ 新增用户申请</Button>
+      <Button :disabled="!s.isConvener.value" :title="s.isConvener.value ? '' : '仅召集人可操作'" @click="addOpen = true">+ 新增用户申请</Button>
     </PageHeader>
 
     <div class="grid grid-cols-2 gap-3.5 md:grid-cols-3 xl:grid-cols-5" data-testid="a12-stats">
@@ -64,6 +64,7 @@ const sm = computed(() => data.value.summary)
       :is-convener="s.isConvener.value"
       :can-review="s.canReview.value"
       :me-name="s.meName.value"
+      :me-login="s.meLogin.value"
       @disable="askDisable"
       @enable="u => s.setEnabled(u, true)"
       @review="(u, ok) => s.review(u, ok)"

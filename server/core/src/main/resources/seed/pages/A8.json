@@ -34,7 +34,7 @@
       "group": "专题",
       "name": "BR25 脑缺血性疾患专题",
       "due": "核对剩 2 天",
-      "step": 4
+      "step": 3
     },
     {
       "id": "org",
@@ -648,7 +648,7 @@
         {
           "label": "例均基金差额",
           "method": "本院 · 同级匿名分位",
-          "value": "+486 · P62",
+          "value": "+723 · P45",
           "tone": "bad",
           "hidden": false
         },
@@ -803,9 +803,9 @@
       "tab": "pkg"
     },
     {
-      "text": "机构核对 49/52 · 3 条异议转工单",
-      "ok": false,
-      "tab": "sig"
+      "text": "机构核对 49/52 · 3 条异议已转意见工单",
+      "ok": true,
+      "tab": "pkg"
     }
   ],
   "phrases": [
@@ -842,7 +842,6 @@
   ],
   "signPeriod": "5 个工作日",
   "signRemain": "剩 4 个工作日",
-  "signRate": 0.79,
   "packageSize": "v3 · 37 项",
   "correction": {
     "oldTitle": "7月月度报告 v1",

@@ -1,7 +1,9 @@
 import { computed, inject, reactive, type InjectionKey, type Ref } from 'vue'
 import { fmt, hsh, pad, sign, wan } from '@/lib/format'
 import { appearance } from '@/app/appearance'
-import type { CockpitData, CockpitIdentity, CockpitView, IdentityId, LoopStatus, MatrixStatus, Tone } from '@/mock/cockpit'
+import type {
+  CockpitData, CockpitIdentity, CockpitPeer, CockpitPeriodView, CockpitSavedSubscription, CockpitView, IdentityId, LoopStatus, MatrixStatus, Period, Tone,
+} from '@/mock/cockpit'
 
 /** 较上期变化:箭头文字 + 好坏着色(绿向好 / 红需关注 / 灰持平) */
 export function deltaOf(delta: number, goodDir: number) {
@@ -61,7 +63,7 @@ export const dcolD = (v: number) => (v > 0 ? K.red : K.green)
 export const ALERT_C: Record<string, string> = {
   提醒函: '#FF8A4C', 预警: '#FF6B5E', 关注: '#F5B74E', 逾期: '#FF8A4C', 意见: '#B9A2FF', 待签收: 'rgb(var(--ck-acc))', 核对: '#B9A2FF', 答复: '#3FD1A0',
 }
-export const alertColor = (t: string) => ALERT_C[t] ?? '#7FB6FF'
+export const alertColor = (t: string) => ALERT_C[t] ?? 'rgb(var(--ck-accl))'
 /** 实时提醒的级别:数字越小越靠前;0–1 为高级别(加强显示) */
 export const ALERT_RANK: Record<string, number> = { 预警: 0, 提醒函: 1, 逾期: 1, 关注: 2, 核对: 3, 待签收: 4, 意见: 5, 答复: 6 }
 export const TONE_C: Record<Tone, string> = { ok: K.green, warn: K.amber, bad: K.red }
@@ -82,7 +84,7 @@ export const VIEW_NAME: Record<CockpitView, string> = {
 export const SCREEN2_VIEWS: Partial<Record<IdentityId, CockpitView[]>> = { conv: ['pub', 'flow'], hosp: ['peer', 'dept'] }
 export type Lens = 'money' | 'eff' | 'err'
 export const LENSES: [Lens, string][] = [['money', '钱'], ['eff', '效 · 时间消耗'], ['err', '错 · 审核']]
-export type Period = '月' | '季' | '年'
+export type { Period } from '@/mock/cockpit'
 export const EASE = 'cubic-bezier(.2,.8,.2,1)'
 
 /* ------------------------------------------------------------------ types */
@@ -105,6 +107,20 @@ export const WHO_TO_IDN: Record<string, number> = { cockpit: 0, conv: 0, hosp: 1
 export const IDN_TO_WHO: IdentityId[] = ['conv', 'hosp']
 
 /* ------------------------------------------------------------------ store */
+/** 同级分位(与 B1 同口径:按表现排位,越高越好;> 50 即优于同级中位) */
+export const goodPct = (p: CockpitPeer) => +p.pct.slice(1)
+/** 告警确认的键(与服务端 cockpit_alarm_ack.alarm_key 一致) */
+export const alarmKeyOf = (a: { type: string; text: string }) => `${a.type}|${a.text}`
+const HIGH_ALERT = /预警|提醒函/
+
+/** 让坐标轴上限落在 1 / 1.2 / 1.5 / 1.6 / 2 / 2.5 / 3 / 4 / 5 / 6 / 8 × 10^k 上 */
+export function niceCeil(v: number) {
+  if (v <= 0) return 1
+  const e = 10 ** Math.floor(Math.log10(v))
+  const f = [1, 1.2, 1.5, 1.6, 2, 2.5, 3, 4, 5, 6, 8, 10].find(x => x * e >= v - 1e-9) ?? 10
+  return f * e
+}
+
 export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
   const s = reactive({
     idn: 0,
@@ -124,13 +140,23 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     snd: true,
     alOn: false,
     subOn: false,
-    sfq: 0,
-    sct: { 0: true, 1: true } as Record<number, boolean>,
-    sch: 0,
-    sto: { 0: true, 1: true } as Record<number, boolean>,
+    /** 本次会话里刚保存的订阅(服务端已接受),覆盖页面数据里的 savedSubscription,直到下次加载 */
+    subSaved: {} as Partial<Record<IdentityId, CockpitSavedSubscription | null>>,
+    /** 本次会话里已确认(服务端已接受)的告警键 */
+    acked: [] as string[],
   })
 
   const I = computed<CockpitIdentity>(() => data.value.identities[s.idn] ?? data.value.identities[0]!)
+  /** 当前周期口径下的指标卡 / 钱 / 效 / 错(月 = 身份顶层;季 / 年 = periods) */
+  const PV = computed<CockpitPeriodView>(() => (s.period === '月' ? I.value : I.value.periods?.[s.period] ?? I.value))
+  const periodLabel = computed(() => data.value.periodLabels[s.period])
+  /** 本周期包含的月数(颜色阈值按月均折算) */
+  const span = computed(() => data.value.periodMonths?.[s.period] ?? 1)
+  /** 病组 / 机构 / 科室:按周期取期内数据 */
+  const drgs = computed(() => data.value.drgs.map(g => ({ ...g, ...(s.period !== '月' ? g.byPeriod?.[s.period] : undefined) })))
+  const insts = computed(() => data.value.institutions.map(x => ({ ...x, ...(s.period !== '月' ? x.byPeriod?.[s.period] : undefined) })))
+  const deptsP = computed(() => data.value.depts.map(x => ({ ...x, ...(s.period !== '月' ? x.byPeriod?.[s.period] : undefined) })))
+
   /** 双屏时,副屏专门展示的视图从主屏的视图切换 / 轮播中移除,两块屏不重复 */
   const views = computed<CockpitView[]>(() => {
     const own = SCREEN2_VIEWS[I.value.id] ?? []
@@ -150,7 +176,7 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
   /** state change that replays the enter animation (bubbles from the centre line etc.) */
   function go2(patch: Partial<typeof s>) {
     Object.assign(s, patch, { grow: false })
-    if ('idn' in patch) restart()
+    if ('idn' in patch || 'period' in patch) restart()
     replay()
   }
   let introT: ReturnType<typeof setTimeout> | undefined
@@ -168,27 +194,31 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     const d = data.value
     const id = I.value.id
     const H = id === 'hosp'
-    const xMax = H ? 500 : 1600
-    const yMax = 3200
     const gray: { x: number; y: number; r: number }[] = []
     let items: BubbleItem[]
+    const sub0 = (H ? '本院' : '全市 · 全部机构') + ' · ' + periodLabel.value
     if (!H) {
-      items = d.drgs.map(g => ({
-        k: g.code, t: g.code + ' ' + g.name, sub: '全市 · 全部机构', x: g.cases, y: g.diff, cost: g.cost,
+      items = drgs.value.map(g => ({
+        k: g.code, t: g.code + ' ' + g.name, sub: sub0, x: g.cases, y: g.diff, cost: g.cost,
         tot: g.cases * g.diff, r: 6 + Math.sqrt(g.cost) / 17,
       }))
     } else {
-      d.drgs.forEach(g => gray.push({ x: g.cases * 0.22, y: g.diff, r: 5 + Math.sqrt(g.cost) / 22 }))
-      items = d.drgs.map(g => {
-        const k = hsh(g.code)
-        const x = g.cases * 0.28 * (0.7 + (k % 60) / 100)
-        const y = Math.round(g.diff * (0.6 + (k % 80) / 100) + ((k % 7) - 3) * 60)
+      // 灰点:全市同组参照;彩点:本院病组(与 B1 病组表同源)
+      drgs.value.forEach(g => gray.push({ x: g.cases * 0.22, y: g.diff, r: 5 + Math.sqrt(g.cost) / 22 }))
+      const city = new Map(drgs.value.map(g => [g.code, g]))
+      items = (I.value.ownDrgs ?? []).map(o => {
+        const g = city.get(o.code)
+        const p = { ...o, ...(s.period !== '月' ? o.byPeriod?.[s.period] : undefined) }
+        const small = p.cases < 30 * span.value
         return {
-          k: g.code, t: g.code + ' ' + g.name, sub: '本院' + (x < 30 ? ' · 病例 < 30,门户中并入其他' : ''),
-          x, y, cost: g.cost, tot: x * y, r: 5 + Math.sqrt(g.cost) / 22, city: g.diff, small: x < 30,
+          k: o.code, t: o.code + ' ' + (g?.name ?? ''), sub: sub0 + (small ? ' · 病例 < 30/月,门户中并入其他' : ''),
+          x: p.cases, y: p.diff, cost: o.cost, tot: p.cases * p.diff, r: 5 + Math.sqrt(o.cost) / 22, city: g?.diff, small,
         }
       })
     }
+    // 坐标上限随数据(与周期)走:留出余量,最高的气泡不会顶到象限标签
+    const xMax = niceCeil(Math.max(...items.map(i => i.x), ...gray.map(q => q.x), 1) * 1.08)
+    const yMax = niceCeil(Math.max(...items.map(i => Math.abs(i.y)), 1) * 1.3)
     const pos = (x: number, y: number) => ({
       x: (Math.min(x / xMax, 1) * 100).toFixed(2),
       y: (50 - Math.max(-1, Math.min(1, y / yMax)) * 50).toFixed(2),
@@ -200,8 +230,9 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     const big = [...items].sort((a, b) => Math.abs(b.tot) - Math.abs(a.tot)).slice(0, H ? 3 : 7).map(i => i.k)
     const g = s.grow
     const sel = s.sel
-    const fillOf = (i: BubbleItem) => (i.small ? K.muted : !H ? tcolD(i.tot) : dcolD(i.y))
+    const fillOf = (i: BubbleItem) => (i.small ? K.muted : !H ? tcolD(i.tot / span.value) : dcolD(i.y))
 
+    // 小气泡压在大气泡之上(按半径细分层级),重叠时也能看到并点中小的那个
     const main = items.map((i, ix) => {
       const p0 = pos(i.x, i.y)
       const p = g ? p0 : { x: p0.x, y: '50.00' }
@@ -212,17 +243,18 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
       return {
         k: i.k,
         tip: i.t,
+        cx: +p0.x, cy: +p0.y, r: i.r,
         style: {
           left: p.x + '%', top: p.y + '%', width: dd + 'px', height: dd + 'px',
           marginLeft: -Math.round(dd / 2) + 'px', marginTop: -Math.round(dd / 2) + 'px',
           background: fill, opacity: g ? 0.9 : 0,
-          boxShadow: on ? `0 0 0 2px #fff, 0 0 28px ${fill}` : flag.includes(i.k) ? `0 0 0 3px rgb(var(--ck-deep)), 0 0 0 5px ${rc}, 0 0 18px ${rc}` : `0 0 14px color-mix(in srgb,${fill} 33%,transparent)`,
-          zIndex: on ? 60 : Math.round(40 - i.r / 4),
+          boxShadow: on ? `0 0 0 2px #fff, 0 0 28px ${fill}` : flag.includes(i.k) ? `0 0 0 3px rgb(var(--ck-deep)), 0 0 0 5px ${rc}, 0 0 18px ${rc}` : `0 0 0 1px rgb(var(--ck-deep)/.55), 0 0 14px color-mix(in srgb,${fill} 33%,transparent)`,
+          zIndex: on ? 60 : 10 + Math.max(0, Math.round(40 - i.r)),
           transition: `left .9s ${EASE} ${dl},top 1.1s ${EASE} ${dl},width .8s ${EASE} ${dl},height .8s ${EASE} ${dl},margin .8s ${EASE} ${dl},opacity .5s ease ${dl},box-shadow .3s ease`,
         },
       }
     })
-    const pulseK = !H ? items.filter(i => i.tot > 1e6).map(i => i.k) : big.slice(0, 3)
+    const pulseK = !H ? items.filter(i => i.tot / span.value > 1e6).map(i => i.k) : big.slice(0, 3)
     const pulses = items.filter(i => pulseK.includes(i.k) || i.k === sel).map((i, j) => {
       const p = pos(i.x, i.y)
       const dd = Math.round(i.r * 2)
@@ -260,9 +292,31 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
       .filter(i => hot.includes(i.k) || i.k === sel)
       .sort((a, b) => b.y - a.y)
       .map(i => ({ i, l: labelFor(i) }))
-    labels.forEach((x, j) => {
-      const prev = labels.slice(0, j).filter(p => Math.abs(p.i.x / xMax - x.i.x / xMax) < 0.14 && Math.abs(p.i.y - x.i.y) / yMax < 0.08)
-      if (prev.length) x.l.style.marginTop = -12 + prev.length * 24 + 'px'
+    // 标签避让:按绘图区的近似像素尺寸算出每个标签的框,与已放置的标签相交就换到气泡另一侧或往下错开一行
+    const PW = 832
+    const PH = 430
+    const placed: { x0: number; x1: number; y0: number; y1: number }[] = []
+    labels.forEach(x => {
+      const cx = (Math.min(x.i.x / xMax, 1)) * PW
+      const cy = (0.5 - Math.max(-1, Math.min(1, x.i.y / yMax)) * 0.5) * PH
+      const w = x.l.t.length * 15 + 18
+      const boxOf = (left: boolean, dy: number) => {
+        const x0 = left ? cx - x.i.r - 8 - w : cx + x.i.r + 8
+        return { x0, x1: x0 + w, y0: cy - 12 + dy, y1: cy + 12 + dy }
+      }
+      const clash = (b: { x0: number; x1: number; y0: number; y1: number }) =>
+        placed.some(q => b.x0 < q.x1 && q.x0 < b.x1 && b.y0 < q.y1 && q.y0 < b.y1)
+      const pref = x.l.style.transform !== 'none'
+      let best = { left: pref, dy: 0 }
+      search: for (const dy of [0, 24, -24, 48, -48]) {
+        for (const left of [pref, !pref]) {
+          if (!clash(boxOf(left, dy)) && boxOf(left, dy).x0 >= 0 && boxOf(left, dy).x1 <= PW) { best = { left, dy }; break search }
+        }
+      }
+      placed.push(boxOf(best.left, best.dy))
+      x.l.style.marginLeft = (best.left ? -(x.i.r + 8) : x.i.r + 8) + 'px'
+      x.l.style.transform = best.left ? 'translateX(-100%)' : 'none'
+      x.l.style.marginTop = -12 + best.dy + 'px'
     })
     const labelOf = (k: string) => {
       const i = items.find(x => x.k === k)
@@ -279,39 +333,40 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
   })
 
   /* ---------- KPI ribbon */
+  const DELTA_WORD: Record<Period, string> = { 月: '较上月', 季: '较上季', 年: '较去年同期' }
+  const deltaWord = computed(() => DELTA_WORD[s.period])
   const ribbon = computed(() =>
-    I.value.kpis.map((k, i) => {
+    PV.value.kpis.map((k, i) => {
       const { d, dc, st } = deltaOf(k.delta, k.goodDir)
-      const trend = k.trend && k.trend.length >= 2
-        ? k.trend
-        : Array.from({ length: 12 }, (_, j) => 10 + (hsh(k.label + j) % 22) + j * 1.2)
       return {
         k: k.label, v: k.value, u: k.unit,
-        d, dc, st,
+        d: k.delta === 0 || !k.deltaUnit ? d : d + k.deltaUnit, dc, st,
         first: i === 0,
-        trend,
+        // 没有走势数据就不画走势线(不编造)
+        trend: k.trend && k.trend.length >= 2 ? k.trend : null,
       }
     }),
   )
 
   const labelOf = (k: string) => bubble.value.labelOf(k)
 
-  /* ---------- money bars */
+  /* ---------- money bars:与指标卡同源(见 mock 中的 bars()) */
   const months = computed(() => {
-    const d = data.value
+    const b = PV.value.money.bars
     const H = I.value.id === 'hosp'
-    const MS = H ? d.hospRecorded : d.spend
-    const PS = H ? d.hospPaid : null
-    const mx = Math.max(...MS, ...(PS ?? [])) * 1.03
-    const b0 = PS ? 400 : 0
-    const yearAt = d.months.findIndex((m, i) => i > 0 && m === '1')
+    const MS = b.values
+    const LS = b.line
+    const mx = Math.max(...MS, ...LS) * 1.03
+    // 本院月度 / 季度柱从低位起画(差异才看得出);累计柱从 0 起
+    const b0 = H && !b.cumulative ? Math.floor(Math.min(...MS, ...LS) * 0.9) : 0
     const last = MS.length - 1
-    // 医保局:支出超过预算线的月份;本院:记账与 DRG 支付的缺口高于近 12 月平均的月份(本院每月都有缺口,全标红就没有重点了)
-    const gaps = PS ? MS.map((v, i) => (v - PS[i]!) / v) : []
+    // 医保局:支出超过预算线;本院:记账与 DRG 支付的缺口高于本口径平均(本院每期都有缺口,全标红就没有重点了)
+    const gaps = H ? MS.map((v, i) => (v - LS[i]!) / v) : []
     const gapAvg = gaps.length ? gaps.reduce((a, x) => a + x, 0) / gaps.length : 0
+    const label = (v: number) => (v < 100 ? v.toFixed(2) : fmt(v))
     return MS.map((v, i) => {
-      const line = PS ? PS[i]! : d.budgetLine
-      const over = PS ? gaps[i]! > gapAvg : v > line
+      const line = LS[i]!
+      const over = H ? gaps[i]! > gapAvg && !b.cumulative : v > line
       const cur = i === last
       return {
         h: (((v - b0) / (mx - b0)) * 100).toFixed(1) + '%',
@@ -319,14 +374,14 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
         bg: cur ? (over ? K.red : K.sky) : over ? 'rgba(255,107,94,.55)' : 'rgb(var(--ck-acc)/.28)',
         vc: over ? K.redInk : K.skyLite,
         over, cur,
-        l: d.months[i] ?? '',
-        yr: i === yearAt ? d.dataAsOf.slice(0, 4) : '',
-        v: String(v),
+        l: b.labels[i] ?? '',
+        yr: i === b.yearAt ? b.year : '',
+        v: label(v),
       }
     })
   })
 
-  /* ---------- tornado */
+  /* ---------- tornado:左右两侧各自可点 */
   const torn = computed(() => {
     const items = bubble.value.items
     const pos = items.filter(i => i.tot > 0).sort((a, b) => b.tot - a.tot).slice(0, 5)
@@ -340,17 +395,23 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
         rk: b?.k ?? '', ra: b ? wan(b.tot) : '',
         lw: a ? ((Math.abs(a.tot) / tm) * 100).toFixed(0) + '%' : '0',
         rw: b ? ((Math.abs(b.tot) / tm) * 100).toFixed(0) + '%' : '0',
-        k: (b ?? a)?.k ?? null,
+        lon: !!a && a.k === s.sel, ron: !!b && b.k === s.sel,
       }
     })
   })
+  /** 点病组(差异条形图等):不在病组视图时切回病组全景,选中对象卡只在病组视图显示病组 */
+  function pickDrg(k: string) {
+    if (!k) return
+    if (view.value === 'bub') s.sel = k
+    else go2({ view: 'bub', sel: k, rotT: 0 })
+  }
 
   /* ---------- institutions */
   const instCols = computed(() => {
     const d = data.value
     const open = I.value.id === 'conv'
     return d.districts.map(dist => {
-      const list = d.institutions.filter(x => x.district === dist).sort((a, b) => a.tier - b.tier || b.diff - a.diff)
+      const list = insts.value.filter(x => x.district === dist).sort((a, b) => a.tier - b.tier || b.diff - a.diff)
       const avg = Math.round(list.reduce((a, x) => a + x.diff, 0) / (list.length || 1))
       return {
         d: dist, n: list.length, avg: '均 ' + sign(avg), ac: dcolD(avg), hc: open ? K.inkHi : K.ink3, open,
@@ -369,11 +430,11 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
 
   /* ---------- departments */
   const depts = computed(() =>
-    data.value.depts.map((d, i) => {
+    deptsP.value.map((d, i) => {
       const a = Math.min(1, Math.abs(d.diff) / 1600)
       const tot = d.cases * d.diff
       return {
-        n: d.name, c: d.cases, v: sign(d.diff), cmi: d.cmi.toFixed(2),
+        n: d.name, c: fmt(d.cases), v: sign(d.diff), cmi: d.cmi.toFixed(2),
         tot: (tot > 0 ? '超支 ' : '结余 ') + (Math.abs(tot) / 10000).toFixed(1) + ' 万',
         fg: d.diff > 0 ? K.redInk : K.greenInk,
         style: {
@@ -387,19 +448,21 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     }),
   )
 
-  /* ---------- peers */
+  /* ---------- peers(分位与 B1 同口径:按数值由低到高;好坏按指标方向判断) */
   const peer = computed(() =>
     data.value.peers.map(r => {
       const mn = Math.min(...r.values)
       const mxv = Math.max(...r.values)
-      const pn = +r.pct.slice(1)
+      const gp = goodPct(r)
       return {
         n: r.name, v: r.value, p: r.pct,
-        pc: pn >= 60 ? K.green : pn < 35 ? K.redSoft : K.amber,
+        dir: r.higherIsBetter ? '数值高为优' : '数值低为优',
+        pc: gp > 50 ? K.green : gp < 35 ? K.redSoft : K.amber,
+        st: gp > 50 ? '优于中位' : gp < 50 ? '差于中位' : '持平',
         dots: r.values.map((x, i) => {
           let ps = (x - mn) / (mxv - mn || 1)
           if (!r.higherIsBetter) ps = 1 - ps
-          const me = i === 2
+          const me = i === (r.ownIndex ?? 2)
           return {
             me,
             x: s.grow ? (4 + ps * 92).toFixed(1) + '%' : '50%',
@@ -409,6 +472,19 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
       }
     }),
   )
+  /** 同级对标汇总:与明细同源,优于 + 差于(+ 持平)= 总项数 */
+  const peerStats = computed(() => {
+    const ps = data.value.peers
+    const better = ps.filter(p => goodPct(p) > 50)
+    const worse = ps.filter(p => goodPct(p) < 50)
+    const watch = [...ps].sort((a, b) => goodPct(a) - goodPct(b))[0]
+    const find = (re: RegExp) => ps.find(p => re.test(p.name))
+    return {
+      n: ps.length, better, worse,
+      watch: watch && goodPct(watch) < 50 ? watch.name : '—',
+      cmi: find(/^CMI/), diff: find(/例均基金差额/),
+    }
+  })
 
   /* ---------- flows */
   const flows = computed(() =>
@@ -435,33 +511,60 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
       }),
     })),
   )
+  /** 公开矩阵汇总:全部按「格」从矩阵现算,三项同一口径 */
+  const matrixStats = computed(() => {
+    const cells = data.value.matrix.filter(r => !r.internal).flatMap(r => r.cells)
+    const cmt = cells.filter(c => c.status === 'cmt')
+    return {
+      unpublished: cells.filter(c => c.status === 'np').length,
+      unread: cells.filter(c => c.status === 'low').length,
+      unanswered: cmt.length,
+      comments: cmt.reduce((a, c) => a + (c.value ?? 0), 0),
+    }
+  })
 
-  /* ---------- detail bar */
+  /* ---------- detail bar:只显示与当前视图相关、数据里真实存在的内容 */
   const det = computed<{ t: string; sub: string; rows: DetailRow[] }>(() => {
     const d = data.value
     const id = I.value.id
     const v = view.value
+    const pl = periodLabel.value
     if (v === 'inst') {
-      const x = d.institutions.find(q => q.name === s.sel)
+      const all = insts.value
+      const x = all.find(q => q.name === s.sel)
       if (x) {
-        const h = hsh(x.name)
+        const same = all.filter(q => q.tier === x.tier).sort((a, b) => b.diff - a.diff)
+        const dist = all.filter(q => q.district === x.district)
+        const distAvg = Math.round(dist.reduce((a, q) => a + q.diff, 0) / (dist.length || 1))
         return {
-          t: x.name, sub: x.district + ' · ' + (d.tiers[x.tier] ?? ''),
+          t: x.name, sub: x.district + ' · ' + (d.tiers[x.tier] ?? '') + ' · ' + pl,
           rows: [
             { k: '例均基金差额', v: sign(x.diff) + ' 元', c: dcolD(x.diff) },
-            { k: '同级分位', v: 'P' + (30 + (h % 65)), c: K.ink },
-            { k: '清单质控率', v: (92 + (h % 70) / 10).toFixed(1) + '%', c: K.ink },
-            { k: '本期签收', v: h % 9 ? '已签收' : '待签收', c: h % 9 ? K.green : K.amber },
+            { k: '同级别逆差排位', v: `第 ${same.indexOf(x) + 1} / ${same.length} 家`, c: K.ink },
+            { k: x.district + '机构均值', v: sign(distAvg) + ' 元', c: dcolD(distAvg) },
           ],
         }
       }
+      const def = all.filter(q => q.diff > 0)
+      const worst = [...all].sort((a, b) => b.diff - a.diff)[0]
+      const avg = Math.round(all.reduce((a, q) => a + q.diff, 0) / (all.length || 1))
+      return {
+        t: '机构矩阵', sub: '点选机构查看详情 · ' + pl,
+        rows: [
+          { k: '机构数', v: all.length + ' 家', c: K.ink },
+          { k: '逆差机构', v: def.length + ' 家', c: K.redSoft },
+          { k: '机构均值', v: sign(avg) + ' 元', c: dcolD(avg) },
+          ...(worst ? [{ k: '逆差最大', v: worst.name, c: K.redInk }] : []),
+        ],
+      }
     }
     if (v === 'dept') {
-      const x = d.depts.find(q => q.name === s.sel)
+      const all = deptsP.value
+      const x = all.find(q => q.name === s.sel)
       if (x) {
         const tot = x.cases * x.diff
         return {
-          t: x.name, sub: '本院科室 · 仅本院可见',
+          t: x.name, sub: '本院科室 · 仅本院可见 · ' + pl,
           rows: [
             { k: '出院病例', v: fmt(x.cases) + ' 例', c: K.ink },
             { k: '例均基金差额', v: sign(x.diff) + ' 元', c: dcolD(x.diff) },
@@ -470,16 +573,51 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
           ],
         }
       }
+      const over = all.filter(q => q.diff > 0)
+      const worst = [...all].sort((a, b) => b.cases * b.diff - a.cases * a.diff)[0]
+      return {
+        t: '科室矩阵', sub: '点选科室查看详情 · ' + pl,
+        rows: [
+          { k: '科室数', v: all.length + ' 个', c: K.ink },
+          { k: '出院病例合计', v: fmt(all.reduce((a, q) => a + q.cases, 0)) + ' 例', c: K.ink },
+          { k: '超支科室', v: over.length + ' 个', c: K.redSoft },
+          ...(worst && worst.diff > 0 ? [{ k: '超支最多', v: worst.name, c: K.redInk }] : []),
+        ],
+      }
     }
     if (v === 'peer') {
-      const ps = d.peerSummary
+      const ps = peerStats.value
       return {
-        t: '同级对标 · 市三级', sub: '他院匿名 · 仅显示本院位置',
+        t: '同级对标 · 市三级', sub: '分位越高越好 · 口径 ' + d.periodLabels.月,
         rows: [
-          { k: '优于中位', v: ps.better, c: K.green },
-          { k: '需关注', v: ps.watch, c: K.redSoft },
-          { k: 'CMI 分位', v: ps.cmiPct, c: K.skyLite },
-          { k: '例均差额分位', v: ps.diffPct, c: K.amber },
+          { k: '优于同级中位', v: `${ps.better.length} / ${ps.n} 项`, c: K.green },
+          { k: '差于同级中位', v: `${ps.worse.length} / ${ps.n} 项`, c: K.redSoft },
+          { k: '最需关注', v: ps.watch, c: K.redSoft },
+          ...(ps.cmi ? [{ k: 'CMI 同级分位', v: ps.cmi.pct, c: K.skyLite }] : []),
+        ],
+      }
+    }
+    if (v === 'flow') {
+      const fs = d.flows
+      const share = (sc: string) => fs.filter(f => f.scope === sc).reduce((a, f) => a + f.share, 0).toFixed(1) + '%'
+      const top = [...fs].filter(f => f.scope !== '—').sort((a, b) => b.share - a.share)[0]
+      return {
+        t: '异地流向', sub: d.flowOrigin.name + ' · ' + d.flowOrigin.sub,
+        rows: [
+          { k: '省内就医占比', v: share('省内'), c: K.skyLite },
+          { k: '省外就医占比', v: share('省外'), c: K.amberHot },
+          ...(top ? [{ k: '最大流向', v: `${top.name} ${top.share.toFixed(1)}%`, c: K.ink }] : []),
+        ],
+      }
+    }
+    if (v === 'pub') {
+      const m = matrixStats.value
+      return {
+        t: '公开矩阵', sub: '指标 × 受众 · 按格计数',
+        rows: [
+          { k: '应公开未公开', v: m.unpublished + ' 格', c: '#FF8A7E' },
+          { k: '发了没人看', v: m.unread + ' 格', c: K.amber },
+          { k: '意见集中未答复', v: `${m.unanswered} 格 · ${m.comments} 条`, c: '#B9A2FF' },
         ],
       }
     }
@@ -493,18 +631,24 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
         { k: '例均基金差额', v: sign(it.y) + ' 元', c: dcolD(it.y) },
         id === 'conv'
           ? { k: '次均总费用', v: fmt(it.cost) + ' 元', c: K.ink }
-          : { k: '全市同组', v: sign(it.city ?? 0) + ' 元', c: K.ink },
+          : { k: '全市同组', v: it.city == null ? '—' : sign(it.city) + ' 元', c: K.ink },
         { k: '差额总额', v: (it.tot > 0 ? '逆差 ' : '结余 ') + wan(it.tot), c: dcolD(it.tot) },
       ],
     }
   })
 
   /* ---------- right column */
+  /** 效:消耗指数看目标带 0.95–1.05(偏高橙 / 偏低绿);CMI 越高越好,不做「偏高」警示 */
   const bullets = computed(() =>
-    I.value.eff.map(e => {
+    PV.value.eff.map(e => {
+      const p = (Math.max(0, Math.min(1, (e.value - 0.7) / 0.6)) * 100).toFixed(1) + '%'
+      if (e.goodDir === 1) {
+        const c = e.value >= 0.95 ? K.green : K.amber
+        return { k: e.label, v: e.value.toFixed(2), c, st: e.value < 0.95 ? '偏低' : '', p, band: false }
+      }
       const c = e.value > 1.05 ? K.amber : e.value < 0.95 ? K.green : K.sky
-      const st = e.value > 1.05 ? '偏高' : e.value < 0.95 ? '偏低' : '正常'
-      return { k: e.label, v: e.value.toFixed(2), c, st, p: (Math.max(0, Math.min(1, (e.value - 0.7) / 0.6)) * 100).toFixed(1) + '%' }
+      const st = e.value > 1.05 ? '偏高' : e.value < 0.95 ? '偏低' : ''
+      return { k: e.label, v: e.value.toFixed(2), c, st, p, band: true }
     }),
   )
   const alertsAll = computed(() =>
@@ -523,27 +667,42 @@ export function createCockpitStore(data: Readonly<Ref<CockpitData>>) {
     }))
   })
   const errs = computed(() =>
-    I.value.errs.map(e => ({ ...e, c: TONE_C[e.tone], ...(e.delta != null ? deltaOf(e.delta, e.goodDir ?? -1) : { d: '', dc: '', st: '' }) })),
+    PV.value.errs.map(e => ({ ...e, c: TONE_C[e.tone], ...(e.delta != null ? deltaOf(e.delta, e.goodDir ?? -1) : { d: '', dc: '', st: '' }) })),
   )
+
+  /* ---------- subscription(已保存的状态,来自服务端;本次会话保存后以返回值为准) */
+  const savedSub = computed<CockpitSavedSubscription | null>(() => {
+    const local = s.subSaved[I.value.id]
+    if (local !== undefined) return local
+    return I.value.savedSubscription ?? null
+  })
 
   /* ---------- clock & alarm */
   const clock = computed(() => {
     const n = new Date(s.now)
     return {
       time: `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`,
-      date: `${n.getFullYear()}.${pad(n.getMonth() + 1)}.${pad(n.getDate())} · ${data.value.periodLabels[s.period]}`,
+      date: `${n.getFullYear()}.${pad(n.getMonth() + 1)}.${pad(n.getDate())} · ${periodLabel.value}`,
     }
   })
-  const alarmSrc = computed(() => I.value.alerts.find(x => /预警|提醒函/.test(x.type)) ?? I.value.alerts[0])
+  /** 高等级告警:当前身份提醒里的第一条预警 / 提醒函 */
+  const alarmSrc = computed(() => I.value.alerts.find(x => HIGH_ALERT.test(x.type)) ?? null)
   const alarm = computed(() => ({
     lv: '高等级',
     ty: alarmSrc.value?.type ?? '',
     t: alarmSrc.value?.text ?? '',
+    key: alarmSrc.value ? alarmKeyOf(alarmSrc.value) : '',
+    /** 服务端下发的确认状态;undefined = 无服务端状态(离线演示) */
+    serverAcked: alarmSrc.value?.acked,
     sub: I.value.alarmSub,
     time: clock.value.time,
   }))
 
-  return { s, data, I, views, view, lens, rotN, scr, motion, go2, replay, restart, dispose, bubble, ribbon, months, torn, instCols, depts, peer, flows, matrix, det, bullets, alertsAll, pipe, errs, labelOf, clock, alarm }
+  return {
+    s, data, I, PV, periodLabel, span, deltaWord, views, view, lens, rotN, scr, motion, go2, replay, restart, dispose,
+    bubble, ribbon, months, torn, pickDrg, insts, deptsP, instCols, depts, peer, peerStats, flows, matrix, matrixStats, det, bullets,
+    alertsAll, pipe, errs, savedSub, labelOf, clock, alarm,
+  }
 }
 
 export type CockpitStore = ReturnType<typeof createCockpitStore>

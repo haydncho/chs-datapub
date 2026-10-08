@@ -5,7 +5,7 @@ import ScreenTitle from './ScreenTitle.vue'
 import Spark from './Spark.vue'
 import { useCockpit, type Period } from './store'
 
-const { s, I, ribbon, clock, data, restart } = useCockpit()
+const { s, I, ribbon, clock, data, deltaWord, go2 } = useCockpit()
 const PERIODS: Period[] = ['月', '季', '年']
 </script>
 
@@ -27,11 +27,13 @@ const PERIODS: Period[] = ['月', '季', '年']
         <button type="button"
           v-for="p in PERIODS"
           :key="p"
+          :aria-pressed="p === s.period"
+          :data-testid="`cockpit-period-${p}`"
           :class="cn(
             'cursor-pointer px-4 py-1 text-[15px] font-semibold',
             p === s.period ? 'bg-[rgb(var(--ck-acc))] text-[#04101F]' : 'text-[#9FB2D1]',
           )"
-          @click="s.period = p; restart()"
+          @click="p !== s.period && go2({ period: p })"
         >{{ p }}</button>
       </div>
       <div class="text-right leading-[1.2]">
@@ -43,7 +45,8 @@ const PERIODS: Period[] = ['月', '季', '年']
 
   <!-- KPI ribbon:数字滚动 + 走势折线 + 状态色 -->
   <div
-    class="absolute top-[84px] right-7 left-7 grid h-[100px] grid-cols-6 rounded-[10px] border border-[rgb(var(--ck-line)/.18)] bg-[linear-gradient(180deg,rgba(18,40,82,.55),rgb(var(--ck-panel)/.35))]"
+    v-if="ribbon.length"
+    class="absolute top-[84px] right-7 left-7 grid h-[100px] grid-cols-6 rounded-[10px] border border-[rgb(var(--ck-line)/.18)] ck-ribbon"
     data-testid="cockpit-kpis"
   >
     <div
@@ -61,7 +64,7 @@ const PERIODS: Period[] = ['月', '季', '年']
         <span
           class="yb-num shrink-0 rounded-md px-2 py-px text-sm font-semibold whitespace-nowrap"
           :style="{ color: k.dc, background: `color-mix(in srgb,${k.dc} 13%,transparent)` }"
-          :title="k.st ? `较上期 ${k.d} · ${k.st}` : `较上期 ${k.d}`"
+          :title="k.st ? `${deltaWord} ${k.d} · ${k.st}` : `${deltaWord} ${k.d}`"
         >{{ k.d }}</span>
       </div>
       <div class="flex items-end justify-between gap-2">
@@ -69,7 +72,7 @@ const PERIODS: Period[] = ['月', '季', '年']
           <AnimatedNumber :value="k.v" :replay="s.pulse" class="yb-num text-[40px] leading-none font-semibold text-[#F4F8FF]" />
           <span class="text-[13px] text-[#9FB2D1]">{{ k.u }}</span>
         </div>
-        <Spark :trend="k.trend" :color="k.dc" :replay="s.pulse" :w="104" :h="36" />
+        <Spark v-if="k.trend" :trend="k.trend" :color="k.dc" :replay="s.pulse" :w="104" :h="36" />
       </div>
     </div>
   </div>

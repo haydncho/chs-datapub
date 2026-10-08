@@ -4,14 +4,14 @@ import { useCockpit } from './store'
 
 /** `screen2` renders the larger variant used on the dual-screen secondary display. */
 const props = withDefaults(defineProps<{ screen2?: boolean }>(), { screen2: false })
-const { matrix, data } = useCockpit()
+const { matrix, matrixStats, data } = useCockpit()
 </script>
 
 <template>
   <div v-if="!props.screen2" class="mb-3 flex gap-2.5">
-    <span class="rounded-md bg-[rgba(255,90,78,.14)] px-3.5 py-1.5 text-[15px] text-[#FF8A7E]"><b class="yb-num text-xl">{{ data.matrixSummary.unpublished }}</b> 应公开未公开</span>
-    <span class="rounded-md bg-[rgba(245,183,78,.14)] px-3.5 py-1.5 text-[15px] text-[#F5B74E]"><b class="yb-num text-xl">{{ data.matrixSummary.unread }}</b> 发了没人看</span>
-    <span class="rounded-md bg-[rgba(160,130,255,.16)] px-3.5 py-1.5 text-[15px] text-[#B9A2FF]"><b class="yb-num text-xl">{{ data.matrixSummary.unanswered }}</b> 意见集中未答复</span>
+    <span class="rounded-md bg-[rgba(255,90,78,.14)] px-3.5 py-1.5 text-[15px] text-[#FF8A7E]"><b class="yb-num text-xl">{{ matrixStats.unpublished }}</b> 格 · 应公开未公开</span>
+    <span class="rounded-md bg-[rgba(245,183,78,.14)] px-3.5 py-1.5 text-[15px] text-[#F5B74E]"><b class="yb-num text-xl">{{ matrixStats.unread }}</b> 格 · 发了没人看</span>
+    <span class="rounded-md bg-[rgba(160,130,255,.16)] px-3.5 py-1.5 text-[15px] text-[#B9A2FF]"><b class="yb-num text-xl">{{ matrixStats.unanswered }}</b> 格 · 意见集中未答复({{ matrixStats.comments }} 条)</span>
   </div>
   <div :class="cn('grid grid-cols-[200px_repeat(7,minmax(0,1fr))]', props.screen2 ? 'gap-2' : 'gap-1.5')">
     <span :class="cn('px-1 text-[#6F84A6]', props.screen2 ? 'py-2 text-sm' : 'py-1.5 text-[13px]')">指标 \ 受众</span>

@@ -5,13 +5,14 @@ import PanelTitle from './PanelTitle.vue'
 import { K, useCockpit } from './store'
 
 /* 气泡图右侧:钱 / 效 / 错 上下排列,三块等高,合计高度与气泡图区域一致 */
-const { s, I, months, bullets, errs } = useCockpit()
-const balC = computed(() => (I.value.money.balance.startsWith('−') ? K.red : K.green))
+const { s, I, PV, months, bullets, errs, deltaWord } = useCockpit()
+const money = computed(() => PV.value.money)
+const balC = computed(() => (money.value.balance.startsWith('−') ? K.red : K.green))
 const panel = 'flex min-h-0 flex-1 flex-col rounded-[10px] border border-[rgb(var(--ck-line)/.16)] bg-[rgb(var(--ck-panel)/.66)] px-[22px] py-3.5'
 const moneyRows = computed(() => [
-  { l: I.value.money.m1, v: I.value.money.budget, c: 'rgb(var(--ck-accl))' },
-  { l: I.value.money.m2, v: I.value.money.spend, c: '#E6EEF9' },
-  { l: I.value.money.m3, v: I.value.money.balance, c: balC.value },
+  { l: money.value.m1, v: money.value.budget, c: 'rgb(var(--ck-accl))' },
+  { l: money.value.m2, v: money.value.spend, c: '#E6EEF9' },
+  { l: money.value.m3, v: money.value.balance, c: balC.value },
 ])
 const overLabel = computed(() => (I.value.id === 'hosp' ? '缺口高于均值' : '超预算'))
 const anyOver = computed(() => months.value.some(m => m.over))
@@ -22,12 +23,12 @@ const anyOver = computed(() => months.value.some(m => m.over))
     <!-- 钱:左侧三项读数,右侧近 12 月 2.5D 柱(常规月低饱和蓝,超支月对比色,当月高亮) -->
     <div :class="panel">
       <div class="flex items-center justify-between">
-        <PanelTitle :title="I.money.title" bar="rgb(var(--ck-acc))" />
+        <PanelTitle :title="money.title" bar="rgb(var(--ck-acc))" />
         <div class="flex items-center gap-3.5 text-sm text-[#9FB2D1]">
-          <span class="flex items-center gap-1.5"><span class="h-2 w-3 rounded-[2px] bg-[rgb(var(--ck-acc)/.55)]" />{{ I.money.legendBar }}</span>
+          <span class="flex items-center gap-1.5"><span class="h-2 w-3 rounded-[2px] bg-[rgb(var(--ck-acc)/.55)]" />{{ money.legendBar }}</span>
           <span v-if="anyOver" class="flex items-center gap-1.5"><span class="h-2 w-3 rounded-[2px] bg-[rgba(255,107,94,.75)]" />{{ overLabel }}</span>
-          <span class="flex items-center gap-1.5"><span class="w-3.5 border-t-2 border-dashed border-[#F5B74E]" />{{ I.money.legendLine }}</span>
-          <span class="text-[#6F84A6]">{{ I.money.unit }}</span>
+          <span class="flex items-center gap-1.5"><span class="w-3.5 border-t-2 border-dashed border-[#F5B74E]" />{{ money.legendLine }}</span>
+          <span class="text-[#6F84A6]">{{ money.unit }}</span>
         </div>
       </div>
       <div class="mt-2 flex min-h-0 flex-1 gap-5">
@@ -69,14 +70,14 @@ const anyOver = computed(() => months.value.some(m => m.over))
     <!-- 效:每项一行;正常时只靠颜色表达,偏高 / 偏低才出状态标签 -->
     <div :class="panel">
       <div class="flex items-center justify-between">
-        <PanelTitle :title="I.effTitle" bar="#5B8FD9" />
-        <span class="text-sm text-[#6F84A6]">目标带 0.95–1.05</span>
+        <PanelTitle :title="I.effTitle" bar="rgb(var(--ck-accl))" />
+        <span class="text-sm text-[#6F84A6]">消耗指数目标带 0.95–1.05 · CMI 越高越好</span>
       </div>
       <div class="mt-1 flex flex-1 flex-col justify-around">
         <div v-for="b in bullets" :key="b.k" class="flex items-center gap-4">
           <span class="w-[132px] shrink-0 truncate text-[15px] text-[#C9D6EA]">{{ b.k }}</span>
           <div class="relative h-2.5 flex-1 rounded-[3px] bg-[rgba(255,255,255,.06)]">
-            <div class="absolute inset-y-0 left-[41.7%] w-[16.6%] bg-[rgba(63,209,160,.22)]" />
+            <div v-if="b.band" class="absolute inset-y-0 left-[41.7%] w-[16.6%] bg-[rgba(63,209,160,.22)]" />
             <div class="absolute -top-[3px] -bottom-[3px] left-1/2 border-l border-[rgba(230,238,249,.5)]" />
             <div
               class="absolute -top-[5px] -ml-0.5 h-[20px] w-[5px] rounded-[2px] transition-[left] duration-[1100ms] ease-[cubic-bezier(.2,.8,.2,1)]"
@@ -84,7 +85,7 @@ const anyOver = computed(() => months.value.some(m => m.over))
             />
           </div>
           <span class="w-[48px] shrink-0">
-            <span v-if="b.st !== '正常'" class="block rounded px-1.5 py-px text-center text-sm" :style="{ color: b.c, background: `color-mix(in srgb,${b.c} 13%,transparent)` }">{{ b.st }}</span>
+            <span v-if="b.st" class="block rounded px-1.5 py-px text-center text-sm" :style="{ color: b.c, background: `color-mix(in srgb,${b.c} 13%,transparent)` }">{{ b.st }}</span>
           </span>
           <AnimatedNumber :value="b.v" :replay="s.pulse" class="yb-num w-[52px] shrink-0 text-right text-[22px] leading-tight font-semibold" :style="{ color: b.c }" />
         </div>
@@ -106,8 +107,8 @@ const anyOver = computed(() => months.value.some(m => m.over))
             <AnimatedNumber :value="e.value" :replay="s.pulse" class="yb-num text-[28px] leading-tight font-semibold" :style="{ color: e.c }" />
             <span class="text-sm text-[#6F84A6]"> {{ e.unit }}</span>
           </div>
-          <div v-if="e.d" class="yb-num text-sm whitespace-nowrap" :style="{ color: e.dc }" :title="e.st ? `较上期 ${e.d} · ${e.st}` : `较上期 ${e.d}`">
-            <span class="text-[#6F84A6]">较上期 </span>{{ e.d }}
+          <div v-if="e.d" class="yb-num text-sm whitespace-nowrap" :style="{ color: e.dc }" :title="e.st ? `${deltaWord} ${e.d} · ${e.st}` : `${deltaWord} ${e.d}`">
+            <span class="text-[#6F84A6]">{{ deltaWord }} </span>{{ e.d }}
           </div>
         </div>
       </div>

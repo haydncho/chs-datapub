@@ -84,6 +84,30 @@ public final class UserMatrix {
         };
     }
 
+    /**
+     * 角色 × 所属机构(org.level):医保局端四类身份只能挂在医保局;社会监督员只能挂在公开汇总层;
+     * 医保办主任、县区医保部门只能挂在定点医疗机构(非医保局、非公开层)。
+     */
+    public static boolean orgFits(String role, String orgLevel) {
+        String level = orgLevel == null ? "" : orgLevel;
+        return switch (role) {
+            case "convener", "admin", "analyst", "auditor" -> "医保局".equals(level);
+            case "observer" -> "公开".equals(level);
+            case "hospital", "county" -> !level.isEmpty() && !"医保局".equals(level) && !"公开".equals(level);
+            default -> false;
+        };
+    }
+
+    /** {@link #orgFits} 的说明文字(用于 400 提示)。 */
+    public static String orgRule(String role) {
+        return switch (role) {
+            case "convener", "admin", "analyst", "auditor" -> "医保局端身份须属于医保局";
+            case "observer" -> "社会监督员须属于公开汇总层";
+            case "hospital", "county" -> "须属于定点医疗机构";
+            default -> "未知角色";
+        };
+    }
+
     /** on 正常 / expiring 即将停用(超过 30 天未登录) / off 已停用。从未登录视为正常。 */
     public static String statusOf(boolean enabled, Instant lastLogin, Instant now) {
         if (!enabled) return "off";

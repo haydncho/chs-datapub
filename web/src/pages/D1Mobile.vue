@@ -2,19 +2,35 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { usePageData, sendAction } from '@/api/client'
+import { getJson, runAction, usePageData, sendAction } from '@/api/client'
 import { goPage } from '@/app/router'
+import { session } from '@/app/session'
 import { cn } from '@/lib/utils'
 import { R, A, V, INK } from '@/lib/palette'
-import { D1_SEED, type D1Screen, type D1Target } from '@/mock/D1'
+import { D1_SEED, type D1Data, type D1Screen, type D1Target } from '@/mock/D1'
 import { vPress } from '@/lib/a11y'
 
 const data = usePageData('D1', D1_SEED)
 
-// ---- demo state machine -------------------------------------------------
+// ---- state: sign-off / receipt come from the server (per institution); local flags only bridge until the reload
 const screen = ref<D1Screen>('home')
-const signed = ref(false)
-const rcDone = ref(false)
+const signedNow = ref(false)
+const rcNow = ref(false)
+const reviewAsked = ref(false)
+const busy = ref(false)
+const signed = computed(() => signedNow.value || data.value.report.status === 'signed')
+const rcDone = computed(() => rcNow.value || data.value.receiptDone === true)
+/** 未批准不外发: the report is only offered once it was released to this institution */
+const reportOut = computed(() => data.value.report.status !== 'none')
+/** only the institution's own identity signs / answers (the server refuses everyone else) */
+const canSign = computed(() => data.value.canSign ?? session.current?.identity.role === 'hospital')
+
+async function refresh() {
+  try {
+    const remote = await getJson<D1Data>('/pages/D1')
+    if (remote && typeof remote === 'object') data.value = { ...D1_SEED, ...remote }
+  } catch { /* keep what is shown */ }
+}
 const cat = ref<number | null>(null)
 const txt = ref('')
 const doneT = ref('')
@@ -43,19 +59,21 @@ const TITLES: Partial<Record<D1Screen, string>> = { report: '月度报告', aler
 const back = computed(() => BACK[screen.value])
 const showBack = computed(() => !!back.value && screen.value !== 'done')
 const showTabs = computed(() => ['home', 'msgs', 'me'].includes(screen.value))
-const pend = computed(() => (signed.value ? 0 : 1) + (rcDone.value ? 0 : 1) + 1)
 
 const TONE: Record<string, string> = { warn: A, bad: R, violet: V, brand: 'var(--brand)', muted: INK[4] }
 
 const todos = computed(() =>
-  data.value.todos.map(t => {
-    const isDone = t.id === 'sign' ? signed.value : t.id === 'receipt' ? rcDone.value : false
-    return { ...t, isDone, c: isDone ? INK[5] : TONE[t.tone] }
-  }),
+  data.value.todos
+    .filter(t => t.id !== 'sign' || reportOut.value)
+    .map(t => {
+      const isDone = t.id === 'sign' ? signed.value : t.id === 'receipt' ? rcDone.value : false
+      return { ...t, isDone, c: isDone ? INK[5] : TONE[t.tone] }
+    }),
 )
+const pend = computed(() => todos.value.filter(t => !t.isDone).length)
 
 const messages = computed(() =>
-  data.value.messages.map(m => {
+  data.value.messages.filter(m => m.task !== 'sign' || reportOut.value).map(m => {
     const isDone = m.task === 'sign' ? signed.value : m.task === 'receipt' ? rcDone.value : false
     return { ...m, t: isDone && m.doneTime ? m.doneTime : m.time, c: TONE[m.tone] }
   }),
@@ -68,8 +86,13 @@ function openMsg(m: (typeof messages.value)[number]) {
   }
 }
 
+/** unread task messages (报告待签收 / 提醒函待回执) for the tab badge */
+const unread = computed(() => messages.value.filter(m => m.task && !(m.task === 'sign' ? signed.value : rcDone.value)).length)
+
 const meRows = computed(() =>
-  data.value.me.rows.map(r => (r.k === '签收记录' ? { ...r, v: (signed.value ? 1 : 0) + ' 份' } : r)),
+  data.value.me.rows.map(r =>
+    r.k === '签收记录' ? { ...r, v: r.v || (data.value.reportSignoff?.signedReports.length ?? (signed.value ? 1 : 0)) + ' 份' } : r,
+  ),
 )
 
 const bars = computed(() => {
@@ -81,37 +104,63 @@ const rcValid = computed(() => cat.value != null && !!txt.value.trim())
 
 const cta = computed<null | { t: string; muted: boolean; fn: () => void }>(() => {
   const m = screen.value
-  if (m === 'report') return signed.value ? null : { t: '确认签收', muted: false, fn: sign }
-  if (m === 'alert') return rcDone.value ? null : { t: '填写回执说明', muted: false, fn: () => go('rcpt') }
-  if (m === 'rcpt') return { t: '提交回执', muted: !rcValid.value, fn: submitReceipt }
+  if (m === 'report') return signed.value || !reportOut.value || !canSign.value ? null : { t: busy.value ? '签收中…' : '确认签收', muted: busy.value, fn: sign }
+  if (m === 'alert') return rcDone.value || !canSign.value ? null : { t: '填写回执说明', muted: false, fn: () => go('rcpt') }
+  if (m === 'rcpt') return { t: busy.value ? '提交中…' : '提交回执', muted: !rcValid.value || busy.value, fn: submitReceipt }
   if (m === 'done') return { t: '返回首页', muted: false, fn: () => go('home') }
   return null
 })
 
-function sign() {
-  signed.value = true
+async function sign() {
+  if (busy.value || signed.value) return
+  busy.value = true
+  const r = await runAction('D1', 'signReport', { reportId: data.value.report.id, report: data.value.report.title, version: 'v1' })
+  busy.value = false
+  if (!r.ok) {
+    mSay(r.error || '签收未成功')
+    void refresh()
+    return
+  }
+  signedNow.value = true
   doneT.value = '已签收'
-  doneS.value = '8 月月度报告 v1 · 签收时间已记录\n召集人可在签收追踪中看到'
+  doneS.value = data.value.report.title + ' · 签收时间已记录\n召集人可在签收追踪中看到'
   screen.value = 'done'
-  sendAction('D1', 'signReport', { report: data.value.report.title, version: 'v1' })
+  void refresh()
 }
-function submitReceipt() {
+async function submitReceipt() {
   if (!rcValid.value) {
     mSay('请选择原因类别并填写说明')
     return
   }
-  rcDone.value = true
-  doneT.value = '回执已提交'
-  doneS.value = '医保局将在 5 个工作日内答复\n可在消息中查看进度'
-  screen.value = 'done'
-  sendAction('D1', 'submitReceipt', {
+  if (busy.value) return
+  busy.value = true
+  const r = await runAction('D1', 'submitReceipt', {
+    alertId: data.value.alert.id,
     alert: data.value.alert.title,
     category: data.value.receiptCategories[cat.value!],
     text: txt.value.trim(),
   })
+  busy.value = false
+  if (!r.ok) {
+    mSay(r.error || '回执未提交成功')
+    return
+  }
+  rcNow.value = true
+  doneT.value = '回执已提交'
+  doneS.value = '医保局将在 5 个工作日内答复\n可在消息中查看进度'
+  screen.value = 'done'
+  void refresh()
 }
-function requestReview() {
-  sendAction('D1', 'requestReview', { alert: data.value.alert.title })
+async function requestReview() {
+  if (busy.value || reviewAsked.value) return
+  busy.value = true
+  const r = await runAction('D1', 'requestReview', { alert: data.value.alert.title })
+  busy.value = false
+  if (!r.ok) {
+    mSay(r.error || '复核申请未提交')
+    return
+  }
+  reviewAsked.value = true
   mSay('已提交复核申请')
 }
 
@@ -146,19 +195,20 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
               <div class="text-xs text-ink-4">{{ data.hospital }} · {{ data.period }}</div>
               <div class="text-[22px] font-semibold">本院医保运行</div>
             </div>
-            <div class="rounded-2xl bg-[linear-gradient(135deg,var(--brand),color-mix(in_srgb,var(--brand)_85%,#fff))] p-4 text-white">
+            <div v-if="data.noOwnData" class="rounded-2xl bg-white px-4 py-10 text-center"><div class="text-base font-semibold text-ink-2">暂无本院数据</div><div class="mt-1.5 text-xs text-ink-4">本院尚无医保局定向发布的数据与待办</div></div>
+            <div v-if="!data.noOwnData" class="rounded-2xl bg-[linear-gradient(135deg,var(--brand),color-mix(in_srgb,var(--brand)_85%,#fff))] p-4 text-white">
               <div class="text-xs opacity-85">{{ data.home.deviation.label }}</div>
               <div class="yb-num text-[34px] font-semibold">{{ data.home.deviation.value }}<span class="text-sm"> {{ data.home.deviation.unit }}</span></div>
               <div class="text-xs opacity-85">{{ data.home.deviation.note }}</div>
             </div>
-            <div class="grid grid-cols-2 gap-2.5">
+            <div v-if="!data.noOwnData" class="grid grid-cols-2 gap-2.5">
               <div v-for="k in data.home.kpis" :key="k.label" class="rounded-[14px] bg-white p-3">
                 <div class="text-[11px] text-ink-4">{{ k.label }}</div>
                 <div :class="cn('yb-num text-[22px] font-semibold', k.valueTone === 'bad' && 'text-bad')">{{ k.value }}</div>
                 <div :class="cn('text-[11px]', k.subTone === 'brand' ? 'text-brand' : 'text-warn-ink')">{{ k.sub }}</div>
               </div>
             </div>
-            <div class="rounded-[14px] bg-white px-3.5 py-1">
+            <div v-if="!data.noOwnData" class="rounded-[14px] bg-white px-3.5 py-1">
               <div class="pt-2.5 pb-1 text-xs text-ink-4">待办 · {{ pend }}</div>
               <div v-press
                 v-for="t in todos"
@@ -181,12 +231,15 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
               <div class="text-lg font-semibold">{{ data.report.title }}</div>
               <div class="flex gap-1.5">
                 <span class="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] text-brand">{{ data.report.pages }}</span>
-                <span :class="cn('rounded-full px-2 py-0.5 text-[11px]', signed ? 'bg-ok-soft text-ok-ink' : 'bg-warn-soft text-warn-ink')">
-                  {{ signed ? '已签收' : data.report.pendingLabel }}
+                <span v-if="reportOut" :class="cn('rounded-full px-2 py-0.5 text-[11px]', signed ? 'bg-ok-soft text-ok-ink' : 'bg-warn-soft text-warn-ink')">
+                  {{ signed ? '已签收' + (data.report.signedAt ? ' · ' + data.report.signedAt : '') : data.report.pendingLabel }}
                 </span>
+                <span v-else class="rounded-full bg-surface-3 px-2 py-0.5 text-[11px] text-ink-4">尚未发布</span>
               </div>
+              <div v-if="!reportOut" class="text-xs leading-[1.7] text-ink-4">本期报告尚在医保局审批中,批准发布后即可查阅与签收。</div>
+              <div v-else-if="!signed && !canSign" class="text-xs leading-[1.7] text-ink-4">签收须由机构本院身份完成,当前身份仅可查看。</div>
             </div>
-            <div v-for="x in data.report.sections" :key="x.n" class="rounded-[14px] bg-white px-4 py-3.5">
+            <div v-for="x in reportOut ? data.report.sections : []" :key="x.n" class="rounded-[14px] bg-white px-4 py-3.5">
               <div class="text-xs font-semibold text-brand">{{ x.n }}</div>
               <div class="mt-1 text-[13px] leading-[1.7] text-ink-2">{{ x.t }}</div>
             </div>
@@ -295,8 +348,9 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
             v-if="screen === 'alert' && !rcDone"
             variant="outline"
             class="h-11 rounded-xl text-sm font-normal text-ink-3 hover:brightness-100"
+            :disabled="reviewAsked || busy"
             @click="requestReview"
-          >申请复核</Button>
+          >{{ reviewAsked ? '已申请复核' : '申请复核' }}</Button>
         </div>
 
         <!-- tab bar -->
@@ -313,9 +367,9 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path :d="IPS[k]" /></svg>
             {{ l }}
             <span
-              v-if="k === 'msgs' && pend > 1"
+              v-if="k === 'msgs' && unread > 0"
               class="absolute top-2 left-[calc(50%+8px)] flex h-4 min-w-4 items-center justify-center rounded-lg bg-bad px-1 text-[10px] font-normal text-white"
-            >{{ pend - 1 }}</span>
+            >{{ unread }}</span>
           </div>
         </div>
 

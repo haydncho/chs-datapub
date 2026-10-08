@@ -41,7 +41,7 @@ const top = computed(() => {
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start xl:flex xl:flex-col">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start xl:flex xl:flex-col xl:items-stretch">
     <div class="yb-card px-card-x py-card-y">
       <div class="mb-3.5 text-[15px] font-semibold">医保记账 vs DRG 支付</div>
       <div class="flex flex-col gap-2.5">

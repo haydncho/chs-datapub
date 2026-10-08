@@ -118,7 +118,7 @@ const btn = 'h-[34px] px-4 max-xl:h-10 max-xl:min-w-20 font-medium text-ink-3 bo
     <div class="yb-card flex flex-wrap items-center gap-x-6 gap-y-3 px-6 py-5 max-xl:px-card-x">
       <div class="min-w-0 flex-1 max-md:basis-full">
         <div class="text-xs font-medium text-violet">{{ data.draft }}</div>
-        <div class="mt-1 text-[22px] font-semibold">{{ data.title }}</div>
+        <div class="mt-1 text-lg font-semibold">{{ data.title }}</div>
         <div class="text-[13px] text-ink-4">{{ data.subtitle }}</div>
       </div>
       <div class="shrink-0 border-l border-line-2 px-5 text-center">

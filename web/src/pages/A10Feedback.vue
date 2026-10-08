@@ -88,7 +88,7 @@ function select(id: string) {
     <!-- title + SLA KPIs -->
     <div class="flex items-center gap-7 border-b border-line-1 bg-white px-7 py-[18px] max-xl:flex-col max-xl:items-stretch max-xl:gap-3 max-xl:px-5 max-xl:pt-5 max-xl:pb-4">
       <div class="shrink-0 whitespace-nowrap">
-        <div class="text-[22px] font-semibold">意见与申诉</div>
+        <div class="text-lg font-semibold">意见与申诉</div>
         <div class="text-xs text-ink-4">机构反馈统一受理 · 时限 5 个工作日 · 答复同步机构端</div>
       </div>
       <div class="flex flex-1 justify-end max-xl:justify-start max-xl:overflow-x-auto max-xl:pb-1">

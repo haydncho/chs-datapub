@@ -93,7 +93,7 @@ async function save() {
     <main class="flex min-w-0 flex-col gap-3.5 px-7 pt-6 pb-12 max-xl:px-5 max-xl:pb-8">
       <div class="flex flex-wrap items-end justify-between gap-x-5 gap-y-2">
         <div class="min-w-0 flex-1">
-          <div class="text-[22px] font-semibold">{{ tpl.name }}</div>
+          <div class="text-lg font-semibold">{{ tpl.name }}</div>
           <div class="text-xs text-ink-4">
             {{ tpl.desc }} · 被引用 {{ tpl.refs }} 次 · v{{ tpl.version }}
             <span v-if="tpl.dirty" class="text-warn-ink"> · 有未保存的修改,保存后生成 v{{ tpl.version + 1 }}</span>

@@ -54,7 +54,7 @@ const stages = computed(() => {
           :class="cn('rounded-md px-2 py-0.5 font-medium whitespace-nowrap', isUrgent(s.cur) ? 'bg-bad-soft text-bad-ink' : 'bg-surface-3 text-ink-3')"
         >{{ s.cur.due }}</span>
       </div>
-      <div class="mt-2 text-2xl font-semibold tracking-[-0.2px] text-pretty">{{ s.cur.name }}</div>
+      <div class="mt-2 text-lg font-semibold tracking-[-0.2px] text-pretty">{{ s.cur.name }}</div>
     </div>
     <div class="flex rounded-xl border border-line-1 bg-white max-xl:w-full xl:w-auto">
       <div v-for="m in meta" :key="m.k" class="border-l border-line-2 px-[18px] py-2 whitespace-nowrap first:border-l-0 max-xl:min-w-0 max-xl:flex-1 max-xl:px-4 max-sm:px-3 max-sm:whitespace-normal">

@@ -38,7 +38,7 @@ const ready = computed(() => props.nOk === props.total)
           <Badge variant="brand" class="px-2 py-0.5 text-[11px] font-normal">{{ topic.envTag }}</Badge>
           <span class="text-ink-5">{{ topic.meta }}</span>
         </div>
-        <div class="mt-1.5 text-[22px] font-semibold text-pretty break-words max-sm:text-lg">
+        <div class="mt-1.5 text-lg font-semibold text-pretty break-words">
           <span class="yb-num text-brand">{{ topic.code }}</span> {{ topic.name }}
         </div>
       </div>

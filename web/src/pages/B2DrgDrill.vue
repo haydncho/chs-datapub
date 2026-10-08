@@ -149,14 +149,14 @@ const TEAM_COLS = 'grid grid-cols-[minmax(96px,1fr)_56px_84px_84px_64px_minmax(1
           <button type="button" class="relative cursor-pointer text-brand max-xl:before:absolute max-xl:before:-inset-x-2 max-xl:before:-inset-y-3 max-xl:before:content-['']" @click="goPage('B1')">本院全景</button> / 病组下钻
         </div>
         <template v-if="g">
-          <h1 class="mt-0.5 text-2xl font-semibold" data-testid="b2-title">
+          <h1 class="mt-0.5 text-lg font-semibold" data-testid="b2-title">
             <span class="yb-num text-brand">{{ g.code }}</span> {{ g.name }}
           </h1>
           <div class="text-[13px] text-ink-4" data-testid="b2-meta">
             权重 {{ g.weight.toFixed(2) }} · 支付标准 {{ fmt(g.standard) }} 元 · {{ data.period }} · 本院 {{ fmt(g.cases) }} 例
           </div>
         </template>
-        <h1 v-else class="mt-0.5 text-2xl font-semibold">病组下钻</h1>
+        <h1 v-else class="mt-0.5 text-lg font-semibold">病组下钻</h1>
       </div>
       <label v-if="data.groups.length" class="flex items-center gap-2 text-xs text-ink-4">
         病组

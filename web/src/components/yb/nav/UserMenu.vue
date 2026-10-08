@@ -13,11 +13,11 @@ const initial = computed(() => props.viewer.name[0] ?? '')
 <template>
   <div class="flex shrink-0 items-center gap-2.5" data-testid="user-area">
     <!-- 窄屏(< 640)只留头像:姓名、角色、范围在账号菜单里 -->
-    <div class="min-w-0 text-right leading-[1.3] max-sm:hidden">
+    <div class="yb-user-id min-w-0 text-right leading-[1.3] max-sm:hidden" :title="`${viewer.name} · ${viewer.role}${viewer.scope ? ` · ${viewer.scope}` : ''}`">
       <div class="text-[13px] font-medium whitespace-nowrap">
-        {{ viewer.name }} <span class="font-normal text-ink-4">· {{ viewer.role }}</span>
+        {{ viewer.name }} <span class="yb-user-role font-normal text-ink-4">· {{ viewer.role }}</span>
       </div>
-      <div class="yb-user-scope max-w-[200px] truncate text-[11px] text-ink-4 max-xl:max-w-[120px]" :title="viewer.scope">{{ viewer.scope }}</div>
+      <div class="yb-user-scope max-w-[200px] truncate text-[11px] text-ink-4 max-xl:max-w-[160px] max-xl:text-xs">{{ viewer.scope }}</div>
     </div>
     <DropdownMenu v-if="loggedIn">
       <DropdownMenuTrigger as-child>

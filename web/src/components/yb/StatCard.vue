@@ -39,18 +39,19 @@ const parts = computed(() => (props.unit != null ? { vn: String(props.value), vu
 
 <template>
   <div
-    :class="cn('yb-stat relative flex items-start gap-3.5 overflow-hidden rounded-[var(--radius-card)] border px-card-x py-card-y-sm', props.class)"
+    :class="cn('yb-stat relative isolate flex items-start gap-3.5 overflow-hidden rounded-[var(--radius-card)] border px-card-x py-card-y-sm', props.class)"
     :style="{ '--stat-g': t.g, '--stat-bd': t.bd }"
   >
-    <div class="min-w-0 flex-1 whitespace-nowrap">
-      <div class="text-xs text-ink-4">{{ label }}</div>
+    <!-- 文字列压在装饰图形之上;说明行可伸到图标下方(图标只占上半部),整卡放不下时省略而不是被裁切 -->
+    <div class="relative z-[1] min-w-0 flex-1 whitespace-nowrap">
+      <div class="truncate text-xs text-ink-4" :title="label">{{ label }}</div>
       <div :class="['yb-num leading-[1.2] font-semibold', VALUE_SIZE[size]]">
         {{ parts.vn }}<span v-if="parts.vu" class="ml-[3px] text-[13px] font-medium text-ink-4">{{ parts.vu }}</span>
       </div>
-      <div v-if="sub || $slots.sub" class="text-xs" :style="{ color: subColor ?? 'var(--ink-3)' }"><slot name="sub">{{ sub }}</slot></div>
+      <div v-if="sub || $slots.sub" :class="['truncate text-xs', icon && 'mr-[-50px]']" :style="{ color: subColor ?? 'var(--ink-3)' }"><slot name="sub">{{ sub }}</slot></div>
     </div>
     <template v-if="icon">
-      <span class="flex size-9 shrink-0 items-center justify-center rounded-[10px]" :style="{ background: t.ib }">
+      <span class="relative z-[1] flex size-9 shrink-0 items-center justify-center rounded-[10px]" :style="{ background: t.ib }">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" :stroke="t.ic" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path :d="icon" /></svg>
       </span>
       <svg viewBox="0 0 24 24" width="96" height="96" fill="none" :stroke="t.ic" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="pointer-events-none absolute -right-[18px] -bottom-[26px] opacity-[.07]"><path :d="icon" /></svg>

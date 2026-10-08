@@ -103,7 +103,7 @@ watch(code, (next, prev) => {
       </div>
 
       <!-- header: 端徽标 › 一级菜单(分组) -->
-      <header class="sticky top-0 z-40 flex h-[60px] items-center gap-4 border-b border-line-1 bg-white px-5 text-ink-1 max-xl:gap-2.5 max-lg:gap-3 max-lg:px-3 min-[1024px]:max-[1099px]:gap-1.5 min-[1024px]:max-[1099px]:px-3">
+      <header class="sticky top-0 z-40 flex h-[60px] items-center gap-4 border-b border-line-1 bg-white px-5 text-ink-1 max-xl:gap-3 max-xl:px-4 max-lg:px-3">
         <button
           type="button"
           class="yb-hamburger"
@@ -115,17 +115,17 @@ watch(code, (next, prev) => {
           <div class="flex size-[30px] shrink-0 items-center justify-center rounded-lg bg-brand text-[15px] font-bold text-white">医</div>
           <div class="min-w-0 leading-tight">
             <div class="text-[15px] font-semibold max-sm:truncate">{{ platformName.main }}</div>
-            <div v-if="platformName.sub" class="text-[11px] text-ink-4 max-sm:hidden">{{ platformName.sub }}</div>
+            <div v-if="platformName.sub" class="text-[11px] text-ink-4 max-xl:text-xs max-sm:hidden">{{ platformName.sub }}</div>
           </div>
         </div>
         <span class="yb-side shrink-0" :data-side="side" data-testid="side-badge" :title="`当前端:${SIDE_NAME[side]}`" :aria-label="`当前端:${SIDE_NAME[side]}`">
           <component :is="SideIcon" class="size-3.5" aria-hidden="true" /><span class="max-sm:sr-only">{{ SIDE_NAME[side] }}</span>
         </span>
         <span class="h-5 w-px shrink-0 bg-line-1 max-lg:hidden" />
-        <nav class="flex min-w-0 flex-1 items-center justify-center gap-0.5 max-lg:hidden min-[1024px]:max-[1099px]:gap-0" aria-label="一级菜单">
+        <nav class="yb-l1-nav flex min-w-0 flex-1 items-center justify-center gap-0.5 max-lg:hidden" aria-label="一级菜单">
           <template v-for="g in groups" :key="g.id">
-            <span v-if="g.n && g.n === '01'" class="mx-1.5 h-5 w-px bg-line-1 max-xl:mx-0.5" />
-            <span v-if="g.id === 'gov' && side === 'bureau'" class="mx-1.5 h-5 w-px bg-line-1 max-xl:mx-0.5" />
+            <span v-if="g.n && g.n === '01'" class="mx-1.5 h-5 w-px shrink-0 bg-line-1 max-xl:mx-1" />
+            <span v-if="g.id === 'gov' && side === 'bureau'" class="mx-1.5 h-5 w-px shrink-0 bg-line-1 max-xl:mx-1" />
             <NavGroupMenu
               :group="g"
               :uid="g.id"
@@ -134,7 +134,7 @@ watch(code, (next, prev) => {
               :query="query"
               @go="go"
             />
-            <span v-if="g.n && g.n !== '05'" class="text-xs text-ink-6" aria-hidden="true">›</span>
+            <span v-if="g.n && g.n !== '05'" class="yb-l1-arrow text-xs text-ink-6" aria-hidden="true">›</span>
           </template>
         </nav>
         <div class="flex-1 lg:hidden" />
@@ -160,6 +160,8 @@ watch(code, (next, prev) => {
             <component :is="iconOf(it.icon)" aria-hidden="true" />{{ it.name }}
           </button>
         </nav>
+        <!-- 当前端菜单里没有此页(如召集人查看机构端页面):窄屏右侧面包屑隐藏,改在左侧显示,标签行不留空 -->
+        <NavBreadcrumb v-if="!activeGroup" :crumb="crumb" class="xl:hidden" />
         </div>
         <NavBreadcrumb :crumb="crumb" class="mr-4 max-xl:hidden" />
         <span
@@ -205,11 +207,11 @@ watch(code, (next, prev) => {
       </div>
     </div>
 
-    <!-- real-name dynamic watermark -->
+    <!-- real-name dynamic watermark;列数随宽度递减(2/3/4/6),窄屏不至于密到压字 -->
     <div
       v-if="layout !== 'bare'"
       data-watermark
-      class="pointer-events-none fixed inset-0 z-[90] grid auto-rows-[150px] grid-cols-3 overflow-hidden md:grid-cols-4 lg:grid-cols-6"
+      class="pointer-events-none fixed inset-0 z-[90] grid auto-rows-[150px] grid-cols-2 overflow-hidden sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
       :style="{ opacity: 'var(--wm-opacity)' }"
       aria-hidden="true"
     >

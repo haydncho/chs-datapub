@@ -43,9 +43,11 @@ const history = computed(() => {
 </script>
 
 <template>
-  <aside class="flex flex-col gap-[18px] border-l border-line-1 bg-white px-[22px] pt-[22px] pb-10 max-xl:border-t max-xl:border-l-0 max-xl:px-5 max-xl:pb-8">
-    <div>
-      <div class="flex items-center gap-1.5 text-[11px]">
+  <!-- 桌面右栏为单列;Pad 上作为整宽卡片时,公式 / 档位在左,受众可见性 / 版本在右 -->
+  <aside aria-label="指标详情" class="@container border-l border-line-1 bg-white px-[22px] pt-[22px] pb-10 max-xl:mx-5 max-xl:mb-8 max-xl:self-start max-xl:rounded-[var(--radius-card)] max-xl:border max-xl:p-5">
+   <div class="grid grid-cols-1 gap-[18px] @xl:grid-cols-2 @xl:gap-x-8">
+    <div class="@xl:col-span-full">
+      <div class="flex items-center gap-1.5 text-[11px] max-xl:text-xs">
         <span class="flex items-center gap-1 text-ink-3">
           <span class="size-[7px] rounded-full" :style="{ background: GROUP_COLOR[ind.group] }" />{{ ind.group }} · {{ ind.domain }}
         </span>
@@ -59,11 +61,11 @@ const history = computed(() => {
       <div v-if="ind.inPackage" class="mt-1 text-xs text-ok-ink">✓ 已加入 {{ packageName }}</div>
     </div>
 
-    <div v-if="intl" class="rounded-[10px] bg-line-3 px-3 py-2.5 text-xs text-ink-3">
+    <div v-if="intl" class="rounded-[10px] bg-line-3 px-3 py-2.5 text-xs text-ink-3 @xl:self-start">
       仅内部指标:病例级 / 个人级数据,不可加入任何发布包,也不可配置对标档位。
     </div>
 
-    <template v-else>
+    <div v-else class="flex min-w-0 flex-col gap-[18px]">
       <div>
         <div class="mb-2 text-xs text-ink-4">公式</div>
         <div class="flex flex-col items-center gap-2 rounded-xl bg-surface-1 p-4">
@@ -96,8 +98,9 @@ const history = computed(() => {
         </div>
         <div v-if="pending" class="mt-2 text-xs text-warn-ink">审批中:→ {{ TIER_LABEL[pending] }}</div>
       </div>
-    </template>
+    </div>
 
+   <div class="flex min-w-0 flex-col gap-[18px]">
     <div>
       <div class="mb-2 text-xs text-ink-4">受众可见性</div>
       <div class="grid grid-cols-2 gap-1.5">
@@ -122,5 +125,7 @@ const history = computed(() => {
         <div v-if="history.length === 0" class="text-ink-5">暂无版本记录</div>
       </div>
     </div>
+   </div>
+   </div>
   </aside>
 </template>

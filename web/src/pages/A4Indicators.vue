@@ -191,8 +191,14 @@ async function onSubmitted() {
 </script>
 
 <template>
-  <section data-screen-label="A4 指标配置" class="grid min-h-[calc(100vh-132px)] grid-cols-1 xl:grid-cols-[220px_minmax(0,1fr)_340px]">
+  <!--
+    ≥1280:目录 | 标题 + 表格 | 详情 三栏。
+    1024–1279(横屏 Pad):目录左栏常驻;标题、表格、详情在右侧依次排列。
+    <1024(竖屏 Pad):标题 → 目录(紧凑筛选卡)→ 表格 → 详情,单列。
+  -->
+  <section data-screen-label="A4 指标配置" class="grid min-h-[calc(100vh-132px)] grid-cols-1 lg:grid-cols-[208px_minmax(0,1fr)] lg:grid-rows-[auto_auto_1fr] xl:grid-cols-[220px_minmax(0,1fr)_340px] xl:grid-rows-[auto_1fr]">
     <Catalog
+      class="max-lg:order-2 lg:row-span-3 xl:row-span-2"
       :indicators="inds"
       :grp="grp"
       :dom="dom"
@@ -201,7 +207,7 @@ async function onSubmitted() {
       @source="isrc = $event"
     />
 
-    <main class="flex min-w-0 flex-col gap-4 px-7 pt-6 pb-12 max-xl:px-5 max-xl:pb-8">
+    <div class="min-w-0 px-7 pt-6 max-xl:px-5 max-lg:order-1 max-lg:pb-4 lg:col-start-2 lg:row-start-1">
       <PageHeader title="指标配置">
         <template #subtitle>
           {{ scope }} · {{ rows.length }} 项 · 全库 {{ data.libraryTotal }} 项:国家底稿 {{ data.libraryNational }} · 地方增选 {{ data.libraryLocal }} · 仅内部 {{ data.libraryInternal }}
@@ -218,7 +224,7 @@ async function onSubmitted() {
             :side-offset="6"
             class="z-20 flex w-[240px] flex-col gap-2.5 rounded-xl border-line-1 p-3 shadow-[0_12px_32px_rgba(15,23,42,.12)]"
           >
-            <div class="text-[11px] font-semibold text-ink-5">显示列</div>
+            <div class="text-[11px] font-semibold text-ink-5 max-xl:text-xs">显示列</div>
             <label v-for="[ci, l] in HIDEABLE" :key="ci" class="flex cursor-pointer items-center gap-2 text-[13px] max-xl:min-h-10 max-xl:gap-3">
               <Checkbox
                 :model-value="!hidden[ci]"
@@ -229,7 +235,7 @@ async function onSubmitted() {
               </Checkbox>
               {{ l }}
             </label>
-            <div class="border-t border-line-2 pt-2.5 text-[11px] font-semibold text-ink-5">行密度</div>
+            <div class="border-t border-line-2 pt-2.5 text-[11px] font-semibold text-ink-5 max-xl:text-xs">行密度</div>
             <div class="flex rounded-lg bg-surface-3 p-[3px]">
               <button
                 v-for="(l, i) in DENSITY"
@@ -247,7 +253,9 @@ async function onSubmitted() {
         </Popover>
         <Button @click="wizOpen = true">+ 新建指标</Button>
       </PageHeader>
+    </div>
 
+    <main class="flex min-w-0 flex-col px-7 pt-4 pb-12 max-xl:px-5 max-xl:pb-6 max-lg:order-3 lg:col-start-2 lg:row-start-2">
       <IndicatorTable
         :rows="rows"
         :grid-template="gridTemplate"
@@ -264,7 +272,7 @@ async function onSubmitted() {
 
     <IndicatorDetail
       ref="detailEl"
-      class="scroll-mt-20"
+      class="scroll-mt-20 max-lg:order-4 lg:col-start-2 lg:row-start-3 xl:col-start-3 xl:row-span-2 xl:row-start-1"
       :ind="ind"
       :audiences="data.audiences"
       :confirm="confirm"

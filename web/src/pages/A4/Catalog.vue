@@ -44,18 +44,21 @@ const chips = computed(() =>
 </script>
 
 <template>
-  <aside class="flex flex-col gap-0.5 border-r border-line-1 bg-surface-1 px-3 py-5 max-xl:grid max-xl:grid-cols-2 max-xl:items-start max-xl:gap-x-4 max-xl:border-r-0 max-xl:border-b max-xl:px-5 md:max-xl:grid-cols-4">
-    <div class="px-2.5 pb-2 text-[11px] font-semibold tracking-[.5px] text-ink-5 max-xl:col-span-full">指标目录 · 按监测维度</div>
+  <aside
+    aria-label="指标目录"
+    class="flex flex-col gap-0.5 border-r border-line-1 bg-surface-1 px-3 py-5 max-lg:mx-5 max-lg:grid max-lg:grid-cols-2 max-lg:items-start max-lg:gap-x-4 max-lg:rounded-[var(--radius-card)] max-lg:border max-lg:bg-white max-lg:px-3 max-lg:py-3 md:max-lg:grid-cols-3"
+  >
+    <div class="px-2.5 pb-2 text-[11px] font-semibold tracking-[.5px] text-ink-5 max-xl:text-xs max-lg:col-span-full max-lg:pb-1">指标目录 · 按监测维度</div>
     <div v-press
       :class="cn(
-        'flex cursor-pointer justify-between rounded-lg px-2.5 py-[7px] max-xl:col-span-full max-xl:min-h-10 max-xl:items-center',
+        'flex cursor-pointer justify-between rounded-lg px-2.5 py-[7px] max-xl:min-h-10 max-xl:items-center max-lg:col-span-full',
         allOn ? 'bg-brand-soft font-semibold text-brand' : 'font-medium text-ink-2',
       )"
       @click="emit('filter', '全部', null)"
     >
       <span>全部指标</span><span class="yb-num text-ink-5">{{ allCount }}</span>
     </div>
-    <div v-for="g in tree" :key="g.g" class="mt-1.5 flex flex-col gap-px">
+    <div v-for="g in tree" :key="g.g" class="mt-1.5 flex min-w-0 flex-col gap-px">
       <div v-press
         :class="cn(
           'flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-[7px] font-semibold max-xl:min-h-10',
@@ -81,8 +84,8 @@ const chips = computed(() =>
         <span class="yb-num text-ink-5">{{ k.count }}</span>
       </div>
     </div>
-    <div class="mt-3.5 border-t border-line-1 px-2.5 pt-[18px] pb-2 text-[11px] font-semibold tracking-[.5px] text-ink-5 max-xl:col-span-full">指标来源</div>
-    <div class="flex flex-wrap gap-1.5 px-1.5 max-xl:col-span-full">
+    <div class="mt-3.5 border-t border-line-1 px-2.5 pt-[18px] pb-2 text-[11px] font-semibold tracking-[.5px] text-ink-5 max-xl:text-xs max-lg:col-span-full max-lg:mt-2 max-lg:pt-3">指标来源</div>
+    <div class="flex flex-wrap gap-1.5 px-1.5 max-xl:gap-2 max-lg:col-span-full">
       <button type="button"
         v-for="c in chips"
         :key="c.label"

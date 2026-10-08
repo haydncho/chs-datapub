@@ -24,7 +24,7 @@ const emit = defineEmits<{
 <template>
   <div class="yb-card overflow-clip">
    <div class="max-xl:overflow-x-auto">
-    <div class="max-xl:w-max max-xl:min-w-full">
+    <div class="max-md:w-max max-xl:min-w-full">
     <div
       class="xl:sticky top-(--sticky-top) z-[6] grid gap-2.5 border-b border-line-2 bg-surface-1 px-4 py-2.5 text-xs text-ink-4"
       :style="{ gridTemplateColumns: gridTemplate }"
@@ -82,14 +82,14 @@ const emit = defineEmits<{
         <span class="text-[11px] leading-none text-white">✓</span>
       </Checkbox>
       <div class="flex min-w-0 items-center gap-2" :class="r.intl && 'opacity-50'">
-        <span class="min-w-0 truncate font-medium" :title="r.ind.name">{{ r.ind.name }}</span>
+        <span class="min-w-0 truncate font-medium max-xl:whitespace-normal" :title="r.ind.name">{{ r.ind.name }}</span>
         <span
           :class="cn(
-            'shrink-0 rounded-[4px] px-1.5 py-px text-[10px] whitespace-nowrap',
+            'shrink-0 rounded-[4px] px-1.5 py-px text-[10px] whitespace-nowrap max-xl:text-xs',
             r.ind.source === 'national' ? 'bg-brand-soft text-brand' : 'bg-line-3 text-ink-4',
           )"
         >{{ SOURCE_TAG[r.ind.source] }}</span>
-        <span v-if="r.ind.inPackage" class="shrink-0 rounded-[4px] bg-ok-soft px-1.5 py-px text-[10px] whitespace-nowrap text-ok-ink" title="已加入本月发布包">已入包</span>
+        <span v-if="r.ind.inPackage" class="shrink-0 rounded-[4px] bg-ok-soft px-1.5 py-px text-[10px] whitespace-nowrap max-xl:text-xs text-ok-ink" title="已加入本月发布包">已入包</span>
       </div>
       <span class="flex items-center gap-[5px]" :class="r.intl && 'opacity-50'">
         <span class="size-[7px] rounded-full" :style="{ background: GROUP_COLOR[r.ind.group] }" />{{ r.ind.group }}
@@ -99,7 +99,7 @@ const emit = defineEmits<{
         :class="cn('block truncate text-xs whitespace-nowrap', r.pending ? 'text-warn-ink' : 'text-ink-2', r.intl && 'opacity-50')"
       >{{ TIER_LABEL[r.ind.tier] }}{{ r.pending ? ' → 审批中' : '' }}</span>
       <span v-if="!hidden[3]" class="block text-xs" :class="r.intl && 'opacity-50'">{{ r.ind.freq }}</span>
-      <span v-if="!hidden[4]" class="block font-mono text-[11px] text-ink-3" :class="r.intl && 'opacity-50'">{{ r.ind.version }}</span>
+      <span v-if="!hidden[4]" class="block font-mono text-[11px] text-ink-3 max-xl:text-xs" :class="r.intl && 'opacity-50'">{{ r.ind.version }}</span>
       <span v-if="!hidden[5]" class="block text-xs text-ink-3" :class="r.intl && 'opacity-50'">{{ r.ind.refs ? r.ind.refs + ' 份' : '—' }}</span>
       <Badge :variant="STATUS[r.ind.status].variant" class="w-full">{{ STATUS[r.ind.status].label }}</Badge>
     </div>

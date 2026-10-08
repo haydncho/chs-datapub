@@ -159,19 +159,19 @@ const lin = computed(() => props.data.lineage)
       </div>
       <div class="flex-1">
         <div class="text-[11px] text-ink-4 max-xl:text-[12px]">本院病例</div>
-        <div class="yb-num text-[20px] font-semibold">{{ sel.c }}</div>
+        <div class="yb-num text-lg font-semibold">{{ sel.c }}</div>
       </div>
       <div class="flex-1">
         <div class="text-[11px] text-ink-4 max-xl:text-[12px]">例均差额</div>
-        <div class="yb-num text-[20px] font-semibold" :style="{ color: sel.dfc }">{{ sel.df }}</div>
+        <div class="yb-num text-lg font-semibold" :style="{ color: sel.dfc }">{{ sel.df }}</div>
       </div>
       <div class="flex-1">
         <div class="text-[11px] text-ink-4 max-xl:text-[12px]">全市同组</div>
-        <div class="yb-num text-[20px] font-semibold" :style="{ color: sel.cc }">{{ sel.city }}</div>
+        <div class="yb-num text-lg font-semibold" :style="{ color: sel.cc }">{{ sel.city }}</div>
       </div>
       <div class="flex-[1.3] whitespace-nowrap">
         <div class="text-[11px] text-ink-4 max-xl:text-[12px]">差额总额</div>
-        <div class="yb-num text-[20px] font-semibold" :style="{ color: sel.totc }">{{ sel.tot }}</div>
+        <div class="yb-num text-lg font-semibold" :style="{ color: sel.totc }">{{ sel.tot }}</div>
       </div>
       <Button variant="outline" class="h-[34px] px-3.5 font-normal max-xl:col-span-full max-xl:h-10" @click="goPage('B2', { drg: sel.k })">病组下钻 →</Button>
     </div>

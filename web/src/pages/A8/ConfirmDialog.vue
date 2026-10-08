@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { KpiValue } from '@/components/yb'
 import { computed } from 'vue'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -32,7 +33,7 @@ const kpis = computed(() => [
       <div class="grid grid-cols-3 gap-2.5">
         <div v-for="k in kpis" :key="k.k" class="rounded-[10px] bg-surface-1 p-3">
           <div class="text-[11px] text-ink-4">{{ k.k }}</div>
-          <div class="yb-num text-[22px] font-semibold whitespace-nowrap">{{ k.v }}</div>
+          <KpiValue :value="k.v" size="md" class="block" />
         </div>
       </div>
       <div class="rounded-[10px] border border-[#F6DFB8] bg-[#FFFBF4] px-3 py-2.5 text-xs leading-[1.7] text-ink-3">{{ s.covNames }}</div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { KpiValue } from '@/components/yb'
 import { cn } from '@/lib/utils'
 import type { A8IconKey, A8IndicatorStatus } from '@/mock/A8'
 import { useA8 } from './store'
@@ -34,7 +35,7 @@ const COLS = 'grid grid-cols-[minmax(0,1fr)_80px_120px_100px_90px] gap-3 px-3.5 
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="IP[k.icon]" /></svg>
         </span>
       </div>
-      <div class="yb-num text-[28px] font-semibold whitespace-nowrap">{{ k.value }}<span class="ml-[3px] text-[13px] text-ink-4">{{ k.unit }}</span></div>
+      <KpiValue :value="k.value" :unit="k.unit" class="block" />
       <div :class="cn('truncate text-xs max-xl:line-clamp-2 max-xl:whitespace-normal', k.tone === 'ok' ? 'text-ok-ink' : 'text-ink-3')" :title="k.sub">{{ k.sub }}</div>
     </div>
   </div>

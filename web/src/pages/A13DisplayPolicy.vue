@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
-import { PageHeader, PageSection } from '@/components/yb'
+import { PageHeader, PageSection, KpiValue } from '@/components/yb'
 import { Switch } from '@/components/ui/switch'
 import { usePageData, runAction } from '@/api/client'
 import { say } from '@/app/shell'
@@ -87,7 +87,7 @@ const suppressed = computed(() => pv.value.peerCount < minOrg.value)
       <div class="text-xs font-semibold text-ink-4">{{ pv.title }}</div>
       <div class="relative overflow-hidden rounded-[10px] border border-line-2 p-3.5">
         <div class="text-xs text-ink-4">{{ pv.metric }}</div>
-        <div class="yb-num text-[28px] font-semibold text-bad">{{ pv.value }}</div>
+        <KpiValue :value="pv.value" class="block text-bad" />
         <div v-if="suppressed" class="mt-2 rounded-lg bg-warn-soft px-2.5 py-2 text-xs text-warn-ink">
           同级 {{ pv.peerCount }} 家 &lt; {{ minOrg }} 家 · 分位不输出,仅显示全市均值 {{ pv.cityMean }}
         </div>

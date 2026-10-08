@@ -371,7 +371,7 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
         <div class="rounded-xl border border-line-1 bg-white p-4">
           <template v-if="org === 0 && !form.internalOnly">
             <div class="text-xs text-ink-4">本院{{ previewName }}</div>
-            <div class="yb-num text-[34px] font-semibold">2.8</div>
+            <div class="yb-num text-[28px] font-semibold">2.8</div>
             <div class="relative mt-2.5 h-3 rounded-[3px] bg-line-2">
               <div class="absolute inset-y-0 left-1/4 w-1/2 bg-[color-mix(in_srgb,var(--brand)_14%,white)]" />
               <div class="absolute -top-0.5 -bottom-0.5 left-1/2 border-l-[1.5px] border-ink-4" />
@@ -382,7 +382,7 @@ const previewName = computed(() => form.name.trim() || props.wizard.name)
           </template>
           <template v-if="org === 1 && !form.internalOnly">
             <div class="text-xs text-ink-4">本院{{ previewName }}</div>
-            <div class="yb-num text-[34px] font-semibold">2.1</div>
+            <div class="yb-num text-[28px] font-semibold">2.1</div>
             <div class="mt-2.5 rounded-lg bg-warn-soft p-2.5 text-xs text-warn-ink">同级仅 4 家,低于阈值:不输出分位,仅显示全市均值 2.4</div>
           </template>
           <template v-if="org === 2">

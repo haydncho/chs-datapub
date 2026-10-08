@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { KpiValue } from '@/components/yb'
 import { cn } from '@/lib/utils'
 import type { A7Kpi, A7Tier } from '@/mock/A7'
 import { TIER_C } from './colors'
@@ -15,7 +16,7 @@ defineProps<{ kpis: A7Kpi[]; tierTitle: string; tiers: A7Tier[] }>()
       :class="cn('rounded-[10px] px-3.5 py-3', k.tone === 'bad' ? 'bg-bad-soft' : 'bg-surface-1')"
     >
       <div class="text-[11px] text-ink-4">{{ k.label }}</div>
-      <div :class="cn('yb-num text-2xl font-semibold whitespace-nowrap', k.tone === 'bad' && 'text-bad')">{{ k.value }}</div>
+      <KpiValue :value="k.value" :class="cn('block', k.tone === 'bad' && 'text-bad')" />
       <div :class="cn('text-[11px]', k.subBad ? 'text-bad' : 'text-ink-3')">{{ k.sub }}</div>
     </div>
   </div>

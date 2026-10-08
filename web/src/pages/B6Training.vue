@@ -105,7 +105,7 @@ function viewDoc(d: B6Doc) {
           <span class="text-ink-4">我的必修进度</span>
           <span class="yb-num font-semibold" data-testid="b6-progress">{{ doneCount }}/{{ total }}</span>
         </div>
-        <div class="mt-1.5 h-1.5 rounded-[3px] bg-line-1">
+        <div class="mt-1.5 h-1.5 rounded-[3px] bg-line-2">
           <div class="h-1.5 rounded-[3px] bg-ok transition-[width]" :style="{ width: (total ? (doneCount / total) * 100 : 0) + '%' }" />
         </div>
       </div>
@@ -118,7 +118,7 @@ function viewDoc(d: B6Doc) {
           :style="{ background: `linear-gradient(135deg, ${TONE[c.tone].bg} 0%, #FFFFFF 120%)` }"
         >
           <svg viewBox="0 0 24 24" width="88" height="88" fill="none" :stroke="TONE[c.tone].fg" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" class="absolute -right-2.5 -bottom-3.5 opacity-[.14]"><path :d="ICON[c.icon]" /></svg>
-          <span class="relative flex items-center gap-1.5 text-[11px] font-semibold" :style="{ color: TONE[c.tone].fg }">
+          <span class="relative flex items-center gap-1.5 text-xs font-semibold" :style="{ color: TONE[c.tone].fg }">
             <span class="flex size-[22px] items-center justify-center rounded-md bg-white">
               <svg viewBox="0 0 24 24" width="13" height="13" fill="none" :stroke="TONE[c.tone].fg" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path :d="ICON[c.icon]" /></svg>
             </span>{{ c.tag }}
@@ -149,14 +149,14 @@ function viewDoc(d: B6Doc) {
         v-for="d in data.docs"
         :key="d.name"
         type="button"
-        class="grid w-full cursor-pointer items-center gap-x-3.5 gap-y-1 yb-tr border-b border-line-3 px-5 py-3 text-left hover:bg-surface-1 max-sm:grid-cols-[auto_minmax(0,1fr)] sm:grid-cols-[90px_minmax(0,1fr)_140px_90px]"
+        class="grid w-full cursor-pointer items-center gap-x-3.5 gap-y-1 yb-tr border-b border-line-3 px-card-x py-3 text-left last:border-b-0 hover:bg-surface-1 max-sm:grid-cols-[auto_minmax(0,1fr)] sm:grid-cols-[52px_minmax(0,1fr)_minmax(120px,auto)_64px] xl:grid-cols-[90px_minmax(0,1fr)_140px_90px] max-xl:min-h-12"
         :data-testid="'b6-doc'"
         @click="viewDoc(d)"
       >
-        <span :class="['justify-self-start rounded px-2 py-px text-[11px] font-semibold', DOC_CLASS[d.kind]]">{{ d.kind }}</span>
+        <span :class="['justify-self-start rounded px-2 py-px text-xs font-semibold', DOC_CLASS[d.kind]]">{{ d.kind }}</span>
         <span class="font-medium text-ink-1">{{ d.name }} <span class="text-[12px] font-normal text-brand">查看 →</span></span>
         <span class="text-xs text-ink-4 max-sm:col-start-2">{{ d.number }}</span>
-        <span class="yb-num text-xs text-ink-5 max-sm:col-start-2 sm:text-right">{{ d.date }}</span>
+        <span class="yb-num text-xs text-ink-4 max-sm:col-start-2 sm:text-right">{{ d.date }}</span>
       </button>
     </div>
 
@@ -182,7 +182,7 @@ function viewDoc(d: B6Doc) {
               <label
                 v-for="(o, oi) in q.options"
                 :key="oi"
-                :class="cn('flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-[13px]', answers[qi] === oi ? 'border-brand-line bg-brand-soft' : 'border-line-1 bg-white')"
+                :class="cn('flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-[13px] max-xl:min-h-11', answers[qi] === oi ? 'border-brand-line bg-brand-soft' : 'border-line-1 bg-white')"
               >
                 <input v-model="answers[qi]" type="radio" :name="'q' + qi" :value="oi" class="accent-[var(--brand)]" />
                 {{ o }}
@@ -193,9 +193,9 @@ function viewDoc(d: B6Doc) {
             </div>
           </div>
           <div class="flex justify-end gap-2">
-            <Button variant="outline" class="h-9 font-normal" @click="open = false">{{ result?.passed ? '完成' : '稍后再学' }}</Button>
-            <Button v-if="result && !result.passed" class="h-9" @click="retry">重新作答</Button>
-            <Button v-else-if="!result" class="h-9" :disabled="busy || !allAnswered" @click="submitQuiz">提交测验</Button>
+            <Button variant="outline" class="h-9 font-normal max-xl:h-11 max-xl:px-5" @click="open = false">{{ result?.passed ? '完成' : '稍后再学' }}</Button>
+            <Button v-if="result && !result.passed" class="h-9 max-xl:h-11 max-xl:px-5" @click="retry">重新作答</Button>
+            <Button v-else-if="!result" class="h-9 max-xl:h-11 max-xl:px-5" :disabled="busy || !allAnswered" @click="submitQuiz">提交测验</Button>
           </div>
         </template>
       </DialogContent>
@@ -220,7 +220,7 @@ function viewDoc(d: B6Doc) {
             </ul>
           </div>
           <div class="flex justify-end">
-            <Button variant="outline" class="h-9 font-normal" @click="docOpen = false">关闭</Button>
+            <Button variant="outline" class="h-9 font-normal max-xl:h-11 max-xl:px-5" @click="docOpen = false">关闭</Button>
           </div>
         </template>
       </DialogContent>

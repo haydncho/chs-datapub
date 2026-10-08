@@ -174,9 +174,9 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
 </script>
 
 <template>
-  <section data-screen-label="D1 移动端" class="mx-auto flex w-full max-w-[1600px] flex-wrap justify-center gap-10 px-8 pt-7 pb-14">
+  <section data-screen-label="D1 移动端" class="mx-auto flex w-full max-w-[1600px] flex-wrap justify-center gap-10 px-8 pt-7 pb-14 max-xl:px-4 max-xl:py-4">
     <!-- phone -->
-    <div class="h-[780px] w-[375px] shrink-0 rounded-[44px] bg-chrome p-3 shadow-[0_20px_50px_rgba(11,21,38,.25)]">
+    <div class="h-[780px] w-[375px] shrink-0 max-xl:h-[clamp(520px,calc(93dvh-172px),780px)] rounded-[44px] bg-chrome p-3 shadow-[0_20px_50px_rgba(11,21,38,.25)]">
       <div class="relative flex size-full flex-col overflow-hidden rounded-[34px] bg-background">
         <!-- status bar -->
         <div class="yb-num flex h-11 shrink-0 items-center justify-between bg-white px-[26px] text-sm font-semibold">
@@ -203,9 +203,9 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
             </div>
             <div v-if="!data.noOwnData" class="grid grid-cols-2 gap-2.5">
               <div v-for="k in data.home.kpis" :key="k.label" class="rounded-[14px] bg-white p-3">
-                <div class="text-[11px] text-ink-4">{{ k.label }}</div>
+                <div class="text-xs text-ink-4">{{ k.label }}</div>
                 <div :class="cn('yb-num text-[22px] font-semibold', k.valueTone === 'bad' && 'text-bad')">{{ k.value }}</div>
-                <div :class="cn('text-[11px]', k.subTone === 'brand' ? 'text-brand' : 'text-warn-ink')">{{ k.sub }}</div>
+                <div :class="cn('text-xs', k.subTone === 'brand' ? 'text-brand' : 'text-warn-ink')">{{ k.sub }}</div>
               </div>
             </div>
             <div v-if="!data.noOwnData" class="rounded-[14px] bg-white px-3.5 py-1">
@@ -218,7 +218,7 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
               >
                 <span class="size-2 shrink-0 rounded-full" :style="{ background: t.c }" />
                 <span :class="cn('flex-1 text-sm', t.isDone ? 'text-ink-5' : 'text-ink-1')">{{ t.label }}</span>
-                <span class="text-[11px] whitespace-nowrap text-ok-ink">{{ t.isDone ? t.doneLabel : '' }}</span>
+                <span class="text-xs whitespace-nowrap text-ok-ink">{{ t.isDone ? t.doneLabel : '' }}</span>
                 <span class="text-ink-5">›</span>
               </div>
             </div>
@@ -230,11 +230,11 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
               <div class="text-xs text-ink-4">{{ data.report.meta }}</div>
               <div class="text-lg font-semibold">{{ data.report.title }}</div>
               <div class="flex gap-1.5">
-                <span class="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] text-brand">{{ data.report.pages }}</span>
-                <span v-if="reportOut" :class="cn('rounded-full px-2 py-0.5 text-[11px]', signed ? 'bg-ok-soft text-ok-ink' : 'bg-warn-soft text-warn-ink')">
+                <span class="rounded-full bg-brand-soft px-2 py-0.5 text-xs text-brand">{{ data.report.pages }}</span>
+                <span v-if="reportOut" :class="cn('rounded-full px-2 py-0.5 text-xs', signed ? 'bg-ok-soft text-ok-ink' : 'bg-warn-soft text-warn-ink')">
                   {{ signed ? '已签收' + (data.report.signedAt ? ' · ' + data.report.signedAt : '') : data.report.pendingLabel }}
                 </span>
-                <span v-else class="rounded-full bg-surface-3 px-2 py-0.5 text-[11px] text-ink-4">尚未发布</span>
+                <span v-else class="rounded-full bg-surface-3 px-2 py-0.5 text-xs text-ink-4">尚未发布</span>
               </div>
               <div v-if="!reportOut" class="text-xs leading-[1.7] text-ink-4">本期报告尚在医保局审批中,批准发布后即可查阅与签收。</div>
               <div v-else-if="!signed && !canSign" class="text-xs leading-[1.7] text-ink-4">签收须由机构本院身份完成,当前身份仅可查看。</div>
@@ -249,7 +249,7 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
           <template v-if="screen === 'alert'">
             <div class="flex flex-col gap-2.5 rounded-2xl bg-white p-4">
               <div class="flex items-center gap-2">
-                <span class="rounded bg-bad-soft px-2 py-px text-[11px] font-bold text-bad-ink">{{ data.alert.level }}</span>
+                <span class="rounded bg-bad-soft px-2 py-px text-xs font-bold text-bad-ink">{{ data.alert.level }}</span>
                 <span class="text-xs text-ink-4">{{ data.alert.meta }}</span>
               </div>
               <div class="text-[17px] font-semibold">{{ data.alert.title }}</div>
@@ -314,7 +314,7 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
                 <span class="mt-[7px] size-2 shrink-0 rounded-full" :style="{ background: m.c }" />
                 <div class="min-w-0 flex-1">
                   <div class="text-sm">{{ m.label }}</div>
-                  <div class="text-[11px] text-ink-5">{{ m.t }}</div>
+                  <div class="text-xs text-ink-4">{{ m.t }}</div>
                 </div>
               </div>
             </div>
@@ -359,7 +359,7 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
             v-for="[l, k] in TABS"
             :key="k"
             :class="cn(
-              'relative flex cursor-pointer flex-col items-center gap-[3px] pt-2.5 text-[11px]',
+              'relative flex cursor-pointer flex-col items-center gap-[3px] pt-2.5 text-xs',
               screen === k ? 'font-semibold text-brand' : 'font-normal text-ink-4',
             )"
             @click="go(k)"
@@ -368,7 +368,7 @@ const TABS: [string, D1Screen][] = [['概览', 'home'], ['报告', 'report'], ['
             {{ l }}
             <span
               v-if="k === 'msgs' && unread > 0"
-              class="absolute top-2 left-[calc(50%+8px)] flex h-4 min-w-4 items-center justify-center rounded-lg bg-bad px-1 text-[10px] font-normal text-white"
+              class="absolute top-1.5 left-[calc(50%+8px)] flex h-[18px] min-w-[18px] items-center justify-center rounded-[9px] bg-bad px-1 text-xs leading-none font-normal text-white"
             >{{ unread }}</span>
           </div>
         </div>
